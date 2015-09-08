@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    
+    <script type = "text/javascript">
+	    if (document.URL.slice(0,5) == "file:") {
+	    	   if (typeof specialUrls === 'undefined') {
+	    	      var specialUrls = true;
+	    	   }
+	    	   else {
+	    	      specialUrls = false;
+	    	   }
+	    	}
+	    	else {
+	    	   var specialUrls = false;
+	    	}
+	    	function adjustOfflineBaseUrlTop() {
+	    	   if (specialUrls == true) {
+	    	      document.write("<!--");
+	    	   }
+	    	}
+	
+	    	function adjustOfflineBaseUrlFinal() {
+	    	   if (specialUrls == true && document.getElementById("replacedUrls") == null) {
+	    	      specialUrls = false;
+	    	      var element = document.createElement('input');
+	    	      element.type = 'hidden';
+	    	      element.id = 'replacedUrls';
+	    	      document.body.appendChild(element);
+	    	      var urlString = document.URL.substring(0,document.URL.lastIndexOf("rygame")).split("%20").join(" ");// + "rygame";
+	    	      console.log("RyConsole: base directory detected as '" + urlString + "'");
+	    	      //console.log(urlString);
+	    	      document.write(document.documentElement.outerHTML.split(/http:\/\/ryans.x10.mx/g).join(urlString).split(/<!--/g).join(" ").split(/-->/g).join(" "));
+	    	   }
+	    	}
+    </script>
+    <script type = "text/javascript">
+      adjustOfflineBaseUrlTop();
+    </script>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="favicon.ico">
+
+    <title>Rygame Sample Game: Rock Raiders</title>
+
+    <? Bootstrap core CSS ?>
+    <link href="http://ryans.x10.mx/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <? Custom styles for this template ?>
+    <link href="http://ryans.x10.mx/bootstrap/css/cover.css" rel="stylesheet">
+
+    
+    <script src="http://ryans.x10.mx/bootstrap/js/ie-emulation-modes-warning.js"></script>
+
+    <? IE10 viewport hack for Surface/desktop Windows 8 bug ?>
+    <script src="http://ryans.x10.mx/bootstrap/js/ie10-viewport-bug-workaround.js"></script>
+
+    <!-- -->
+  </head>
+
+  <body>
+    <script type = "text/javascript">
+      adjustOfflineBaseUrlTop();
+    </script>
+    
+    <script type = "text/javascript">
+      console.log("RyConsole: entering HTML body with " + (document.getElementById("replacedUrls") == null ? "WEB":"LOCAL") + " filepaths");
+    </script>
+	
+    <div style="width:100%;height:88px;border:44px solid #000;position:fixed;"></div>
+ 
+    <div class="site-wrapper">
+
+      <div class="site-wrapper-inner">
+
+        <div class="cover-container">
+
+          <div class="masthead clearfix">
+            <div class="inner">
+              
+              <ul class="nav masthead-nav">
+                <script src="http://ryans.x10.mx/js/addNavButtons.js"></script>
+              </ul>
+            </div>
+          </div>
+          <div class="inner cover">
+            <h1 class="cover-heading">Rock Raiders Rygame Demo</h1>
+            <p class="lead">Partial remake of the classic game "Lego Rock Raiders" showcasing usage of the Rygame HTML5 Port!</p>
+          </div>
+
+            <p class="lead">Play Rock Raiders Rygame Demo:</p>
+
+          </div>
+
+          <div align="center"> 
+
+            <canvas id='canvas' width='800' height='600'>
+              Canvas not supported
+            </canvas>
+
+          </div>
+
+      </div>
+
+    </div>
+    <script src = "rygameAssetLoader.js"></script>
+   
+    <? Bootstrap core JavaScript
+    ================================================== ?>
+    <? Placed at the end of the document so the pages load faster ?>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="http://ryans.x10.mx/bootstrap/js/bootstrap.min.js"></script>
+    
+    <!-- -->
+  </body>
+
+    <script type = "text/javascript">
+      adjustOfflineBaseUrlFinal();
+    </script>
+
+</html>
