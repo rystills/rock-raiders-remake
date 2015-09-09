@@ -408,7 +408,8 @@ GameManagerInternal.prototype.drawFrame = function() {
 			}
 		}
 	}
-	this.mouseClicked = false;
+	this.mouseClickedLeft = false;
+	this.mouseClickedRight = false;
 };
 
 function GameManagerInternal() {
@@ -424,9 +425,12 @@ function GameManagerInternal() {
 	this.screenHeight = null;
 	//this.documentMousePos = {x: 1, y: 1};
 	this.mousePos = {x: 1, y: 1};
-	this.mouseDown = false;
-	this.mouseClicked = false; //this variable is only true on the frame when the mouse is clicked. reset to false after drawFrame is called.
-	this.mouseClickPos = {x: 1, y: 1};
+	this.mouseDownLeft = false;
+	this.mouseDownRight = false;
+	this.mouseClickedLeft = false; //this variable is only true on the frame when the mouse is clicked. reset to false after drawFrame is called.
+	this.mouseClickedRight = false;
+	this.mouseClickPosLeft = {x: 1, y: 1};
+	this.mouseClickPosRight = {x: 1, y: 1};
 	this.fullScreenKey = "F"; //this is just a default; feel free to change it at any point from the game file
 	this.fontSize = 48; //font size in pixels - first part of html font property (formatted 'fontSizepx fontName')
 	this.fontName = "Arial"; //font name - second part of html font property (formatted 'fontSizepx fontName')
@@ -456,15 +460,33 @@ document.body.addEventListener("mousemove", function (e) {
 	GameManager.mousePos.y -= canvasRect.top + window.pageYOffset;
 });
 document.body.addEventListener("mousedown", function (e) {
-	GameManager.mouseDown = true;
-	GameManager.mouseClicked = true;
-	GameManager.mouseClickPos = getMouseDocument(e); //we can use the same method as in mousemove to get the effective mouse position since the mouse coordinates are returned by the event in pageX and pageY regardless of the event type
-	canvasRect = GameManager.drawSurface.canvas.getBoundingClientRect();
-	GameManager.mouseClickPos.x -= canvasRect.left + window.pageXOffset; //might need to take into account other factors besides the page scrolling
-	GameManager.mouseClickPos.y -= canvasRect.top + window.pageYOffset;
+	if (e.button == 0) { //left click detected
+		GameManager.mouseDownLeft = true;
+		GameManager.mouseClickedLeft = true;
+		GameManager.mouseClickPosLeft = getMouseDocument(e); //we can use the same method as in mousemove to get the effective mouse position since the mouse coordinates are returned by the event in pageX and pageY regardless of the event type
+		canvasRect = GameManager.drawSurface.canvas.getBoundingClientRect();
+		GameManager.mouseClickPosLeft.x -= canvasRect.left + window.pageXOffset; //might need to take into account other factors besides the page scrolling
+		GameManager.mouseClickPosLeft.y -= canvasRect.top + window.pageYOffset;
+	}
+	else if (e.button == 2) { //right click detected
+		GameManager.mouseDownRight = true;
+		GameManager.mouseClickedRight = true;
+		GameManager.mouseClickPosRight = getMouseDocument(e); //we can use the same method as in mousemove to get the effective mouse position since the mouse coordinates are returned by the event in pageX and pageY regardless of the event type
+		canvasRect = GameManager.drawSurface.canvas.getBoundingClientRect();
+		GameManager.mouseClickPosRight.x -= canvasRect.left + window.pageXOffset; //might need to take into account other factors besides the page scrolling
+		GameManager.mouseClickPosRight.y -= canvasRect.top + window.pageYOffset;
+	}
 });
 document.body.addEventListener("mouseup", function (e) {
-	GameManager.mouseDown = false;
+	if (e.button == 0) {
+		GameManager.mouseDownLeft = false; //left click detected
+	}
+	else if (e.button == 2) {
+		GameManager.mouseDownRight = false; //right click detected
+	}
+});
+document.body.addEventListener('contextmenu', function(e) {
+    e.preventDefault(); //note: according to stackOverflow, we should be returning false at the end of this method, as well as outside the method, to cause the rightclick menu to not popup. However, i have not observed either false statement to be necessary. Keep an eye on this.
 });
 
 
@@ -533,12 +555,12 @@ makeChild("Button","RygameObject");
 
 Button.prototype.update = function() {
 	this.releasedThisFrame = false;
-	if (GameManager.mouseClicked == true) {
-		if (collisionPoint(GameManager.mouseClickPos.x,GameManager.mouseClickPos.y,this,this.affectedByCamera)) {
+	if (GameManager.mouseClickedLeft == true) {
+		if (collisionPoint(GameManager.mouseClickPosLeft.x,GameManager.mouseClickPosLeft.y,this,this.affectedByCamera)) {
 			this.mouseDownOnButton = true;
 		}
 	}
-	if (!GameManager.mouseDown) {
+	if (!GameManager.mouseDownLeft) {
 		if (this.mouseDownOnButton == true) {
 			if (collisionPoint(GameManager.mousePos.x,GameManager.mousePos.y,this,this.affectedByCamera)) {
 				this.runMethod();//button has been clicked

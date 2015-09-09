@@ -380,7 +380,7 @@ function update() {
 			break;
 		}
 	}
-	if (GameManager.mouseClicked && (!buttonPressedThisFrame)) { //ignore mouse clicks if they landed on a part of the UI
+	if (GameManager.mouseClickedLeft && (!buttonPressedThisFrame)) { //ignore mouse clicks if they landed on a part of the UI
 		//console.log("check 1");
 		var clickedTasks = [];
 		for (var i = 0; i < terrain.length; i++) {
@@ -389,7 +389,7 @@ function update() {
 				//console.log(terrain[i][r].contains);
 				for (var j = 0; j < terrain[i][r].contains.objectList.length + 1; j++) {
 					//console.log("check 2");
-					if (collisionPoint(GameManager.mouseClickPos.x,GameManager.mouseClickPos.y,initialSpace,initialSpace.affectedByCamera) && tasksInProgress.objectList.indexOf(initialSpace) == -1) { //don't do anything if the task is already taken by another raider, we don't want to readd it to the task queue
+					if (collisionPoint(GameManager.mouseClickPosLeft.x,GameManager.mouseClickPosLeft.y,initialSpace,initialSpace.affectedByCamera) && tasksInProgress.objectList.indexOf(initialSpace) == -1) { //don't do anything if the task is already taken by another raider, we don't want to readd it to the task queue
 						if ((j == 0 && (initialSpace.drillable || initialSpace.sweepable || initialSpace.buildable)) || j == 1) { //could optimize by only continuing if j == 1 and initialSpace.walkable == true but won't for now as unwalkable spaces shouldnt have any items in contains anyway
 							/*var index = tasksUnavailable.objectList.indexOf(initialSpace);
 							if (index != -1) {
