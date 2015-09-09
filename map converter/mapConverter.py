@@ -63,7 +63,7 @@ def main():
     print("Data successfully read from file: {0}".format(name + extension))
     
     if (type == "terrain" or type == "cryore" or type == "predug"):
-        print("Map dimensions: "  + str(mapWidth) + "x" + str(mapHeight) + " units")
+        print("Map dimensions: {0}x{1} units".format(str(mapWidth),str(mapHeight)))
             
         #throw out the first row of bytes, as its data is not part of the map
         del levelData[0]

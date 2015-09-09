@@ -403,8 +403,6 @@ Raider.prototype.update = function() {
 						this.currentTask.drillPercent = 100;
 						this.busy = false;
 						this.currentTask.makeRubble(true);
-						this.currentTask.updateTouched(false); //set it back to false so we can run the search from the newly drilled square
-						touchAllAdjacentSpaces(this.currentTask);
 						this.clearTask();
 					}
 				}

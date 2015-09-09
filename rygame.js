@@ -144,7 +144,6 @@ function loadImage(imageSrc) {
 }
 
 function binarySearch(a, x, key, leftMost, lo, hi) {
-	//console.log(a);
 	/*Return the index where to insert item x in list a, assuming a is sorted.
 	The return value i is such that all e in a[:i] have e <= x, and all e in
 	a[i:] have e > x.  So if x already appears in the list, a.insert(x) will
@@ -741,10 +740,8 @@ function RygameObject(x,y,updateDepth,drawDepth,image,layer,affectedByCamera) {
 	else {
 		this.rect = new Rect(0,0);
 	}
-	//console.log(this.rect);
-	//console.log("width, height: " + this.drawSurface.width + ", " + this.drawSurface.height);
 	
-	this.drawLayer = layer;  //A LOT OF THIS NEEDS TO BE FILLED IN PROPERLY AND WAS JUST SET TO NULL AS A TEMP VALUE. may be some variables that need to be set properly still in the gamemanager class too.
+	this.drawLayer = layer;  //(old comment from early period of importing code from rygame python edition to javascript edition) A LOT OF THIS NEEDS TO BE FILLED IN PROPERLY AND WAS JUST SET TO NULL AS A TEMP VALUE. may be some variables that need to be set properly still in the gamemanager class too.
 	this.visible = true;
 	GameManager.addObject(this);
 	

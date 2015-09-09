@@ -33,6 +33,8 @@ Space.prototype.makeRubble = function(rubbleContainsOre) {
 		}
 	}
 	//console.log(tasksAvailable.indexOf(this));
+	this.updateTouched(false); //set it back to false so we can run the search from the newly drilled square (this is also where the 'sweep' task is added to the tasksAvailable list)
+	touchAllAdjacentSpaces(this);
 };
 Space.prototype.checkWallSupported = function() {
 	if (!this.isWall) {

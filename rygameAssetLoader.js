@@ -1,10 +1,7 @@
-//var urlBase = "http:\/\/ryans.x10.mx";
-//if (document.URL.slice(0,5) == "file:") { //mirroring the change that we perform to the urls in the html file
-	//urlBase = document.URL.substring(0,document.URL.lastIndexOf("site%20development")).replace("%20"," ") + "site development";
 var urlBase = document.URL.substring(0,document.URL.lastIndexOf("/")).split("%20").join(" ") + "/"; //remove the "xyz.html" segment of the url
 console.log("RyConsole: full directory detected as '" + urlBase + "'");
-//}
-function loadScriptAsset(url, callback)
+
+function loadScriptAsset(url, callback) //note: this function is partially copied from a stackOverflow answer, hence the out of character comments
     {
     // Adding the script tag to the head as suggested before
     var head = document.getElementsByTagName('head')[0];
@@ -37,21 +34,12 @@ function loadImageAsset(url, name, callback) {
 	 GameManager.images[name] = img;
 	
 	img.src = url;
-	
-	//not sure if this is necessary to do for images
 	//head.appendChild(img);
 }
 function loadSoundAsset(url, name, callback) {
 	//TODO: FILL THIS IN AS SOUNDS ARE REINTRODUCED TO RYJS
 }
 
-/*var loadGame = function() {
-    var head = document.getElementsByTagName('head')[0];
-    var script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.src = urlBase + "rockRaiders.js";
-    head.appendChild(script);
-};*/
 var loadAssetFile = function() {
 	//load in the asset file
 	loadScriptAsset("assets.js", loadRygame);
@@ -60,11 +48,7 @@ var loadRygame = function() {
 	console.log("RyConsole: 'assets.js' successfully loaded from directory '' as type 'js'");
 	assetObject = object;
 	object = null;
-	/*urlBase += "/";
-	if (assetObject.rootDirectory != "") {
-		urlBase += assetObject.rootDirectory + "/";
-	}*/
-	//console.log("RyConsole: URL base set to " + urlBase + " from assets.js");
+	
 	loadScriptAsset(urlBase + "rygame.js", loadAssets);
 };
 var loadAssets = function() {
@@ -109,5 +93,4 @@ object = null;
 assetNum=-1;
 lastScriptName = "";
 loadAssetFile();
-//TODO: MAKE THE GAME WORK WITHOUT HAVING TO REFRESH TO LOAD IMAGES (should be fixed now, need to verify)
-//NOTE THAT IF JS FILES HAVE AN OBJECT NAMED OBJECT IT WILL BE LOADED INTO THE GAME MANAGER AS A SCRIPT OBJECT. OTHERWISE, THE CLASS WILL SIMPLY BE LOADED IN AS NORMAL. THIS MEANS YOURE FREE TO USE JS FILES NORMALLY, BUT YOU ALSO HAVE THE OPTION TO TREAT THEM LIKE SINGLE OBJECTS THAT YOURE LOADING IN (not sure if this is really justifiable as a useful feature, will have to see)
+//note that any JS file containing an object named object will have the contents of that object loaded into GameManager.scriptObjects, to be used as needed, in addition to the file being loaded in and executed immediately as normal. Example: object = { list : [0,1,7] };
