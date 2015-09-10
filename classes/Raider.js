@@ -1,5 +1,8 @@
 makeChild("Raider","RygameObject");
 Raider.prototype.update = function() {
+	if (selection == this && this.currentTask == null) { //don't start a new task if currently selected unless instructed to
+		return;
+	}
 	var destinationSite;
 	while (this.currentTask == null) { //pick a new task
 		if (tasksAvailable.length != 0) {
@@ -160,6 +163,7 @@ Raider.prototype.update = function() {
 								reservedResources[this.currentObjectiveResourceType]--;
 								if (this.currentTask.resourceNeeded(this.currentObjectiveResourceType)) { //although we do reserve a resource from the toolstore as soon as we choose the build task, we do not reserve a spot in the building site until we pick up our resource, so its possible for us to arrive at the toolstore only to find that our resource is no longer needed, but that's better than reserving the resource when the build task is initially chosen and then stopping potentially many other raiders from finishing the build site ahead of this raider
 									this.currentTask.dedicatedResources[this.currentObjectiveResourceType]++;
+									this.dedicatingResource = true;
 									
 									if (!this.currentTask.resourceNeeded()) { //TODO: COPIED FROM COLLECT SECTION OF RAIDER UPDATE METHOD; ENSURE THAT THIS CODE SNIPPET IS NEEDED									
 										var newIndex = tasksAvailable.indexOf(this.currentTask);
@@ -270,7 +274,7 @@ Raider.prototype.update = function() {
 									}
 								}
 							}
-							
+							this.dedicatingResource = false;
 							this.holding.die();
 							//var newIndex = tasksAvailable.indexOf(this.currentTask);
 							//console.log(tasksAvailable);
@@ -306,6 +310,7 @@ Raider.prototype.update = function() {
 									if (buildingSites[i].resourceNeeded(this.holding.type)) {
 										//adjust dedicated resource number because we have elected to take our resource to this building site rather than to the tool store, but dont update building's list of secured resources until we actually get there and drop off the resource
 										buildingSites[i].dedicatedResources[this.holding.type]++;
+										this.dedicatingResource = true;
 										if (!buildingSites[i].resourceNeeded()) {
 											var newIndex = tasksAvailable.indexOf(buildingSites[i]);
 											//tasksAvailable.remove(buildingSites[i]);
@@ -389,6 +394,7 @@ Raider.prototype.update = function() {
 									}
 								}
 							}
+							this.dedicatingResource = false;
 							this.holding.die();
 							this.clearTask();
 						}
@@ -458,7 +464,7 @@ Raider.prototype.findClosest = function(objectList,remove) {
 		var newDistance = getDistance(centerX,centerY,objectList[i].centerX(),objectList[i].centerY()); //note: please remember that this is linear distance; it is not the true distance calculated via pathfinding, so if the path to the task is very roundabout this value will be inaccurate 
 		var currentPriority = (typeof objectList[i].taskPriority == "undefined" ? 0 : objectList[i].taskPriority);
 		//console.log("current priority: " + currentPriority);
-		if (currentPriority > priority || (currentPriority == priority && (newDistance < minValue || minValue == -1) && tasksAutomated[this.taskType(objectList[i])])) { //do not care about tasksAutomated if the task has elevated priority
+		if ((toolsRequired[this.taskType(objectList[i])] == false || this.tools.indexOf(toolsRequired[this.taskType(objectList[i])]) != -1) && (currentPriority > priority || (currentPriority == priority && (newDistance < minValue || minValue == -1) && tasksAutomated[this.taskType(objectList[i])]))) { //do not care about tasksAutomated if the task has elevated priority
 			minValue = newDistance;
 			minIndex = i;
 			
@@ -480,6 +486,14 @@ Raider.prototype.findClosest = function(objectList,remove) {
 	}
 };
 Raider.prototype.clearTask = function() {
+	if (this.reservingResource == true) {
+		this.reservingResource = false;
+		reservedResources[this.currentObjectiveResourceType]--;
+	}
+	if (this.dedicatingResource == true) {
+		this.dedicatingResource = false;
+		this.currentTask.dedicatedResources[this.currentObjectiveResourceType]--;
+	}
 	this.currentTask.taskPriority = 0; //reset the task priority since it will otherwise remain high priority in some instances (eg. we just drilled a high priority wall and now the rubble is high priority too as a result)
 	tasksInProgress.remove(this.currentTask);
 	this.busy = false;
@@ -489,7 +503,6 @@ Raider.prototype.clearTask = function() {
 	this.currentTask = null;
 	this.currentObjectiveResourceType = null;
 	this.currentPath = null;
-	
 };
 Raider.prototype.taskType = function(task) {
 	if (typeof task == "undefined" || task == null) {
@@ -519,12 +532,13 @@ function Raider(space) { //TODO: BUG WHERE SOMETIMES RAIDER STARTS IN THE RIGHT 
 	this.reinforceSpeed = 1;
 	this.grabSpeed = 5; 
 	this.dropSpeed = 8; 
-	this.tools = ["drill","shovel"]; //raiders by default can only carry 2 tools; the length of the list dictates how many tools they can carry for now. this will later be replaced with level when an upgrade system is implemented
+	this.tools = ["drill"]; //raiders by default can only carry 2 tools; the length of the list dictates how many tools they can carry for now. this will later be replaced with level when an upgrade system is implemented
 	this.currentTask = null; 
 	this.currentPath = null;
 	this.holding = null;
 	this.holdingAngleDifference = 0;
 	this.drawAngle = 0;
 	this.reservingResource = false; //set to true if a resource has been reserved from the toolstore by this raider in case his trip is cancelled for some reason
+	this.dedicatingResource = false;
 	this.busy = false; //this means the raider is in the middle of performing a task (ex drilling, picking up an object, etc..) and is NOT walking
 }

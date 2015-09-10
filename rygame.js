@@ -460,6 +460,7 @@ document.body.addEventListener("mousemove", function (e) {
 	GameManager.mousePos.y -= canvasRect.top + window.pageYOffset;
 });
 document.body.addEventListener("mousedown", function (e) {
+	//console.log("MOUSE DOWN");
 	if (e.button == 0) { //left click detected
 		GameManager.mouseDownLeft = true;
 		GameManager.mouseClickedLeft = true;
@@ -478,6 +479,7 @@ document.body.addEventListener("mousedown", function (e) {
 	}
 });
 document.body.addEventListener("mouseup", function (e) {
+	//console.log("MOUSE UP");
 	if (e.button == 0) {
 		GameManager.mouseDownLeft = false; //left click detected
 	}

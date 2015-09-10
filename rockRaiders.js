@@ -14,6 +14,23 @@ function printTerrain(terrain) {
 	}
 }
 
+function getNearestSpace(terrain,object) {
+	var closestDistance = -1;
+	var closestObject = null;
+	var centerX = object.centerX();
+	var centerY = object.centerY();
+	for (var i = 0; i < terrain.length; i++) {
+		for (var r = 0; r < terrain[i].length; r++) {
+			var distance = getDistance(centerX,centerY,terrain[i][r].centerX(),terrain[i][r].centerY());
+			if (closestDistance == -1 || distance < closestDistance) {
+				closestDistance = distance;
+				closestObject = terrain[i][r];
+			}
+		}
+	}
+	return closestObject;
+}
+
 function adjacentSpace(terrain,x,y,dir) {
 	if (dir == "up") {
 		if (x > 0) {
@@ -181,10 +198,15 @@ reservedResources = {"ore":0,"crystal":0};
 gameLayer = new Layer(0,0,1,1,GameManager.screenWidth,GameManager.screenHeight);
 
 tasksAutomated = { //update me manually for now, as the UI does not yet have task priority buttons
-		"sweep":false,
-		"collect":false,
+		"sweep":true,
+		"collect":true,
 		"drill":false,
 		"build":true,
+};
+
+toolsRequired = {
+		"sweep":"shovel",
+		"drill":"drill"
 };
 
 terrain = [];
@@ -309,8 +331,22 @@ function cancelSelection() {
 	selection = null;
 	selectionType = null;
 }
+
+function unloadMinifig() {
+	if (selection == null || selection.holding == null) {
+		return;
+	}
+	var newCollectable = new Collectable(getNearestSpace(terrain,selection),selection.holding.type);
+	collectables.push(newCollectable);
+	tasksAvailable.push(newCollectable);
+	selection.holding.die();
+	selection.clearTask(); //modifications made to clearTask should now mean that if any resources were reserved from the resource collection or dedicated to a building site, the dedication numbers have been correctly decremented
+	
+}
+
 buttons.push(new Button(0,0,0,0,"teleport raider button 1 (1).png",gameLayer, createRaider,false));
 buttons.push(new Button(40,0,0,0,"cancel selection button 1 (1).png",gameLayer, cancelSelection,false));
+buttons.push(new Button(80,0,0,0,"unload minifig button 1 (1).png",gameLayer, unloadMinifig,false));
 
 //TODO: make it so that pieces with no path to them have their spaces marked as "unaccessible" and when you drill a wall or build a dock or fulfill some other objective that allows you to reach new areas find each newly accessible square and unmark those squares
 
@@ -455,8 +491,52 @@ function update() {
 	}
 	
 	if (GameManager.mouseClickedRight && selection != null) {
-		if (selectionType == "raider") { //the only selection type for now; later on any Space (and maybe collectables as well?) or vehicle, etc.. will be a valid selection as even though these things cannot be assigned tasks they can be added to the high priority task queue as well as create menu buttons
-			//TODO: IMPLEMENT ME NOW THAT TASKSAVAILABLE IS INDEPENDENT OF TASKSAUTOMATED (this will ensure raiders cannot steal tasks from each other even if the player requests it, for now..) 
+		if (selectionType == "raider" && selection.currentTask == null) { //the only selection type for now; later on any Space (and maybe collectables as well?) or vehicle, etc.. will be a valid selection as even though these things cannot be assigned tasks they can be added to the high priority task queue as well as create menu buttons
+			 //TODO: THIS IS A BIG CHUNK OF REPEAT CODE FROM THE LEFTCLICK TASK DETECTION, THIS DESERVES ITS OWN METHOD FOR SURE
+			var clickedTasks = [];
+			for (var i = 0; i < terrain.length; i++) {
+				for (var r = 0; r < terrain[i].length; r++) {
+					var initialSpace = terrain[i][r];
+					for (var j = 0; j < terrain[i][r].contains.objectList.length + 1; j++) {
+						if (collisionPoint(GameManager.mouseClickPosRight.x,GameManager.mouseClickPosRight.y,initialSpace,initialSpace.affectedByCamera) && tasksInProgress.objectList.indexOf(initialSpace) == -1  && tasksAvailable.indexOf(initialSpace) != -1) { //don't do anything if the task is already taken by another raider, we don't want to readd it to the task queue
+							if ((j == 0 && (initialSpace.drillable || initialSpace.sweepable || initialSpace.buildable)) || j == 1) { //could optimize by only continuing if j == 1 and initialSpace.walkable == true but won't for now as unwalkable spaces shouldnt have any items in contains anyway
+								clickedTasks.push(initialSpace);
+							}
+						}
+						//could optimize by breaking if theres no collision on the square itself rather than checking contains as well, but won't for now as if a contains is on the edge of a space this will cause it to become unclickable except when clicking on the space as well
+						initialSpace = terrain[i][r].contains.objectList[j]; //TODO: RENAME INITIALSPACE NOW THAT IT IS USED FOR COLLECTABLES TOO
+					}
+				}
+			}
+			if (clickedTasks.length > 0) {
+				var lowestDrawDepthValue = clickedTasks[0].drawDepth;
+				var lowestDrawDepthId = 0;
+				for (var i = 1; i < clickedTasks.length; i++) {
+					if (clickedTasks[i].drawDepth < lowestDrawDepthValue) {
+						lowestDrawDepthValue = clickedTasks[i].drawDepth;
+						lowestDrawDepthId = i;
+					}
+				}
+				var selectedTask = clickedTasks[lowestDrawDepthId];
+				
+				var index = tasksUnavailable.objectList.indexOf(selectedTask);
+				if (index != -1) {
+					tasksUnavailable.objectList.splice(index,1);
+				}				
+				//selectedTask.taskPriority = 1;
+				if (toolsRequired[selection.taskType(selectedTask)] == false || selection.tools.indexOf(toolsRequired[selection.taskType(selectedTask)]) != -1) {
+					selection.currentTask = selectedTask;
+					selection.currentObjective = selectedTask;
+					var index = tasksAvailable.indexOf(selectedTask);
+					if (index != -1) { //this check should no longer be necessary
+						tasksAvailable.splice(index,1);
+					} 
+					tasksInProgress.push(selectedTask);
+					//TODO: cleanup the code at the top of the Raider class which deals with choosing a task, stick it in a method, and reuse it here for simplicity
+					selection.currentPath = calculatePath(terrain,selection.space,typeof selectedTask.space == "undefined" ? selectedTask: selectedTask.space);
+			
+				}
+			}
 		}
 	}
 		
@@ -506,13 +586,13 @@ function update() {
 	GameManager.drawSurface.fillText("Ore: " + collectedResources["ore"],600,40);
 	GameManager.drawSurface.fillText("Energy Crystals: " + collectedResources["crystal"],341,100);
 	GameManager.drawSurface.fillText("Selection: " + (selection == null ? "null" : selection.constructor.name + " at position: " + (typeof selection.space == "undefined" ? selection.listX + "," + selection.listY : selection.space.listX + "," + selection.space.listY)),8,592); //to be replaced with classic green selection rectangle
-	var resourcesAvailable = 0;
+	/*var resourcesAvailable = 0;
 	for (var i = 0; i < tasksAvailable.length; i ++) {
 		if (tasksAvailable[i].space != null) {
 			resourcesAvailable++;
 		}
-	}
-	console.log(resourcesAvailable);
+	}*/
+	//console.log(resourcesAvailable);
 }
 
 _intervalId = setInterval(update, 1000 / GameManager.fps);
