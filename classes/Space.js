@@ -7,20 +7,22 @@ Space.prototype.makeRubble = function(rubbleContainsOre) {
 	for (var i = this.containedCrystals; i > 0; i--) {
 		this.containedCrystals--;
 		var newCrystal = new Collectable(this,"crystal");
-		collectables.push(newCrystal);
-		if (tasksAutomated["collect"] == true) {
-			tasksAvailable.push(newCrystal);
-		}
+		collectables.push(newCrystal); //don't add to tasksAvailable yet because it will be picked up by touchAllAdjacentSpaces
+		//if (tasksAutomated["collect"] == true) { //note: redesign; delete me and the other tasksAutomated references in this Class in the near future
+		//tasksAvailable.push(newCrystal);
+		//}
 	}
 	for (var i = this.containedOre; i > 0; i--) {
 		this.containedOre--;
 		var newOre = new Collectable(this,"ore");
-		collectables.push(newOre);
-		if (tasksAutomated["collect"] == true) {
-			tasksAvailable.push(newOre);
-		}
+		collectables.push(newOre); //don't add to tasksAvailable yet because it will be picked up by touchAllAdjacentSpaces
+		//if (tasksAutomated["collect"] == true) {
+		//tasksAvailable.push(newOre);
+		//}
 	}
 	
+	this.updateTouched(false); //set it back to false so we can run the search from the newly drilled square (this is also where the 'sweep' task is added to the tasksAvailable list)
+	//note that we call updateTouched before checking the adjacentSpaces
 	var adjacentSpaces = [];
 	adjacentSpaces.push(adjacentSpace(terrain,this.listX,this.listY,"up"));
 	adjacentSpaces.push(adjacentSpace(terrain,this.listX,this.listY,"down"));
@@ -33,7 +35,6 @@ Space.prototype.makeRubble = function(rubbleContainsOre) {
 		}
 	}
 	//console.log(tasksAvailable.indexOf(this));
-	this.updateTouched(false); //set it back to false so we can run the search from the newly drilled square (this is also where the 'sweep' task is added to the tasksAvailable list)
 	touchAllAdjacentSpaces(this);
 };
 Space.prototype.checkWallSupported = function() {
@@ -61,14 +62,14 @@ Space.prototype.sweep = function() {
 	if (this.rubbleContainsOre == true) {
 		var newOre = new Collectable(this,"ore");
 		collectables.push(newOre);
-		if (tasksAutomated["collect"] == true) {
-			tasksAvailable.push(newOre);
-		}
+		//if (tasksAutomated["collect"] == true) {
+		tasksAvailable.push(newOre);
+		//}
 	}
 	if (this.type != "rubble 4") {
-		if (tasksAutomated["sweep"] == true) {
-			tasksAvailable.push(this);
-		}
+		//if (tasksAutomated["sweep"] == true) {
+		tasksAvailable.push(this);
+		//}
 	}
 	if (this.type == "rubble 1") {
 		this.setTypeProperties("rubble 2",false,this.rubbleContainsOre);

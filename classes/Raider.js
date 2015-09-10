@@ -1,14 +1,13 @@
 makeChild("Raider","RygameObject");
 Raider.prototype.update = function() {
-	//console.log("current task:");
-	//console.log(this.currentTask);
-	//console.log("current task type:");
-	//console.log(this.taskType(this.currentTask));
 	var destinationSite;
 	while (this.currentTask == null) { //pick a new task
 		if (tasksAvailable.length != 0) {
 			//pick the task closest to me
 			this.currentTask = this.findClosest(tasksAvailable,true); 
+			if (this.currentTask == null) {
+				return;
+			}
 			this.currentObjective = this.currentTask;
 			if (this.taskType(this.currentTask) == "build") {
 				destinationSite = null;
@@ -449,17 +448,17 @@ Raider.prototype.update = function() {
 	//console.log("x: " + this.centerX() + " y: " + this.centerY() + " goalX: " + this.currentObjective.centerX() + " goalY: " + this.currentObjective.centerY() + " angle: " + this.drawAngle);
 };
 Raider.prototype.findClosest = function(objectList,remove) {
-	var minIndex = 0;
+	var minIndex = -1;
 	var centerX = this.centerX();
 	var centerY = this.centerY();
-	var minValue = getDistance(centerX,centerY,objectList[0].centerX(),objectList[0].centerY()); //TODO: this is a small amount of repeat code since this stuff is repeated in the loop; i originally got lazy and calculated 0 at the start to use it as a reference in the loop, but it would be cleaner to just start the variables at a worst case and start the loop at 0
-	var priority = (typeof objectList[0].taskPriority == "undefined" ? 0 : objectList[0].taskPriority);
-	for (var i = 1; i < objectList.length; i++) {
+	var minValue = -1;//getDistance(centerX,centerY,objectList[0].centerX(),objectList[0].centerY()); //TODO: this is a small amount of repeat code since this stuff is repeated in the loop; i originally got lazy and calculated 0 at the start to use it as a reference in the loop, but it would be cleaner to just start the variables at a worst case and start the loop at 0
+	var priority = 0;//(typeof objectList[0].taskPriority == "undefined" ? 0 : objectList[0].taskPriority);
+	for (var i = 0; i < objectList.length; i++) {
 		
-		var newDistance = getDistance(centerX,centerY,objectList[i].centerX(),objectList[i].centerY());
+		var newDistance = getDistance(centerX,centerY,objectList[i].centerX(),objectList[i].centerY()); //note: please remember that this is linear distance; it is not the true distance calculated via pathfinding, so if the path to the task is very roundabout this value will be inaccurate 
 		var currentPriority = (typeof objectList[i].taskPriority == "undefined" ? 0 : objectList[i].taskPriority);
 		//console.log("current priority: " + currentPriority);
-		if (currentPriority > priority || (currentPriority == priority && newDistance < minValue)) {
+		if (currentPriority > priority || (currentPriority == priority && (newDistance < minValue || minValue == -1) && tasksAutomated[this.taskType(objectList[i])])) { //do not care about tasksAutomated if the task has elevated priority
 			minValue = newDistance;
 			minIndex = i;
 			
@@ -468,6 +467,9 @@ Raider.prototype.findClosest = function(objectList,remove) {
 				//console.log("priority override");
 			}
 		}
+	}
+	if (minIndex == -1) {
+		return null;
 	}
 	//console.log("task priority: " + priority);
 	if (remove == true) {
