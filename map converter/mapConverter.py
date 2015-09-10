@@ -70,7 +70,7 @@ def main():
                     mapHeight = int(byte[0])
                 if (
                     ((firstRun) and (i == 16)) or
-                    ((not firstRun) and (i == mapWidth*2))
+                    ((not firstRun) and (i == mapWidth * 2))
                 ):
                     levelData.append([])
                     i = 0
