@@ -1,10 +1,17 @@
 makeChild("Raider","RygameObject");
 Raider.prototype.update = function() {
-	if (selection == this && this.currentTask == null) { //don't start a new task if currently selected unless instructed to
+	if (selection == this && (this.currentTask == null)) { //don't start a new task if currently selected unless instructed to
 		return;
 	}
 	var destinationSite;
 	while (this.currentTask == null) { //pick a new task
+		if (this.holding != null) {
+			this.currentTask = this.holding;
+			this.currentObjective = this.currentTask;
+			this.currentPath = [this.space];
+			this.busy = true;
+			break;
+		}
 		if (tasksAvailable.length != 0) {
 			//pick the task closest to me
 			this.currentTask = this.findClosest(tasksAvailable,true); 
@@ -464,7 +471,7 @@ Raider.prototype.findClosest = function(objectList,remove) {
 		var newDistance = getDistance(centerX,centerY,objectList[i].centerX(),objectList[i].centerY()); //note: please remember that this is linear distance; it is not the true distance calculated via pathfinding, so if the path to the task is very roundabout this value will be inaccurate 
 		var currentPriority = (typeof objectList[i].taskPriority == "undefined" ? 0 : objectList[i].taskPriority);
 		//console.log("current priority: " + currentPriority);
-		if ((toolsRequired[this.taskType(objectList[i])] == false || this.tools.indexOf(toolsRequired[this.taskType(objectList[i])]) != -1) && (currentPriority > priority || (currentPriority == priority && (newDistance < minValue || minValue == -1) && tasksAutomated[this.taskType(objectList[i])]))) { //do not care about tasksAutomated if the task has elevated priority
+		if ((toolsRequired[this.taskType(objectList[i])] == undefined || this.tools.indexOf(toolsRequired[this.taskType(objectList[i])]) != -1) && (currentPriority > priority || (currentPriority == priority && (newDistance < minValue || minValue == -1) && tasksAutomated[this.taskType(objectList[i])]))) { //do not care about tasksAutomated if the task has elevated priority
 			minValue = newDistance;
 			minIndex = i;
 			
@@ -494,11 +501,14 @@ Raider.prototype.clearTask = function() {
 		this.dedicatingResource = false;
 		this.currentTask.dedicatedResources[this.currentObjectiveResourceType]--;
 	}
-	this.currentTask.taskPriority = 0; //reset the task priority since it will otherwise remain high priority in some instances (eg. we just drilled a high priority wall and now the rubble is high priority too as a result)
-	tasksInProgress.remove(this.currentTask);
+	if (this.currentTask != null) {
+		this.currentTask.taskPriority = 0; //reset the task priority since it will otherwise remain high priority in some instances (eg. we just drilled a high priority wall and now the rubble is high priority too as a result)
+		tasksInProgress.remove(this.currentTask);
+	}
+	
 	this.busy = false;
 	this.holding = null;
-	this.holdingAngleDifference = 0;
+	//this.holdingAngleDifference = 0; we set this again later anyway; no need to reset it here, in case we are calling clearTask but do not actually want to lose currently held info
 	this.currentObjective = null;
 	this.currentTask = null;
 	this.currentObjectiveResourceType = null;
