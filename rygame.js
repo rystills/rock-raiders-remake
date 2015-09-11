@@ -1,25 +1,28 @@
 //TODO ADD PROPER METHOD EXPLANATIONS IN PROPER FORMATTING
 
-//fullscreen code (this snippet is taken from a stackOverflow answer. Straightforward by nature, no need to modify for rygame
-function goFullScreen(){
-    var canvas = GameManager.drawSurface.canvas;//document.getElementById("screen");
-    //canvas.width  = window.innerWidth;
-    //canvas.height = window.innerHeight;
-    if(canvas.requestFullScreen)
-        canvas.requestFullScreen();
-    else if(canvas.webkitRequestFullScreen)
-        canvas.webkitRequestFullScreen();
-    else if(canvas.mozRequestFullScreen)
-        canvas.mozRequestFullScreen();
-    //canvas.width = screen.width;
-    //canvas.height = screen.height;
+/**
+ * Full screen the game.
+ * Snippet taken from StackOverflow.
+ */
+function goFullScreen() {
+	var canvas = GameManager.drawSurface.canvas;
+	if (canvas.requestFullScreen) {
+		canvas.requestFullScreen();
+	}
+	else if (canvas.webkitRequestFullScreen) {
+		canvas.webkitRequestFullScreen();
+	}
+	else if (canvas.mozRequestFullScreen) {
+		canvas.mozRequestFullScreen();
+	}
 }
 
-//mouse code (this snippet is taken from a stackOverflow answer. Straightforward by nature, no need to modify for rygame
-stylePaddingLeft = parseInt(document.defaultView.getComputedStyle(canvas, null)['paddingLeft'], 10)      || 0;
-stylePaddingTop  = parseInt(document.defaultView.getComputedStyle(canvas, null)['paddingTop'], 10)       || 0;
-styleBorderLeft  = parseInt(document.defaultView.getComputedStyle(canvas, null)['borderLeftWidth'], 10)  || 0;
-styleBorderTop   = parseInt(document.defaultView.getComputedStyle(canvas, null)['borderTopWidth'], 10)   || 0;
+//mouse code (this snippet is taken from a stackOverflow answer.
+var stylePaddingLeft = parseInt(document.defaultView.getComputedStyle(canvas)['paddingLeft'], 10)     || 0,
+	stylePaddingTop  = parseInt(document.defaultView.getComputedStyle(canvas)['paddingTop'], 10)      || 0,
+	styleBorderLeft  = parseInt(document.defaultView.getComputedStyle(canvas)['borderLeftWidth'], 10) || 0,
+	styleBorderTop   = parseInt(document.defaultView.getComputedStyle(canvas)['borderTopWidth'], 10)  || 0;
+
 // Some pages have fixed-position bars (like the stumbleupon bar) at the top or left of the page
 // They will mess up mouse coordinates and this fixes that
 var html = document.body.parentNode;
@@ -33,24 +36,24 @@ htmlLeft = html.offsetLeft;
 //takes an event and a reference to the canvas
 function getMouseDocument(e) {
 	var element = GameManager.drawSurface, offsetX = 0, offsetY = 0, mx, my;
-	
+
 	// Compute the total offset. It's possible to cache this if you want
 	if (GameManager.drawSurface && element.offsetParent != undefined) { //TODO: appears to sometimes be a single frame where GameManager.drawSurface is not yet defined. look into a proper fix for this (maybe not depending on GameManager.drawSurface at all for the canvas?)
-	 do {
-	   offsetX += element.offsetLeft;
-	   offsetY += element.offsetTop;
-	 } while ((element = element.offsetParent));
+		do {
+			offsetX += element.offsetLeft;
+			offsetY += element.offsetTop;
+		} while ((element = element.offsetParent));
 	}
-	
+
 	// Add padding and border style widths to offset
 	// Also add the <html> offsets in case there's a position:fixed bar (like the stumbleupon bar)
 	// This part is not strictly necessary, it depends on your styling
 	offsetX += stylePaddingLeft + styleBorderLeft + htmlLeft;
 	offsetY += stylePaddingTop + styleBorderTop + htmlTop;
-	
+
 	mx = e.pageX - offsetX;
 	my = e.pageY - offsetY;
-	
+
 	// We return a simple javascript object with x and y defined
 	return {x: mx, y: my};
 }
@@ -66,8 +69,8 @@ function getMouseDocument(e) {
  * Helper function to determine whether there is an intersection between the two polygons described
  * by the lists of vertices. Uses the Separating Axis Theorem
  *
- * @param a an array of connected points [{x:, y:}, {x:, y:},...] that form a closed polygon
- * @param b an array of connected points [{x:, y:}, {x:, y:},...] that form a closed polygon
+ * @param {Array} a an array of connected points [{x:, y:}, {x:, y:},...] that form a closed polygon
+ * @param {Array} b an array of connected points [{x:, y:}, {x:, y:},...] that form a closed polygon
  * @return true if there is any intersection between the 2 polygons, false otherwise
  */
 function doPolygonsIntersect(a, b) {
@@ -94,10 +97,10 @@ function doPolygonsIntersect(a, b) {
             // and keep track of the min and max of these values
             for (j = 0; j < a.length; j++) {
                 projected = normal.x * a[j].x + normal.y * a[j].y;
-                if ((typeof minA == 'undefined') || projected < minA) {
+                if ((minA === undefined) || projected < minA) {
                     minA = projected;
                 }
-                if ((typeof maxA == 'undefined') || projected > maxA) {
+                if ((maxA === undefined) || projected > maxA) {
                     maxA = projected;
                 }
             }
@@ -107,10 +110,10 @@ function doPolygonsIntersect(a, b) {
             minB = maxB = undefined;
             for (j = 0; j < b.length; j++) {
                 projected = normal.x * b[j].x + normal.y * b[j].y;
-                if ((typeof minB == 'undefined') || projected < minB) {
+                if ((minB === undefined) || projected < minB) {
                     minB = projected;
                 }
-                if ((typeof maxB == 'undefined') || projected > maxB) {
+                if ((maxB === undefined) || projected > maxB) {
                     maxB = projected;
                 }
             }
@@ -136,9 +139,13 @@ function pnpoly(nvert, pointList, testx, testy) { //TODO: DETERMINE IF FIRST VER
   return c;
 }
 
+/**
+ * Load an image.
+ * @param   {Number} imageSrc Path to the image, including the image name.
+ * @returns {Object} <img> element.
+ */
 function loadImage(imageSrc) {
-	//imageSrc: a string representing the path to the image, including the image name
-	var image = document.createElement("IMG");
+	var image = document.createElement("img");
 	image.src = imageSrc;
 	return image;
 }
@@ -227,8 +234,8 @@ function calculateRectPoints(object,includeTouching) {
 	var halfWidth = object.rect.width / 2;
 	var halfHeight = object.rect.height / 2;
 	if (includeTouching == true) { //&& objectNum == 0) {
-		halfWidth+=.01;
-		halfHeight+=.01;
+		halfWidth += 0.01;
+		halfHeight += 0.01;
 	}
 	var cos = Math.cos(object.drawAngle);
 	var sin = Math.sin(object.drawAngle);
@@ -434,8 +441,8 @@ function GameManagerInternal() {
 	this.fullScreenKey = "F"; //this is just a default; feel free to change it at any point from the game file
 	this.fontSize = 48; //font size in pixels - first part of html font property (formatted 'fontSizepx fontName')
 	this.fontName = "Arial"; //font name - second part of html font property (formatted 'fontSizepx fontName')
-	};
-	
+	}
+
 //create GameManager instance in global namespace to make up for a lack of typical 'static' classes *that support inheritance*
 GameManager = new GameManagerInternal();
 //init key events
