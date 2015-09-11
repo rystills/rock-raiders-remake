@@ -28,6 +28,7 @@ object = {
           ["img","images","teleport raider button 1 (1).png"], //teleport rock raider button
           ["img","images","cancel selection button 1 (1).png"], //cancel selection button
           ["img","images","unload minifig button 1 (1).png"], //unload minifig button (drops held object)
+          ["img","images","stop minifig button 1 (1).png"], //stop minifig button (stops any performed task)
           ["js","levels","test level 1.js"], //1st level for testing
           ["js","levels","test level 2.js"], //2nd level for testing
           ["js","levels","Surf_01.js"], //terrain map file of first level from original game converted using map converter

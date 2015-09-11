@@ -63,6 +63,19 @@ function adjacentSpace(terrain,x,y,dir) {
 
 function touchAllAdjacentSpaces(initialSpace) {
 	if (initialSpace.touched) {
+		var index = tasksUnavailable.objectList.indexOf(initialSpace); //if the task or its contains are in tasksUnavailable, move them back into tasksAvailable now that they've been rediscovered
+		if (index != -1) {
+			tasksUnavailable.objectList.splice(index,1);
+			tasksAvailable.push(initialSpace); //we know its a valid task if its in tasksUnavailable, so no need to check
+		}
+		for (var i = 0; i < initialSpace.contains.objectList.length; i++) {
+			//add each member of contains to tasksavailable if it is currently in tasksUnavailable
+			var index = tasksUnavailable.objectList.indexOf(initialSpace.contains.objectList[i]);
+			if (index != -1) {
+				tasksUnavailable.objectList.splice(index,1);
+				tasksAvailable.push(initialSpace.contains.objectList[i]);
+			}
+		}
 		return;
 	}
 	if (initialSpace.isBuilding == false && (!(initialSpace.walkable || initialSpace.type == "water" || initialSpace.type == "lava"))) {
@@ -344,9 +357,23 @@ function unloadMinifig() {
 	
 }
 
+function stopMinifig() {
+	if (selection == null || selection.currentTask == null) {
+		return;
+	}
+	//if (selection.currentTask != selection.holding) {
+	if (selection.holding == null) { //this should cover the "collect" taskType, as well as "build" and any other task type which involves a held object, as we don't want that object to be duplicated
+		tasksAvailable.push(selection.currentTask);
+	}
+	var currentlyHeld = selection.holding;
+	selection.clearTask(); //modifications made to clearTask should now mean that if any resources were reserved from the resource collection or dedicated to a building site, the dedication numbers have been correctly decremented
+	selection.holding = currentlyHeld; //won't have any effect if it was already null
+}
+
 buttons.push(new Button(0,0,0,0,"teleport raider button 1 (1).png",gameLayer, createRaider,false));
 buttons.push(new Button(40,0,0,0,"cancel selection button 1 (1).png",gameLayer, cancelSelection,false));
 buttons.push(new Button(80,0,0,0,"unload minifig button 1 (1).png",gameLayer, unloadMinifig,false));
+buttons.push(new Button(120,0,0,0,"stop minifig button 1 (1).png",gameLayer, stopMinifig,false));
 
 //TODO: make it so that pieces with no path to them have their spaces marked as "unaccessible" and when you drill a wall or build a dock or fulfill some other objective that allows you to reach new areas find each newly accessible square and unmark those squares
 
@@ -524,7 +551,7 @@ function update() {
 					tasksUnavailable.objectList.splice(index,1);
 				}				
 				//selectedTask.taskPriority = 1;
-				if (toolsRequired[selection.taskType(selectedTask)] == false || selection.tools.indexOf(toolsRequired[selection.taskType(selectedTask)]) != -1) {
+				if (toolsRequired[selection.taskType(selectedTask)] == undefined || selection.tools.indexOf(toolsRequired[selection.taskType(selectedTask)]) != -1) {
 					selection.currentTask = selectedTask;
 					selection.currentObjective = selectedTask;
 					var index = tasksAvailable.indexOf(selectedTask);
@@ -591,8 +618,8 @@ function update() {
 		if (tasksAvailable[i].space != null) {
 			resourcesAvailable++;
 		}
-	}*/
-	//console.log(resourcesAvailable);
+	}
+	console.log("resources currently in the tasksAvailable list: " + resourcesAvailable);*/
 }
 
 _intervalId = setInterval(update, 1000 / GameManager.fps);
