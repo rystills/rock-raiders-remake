@@ -141,7 +141,7 @@ function pnpoly(nvert, pointList, testx, testy) { //TODO: DETERMINE IF FIRST VER
 
 /**
  * Load an image.
- * @param   {Number} imageSrc Path to the image, including the image name.
+ * @param   {String} imageSrc Path to the image, including the image name.
  * @returns {Object} <img> element.
  */
 function loadImage(imageSrc) {
