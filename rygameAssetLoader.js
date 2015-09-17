@@ -1,5 +1,5 @@
 var urlBase = document.URL.substring(0,document.URL.lastIndexOf("/")).split("%20").join(" ") + "/"; //remove the "xyz.html" segment of the url
-console.log("RyConsole: full directory detected as '" + urlBase + "'");
+console.log("RyConsole: current directory detected as '" + urlBase + "'");
 
 function loadScriptAsset(url, callback) //note: this function is partially copied from a stackOverflow answer, hence the out of character comments
     {
@@ -49,9 +49,15 @@ var loadRygame = function() {
 	assetObject = object;
 	object = null;
 	
+	ctx.fillStyle = "black";
+	ctx.fillRect(0,400,canv.width,200);
+	ctx.fillStyle = 'white';
+	ctx.fillText("loading rygame.js",20,580);	
+	
 	loadScriptAsset(urlBase + "rygame.js", loadAssets);
 };
 var loadAssets = function() {
+	console.log("RyConsole: 'rygame.js' successfully loaded from directory '' as type 'js'");
 	GameManager.scriptObjects["assets.js"] = assetObject;
 	assetObject = null;
 	object = null;
@@ -71,6 +77,12 @@ var loadAssetNext = function() {
 	}
 	assetNum++;
 	if (assetNum < GameManager.scriptObjects["assets.js"].assets.length) {
+		
+		ctx.fillStyle = "black";
+		ctx.fillRect(0,400,canv.width,200);
+		ctx.fillStyle = 'white';
+		ctx.fillText("loading " + GameManager.scriptObjects["assets.js"].assets[assetNum][2],20,580);	
+		
 		appendString = "";
 		if (GameManager.scriptObjects["assets.js"].assets[assetNum][1] != "") {
 			appendString += GameManager.scriptObjects["assets.js"].assets[assetNum][1] + "/";
@@ -92,5 +104,19 @@ var loadAssetNext = function() {
 object = null;
 assetNum=-1;
 lastScriptName = "";
+var canv = document.getElementById('canvas');
+var ctx = canv.getContext('2d');
+
+ctx.fillStyle = "black";
+ctx.fillRect(0,0,canv.width,canv.height);
+
+ctx.font = "74px Arial";
+ctx.fillStyle = 'white';
+ctx.fillText("Loading Rock Raiders...",5,310);
+
+ctx.font = "30px Arial";
+
+ctx.fillStyle = 'white';
+ctx.fillText("loading assets.js",20,580);
 loadAssetFile();
 //note that any JS file containing an object named object will have the contents of that object loaded into GameManager.scriptObjects, to be used as needed, in addition to the file being loaded in and executed immediately as normal. Example: object = { list : [0,1,7] };

@@ -16,15 +16,15 @@ function goFullScreen(){
 }
 
 //mouse code (this snippet is taken from a stackOverflow answer. Straightforward by nature, no need to modify for rygame
-stylePaddingLeft = parseInt(document.defaultView.getComputedStyle(canvas, null)['paddingLeft'], 10)      || 0;
-stylePaddingTop  = parseInt(document.defaultView.getComputedStyle(canvas, null)['paddingTop'], 10)       || 0;
-styleBorderLeft  = parseInt(document.defaultView.getComputedStyle(canvas, null)['borderLeftWidth'], 10)  || 0;
-styleBorderTop   = parseInt(document.defaultView.getComputedStyle(canvas, null)['borderTopWidth'], 10)   || 0;
+var stylePaddingLeft = -1;
+var stylePaddingTop = -1;
+var styleBorderLeft = -1;
+var styleBorderTop = -1;
 // Some pages have fixed-position bars (like the stumbleupon bar) at the top or left of the page
 // They will mess up mouse coordinates and this fixes that
-var html = document.body.parentNode;
-htmlTop = html.offsetTop;
-htmlLeft = html.offsetLeft;
+var html;
+var htmlTop = -1; 
+var htmlLeft = -1;
 
 //Creates an object with x and y defined,
 //set to the mouse position relative to the state's canvas
@@ -344,8 +344,70 @@ GameManagerInternal.prototype.initializeRygame = function(is3d) {    //FIND A WA
 	else {
 		this.drawSurface = document.getElementById('canvas').getContext('3d');
 	}
+	stylePaddingLeft = parseInt(document.defaultView.getComputedStyle(canvas, null)['paddingLeft'], 10)      || 0;
+	stylePaddingTop  = parseInt(document.defaultView.getComputedStyle(canvas, null)['paddingTop'], 10)       || 0;
+	styleBorderLeft  = parseInt(document.defaultView.getComputedStyle(canvas, null)['borderLeftWidth'], 10)  || 0;
+	styleBorderTop   = parseInt(document.defaultView.getComputedStyle(canvas, null)['borderTopWidth'], 10)   || 0;
+	
+	html = document.body.parentNode;
+	htmlTop = html.offsetTop;
+	htmlLeft = html.offsetLeft;
+	
 	this.screenWidth = this.drawSurface.canvas.width;
 	this.screenHeight = this.drawSurface.canvas.height;
+	
+	//init key events
+	document.body.addEventListener("keydown", function (e) {
+		GameManager.keyStates[String.fromCharCode(e.keyCode)] = true;
+		if (String.fromCharCode(e.keyCode) == GameManager.fullScreenKey) { //fullScreenKey is a property that must be set in the game itself rather than being hardcoded, as that would prevent the programmer from being able to use a key that they might need
+			goFullScreen();
+		}
+	});
+	document.body.addEventListener("keyup", function (e) {
+		GameManager.keyStates[String.fromCharCode(e.keyCode)] = false;
+	});
+	document.body.addEventListener("mousemove", function (e) {
+		if (GameManager.drawSurface == null) {
+			return;
+		}
+		//GameManager.documentMousePos = getMouseDocument(e);
+		//GameManager.mousePos = GameManager.documentMousePos;
+		GameManager.mousePos = getMouseDocument(e);
+		canvasRect = GameManager.drawSurface.canvas.getBoundingClientRect();
+		GameManager.mousePos.x -= canvasRect.left + window.pageXOffset; //might need to take into account other factors besides the page scrolling
+		GameManager.mousePos.y -= canvasRect.top + window.pageYOffset;
+	});
+	document.body.addEventListener("mousedown", function (e) {
+		//console.log("MOUSE DOWN");
+		if (e.button == 0) { //left click detected
+			GameManager.mouseDownLeft = true;
+			GameManager.mouseClickedLeft = true;
+			GameManager.mouseClickPosLeft = getMouseDocument(e); //we can use the same method as in mousemove to get the effective mouse position since the mouse coordinates are returned by the event in pageX and pageY regardless of the event type
+			canvasRect = GameManager.drawSurface.canvas.getBoundingClientRect();
+			GameManager.mouseClickPosLeft.x -= canvasRect.left + window.pageXOffset; //might need to take into account other factors besides the page scrolling
+			GameManager.mouseClickPosLeft.y -= canvasRect.top + window.pageYOffset;
+		}
+		else if (e.button == 2) { //right click detected
+			GameManager.mouseDownRight = true;
+			GameManager.mouseClickedRight = true;
+			GameManager.mouseClickPosRight = getMouseDocument(e); //we can use the same method as in mousemove to get the effective mouse position since the mouse coordinates are returned by the event in pageX and pageY regardless of the event type
+			canvasRect = GameManager.drawSurface.canvas.getBoundingClientRect();
+			GameManager.mouseClickPosRight.x -= canvasRect.left + window.pageXOffset; //might need to take into account other factors besides the page scrolling
+			GameManager.mouseClickPosRight.y -= canvasRect.top + window.pageYOffset;
+		}
+	});
+	document.body.addEventListener("mouseup", function (e) {
+		//console.log("MOUSE UP");
+		if (e.button == 0) {
+			GameManager.mouseDownLeft = false; //left click detected
+		}
+		else if (e.button == 2) {
+			GameManager.mouseDownRight = false; //right click detected
+		}
+	});
+	document.body.addEventListener('contextmenu', function(e) {
+	    e.preventDefault(); //note: according to stackOverflow, we should be returning false at the end of this method, as well as outside the method, to cause the rightclick menu to not popup. However, i have not observed either false statement to be necessary. Keep an eye on this.
+	});
 };
 GameManagerInternal.prototype.addObject = function(object) { //TODO still need to decide on adding single objects vs lists of objects natively
 	this.completeObjectList.splice(binarySearch(this.completeObjectList,object,"drawDepth"),0,object); 
@@ -438,59 +500,6 @@ function GameManagerInternal() {
 	
 //create GameManager instance in global namespace to make up for a lack of typical 'static' classes *that support inheritance*
 GameManager = new GameManagerInternal();
-//init key events
-document.body.addEventListener("keydown", function (e) {
-	GameManager.keyStates[String.fromCharCode(e.keyCode)] = true;
-	if (String.fromCharCode(e.keyCode) == GameManager.fullScreenKey) { //fullScreenKey is a property that must be set in the game itself rather than being hardcoded, as that would prevent the programmer from being able to use a key that they might need
-		goFullScreen();
-	}
-});
-document.body.addEventListener("keyup", function (e) {
-	GameManager.keyStates[String.fromCharCode(e.keyCode)] = false;
-});
-document.body.addEventListener("mousemove", function (e) {
-	if (GameManager.drawSurface == null) {
-		return;
-	}
-	//GameManager.documentMousePos = getMouseDocument(e);
-	//GameManager.mousePos = GameManager.documentMousePos;
-	GameManager.mousePos = getMouseDocument(e);
-	canvasRect = GameManager.drawSurface.canvas.getBoundingClientRect();
-	GameManager.mousePos.x -= canvasRect.left + window.pageXOffset; //might need to take into account other factors besides the page scrolling
-	GameManager.mousePos.y -= canvasRect.top + window.pageYOffset;
-});
-document.body.addEventListener("mousedown", function (e) {
-	//console.log("MOUSE DOWN");
-	if (e.button == 0) { //left click detected
-		GameManager.mouseDownLeft = true;
-		GameManager.mouseClickedLeft = true;
-		GameManager.mouseClickPosLeft = getMouseDocument(e); //we can use the same method as in mousemove to get the effective mouse position since the mouse coordinates are returned by the event in pageX and pageY regardless of the event type
-		canvasRect = GameManager.drawSurface.canvas.getBoundingClientRect();
-		GameManager.mouseClickPosLeft.x -= canvasRect.left + window.pageXOffset; //might need to take into account other factors besides the page scrolling
-		GameManager.mouseClickPosLeft.y -= canvasRect.top + window.pageYOffset;
-	}
-	else if (e.button == 2) { //right click detected
-		GameManager.mouseDownRight = true;
-		GameManager.mouseClickedRight = true;
-		GameManager.mouseClickPosRight = getMouseDocument(e); //we can use the same method as in mousemove to get the effective mouse position since the mouse coordinates are returned by the event in pageX and pageY regardless of the event type
-		canvasRect = GameManager.drawSurface.canvas.getBoundingClientRect();
-		GameManager.mouseClickPosRight.x -= canvasRect.left + window.pageXOffset; //might need to take into account other factors besides the page scrolling
-		GameManager.mouseClickPosRight.y -= canvasRect.top + window.pageYOffset;
-	}
-});
-document.body.addEventListener("mouseup", function (e) {
-	//console.log("MOUSE UP");
-	if (e.button == 0) {
-		GameManager.mouseDownLeft = false; //left click detected
-	}
-	else if (e.button == 2) {
-		GameManager.mouseDownRight = false; //right click detected
-	}
-});
-document.body.addEventListener('contextmenu', function(e) {
-    e.preventDefault(); //note: according to stackOverflow, we should be returning false at the end of this method, as well as outside the method, to cause the rightclick menu to not popup. However, i have not observed either false statement to be necessary. Keep an eye on this.
-});
-
 
 ObjectGroup.prototype.push = function(appendObjectList) {
 	appendObjectList = [].concat(appendObjectList); //TODO: CONSIDER THE PERFORMANCE DETRIMENT OF CALLING CONCAT HERE

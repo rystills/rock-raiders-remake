@@ -199,7 +199,7 @@ function resourceAvailable(resourceType) {
 tileSize = 128;
 scrollDistance = 1;
 scrollSpeed = 20;
-maskUntouchedSpaces = false; //if true, this creates the "fog of war" type effect where unrevealed Spaces appear as solid rock (should only be set to false for debugging purposes)
+maskUntouchedSpaces = true; //if true, this creates the "fog of war" type effect where unrevealed Spaces appear as solid rock (should only be set to false for debugging purposes)
 selection = null;
 selectionType = null;
 mousePanning = false;
@@ -236,6 +236,8 @@ collectables = new ObjectGroup();
 tasksInProgress = new ObjectGroup();
 //raiders.push(new Raider(terrain[2][1]));
 //raiders.push(new Raider(terrain[3][1]));
+
+var selectionRectCoords = {x1:null,y1:null,x2:null,y2:null};
 
 var terrainMapName = "Surf_01.js";
 var cryoreMapName = "Cror_01.js"; //TODO: CONTINUE ADDING NEW MAPS TO THIS BLOCK OF CODE AND CLEANING IT UP, AND ADD CHECKS IN CASE ANY MAP DOESN'T EXIST FOR THE LEVEL BEING LOADED
@@ -396,6 +398,9 @@ testOre.y = 28;
 console.log("COLLISION TEST: " + collisionRect(testRaider,testOre,false));*/
 
 function update() {
+	if (GameManager.drawSurface == null) { //canvas has been updated by the html page
+		GameManager.drawSurface = document.getElementById('canvas').getContext('2d');
+	}
 	GameManager.drawSurface.fillStyle = "rgb(60,45,23)";
 	GameManager.drawSurface.fillRect(0, 0, GameManager.screenWidth, GameManager.screenHeight);
 	if (loading) {
@@ -517,6 +522,28 @@ function update() {
 		}
 	}
 	
+	if (GameManager.keyStates[String.fromCharCode(17)] == true) { //if ctrl key is currently pressed
+		if (selectionRectCoords.x1 == null) {
+			selectionRectCoords.x1 = GameManager.mousePos.x;
+			selectionRectCoords.y1 = GameManager.mousePos.y;
+			selectionRectCoords.x2 = null;
+			selectionRectCoords.y2 = null;
+		}
+	}
+	else {
+		if (selectionRectCoords.x2 == null) {
+			selectionRectCoords.x2 = GameManager.mousePos.x;
+			selectionRectCoords.y2 = GameManager.mousePos.y;
+		}
+		else {
+			selectionRectCoords.y2 = null; //the condition where y2 is not null is the 1 frame when a selection was initially made
+		}
+	}
+	
+	if (selectionRectCoords.y2 != null) {
+//		TODO: FILL ME IN WITH MULTI-RAIDER SELECTION FOR ALL RAIDERS COLLIDING WITH THE SELECTION RECT, AMD DRAW RECT GRAPHIC BELOW
+	}
+	
 	if (GameManager.mouseClickedRight && selection != null) {
 		if (selectionType == "raider" && selection.currentTask == null) { //the only selection type for now; later on any Space (and maybe collectables as well?) or vehicle, etc.. will be a valid selection as even though these things cannot be assigned tasks they can be added to the high priority task queue as well as create menu buttons
 			 //TODO: THIS IS A BIG CHUNK OF REPEAT CODE FROM THE LEFTCLICK TASK DETECTION, THIS DESERVES ITS OWN METHOD FOR SURE
@@ -620,6 +647,7 @@ function update() {
 		}
 	}
 	console.log("resources currently in the tasksAvailable list: " + resourcesAvailable);*/
+	//console.log("ctrl key status: " + GameManager.keyStates[String.fromCharCode(17)]);
 }
 
 _intervalId = setInterval(update, 1000 / GameManager.fps);
