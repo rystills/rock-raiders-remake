@@ -573,6 +573,15 @@ function Rect(width,height) { //TODO add xOffset and yOffset variables since rec
 makeChild("Button","RygameObject");
 
 Button.prototype.update = function() {
+	if (this.selectionTypeBound != null) {
+		if (this.selectionTypeBound.indexOf(selectionType) == -1) {
+			if (!(this.selectionTypeBound.length == 0 && selectionType != null)) {
+				this.visible = false;
+				return;
+			}
+		}
+	}	
+	this.visible = true;
 	this.releasedThisFrame = false;
 	if (GameManager.mouseClickedLeft == true) {
 		if (collisionPoint(GameManager.mouseClickPosLeft.x,GameManager.mouseClickPosLeft.y,this,this.affectedByCamera)) {
@@ -590,11 +599,19 @@ Button.prototype.update = function() {
 	}
 	//console.log(this.mouseDownOnButton);
 };
-function Button(x,y,updateDepth,drawDepth,image,layer,runMethod,affectedByCamera) { //TODO: MODIFY BUTTON CLASS TO OPERATE LARGELY THE SAME AS THE RYGAME PTHON EDITION BUTTON CLASS
+function Button(x,y,updateDepth,drawDepth,image,layer,runMethod,affectedByCamera,selectionTypeBound) { //TODO: MODIFY BUTTON CLASS TO OPERATE LARGELY THE SAME AS THE RYGAME PTHON EDITION BUTTON CLASS
 	RygameObject.call(this,x,y,updateDepth,drawDepth,image,layer,affectedByCamera);
 	this.runMethod = runMethod;
 	this.mouseDownOnButton = false;
 	this.releasedThisFrame = false;
+	this.selectionTypeBound = selectionTypeBound;
+	if (this.selectionTypeBound != null) {
+		if (this.selectionTypeBound.indexOf(selectionType) == -1) {
+			if (!(this.selectionTypeBound.length == 0 && selectionType != null)) {
+				this.visible = false;
+			}
+		}
+	}	
 	
 }
 

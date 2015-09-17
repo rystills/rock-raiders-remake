@@ -150,6 +150,7 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 	}
 	else if (type == "ore seam") {
 		this.image = "ore seam 1 (1).png";
+		this.drillable = true;
 		this.isWall = true;
 	}
 	else if (type == "water") {
@@ -157,6 +158,7 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 	}
 	else if (type == "energy crystal seam") {
 		this.image = "energy crystal seam 1 (1).png";
+		this.drillable = true;
 		this.isWall = true;
 	}
 	else if (type == "recharge seam") {
