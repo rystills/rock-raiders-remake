@@ -26,8 +26,10 @@ object = {
           ["img", "images", "rubble 4 (1).png"], //rubble swept 3 times. 1 sweep required to clear fully
           ["img", "images", "solid rock 1 (1).png"], //solid rock
           ["img", "images", "teleport raider button 1 (1).png"], //teleport rock raider button
-          ["img", "images", "grab item button 1 (1).png"], //button to instruct raider to pick up item (collectable, dynamite, etc..)
-          ["img", "images", "drill wall button 1 (1).png"], //button to instruct raider to drill a wall
+          ["img", "images", "grab item button 1 (1).png"], //button to instruct a raider to pick up item (collectable, dynamite, etc..)
+          ["img", "images", "drill wall button 1 (1).png"], //button to instruct a raider to drill a wall
+          ["img", "images", "clear rubble button 1 (1).png"], //button to instruct a raider to clear rubble
+          ["img", "images", "build power path button 1 (1).png"], //button to instruct a raider to build a power path
           ["img", "images", "cancel selection button 1 (1).png"], //cancel selection button
           ["img", "images", "unload minifig button 1 (1).png"], //unload minifig button (drops held object)
           ["img", "images", "stop minifig button 1 (1).png"], //stop minifig button (stops any performed task)

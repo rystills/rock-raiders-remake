@@ -379,6 +379,25 @@ function drillWall() {
 	}
 }
 
+function clearRubble() {
+	if (selection == null) {
+		return;
+	}
+	var curIndex = tasksAvailable.indexOf(selection);
+	if (curIndex != -1) {
+		selection.taskPriority = 1;
+	}
+}
+
+function buildPowerPath() {
+	if (selection == null) {
+		return;
+	}
+	selection.buildingSiteType = "power path"; //this should probably be assigned somewhere else..
+	selection.setTypeProperties("building site"); 
+	
+}
+
 function stopMinifig() {
 	if (selection == null || selection.currentTask == null) {
 		return;
@@ -404,6 +423,12 @@ buttons.push(new Button(86,0,0,0,"grab item button 1 (1).png",gameLayer, grabIte
 
 //drillable wall selected buttons
 buttons.push(new Button(86,0,0,0,"drill wall button 1 (1).png",gameLayer, drillWall,false,["dirt", "loose rock", "ore seam", "energy crystal seam"]));
+
+//floor Space selected buttons
+buttons.push(new Button(86,0,0,0,"build power path button 1 (1).png",gameLayer, buildPowerPath,false,["ground"]));
+
+//rubble selection buttons
+buttons.push(new Button(86,0,0,0,"clear rubble button 1 (1).png",gameLayer, clearRubble,false,["rubble 1","rubble 2","rubble 3","rubble 4"]));
 
 //TODO: make it so that pieces with no path to them have their spaces marked as "unaccessible" and when you drill a wall or build a dock or fulfill some other objective that allows you to reach new areas find each newly accessible square and unmark those squares
 
