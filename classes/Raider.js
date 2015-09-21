@@ -1,6 +1,21 @@
 makeChild("Raider","RygameObject");
 Raider.prototype.update = function() {
-	if (selection == this && (this.currentTask == null)) { //don't start a new task if currently selected unless instructed to
+	if (this.currentTask != null && this.currentTask.completedBy != null) {
+		if (this.currentTask.completedBy == this) {
+			this.currentTask.completedBy = null;
+		}
+		else {
+			taskCopy = null;
+			if (tasksInProgress.objectList.indexOf(this.currentTask) != -1) {
+				taskCopy = this.currentTask;
+			}
+			this.clearTask();
+			if (taskCopy != null) {
+				tasksInProgress.push(taskCopy);
+			}
+		}
+	}
+	if ((selection.indexOf(this) != -1) && (this.currentTask == null)) { //don't start a new task if currently selected unless instructed to
 		return;
 	}
 	var destinationSite;
@@ -217,6 +232,7 @@ Raider.prototype.update = function() {
 								this.busy = true;
 								if (this.currentObjective.grabPercent >= 100) {
 									this.currentObjective.grabPercent = 100;
+									this.currentObjective.completedBy = this;
 									this.busy = false;
 									this.holding = this.currentObjective;
 									//console.log("angle: " + this.drawAngle + " other angle: " + this.currentObjective.drawAngle);
@@ -300,6 +316,7 @@ Raider.prototype.update = function() {
 							this.busy = true;
 							if (this.currentTask.grabPercent >= 100) {
 								this.currentTask.grabPercent = 100;
+								this.currentObjective.completedBy = this;
 								//this.busy = false;
 								this.holding = this.currentTask;
 								this.holdingAngleDifference = this.currentTask.drawAngle - this.drawAngle;
@@ -413,6 +430,7 @@ Raider.prototype.update = function() {
 					this.busy = true;
 					if (this.currentTask.drillPercent >= 100) {
 						this.currentTask.drillPercent = 100;
+						this.currentObjective.completedBy = this;
 						this.busy = false;
 						this.currentTask.makeRubble(true);
 						this.clearTask();
@@ -427,6 +445,7 @@ Raider.prototype.update = function() {
 						this.busy = true;
 						if (this.currentTask.sweepPercent >= 100) {
 							this.currentTask.sweepPercent = 100;
+							this.currentObjective.completedBy = this;
 							this.busy = false;
 							//var taskCopy = this.currentTask; //clear the task before sweeping so that the rubble can add itself back to the task list after being swept if more rubble remains
 							//console.log("before:");

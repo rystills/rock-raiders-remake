@@ -200,7 +200,7 @@ tileSize = 128;
 scrollDistance = 1;
 scrollSpeed = 20;
 maskUntouchedSpaces = true; //if true, this creates the "fog of war" type effect where unrevealed Spaces appear as solid rock (should only be set to false for debugging purposes)
-selection = null;
+selection = [];
 selectionType = null;
 mousePanning = false;
 keyboardPanning = true;
@@ -343,72 +343,89 @@ function createRaider() {
 }
 
 function cancelSelection() {
-	selection = null;
+	selection = [];
 	selectionType = null;
 }
 
 function unloadMinifig() {
-	if (selection == null || selection.holding == null) {
+	if (selection.length == 0) {
 		return;
 	}
-	var newCollectable = new Collectable(getNearestSpace(terrain,selection),selection.holding.type);
-	collectables.push(newCollectable);
-	tasksAvailable.push(newCollectable);
-	selection.holding.die();
-	selection.clearTask(); //modifications made to clearTask should now mean that if any resources were reserved from the resource collection or dedicated to a building site, the dedication numbers have been correctly decremented
-	
+	for (var i = 0; i < selection.length; i++) {
+		if ( selection[i].holding == null) {
+			continue;
+		}
+		var newCollectable = new Collectable(getNearestSpace(terrain,selection[i]),selection[i].holding.type);
+		collectables.push(newCollectable);
+		tasksAvailable.push(newCollectable);
+		selection[i].holding.die();
+		selection[i].clearTask(); //modifications made to clearTask should now mean that if any resources were reserved from the resource collection or dedicated to a building site, the dedication numbers have been correctly decremented
+	}
 }
 
 function grabItem() {
-	if (selection == null) {
+	if (selection.length == 0) {
 		return;
 	}
-	var curIndex = tasksAvailable.indexOf(selection);
-	if (curIndex != -1) {
-		selection.taskPriority = 1;
+	for (var i = 0; i < selection.length; i++) {
+		var curIndex = tasksAvailable.indexOf(selection[i]);
+		if (curIndex != -1) {
+			selection[i].taskPriority = 1;
+		}
 	}
 }
 
 function drillWall() {
-	if (selection == null) {
+	if (selection.length == 0) {
 		return;
 	}
-	var curIndex = tasksAvailable.indexOf(selection);
-	if (curIndex != -1) {
-		selection.taskPriority = 1;
+	for (var i = 0; i < selection.length; i++) {
+		var curIndex = tasksAvailable.indexOf(selection[i]);
+		if (curIndex != -1) {
+			selection[i].taskPriority = 1;
+		}
 	}
 }
 
 function clearRubble() {
-	if (selection == null) {
+	if (selection.length == 0) {
 		return;
 	}
-	var curIndex = tasksAvailable.indexOf(selection);
-	if (curIndex != -1) {
-		selection.taskPriority = 1;
+	for (var i = 0; i < selection.length; i++) {
+		var curIndex = tasksAvailable.indexOf(selection[i]);
+		if (curIndex != -1) {
+			selection[i].taskPriority = 1;
+		}
 	}
 }
 
 function buildPowerPath() {
-	if (selection == null) {
+	if (selection.length == 0) {
 		return;
 	}
-	selection.buildingSiteType = "power path"; //this should probably be assigned somewhere else..
-	selection.setTypeProperties("building site"); 
+	for (var i = 0; i < selection.length; i++) {
+		selection[i].buildingSiteType = "power path"; //this should probably be assigned somewhere else..
+		selection[i].setTypeProperties("building site"); 
+	}
 	
 }
 
 function stopMinifig() {
-	if (selection == null || selection.currentTask == null) {
+	if (selection.length == 0) {
 		return;
 	}
-	//if (selection.currentTask != selection.holding) {
-	if (selection.holding == null) { //this should cover the "collect" taskType, as well as "build" and any other task type which involves a held object, as we don't want that object to be duplicated
-		tasksAvailable.push(selection.currentTask);
+	for (var i = 0; i < selection.length; i++) {
+		if (selection[i].currentTask == null) {
+			continue;
+		}
+		//if (selection[i].currentTask != selection[i].holding) {
+		if (selection[i].holding == null) { //this should cover the "collect" taskType, as well as "build" and any other task type which involves a held object, as we don't want that object to be duplicated
+			tasksAvailable.push(selection[i].currentTask);
+		}
+		var currentlyHeld = selection[i].holding;
+		selection[i].clearTask(); //modifications made to clearTask should now mean that if any resources were reserved from the resource collection or dedicated to a building site, the dedication numbers have been correctly decremented
+		selection[i].holding = currentlyHeld; //won't have any effect if it was already null
 	}
-	var currentlyHeld = selection.holding;
-	selection.clearTask(); //modifications made to clearTask should now mean that if any resources were reserved from the resource collection or dedicated to a building site, the dedication numbers have been correctly decremented
-	selection.holding = currentlyHeld; //won't have any effect if it was already null
 }
 
 buttons.push(new Button(0,0,0,0,"teleport raider button 1 (1).png",gameLayer, createRaider,false));
@@ -437,6 +454,12 @@ buttons.push(new Button(86,0,0,0,"clear rubble button 1 (1).png",gameLayer, clea
 	touchAllAdjacentSpaces(buildings[0]);
 }*/ 
 
+var selectionRectObject = new RygameObject(0,0,0,0,null,gameLayer); //TODO: MAKE THIS A PROPER OBJECT AND MOVE THE SELECTION RECT CODE TO ITS UPDATE METHOD
+
+var selectionRectPointList;
+var selectionRectCoordList;
+
+//var taskCompleteBroadcast = []; //[currentTask,taskCompleter]  -- add to me on the frame where you set a task var to 100%, and this will notify other raiders working on the same task to move on; when found by the completer again remove from the broadcast list. this only affects user assigned tasks, as raiders won't clump up on tasks unless instructed to do so
 var loading = true;
 
 GameManager.drawSurface.font = "48px Arial";
@@ -512,7 +535,7 @@ function update() {
 			}
 		}
 		if (raiderSelected != null) {
-			selection = raiderSelected;
+			selection = [raiderSelected];
 			selectionType = "raider";
 		}
 		
@@ -525,7 +548,7 @@ function update() {
 				}
 			}
 			if (itemSelected != null) {
-				selection = itemSelected;
+				selection = [itemSelected];
 				selectionType = itemSelected.type;
 			}
 			
@@ -540,7 +563,7 @@ function update() {
 					}
 				}
 				if (spaceSelected != null) {
-					selection = spaceSelected;
+					selection = [spaceSelected];
 					selectionType = spaceSelected.type;
 				}
 			}
@@ -608,62 +631,94 @@ function update() {
 		if (selectionRectCoords.x1 == null) {
 			selectionRectCoords.x1 = GameManager.mousePos.x;
 			selectionRectCoords.y1 = GameManager.mousePos.y;
-			
+		}
+		//determine top-left corner to draw rect
+		selectionRectPointList = [null,null,null,null]; //[xMin, yMin, xMax, yMax];
+		selectionRectCoordList = [selectionRectCoords.x1,selectionRectCoords.y1,GameManager.mousePos.x,GameManager.mousePos.y];
+		for (var i = 0; i < 4; i++) {
+			if (selectionRectPointList[i%2] == null || selectionRectCoordList[i] < selectionRectPointList[i%2]) {
+				selectionRectPointList[i%2] = selectionRectCoordList[i]; 
+			}
+			if (selectionRectPointList[(i%2)+2] == null || selectionRectCoordList[i] > selectionRectPointList[(i%2)+2]) { 
+				selectionRectPointList[(i%2)+2] = selectionRectCoordList[i];
+			}
 		}
 	}
 	else {
 		if (selectionRectCoords.x1 != null) {
 			selectionRectCoords.x1 = null;
 			selectionRectCoords.y1 = null;
-			//TODO: FILL ME IN WITH MULTI-RAIDER SELECTION FOR ALL RAIDERS COLLIDING WITH THE SELECTION RECT
+			selectionRectObject.rect.width = selectionRectPointList[2]-selectionRectPointList[0];
+			selectionRectObject.rect.height = selectionRectPointList[3]-selectionRectPointList[1];
+			selectionRectObject.x = selectionRectPointList[0] + selectionRectObject.drawLayer.cameraX;
+			selectionRectObject.y = selectionRectPointList[1] + selectionRectObject.drawLayer.cameraY;
+			//console.log("X: " + selectionRectObject.x + " Y: "  + selectionRectObject.y + " rectWidth: " + selectionRectObject.rect.width + " rectHeight: " + selectionRectObject.rect.height);
+			var collidingRaiders = [];
+			for (var i = 0; i < raiders.objectList.length; i++) {
+				if (collisionRect(selectionRectObject,raiders.objectList[i])) {
+					collidingRaiders.push(raiders.objectList[i]);
+				}
+			}
+			//console.log(collidingRaiders.length);
+			if (collidingRaiders.length > 0) {
+				//set selection to all of the raiders contained within the selection Rect
+				selectionType = "raider";
+				selection = collidingRaiders;
+			}
 		}
 	}
 	
-	if (GameManager.mouseClickedRight && selection != null) {
-		if (selectionType == "raider" && selection.currentTask == null) { //the only selection type for now; later on any Space (and maybe collectables as well?) or vehicle, etc.. will be a valid selection as even though these things cannot be assigned tasks they can be added to the high priority task queue as well as create menu buttons
-			 //TODO: THIS IS A BIG CHUNK OF REPEAT CODE FROM THE LEFTCLICK TASK DETECTION, THIS DESERVES ITS OWN METHOD FOR SURE
-			var clickedTasks = [];
-			for (var i = 0; i < terrain.length; i++) {
-				for (var r = 0; r < terrain[i].length; r++) {
-					var initialSpace = terrain[i][r];
-					for (var j = 0; j < terrain[i][r].contains.objectList.length + 1; j++) {
-						if (collisionPoint(GameManager.mouseClickPosRight.x,GameManager.mouseClickPosRight.y,initialSpace,initialSpace.affectedByCamera) && tasksInProgress.objectList.indexOf(initialSpace) == -1  && tasksAvailable.indexOf(initialSpace) != -1) { //don't do anything if the task is already taken by another raider, we don't want to readd it to the task queue
-							if ((j == 0 && (initialSpace.drillable || initialSpace.sweepable || initialSpace.buildable)) || j == 1) { //could optimize by only continuing if j == 1 and initialSpace.walkable == true but won't for now as unwalkable spaces shouldnt have any items in contains anyway
-								clickedTasks.push(initialSpace);
-							}
+	if (GameManager.mouseClickedRight && selection.length != 0 && selectionType == "raider") {
+		 //TODO: THIS IS A BIG CHUNK OF REPEAT CODE FROM THE LEFTCLICK TASK DETECTION, THIS DESERVES ITS OWN METHOD FOR SURE
+		var clickedTasks = [];
+		for (var p = 0; p < terrain.length; p++) {
+			for (var r = 0; r < terrain[p].length; r++) {
+				var initialSpace = terrain[p][r];
+				for (var j = 0; j < terrain[p][r].contains.objectList.length + 1; j++) {
+					if (collisionPoint(GameManager.mouseClickPosRight.x,GameManager.mouseClickPosRight.y,initialSpace,initialSpace.affectedByCamera) && ((tasksAvailable.indexOf(initialSpace) != -1) || (tasksInProgress.objectList.indexOf(initialSpace) != -1))) { //don't do anything if the task is already taken by another raider, we don't want to readd it to the task queue
+						if ((j == 0 && (initialSpace.drillable || initialSpace.sweepable || initialSpace.buildable)) || j == 1) { //could optimize by only continuing if j == 1 and initialSpace.walkable == true but won't for now as unwalkable spaces shouldnt have any items in contains anyway
+							clickedTasks.push(initialSpace);
 						}
-						//could optimize by breaking if theres no collision on the square itself rather than checking contains as well, but won't for now as if a contains is on the edge of a space this will cause it to become unclickable except when clicking on the space as well
-						initialSpace = terrain[i][r].contains.objectList[j]; //TODO: RENAME INITIALSPACE NOW THAT IT IS USED FOR COLLECTABLES TOO
 					}
+					//could optimize by breaking if theres no collision on the square itself rather than checking contains as well, but won't for now as if a contains is on the edge of a space this will cause it to become unclickable except when clicking on the space as well
+					initialSpace = terrain[p][r].contains.objectList[j]; //TODO: RENAME INITIALSPACE NOW THAT IT IS USED FOR COLLECTABLES TOO
 				}
 			}
-			if (clickedTasks.length > 0) {
-				var lowestDrawDepthValue = clickedTasks[0].drawDepth;
-				var lowestDrawDepthId = 0;
-				for (var i = 1; i < clickedTasks.length; i++) {
-					if (clickedTasks[i].drawDepth < lowestDrawDepthValue) {
-						lowestDrawDepthValue = clickedTasks[i].drawDepth;
-						lowestDrawDepthId = i;
-					}
+		}
+		if (clickedTasks.length > 0) {
+			var lowestDrawDepthValue = clickedTasks[0].drawDepth;
+			var lowestDrawDepthId = 0;
+			for (var p = 1; p < clickedTasks.length; p++) {
+				if (clickedTasks[p].drawDepth < lowestDrawDepthValue) {
+					lowestDrawDepthValue = clickedTasks[p].drawDepth;
+					lowestDrawDepthId = p;
 				}
-				var selectedTask = clickedTasks[lowestDrawDepthId];
-				
-				var index = tasksUnavailable.objectList.indexOf(selectedTask);
-				if (index != -1) {
-					tasksUnavailable.objectList.splice(index,1);
-				}				
-				//selectedTask.taskPriority = 1;
-				if (toolsRequired[selection.taskType(selectedTask)] == undefined || selection.tools.indexOf(toolsRequired[selection.taskType(selectedTask)]) != -1) {
-					selection.currentTask = selectedTask;
-					selection.currentObjective = selectedTask;
-					var index = tasksAvailable.indexOf(selectedTask);
-					if (index != -1) { //this check should no longer be necessary
-						tasksAvailable.splice(index,1);
-					} 
-					tasksInProgress.push(selectedTask);
-					//TODO: cleanup the code at the top of the Raider class which deals with choosing a task, stick it in a method, and reuse it here for simplicity
-					selection.currentPath = calculatePath(terrain,selection.space,typeof selectedTask.space == "undefined" ? selectedTask: selectedTask.space);
+			}
+			var selectedTask = clickedTasks[lowestDrawDepthId];
 			
+			var index = tasksUnavailable.objectList.indexOf(selectedTask);
+			if (index != -1) {
+				tasksUnavailable.objectList.splice(index,1);
+			}		
+			for (var i = 0; i < selection.length; i++) {	
+			if (selection[i].currentTask == null) { //the only selection[i] type for now; later on any Space (and maybe collectables as well?) or vehicle, etc.. will be a valid selection[i] as even though these things cannot be assigned tasks they can be added to the high priority task queue as well as create menu buttons
+						
+					//selectedTask.taskPriority = 1;
+					if (toolsRequired[selection[i].taskType(selectedTask)] == undefined || selection[i].tools.indexOf(toolsRequired[selection[i].taskType(selectedTask)]) != -1) {
+						selection[i].currentTask = selectedTask;
+						selection[i].currentObjective = selectedTask;
+						var index = tasksAvailable.indexOf(selectedTask);
+						if (index != -1) { //this check should no longer be necessary
+							tasksAvailable.splice(index,1);
+						} 
+						var index = tasksInProgress.objectList.indexOf(selectedTask);
+						if (index == -1) {
+							tasksInProgress.push(selectedTask);
+						}
+						//TODO: cleanup the code at the top of the Raider class which deals with choosing a task, stick it in a method, and reuse it here for simplicity
+						selection[i].currentPath = calculatePath(terrain,selection[i].space,typeof selectedTask.space == "undefined" ? selectedTask: selectedTask.space);
+				
+					}
 				}
 			}
 		}
@@ -674,22 +729,10 @@ function update() {
 	
 	//post render
 	if (selectionRectCoords.x1 != null) {
-		//determine top-left corner to draw rect
-		var pointList = [null,null,null,null]; //[xMin, yMin, xMax, yMax];
-		var selectionRectCoordList = [selectionRectCoords.x1,selectionRectCoords.y1,GameManager.mousePos.x,GameManager.mousePos.y];
-		for (var i = 0; i < 4; i++) {
-			if (pointList[i%2] == null || selectionRectCoordList[i] < pointList[i%2]) {
-				pointList[i%2] = selectionRectCoordList[i]; 
-			}
-			if (pointList[(i%2)+2] == null || selectionRectCoordList[i] > pointList[(i%2)+2]) { 
-				pointList[(i%2)+2] = selectionRectCoordList[i];
-			}
-		}
-
 		GameManager.drawSurface.strokeStyle = "rgb(0,255,0)";
 		GameManager.drawSurface.lineWidth = 3;
 		GameManager.drawSurface.beginPath();
-		GameManager.drawSurface.rect(pointList[0],pointList[1],pointList[2]-pointList[0],pointList[3]-pointList[1]);
+		GameManager.drawSurface.rect(selectionRectPointList[0],selectionRectPointList[1],selectionRectPointList[2]-selectionRectPointList[0],selectionRectPointList[3]-selectionRectPointList[1]);
 		GameManager.drawSurface.stroke();
 	}
 	
@@ -740,7 +783,9 @@ function update() {
 	GameManager.drawSurface.fillText("Ore: " + collectedResources["ore"],600,40);
 	GameManager.drawSurface.fillText("Energy Crystals: " + collectedResources["crystal"],341,100);
 	GameManager.setFontSize(36);
-	GameManager.drawSurface.fillText("Selection: " + (selection == null ? "null" : selection.constructor.name + " at position: " + (typeof selection.space == "undefined" ? selection.listX + "," + selection.listY : selection.space.listX + "," + selection.space.listY)),8,592); //to be replaced with classic green selection rectangle
+	//GameManager.drawSurface.fillText("Selection: " + (selection.length == 0 ? "None" : selection.constructor.name + " at position: " + (typeof selection.space == "undefined" ? selection.listX + "," + selection.listY : selection.space.listX + "," + selection.space.listY)),8,592); //to be replaced with classic green selection rectangle
+	GameManager.drawSurface.fillText("Selection Type: " + selectionType,8,592); //to be replaced with classic green selection rectangle
+	
 	/*var resourcesAvailable = 0;
 	for (var i = 0; i < tasksAvailable.length; i ++) {
 		if (tasksAvailable[i].space != null) {
