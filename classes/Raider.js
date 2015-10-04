@@ -1,18 +1,22 @@
 makeChild("Raider","RygameObject");
 Raider.prototype.update = function() {
+	for (var i = 0; i < this.completedLastFrame.length; i++) {
+		this.completedLastFrame[i].completedBy = null;
+	}
+	this.completedLastFrame = [];
 	if (this.currentTask != null && this.currentTask.completedBy != null) {
-		if (this.currentTask.completedBy == this) {
+		/*if (this.currentTask.completedBy == this) { //this case is no longer possible, as it would have already been resolved above
 			this.currentTask.completedBy = null;
 		}
-		else {
-			taskCopy = null;
-			if (tasksInProgress.objectList.indexOf(this.currentTask) != -1) {
-				taskCopy = this.currentTask;
-			}
-			this.clearTask();
-			if (taskCopy != null) {
-				tasksInProgress.push(taskCopy);
-			}
+		else {*/
+		taskCopy = null;
+		if (tasksInProgress.objectList.indexOf(this.currentTask) != -1) {
+			taskCopy = this.currentTask;
+		}
+		this.clearTask();
+		if (taskCopy != null) {
+			tasksInProgress.push(taskCopy);
+			//}
 		}
 	}
 	if ((selection.indexOf(this) != -1) && (this.currentTask == null)) { //don't start a new task if currently selected unless instructed to
@@ -163,7 +167,7 @@ Raider.prototype.update = function() {
 			if (this.busy || collisionRect(this,this.currentObjective,true)) {
 				var taskType = this.taskType(this.currentTask); //TODO: STORE THIS RATHER THAN REPEATEDLY FINDING IT
 				if (!this.busy) {
-					if (taskType == "collect" || taskType == "drill" || taskType == "build") {
+					if (taskType == "collect" || taskType == "drill" || taskType == "build" || taskType == "get tool") {
 						//if (taskType == "collect") {
 							//console.log('TEST POINT REACHED');
 							//this.drawAngle = getAngle(this.x,this.y,this.currentObjective.x,this.currentObjective.y,true); //its possible for ore to suddenly appear right next to or on top of us (such as if we are sweeping) and then we won't be facing it. So make the raider face the ore before picking it up as a precaution
@@ -233,6 +237,7 @@ Raider.prototype.update = function() {
 								if (this.currentObjective.grabPercent >= 100) {
 									this.currentObjective.grabPercent = 100;
 									this.currentObjective.completedBy = this;
+									this.completedLastFrame.push(this.currentObjective);
 									this.busy = false;
 									this.holding = this.currentObjective;
 									//console.log("angle: " + this.drawAngle + " other angle: " + this.currentObjective.drawAngle);
@@ -309,6 +314,12 @@ Raider.prototype.update = function() {
 					}
 				}
 				
+				if (taskType == "get tool") {
+					//console.log("TEST POINT REACHED!");
+					this.tools.push(this.getToolName);
+					this.clearTask();
+				}
+				
 				if (taskType == "collect") {
 					if (this.currentObjective == this.currentTask) {
 						if (this.holding == null) {
@@ -317,6 +328,7 @@ Raider.prototype.update = function() {
 							if (this.currentTask.grabPercent >= 100) {
 								this.currentTask.grabPercent = 100;
 								this.currentObjective.completedBy = this;
+								this.completedLastFrame.push(this.currentObjective);
 								//this.busy = false;
 								this.holding = this.currentTask;
 								this.holdingAngleDifference = this.currentTask.drawAngle - this.drawAngle;
@@ -430,9 +442,10 @@ Raider.prototype.update = function() {
 					this.busy = true;
 					if (this.currentTask.drillPercent >= 100) {
 						this.currentTask.drillPercent = 100;
-						this.currentObjective.completedBy = this;
+						//this.currentObjective.completedBy = this;
+						//this.completedLastFrame.push(this.currentObjective);
 						this.busy = false;
-						this.currentTask.makeRubble(true);
+						this.currentTask.makeRubble(true,this);
 						this.clearTask();
 					}
 				}
@@ -446,6 +459,7 @@ Raider.prototype.update = function() {
 						if (this.currentTask.sweepPercent >= 100) {
 							this.currentTask.sweepPercent = 100;
 							this.currentObjective.completedBy = this;
+							this.completedLastFrame.push(this.currentObjective);
 							this.busy = false;
 							//var taskCopy = this.currentTask; //clear the task before sweeping so that the rubble can add itself back to the task list after being swept if more rubble remains
 							//console.log("before:");
@@ -520,11 +534,11 @@ Raider.prototype.clearTask = function() {
 		this.dedicatingResource = false;
 		this.currentTask.dedicatedResources[this.currentObjectiveResourceType]--;
 	}
-	if (this.currentTask != null) {
+	if (this.currentTask != null && this.taskType(this.currentTask) != "get tool") {
 		this.currentTask.taskPriority = 0; //reset the task priority since it will otherwise remain high priority in some instances (eg. we just drilled a high priority wall and now the rubble is high priority too as a result)
 		tasksInProgress.remove(this.currentTask);
 	}
-	
+	this.getToolName = null;
 	this.busy = false;
 	this.holding = null;
 	//this.holdingAngleDifference = 0; we set this again later anyway; no need to reset it here, in case we are calling clearTask but do not actually want to lose currently held info
@@ -549,6 +563,9 @@ Raider.prototype.taskType = function(task) {
 	if (typeof task.space != "undefined") {
 		return "collect";
 	}
+	if (typeof task.isBuilding != "undefined" && task.isBuilding == true && task.type == "tool store") {
+		return "get tool";
+	}
 };
 function Raider(space) { //TODO: BUG WHERE SOMETIMES RAIDER STARTS IN THE RIGHT WALL AT THE VERY BEGINNING. CHECK IF THIS HAS BEEN FIXED
 	RygameObject.call(this,0,0,1,1,"raider 1 (1).png",gameLayer);
@@ -569,5 +586,7 @@ function Raider(space) { //TODO: BUG WHERE SOMETIMES RAIDER STARTS IN THE RIGHT 
 	this.drawAngle = 0;
 	this.reservingResource = false; //set to true if a resource has been reserved from the toolstore by this raider in case his trip is cancelled for some reason
 	this.dedicatingResource = false;
+	this.getToolName = null;
 	this.busy = false; //this means the raider is in the middle of performing a task (ex drilling, picking up an object, etc..) and is NOT walking
+	this.completedLastFrame = []; //if we completed a task we let other raiders know by setting that task's completedBy variable, but we have to make sure to set it back to null on the following frame, regardless of whether or not it is still the currentTask at that time, or if we completed more than one task (see: chain reaction when drilling)
 }

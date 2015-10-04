@@ -395,6 +395,7 @@ function clearRubble() {
 		var curIndex = tasksAvailable.indexOf(selection[i]);
 		if (curIndex != -1) {
 			selection[i].taskPriority = 1;
+			//console.log("clear rubble called");
 		}
 	}
 }
@@ -404,10 +405,42 @@ function buildPowerPath() {
 		return;
 	}
 	for (var i = 0; i < selection.length; i++) {
-		selection[i].buildingSiteType = "power path"; //this should probably be assigned somewhere else..
-		selection[i].setTypeProperties("building site"); 
+		if (selection[i].type == "ground") {
+			selection[i].buildingSiteType = "power path"; //this should probably be assigned somewhere else..
+			selection[i].setTypeProperties("building site"); 
+			tasksAvailable.push(selection[i]);
+		}
 	}
 	
+}
+
+function getTool(toolName) {
+	for (var i = 0; i < selection.length; i++) {
+		if (selection[i].currentObjective == null && selection[i].holding == null && selection[i].tools.indexOf(toolName) == -1) {
+			var newPath;
+			var buildingIndex;
+			for (var j = 0; j < buildings.length; j++) {
+				buildingIndex = j;
+				if (buildings[j].type == "tool store") {
+					newPath = calculatePath(terrain,selection[i].space,buildings[j]);
+					if (newPath != null) {
+						break;
+					}
+				}
+			}
+			if (newPath == null) {
+				return; //no toolstore found or unable to path to any toolstores
+			}
+			selection[i].currentTask = buildings[buildingIndex];
+			selection[i].currentPath = newPath;
+			selection[i].currentObjective = selection[i].currentTask;
+			selection[i].getToolName = toolName;
+			//should i be setting task priority here?
+			/*if (tasksInProgress.indexOf(selection[i].currentTask) == -1) {
+				tasksInProgress.push(selection[i].currentTask); //do we even need to add 'get tool' tasks to tasksInProgress?
+			}*/
+		}
+	}
 }
 
 function stopMinifig() {
@@ -434,6 +467,7 @@ buttons.push(new Button(46,0,0,0,"cancel selection button 1 (1).png",gameLayer, 
 //raider selected buttons
 buttons.push(new Button(86,0,0,0,"unload minifig button 1 (1).png",gameLayer, unloadMinifig,false,["raider"]));
 buttons.push(new Button(126,0,0,0,"stop minifig button 1 (1).png",gameLayer, stopMinifig,false,["raider"]));
+buttons.push(new Button(166,0,0,0,"get shovel button 1 (1).png",gameLayer, getTool,false,["raider"],["shovel"]));
 
 //item selected buttons
 buttons.push(new Button(86,0,0,0,"grab item button 1 (1).png",gameLayer, grabItem,false,["ore","crystal"]));
@@ -564,7 +598,7 @@ function update() {
 				}
 				if (spaceSelected != null) {
 					selection = [spaceSelected];
-					selectionType = spaceSelected.type;
+					selectionType = spaceSelected.touched == true ? spaceSelected.type : "solid rock";
 				}
 			}
 		}
@@ -778,13 +812,20 @@ function update() {
 			//GameManager.drawSurface.fillText(i + ", " + r,terrain[i][r].x-terrain[i][r].drawLayer.cameraX,terrain[i][r].y-terrain[i][r].drawLayer.cameraY);
 		}
 	}*/
+	
+	for (var i = 0; i < terrain.length; i++) {
+		for (var r = 0; r < terrain[i].length; r++) {
+			GameManager.drawText((terrain[i][r].taskPriority == null ? 0 : terrain[i][r].taskPriority),terrain[i][r].centerX()-terrain[i][r].drawLayer.cameraX,terrain[i][r].centerY()-terrain[i][r].drawLayer.cameraY,true,true);
+		}
+	}
+	
 	GameManager.setFontSize(48);
 	GameManager.drawSurface.fillStyle = "rgb(65, 218, 0)";
 	GameManager.drawSurface.fillText("Ore: " + collectedResources["ore"],600,40);
 	GameManager.drawSurface.fillText("Energy Crystals: " + collectedResources["crystal"],341,100);
 	GameManager.setFontSize(36);
 	//GameManager.drawSurface.fillText("Selection: " + (selection.length == 0 ? "None" : selection.constructor.name + " at position: " + (typeof selection.space == "undefined" ? selection.listX + "," + selection.listY : selection.space.listX + "," + selection.space.listY)),8,592); //to be replaced with classic green selection rectangle
-	GameManager.drawSurface.fillText("Selection Type: " + selectionType,8,592); //to be replaced with classic green selection rectangle
+	GameManager.drawSurface.fillText("Selection Type: " + selectionType + (selectionType == null ? "" : (" x " + selection.length)),8,592); //to be replaced with classic green selection rectangle
 	
 	/*var resourcesAvailable = 0;
 	for (var i = 0; i < tasksAvailable.length; i ++) {

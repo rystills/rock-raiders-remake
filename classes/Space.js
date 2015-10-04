@@ -2,7 +2,12 @@ makeChild("Space","RygameObject");
 Space.prototype.makeFloor = function() {
 	this.setTypeProperties("ground",this.image == "ground 1 (1).png");
 };
-Space.prototype.makeRubble = function(rubbleContainsOre) {
+Space.prototype.makeRubble = function(rubbleContainsOre,drilledBy) {
+	if (drilledBy != null) {
+		this.completedBy = drilledBy;
+		drilledBy.completedLastFrame.push(this);
+	}
+	//this.drilledBy = drilledBy;
 	this.setTypeProperties("rubble 1",false,rubbleContainsOre); //setTypeProperties will check the value of rubbleContainsOre for us, so no need to do a type check here, just pipe it in
 	for (var i = this.containedCrystals; i > 0; i--) {
 		this.containedCrystals--;
@@ -31,13 +36,15 @@ Space.prototype.makeRubble = function(rubbleContainsOre) {
 	
 	for (var i = 0; i < adjacentSpaces.length; i++) {
 		if (adjacentSpaces[i] != null && adjacentSpaces[i].isWall == true) {
-			adjacentSpaces[i].checkWallSupported();
+			//adjacentSpaces[i].drilledBy = this;
+			adjacentSpaces[i].checkWallSupported(drilledBy);
 		}
 	}
 	//console.log(tasksAvailable.indexOf(this));
 	touchAllAdjacentSpaces(this);
+	//this.drilledBy = null;
 };
-Space.prototype.checkWallSupported = function() {
+Space.prototype.checkWallSupported = function(drilledBy) {
 	if (!this.isWall) {
 		return;
 	}
@@ -56,7 +63,7 @@ Space.prototype.checkWallSupported = function() {
 	if ((adjacentSpaceIsWall[0] || adjacentSpaceIsWall[1]) && (adjacentSpaceIsWall[2] || adjacentSpaceIsWall[3])) {
 		return;
 	}
-	this.makeRubble(true);
+	this.makeRubble(true,drilledBy);
 };
 Space.prototype.sweep = function() {
 	if (this.rubbleContainsOre == true) {
@@ -362,6 +369,8 @@ function Space(type,listX,listY) {
 	this.containedOre = 0; //defined by the cryore map and set immediately after Space creation
 	this.containedCrystals = 0; //defined by the cryore map and set immediately after Space creation
 	this.contains = new ObjectGroup(); //objects which currently reside on the space. can be infinite (ex. collectables)
+	this.completedBy = null;
+	//this.drilledBy = null;
 	/*if (maskUntouchedSpaces == false) { //need this check since the first time setTypeProperties is called it cannot change the image as the RygameObject constructor has not yet been called
 		this.setTypeProperties(this.type);
 	}*/

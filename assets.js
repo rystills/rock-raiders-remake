@@ -29,6 +29,7 @@ object = {
           ["img", "images", "grab item button 1 (1).png"], //button to instruct a raider to pick up item (collectable, dynamite, etc..)
           ["img", "images", "drill wall button 1 (1).png"], //button to instruct a raider to drill a wall
           ["img", "images", "clear rubble button 1 (1).png"], //button to instruct a raider to clear rubble
+          ["img", "images", "get shovel button 1 (1).png"], //button to instruct a raider to get a shovel from the nearest toolstore
           ["img", "images", "build power path button 1 (1).png"], //button to instruct a raider to build a power path
           ["img", "images", "cancel selection button 1 (1).png"], //cancel selection button
           ["img", "images", "unload minifig button 1 (1).png"], //unload minifig button (drops held object)
