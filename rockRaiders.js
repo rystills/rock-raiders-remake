@@ -246,7 +246,33 @@ var predugMapName = "Dugg_01.js";
 for (var i = 0; i < GameManager.scriptObjects[terrainMapName].level.length; i++) {
 	terrain.push([]);
 	for (var r = 0; r < GameManager.scriptObjects[terrainMapName].level[i].length; r++) {
-		terrain[i].push(new Space(GameManager.scriptObjects[terrainMapName].level[i][r],i,r));
+		
+		if (GameManager.scriptObjects[predugMapName].level[i][r] == 0) {
+			if (GameManager.scriptObjects[terrainMapName].level[i][r] == 5) {
+				terrain[i].push(new Space(4,i,r));	
+			}
+			else {
+				terrain[i].push(new Space(GameManager.scriptObjects[terrainMapName].level[i][r],i,r));
+			}
+		}
+				
+		else if (GameManager.scriptObjects[predugMapName].level[i][r] == 3 || GameManager.scriptObjects[predugMapName].level[i][r] == 4) {
+			//TODO: REPLACE THIS 'GROUND' SPACE WITH SLIMY SLUG HOLE ONCE SLUG HOLES HAVE BEEN IMPLEMENTED AS A GROUND TYPE
+			terrain[i].push(new Space(0,i,r));
+		}
+		else if (GameManager.scriptObjects[predugMapName].level[i][r] == 1 || GameManager.scriptObjects[predugMapName].level[i][r] == 2) {
+			if (GameManager.scriptObjects[terrainMapName].level[i][r] == 6) {
+				terrain[i].push(new Space(6,i,r));
+			}
+			else if (GameManager.scriptObjects[terrainMapName].level[i][r] == 9) {
+				terrain[i].push(new Space(9,i,r));
+			}
+			else {
+				terrain[i].push(new Space(0,i,r));
+			}
+		}
+		
+		//terrain[i].push(new Space(GameManager.scriptObjects[terrainMapName].level[i][r],i,r));
 		var currentCryOre = GameManager.scriptObjects[cryoreMapName].level[i][r];
 		if (currentCryOre % 2 == 1) {
 			terrain[i][r].containedCrystals = (currentCryOre + 1) / 2;
@@ -268,7 +294,7 @@ for (var i = 0; i < GameManager.scriptObjects[predugMapName].level.length; i++) 
 for (var i = 0; i < GameManager.scriptObjects[predugMapName].level.length; i++) {
 	for (var r = 0; r < GameManager.scriptObjects[predugMapName].level[i].length; r++) {
 		var currentPredug = GameManager.scriptObjects[predugMapName].level[i][r];
-		if (currentPredug == 1) {
+		if (currentPredug == 1 || currentPredug == 3) {
 			touchAllAdjacentSpaces(terrain[i][r]); //i dont like that this is being called for each space individually, but there shouldn't be any overlap, just seems kinda overkill
 			//terrain[i][r].updateTouched(true); //this is done by touchAllAdjacentSpaces so it would be unnecessary to do it twice
 		}
@@ -411,14 +437,13 @@ function buildPowerPath() {
 			tasksAvailable.push(selection[i]);
 		}
 	}
-	
 }
 
 function getTool(toolName) {
 	for (var i = 0; i < selection.length; i++) {
 		if (selection[i].currentObjective == null && selection[i].holding == null && selection[i].tools.indexOf(toolName) == -1) {
-			var newPath;
-			var buildingIndex;
+			var newPath = null;
+			var buildingIndex = null;
 			for (var j = 0; j < buildings.length; j++) {
 				buildingIndex = j;
 				if (buildings[j].type == "tool store") {
