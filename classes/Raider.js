@@ -321,7 +321,7 @@ Raider.prototype.update = function() {
 					//}
 					//else {
 					this.tools.unshift(this.getToolName);
-					if (this.tools.length >= this.maxTools) {
+					if (this.tools.length > this.maxTools) {
 						this.tools.pop();
 					}
 					this.clearTask();
