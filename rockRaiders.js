@@ -441,7 +441,7 @@ function buildPowerPath() {
 
 function getTool(toolName) {
 	for (var i = 0; i < selection.length; i++) {
-		if (selection[i].currentObjective == null && selection[i].holding == null && selection[i].tools.indexOf(toolName) == -1) {
+		if (selection[i].currentObjective == null && selection[i].holding == null && selection[i].tools.indexOf(toolName) == -1) { //&& selection[i].tools.length < selection[i].maxTools) {
 			var newPath = null;
 			var buildingIndex = null;
 			for (var j = 0; j < buildings.length; j++) {

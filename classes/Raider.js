@@ -316,7 +316,14 @@ Raider.prototype.update = function() {
 				
 				if (taskType == "get tool") {
 					//console.log("TEST POINT REACHED!");
-					this.tools.push(this.getToolName);
+					//if (this.tools.length < this.maxTools) {
+					//	this.tools.push(this.getToolName);
+					//}
+					//else {
+					this.tools.unshift(this.getToolName);
+					if (this.tools.length >= this.maxTools) {
+						this.tools.pop();
+					}
 					this.clearTask();
 				}
 				
@@ -567,6 +574,14 @@ Raider.prototype.taskType = function(task) {
 		return "get tool";
 	}
 };
+
+Raider.prototype.upgrade = function() {
+	if (this.upgradeLevel < 3) {
+		this.upgradeLevel += 1;
+		this.maxTools += 1;
+	}
+};
+
 function Raider(space) { //TODO: BUG WHERE SOMETIMES RAIDER STARTS IN THE RIGHT WALL AT THE VERY BEGINNING. CHECK IF THIS HAS BEEN FIXED
 	RygameObject.call(this,0,0,1,1,"raider 1 (1).png",gameLayer);
 	this.space = space;
@@ -578,7 +593,9 @@ function Raider(space) { //TODO: BUG WHERE SOMETIMES RAIDER STARTS IN THE RIGHT 
 	this.reinforceSpeed = 1;
 	this.grabSpeed = 5; 
 	this.dropSpeed = 8; 
-	this.tools = ["drill"]; //raiders by default can only carry 2 tools; the length of the list dictates how many tools they can carry for now. this will later be replaced with level when an upgrade system is implemented
+	this.tools = ["drill"]; //raiders by default can only carry 2 tools; each upgrade level increases this limit by one
+	this.maxTools = 2;
+	this.upgradeLevel = 0; //max tools held = 2 + upgradeLevel
 	this.currentTask = null; 
 	this.currentPath = null;
 	this.holding = null;
