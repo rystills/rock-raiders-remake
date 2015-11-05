@@ -94,7 +94,7 @@ Raider.prototype.update = function() {
 			if (this.taskType(this.currentTask) == "build") {
 				tasksAvailable.push(this.currentTask); //there is no limit to how many raiders may be on a build task at once (currently unlike other task types) so add it back into the available list if we chose it and did not put it in the unavailable list already. this can be optimized by not removing it from the available list in the first place
 			} //TODO: ENSURE THAT YOU DO NOT MAKE IT POSSIBLE FOR THE TASK TO SIMULTANEOUSLY BE IN TASKSAVAILABLE AND IN TASKSUNAVAILABLE (OR IN ONE OF THE LISTS MULTIPLE TIMES) IN THE FUTURE DUE TO THE FACT THAT THIS TASK CAN BE ASSIGNED TO MULTIPLE RAIDERS AT ONCE
-			this.currentPath = calculatePath(terrain,this.space,typeof this.currentObjective.space == "undefined" ? this.currentObjective: this.currentObjective.space);
+			this.currentPath = findClosestStartPath(this,calculatePath(terrain,this.space,typeof this.currentObjective.space == "undefined" ? this.currentObjective: this.currentObjective.space,true));
 			if (this.currentPath == null) { //TODO: CHANGE THIS AS CURRENTLY THERE IS NO WAY TO GET THESE TASKS BACK FROM UNAVAILABLE, AND THEY MAY BE UNAVAILABLE TO ONE RAIDER BUT NOT TO ANOTHER ONE
 				tasksUnavailable.push(this.currentTask); //TODO: THIS IS REPEAT CODE COPIED FROM ABOVE. FIX COMMENTS
 				//nowhere to bring the resource, so wait for a place to bring the resource to appear
@@ -254,7 +254,7 @@ Raider.prototype.update = function() {
 										//this case really shouldn't come up with the way the ai is designed right now, but since the resource we just took from a tool store is not needed at the build site anymore, just put it back in the store
 									}*/
 									this.currentObjective = this.currentTask;
-									this.currentPath = calculatePath(terrain,this.space,this.currentObjective);
+									this.currentPath = findClosestStartPath(this,calculatePath(terrain,this.space,this.currentObjective,true));
 								}
 							}
 							
@@ -394,7 +394,7 @@ Raider.prototype.update = function() {
 							}
 							
 							if (this.currentObjective != this.currentTask) {
-								var newPath = calculatePath(terrain,this.space,this.currentObjective);
+								var newPath = findClosestStartPath(this,calculatePath(terrain,this.space,this.currentObjective,true));
 								if (newPath != null) {
 									this.currentPath = newPath;
 									this.busy = false;
@@ -539,7 +539,34 @@ Raider.prototype.clearTask = function() {
 	}
 	if (this.dedicatingResource == true) {
 		this.dedicatingResource = false;
-		this.currentTask.dedicatedResources[this.currentObjectiveResourceType]--;
+		var dedicatedResourceLocation = this.currentTask;
+		if (this.holding == null) { //TODO: JUST IMPLEMENTED THIS FIX; VERIFY THAT THIS FUNCTIONS CORRECTLY IN ALL CASES
+			//console.log("CURRENT TASK CLEAR: " + this.currentTask.dedicatedResources["ore"]);
+			//console.log("THIS.CURRENTOBJECTIVERESOURCETYPE: " + this.currentObjectiveResourceType);
+			this.currentTask.dedicatedResources[this.currentObjectiveResourceType]--; //the case inside this if statement should never be true, but is in place in case the dedicating system changes in the future to allow for dedicating before picking up a collectable
+		}
+		else {
+			//console.log("CURRENT OBJECTIVE CLEAR: " + this.currentObjective.dedicatedResources["ore"]);
+			//console.log("THIS.CURRENTOBJECTIVERESOURCETYPE: " + this.currentObjectiveResourceType);
+			this.currentObjective.dedicatedResources[this.holding.type]--;
+			dedicatedResourceLocation = this.currentObjective;
+		}
+		if (tasksAvailable.indexOf(dedicatedResourceLocation) == -1 && tasksUnavailable.objectList.indexOf(dedicatedResourceLocation) == -1) { //TODO: UNTESTED; CHECK THAT THIS BLOCK WORKS CORRECTLY
+			//if the resource location is not in either task list, that means our resource was one of the only ones still required, so only check for our resource which has been cancelled 
+			if (resourceAvailable(this.holding.type)) {
+				tasksAvailable.push(dedicatedResourceLocation);
+			}
+			else {
+				tasksUnavailable.objectList.push(dedicatedResourceLocation);
+			}
+		}
+		/*if (tasksAvailable.indexOf(dedicatedResourceLocation) == -1) { //if we were taking the last resource to an objective but cancelled, add the site back to tasksAvailable
+			tasksAvailable.push(dedicatedResourceLocation); //also need to handle case where the objective has to be added back to tasksUnavailable instead of available
+		}*/ 
+		
+		//check if the building site to which we dedicated the resource needs to be added back to tasksAvailable or tasksUnavailable
+		
+	
 	}
 	if (this.currentTask != null && this.taskType(this.currentTask) != "get tool") {
 		this.currentTask.taskPriority = 0; //reset the task priority since it will otherwise remain high priority in some instances (eg. we just drilled a high priority wall and now the rubble is high priority too as a result)
@@ -553,6 +580,8 @@ Raider.prototype.clearTask = function() {
 	this.currentTask = null;
 	this.currentObjectiveResourceType = null;
 	this.currentPath = null;
+	
+	this.space = getNearestSpace(terrain,this);
 };
 Raider.prototype.taskType = function(task) {
 	if (typeof task == "undefined" || task == null) {
@@ -574,6 +603,24 @@ Raider.prototype.taskType = function(task) {
 		return "get tool";
 	}
 };
+
+/*Raider.prototype.closestSpace = function() {
+	var distance = -1;
+	var space = null;
+	var curDistance;
+	var centerx = this.centerX();
+	var centery = this.centerY();
+	for (var i = 0; i < terrain.length; i++) {
+		for (var r = 0; r < terrain[i].length; i++) {
+			curDistance = getDistance(centerx,centery, terrain[i][r].centerX(),terrain[i][r].centerY());
+			if (distance == -1 || curDistance < distance) {
+				distance = curDistance;
+				space = terrain[i][r];
+			}
+		}
+	}
+	return space;
+};*/
 
 Raider.prototype.upgrade = function() {
 	if (this.upgradeLevel < 3) {

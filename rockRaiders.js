@@ -129,16 +129,41 @@ function touchAllAdjacentSpaces(initialSpace) {
 	}
 }
 
-function calculatePath(terrain,startSpace,goalSpace) { 
-	if (startSpace == goalSpace) {
-		return [goalSpace];
+function findClosestStartPath(startObject,paths) {
+	if (paths == null) {
+		return null;
 	}
+	//console.log(paths);
+	var closestDistance = -1;
+	var closestIndex = -1;
+	var startObjectCenterX = startObject.centerX();
+	var startObjectCenterY = startObject.centerY();
+	for (var i = 0; i < paths.length; i++) {
+		var curDistance = getDistance(startObjectCenterX,startObjectCenterY,paths[i][0].centerX(),paths[i][0].centerY());
+		if (closestDistance == -1 || curDistance < closestDistance) {
+			closestDistance = curDistance;
+			closestIndex = i;
+		}
+	}
+	return paths[closestIndex];
+}
+
+function calculatePath(terrain,startSpace,goalSpace,returnAllSolutions) { 
+	if (startSpace == goalSpace) {
+		if (!returnAllSolutions) {
+			return [goalSpace];
+		}
+		return [[goalSpace]];
+	}
+	
 	startSpace.goalDistance = Math.abs(goalSpace.listX - startSpace.listX) + Math.abs(goalSpace.listY - startSpace.listY); //remember this is the least possible distance, not the actual distance
 	startSpace.startDistance = 0;
 	startSpace.finalDistance = startSpace.goalDistance;
 	startSpace.parent = null;
 	priorityQueue = []; //TODO: this really deserves a better data structure than a list that we keep sorted with binarySearch ;)
 	closedSet = [];
+	var solutions = null;
+	var finalPathDistance = -1;
 	openSet = [startSpace];
 	while (openSet.length > 0) {
 				
@@ -161,7 +186,20 @@ function calculatePath(terrain,startSpace,goalSpace) {
 					path.push(newSpace);
 				}
 				//path.splice(-1,1); //do not return the starting space as part of the path
-				return path;
+				if (returnAllSolutions != true) {
+					return path;
+				}
+				if (finalPathDistance == -1) {
+					finalPathDistance = path.length;
+					solutions = [];
+				}
+				else {
+					if (finalPathDistance != path.length) {
+						return solutions;
+					}
+				}
+				solutions.push(path);
+				continue;
 			}
 
 			
@@ -184,7 +222,7 @@ function calculatePath(terrain,startSpace,goalSpace) {
 			}
 		}
 	}
-	return null; //no path was found
+	return solutions; //if solutions is null then that means that no path was found
 	
 }
 
@@ -447,7 +485,7 @@ function getTool(toolName) {
 			for (var j = 0; j < buildings.length; j++) {
 				buildingIndex = j;
 				if (buildings[j].type == "tool store") {
-					newPath = calculatePath(terrain,selection[i].space,buildings[j]);
+					newPath = findClosestStartPath(selection[i],calculatePath(terrain,selection[i].space,buildings[j],true));
 					if (newPath != null) {
 						break;
 					}
@@ -775,7 +813,7 @@ function update() {
 							tasksInProgress.push(selectedTask);
 						}
 						//TODO: cleanup the code at the top of the Raider class which deals with choosing a task, stick it in a method, and reuse it here for simplicity
-						selection[i].currentPath = calculatePath(terrain,selection[i].space,typeof selectedTask.space == "undefined" ? selectedTask: selectedTask.space);
+						selection[i].currentPath = findClosestStartPath(selection[i],calculatePath(terrain,selection[i].space,typeof selectedTask.space == "undefined" ? selectedTask: selectedTask.space,true));
 				
 					}
 				}
@@ -838,9 +876,14 @@ function update() {
 		}
 	}*/
 	
-	for (var i = 0; i < terrain.length; i++) {
+	/*for (var i = 0; i < terrain.length; i++) {
 		for (var r = 0; r < terrain[i].length; r++) {
 			GameManager.drawText((terrain[i][r].taskPriority == null ? 0 : terrain[i][r].taskPriority),terrain[i][r].centerX()-terrain[i][r].drawLayer.cameraX,terrain[i][r].centerY()-terrain[i][r].drawLayer.cameraY,true,true);
+		}
+	}*/
+	for (var i = 0; i < terrain.length; i++) {
+		for (var r = 0; r < terrain[i].length; r++) {
+			GameManager.drawText((terrain[i][r].dedicatedResources == null ? "" : "+" + terrain[i][r].dedicatedResources["ore"]),terrain[i][r].centerX()-terrain[i][r].drawLayer.cameraX,terrain[i][r].centerY()-terrain[i][r].drawLayer.cameraY,true,true);
 		}
 	}
 	
