@@ -14,6 +14,16 @@ function printTerrain(terrain) {
 	}
 }
 
+function printPath(path) {
+	pathString = "[";
+	for (var i = 0; i < path.length; i++) {
+		pathString += " (" + path[path.length-(i+1)].listX + ", " + path[path.length-(i+1)].listY + ") >";
+	}
+	pathString = pathString.substring(0,pathString.length-2);
+	pathString +="]";
+	console.log(pathString);
+}
+
 function getNearestSpace(terrain,object) {
 	var closestDistance = -1;
 	var closestObject = null;
@@ -130,21 +140,27 @@ function touchAllAdjacentSpaces(initialSpace) {
 }
 
 function findClosestStartPath(startObject,paths) {
+	//console.log(paths);
 	if (paths == null) {
 		return null;
 	}
-	//console.log(paths);
 	var closestDistance = -1;
 	var closestIndex = -1;
 	var startObjectCenterX = startObject.centerX();
 	var startObjectCenterY = startObject.centerY();
+	//console.log("CENTERX: "  + startObjectCenterX + " CENTERY: "  + startObjectCenterY);
 	for (var i = 0; i < paths.length; i++) {
-		var curDistance = getDistance(startObjectCenterX,startObjectCenterY,paths[i][0].centerX(),paths[i][0].centerY());
+		//console.log(path);
+		var curDistance = getDistance(startObjectCenterX,startObjectCenterY,paths[i][paths[i].length-1].centerX(),paths[i][paths[i].length-1].centerY());
+		//console.log("curDistance: " + curDistance);
+		//console.log("myIdx: " + startObject.space.listX + " myIDy: " + startObject.space.listY + " path[" + i + "] centerx: " + paths[i][paths[i].length-1].centerX() + " centery: " + paths[i][paths[i].length-1].centerY() + " idx: " + paths[i][paths[i].length-1].listX + " idy: " + paths[i][paths[i].length-1].listY); //nice infoDump
+		//printPath(paths[i]);
 		if (closestDistance == -1 || curDistance < closestDistance) {
 			closestDistance = curDistance;
 			closestIndex = i;
 		}
 	}
+	//console.log("findClosestStartPath closestDistance: " + closestDistance);
 	return paths[closestIndex];
 }
 
@@ -156,15 +172,17 @@ function calculatePath(terrain,startSpace,goalSpace,returnAllSolutions) {
 		return [[goalSpace]];
 	}
 	
+	goalSpace.parents = [];
+	
 	startSpace.goalDistance = Math.abs(goalSpace.listX - startSpace.listX) + Math.abs(goalSpace.listY - startSpace.listY); //remember this is the least possible distance, not the actual distance
 	startSpace.startDistance = 0;
 	startSpace.finalDistance = startSpace.goalDistance;
-	startSpace.parent = null;
-	priorityQueue = []; //TODO: this really deserves a better data structure than a list that we keep sorted with binarySearch ;)
-	closedSet = [];
-	var solutions = null;
+	startSpace.parents = [];
+	//priorityQueue = []; //TODO: this really deserves a better data structure than a list that we keep sorted with binarySearch ;)
+	var closedSet = [];
+	var solutions = [];
 	var finalPathDistance = -1;
-	openSet = [startSpace];
+	openSet = [startSpace]; //TODO: we can speed up the algorithm quite a bit if we use hashing for lookup rather than lists
 	while (openSet.length > 0) {
 				
 		currentSpace = openSet.shift();  //TODO: keep the list sorted in reverse for this algorithm so that you can insert and remove from the back of the list rather than shifting all of the elements when inserting and removing (minor performance improvement)
@@ -177,40 +195,71 @@ function calculatePath(terrain,startSpace,goalSpace,returnAllSolutions) {
 		for (var k = 0; k < adjacentSpaces.length; k++) {
 			var newSpace = adjacentSpaces[k];
 			
+			if ((finalPathDistance != -1) && (currentSpace.startDistance + 1 > finalPathDistance)) {
+				return solutions;
+			}
+			
 			//check this here so that the algorithm is a little bit faster, but also so that paths to non-walkable terrain pieces (such as for drilling) will work
 			if (newSpace == goalSpace) {
-				newSpace.parent = currentSpace;
-				path = [newSpace];
-				while (newSpace.parent != startSpace) {
-					newSpace = newSpace.parent;
-					path.push(newSpace);
+				//newSpace.parents.push(currentSpace);
+				newSpace.parents = [currentSpace];
+				pathsFound = [[newSpace]];
+				//while (newSpace.parent != startSpace) {
+				while (pathsFound.length > 0) {
+					if (pathsFound[0][pathsFound[0].length-1].parents[0] == startSpace) {
+						if (!returnAllSolutions) {
+							return pathsFound[0];
+						}
+						finalPathDistance = pathsFound[0].length;
+						solutions.push(pathsFound.shift());
+						continue;
+						
+					}
+					for (var i = 0; i < pathsFound[0][pathsFound[0].length-1].parents.length; i++) {
+						if (i == pathsFound[0][pathsFound[0].length-1].parents.length - 1) {
+							pathsFound[0].push(pathsFound[0][pathsFound[0].length-1].parents[i]);
+						}
+						else {
+							pathsFound.push(pathsFound[0].slice());
+							pathsFound[pathsFound.length-1].push(pathsFound[0][pathsFound[0].length-1].parents[i]);
+						}
+					}
 				}
 				//path.splice(-1,1); //do not return the starting space as part of the path
-				if (returnAllSolutions != true) {
+				/*if (returnAllSolutions != true) {
 					return path;
-				}
-				if (finalPathDistance == -1) {
+				}*/
+				/*if (finalPathDistance == -1) {
 					finalPathDistance = path.length;
 					solutions = [];
-				}
-				else {
+				}*/
+				/*else {
 					if (finalPathDistance != path.length) {
 						return solutions;
 					}
 				}
 				solutions.push(path);
-				continue;
+				continue;*/
 			}
 
+			/*if (newSpace.listX == 15 && newSpace.listY == 12) {
+				console.log("FOUND 15,12");
+			}*/
 			
-			if ((newSpace != null) && (newSpace.walkable == true)) {
-				if (closedSet.indexOf(newSpace) != -1) {
-					continue;
-				}
+			if ((newSpace != null) && (newSpace.walkable == true)) {					
+				
 				newStartDistance = currentSpace.startDistance + 1;
 				notInOpenSet = openSet.indexOf(newSpace) == -1;
-				if (notInOpenSet || newSpace.startDistance >= newStartDistance) { 
-					newSpace.parent = currentSpace;
+				
+				if ((closedSet.indexOf(newSpace) != -1) && (newSpace.startDistance < newStartDistance)) {
+					continue;
+				}
+				
+				if (notInOpenSet || newSpace.startDistance == newStartDistance) { 
+					if (notInOpenSet ) {//|| newSpace.startDistance > newStartDistance) { //newSpace.startDistance > newStartDistance should be an impossible case
+						newSpace.parents = [];
+					}
+					newSpace.parents.push(currentSpace);
 					newSpace.goalDistance = Math.abs(goalSpace.listX - newSpace.listX) + Math.abs(goalSpace.listY - newSpace.listY);
 					newSpace.startDistance = newStartDistance;
 					newSpace.finalDistance = newSpace.goalDistance + newSpace.startDistance; //TODO: test this, it does not appear like it should be an effective herustic to me, not entirely sure yet
@@ -221,6 +270,9 @@ function calculatePath(terrain,startSpace,goalSpace,returnAllSolutions) {
 				
 			}
 		}
+	}
+	if (solutions.length == 0) {
+		return null;
 	}
 	return solutions; //if solutions is null then that means that no path was found
 	
@@ -263,7 +315,7 @@ toolsRequired = {
 terrain = [];
 buildings = []; //similar to terrain[], just holds spaces which are buildings so that they can be easily located by raiders.
 buildingSites = []; //used by raider ai pathfinding in a similar manner to buildings[]
-terrainImages = ["wall 1 (1).png","ground 1 (1).png"];
+//terrainImages = ["wall 1 (1).png","ground 1 (1).png"];
 
 tasksAvailable = [];//.concat(collectables.objectList); //TODO: CHANGE TASKSAVAILABLE FROM A LIST TO AN OBJECTGROUP
 tasksUnavailable = new ObjectGroup();
@@ -861,12 +913,12 @@ function update() {
 	GameManager.drawSurface.fillStyle = "rgb(255, 0, 0)";
 	//GameManager.setFontSize(24);
 	//console.log(GameManager.drawSurface.font);
-	/*for (var i = 0; i < terrain.length; i++) {
+	for (var i = 0; i < terrain.length; i++) {
 		for (var r = 0; r < terrain[i].length; r++) {
 			GameManager.drawText(i + ", " + r,terrain[i][r].centerX()-terrain[i][r].drawLayer.cameraX,terrain[i][r].centerY()-terrain[i][r].drawLayer.cameraY,true,true);
 			//GameManager.drawSurface.fillText(i + ", " + r,terrain[i][r].x-terrain[i][r].drawLayer.cameraX,terrain[i][r].y-terrain[i][r].drawLayer.cameraY);
 		}
-	}*/
+	}
 	//GameManager.drawSurface.fillStyle = "rgb(0, 0, 255)";
 	/*GameManager.setFontSize(36);
 	for (var i = 0; i < terrain.length; i++) {
