@@ -696,7 +696,7 @@ RygameObject.prototype.rotateAroundPoint = function(x,y,angleRadians,angleDiffer
 	this.drawAngle = angleRadians+angleDifferenceRadians;
 	this.moveDirection(angleRadians / Math.PI * 180, moveDistance);
 };
-RygameObject.prototype.changeImage = function(imageName,clearRect) {
+RygameObject.prototype.changeImage = function(imageName,clearRect) { //TODO: add dynamic drawSurface and rect resizing to match image changes
 	this.image = GameManager.images[imageName];
 	if (clearRect) {
 		this.drawSurface.clearRect(0, 0, this.rect.width, this.rect.height);

@@ -42,7 +42,7 @@ Raider.prototype.update = function() {
 				destinationSite = null;
 				if (buildings.length > 0) {
 					for (var i = 0; i < buildings.length; i++) {
-						if (buildings[i].type == "tool store") {
+						if (buildings[i].type == "tool store" && buildings[i].touched == true) { //if its not touched yet it is not pathable so dont choose it (this case should be impossible though because buildings that start out in Fog are not added to the buildings list until they are touched)
 							destinationSite = buildings[i];
 							break;
 						}
@@ -58,7 +58,7 @@ Raider.prototype.update = function() {
 							//console.log("stuck at this point");
 							if (resourceAvailable(dedicatedResourceTypes[i])) {
 								this.currentObjectiveResourceType = dedicatedResourceTypes[i];
-								reservedResources++;
+								reservedResources[this.currentObjectiveResourceType]++;
 								this.reservingResource = true;
 								foundResourceType = true;
 								break;
@@ -67,6 +67,7 @@ Raider.prototype.update = function() {
 					}
 					//no resources of required types in buildings
 					if (foundResourceType == false) {
+						//console.log("UNAVAILABLE A");
 						tasksUnavailable.push(this.currentTask); //since there are no resources available of types that this build task needs, we move it to tasksUnavailable
 						this.currentObjective = null; //TODO: THIS IS REPEAT CODE; CLEANUP LOGIC IN SUBMETHOD
 						this.currentTask = null;
@@ -75,6 +76,7 @@ Raider.prototype.update = function() {
 					}
 				}
 				else {
+					//console.log("UNAVAILABLE B");
 					tasksUnavailable.push(this.currentTask);
 					//nowhere to bring the resource, so wait for a place to bring the resource to appear
 					this.currentObjective = null; //TODO: SEE IF THIS WORKS. SIMPLY SETTING THE OBJECTIVE TO NULL IS A PLACEHOLDER, A MORE PROPER SOLUTION IS NEEDED TO KEEP RAIDERS IDLE BUT LOOKING FOR A NEW PLACE TO BRING THEIR COLLECTABLE EACH UPDATE FRAME
@@ -87,6 +89,7 @@ Raider.prototype.update = function() {
 			}
 			//tasksInProgress.push(this.currentTask); //TODO: CONSIDER IF THE TASK LISTS SHOULD BE ACTIVELY SORTED, AND IF SO, IN WHAT WAY (SEEMS IT WOULD BE DIFFERENT FOR EACH RAIDER DEPENDING ON LOCATION)?
 			if (!(typeof this.currentTask.space == "undefined" ? this.currentTask.touched: this.currentTask.space.touched)) {
+				//console.log("UNAVAILABLE C")
 				tasksUnavailable.push(this.currentTask);
 				this.currentTask = null;
 				continue;
@@ -96,6 +99,7 @@ Raider.prototype.update = function() {
 			} //TODO: ENSURE THAT YOU DO NOT MAKE IT POSSIBLE FOR THE TASK TO SIMULTANEOUSLY BE IN TASKSAVAILABLE AND IN TASKSUNAVAILABLE (OR IN ONE OF THE LISTS MULTIPLE TIMES) IN THE FUTURE DUE TO THE FACT THAT THIS TASK CAN BE ASSIGNED TO MULTIPLE RAIDERS AT ONCE
 			this.currentPath = findClosestStartPath(this,calculatePath(terrain,this.space,typeof this.currentObjective.space == "undefined" ? this.currentObjective: this.currentObjective.space,true));
 			if (this.currentPath == null) { //TODO: CHANGE THIS AS CURRENTLY THERE IS NO WAY TO GET THESE TASKS BACK FROM UNAVAILABLE, AND THEY MAY BE UNAVAILABLE TO ONE RAIDER BUT NOT TO ANOTHER ONE
+				//console.log("UNAVAILABLE D");
 				tasksUnavailable.push(this.currentTask); //TODO: THIS IS REPEAT CODE COPIED FROM ABOVE. FIX COMMENTS
 				//nowhere to bring the resource, so wait for a place to bring the resource to appear
 				this.currentObjective = null; //TODO: SEE IF THIS WORKS. SIMPLY SETTING THE OBJECTIVE TO NULL IS A PLACEHOLDER, A MORE PROPER SOLUTION IS NEEDED TO KEEP RAIDERS IDLE BUT LOOKING FOR A NEW PLACE TO BRING THEIR COLLECTABLE EACH UPDATE FRAME
@@ -584,24 +588,7 @@ Raider.prototype.clearTask = function() {
 	this.space = getNearestSpace(terrain,this);
 };
 Raider.prototype.taskType = function(task) {
-	if (typeof task == "undefined" || task == null) {
-		return null;
-	}
-	if (typeof task.drillable != "undefined" && task.drillable == true) {
-		return "drill";
-	}
-	if (typeof task.sweepable != "undefined" && task.sweepable == true) {
-		return "sweep";
-	}
-	if (typeof task.buildable != "undefined" && task.buildable == true) {
-		return "build";
-	}
-	if (typeof task.space != "undefined") {
-		return "collect";
-	}
-	if (typeof task.isBuilding != "undefined" && task.isBuilding == true && task.type == "tool store") {
-		return "get tool";
-	}
+	return taskType(task); //this method is now obsolete
 };
 
 /*Raider.prototype.closestSpace = function() {

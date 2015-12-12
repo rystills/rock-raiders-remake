@@ -295,7 +295,7 @@ selectionType = null;
 mousePanning = false;
 keyboardPanning = true;
 
-collectedResources = {"ore":0,"crystal":0};
+collectedResources = {"ore":2,"crystal":0};
 reservedResources = {"ore":0,"crystal":0};
 
 gameLayer = new Layer(0,0,1,1,GameManager.screenWidth,GameManager.screenHeight);
@@ -443,6 +443,28 @@ buttons = new ObjectGroup();
 //function testButtonMethod() {
 //	console.log("PRESSED!");
 //}
+
+function taskType(task) {
+	if (typeof task == "undefined" || task == null) {
+		return null;
+	}
+	if (typeof task.drillable != "undefined" && task.drillable == true) {
+		return "drill";
+	}
+	if (typeof task.sweepable != "undefined" && task.sweepable == true) {
+		return "sweep";
+	}
+	if (typeof task.buildable != "undefined" && task.buildable == true) {
+		return "build";
+	}
+	if (typeof task.space != "undefined") {
+		return "collect";
+	}
+	if (typeof task.isBuilding != "undefined" && task.isBuilding == true && task.type == "tool store") {
+		return "get tool";
+	}
+}
+
 function createRaider() {
 	var toolStore = null;
 	for (var i = 0; i < buildings.length; i++) {
@@ -877,12 +899,46 @@ function update() {
 	GameManager.drawFrame();
 	
 	//post render
+	GameManager.drawSurface.strokeStyle = "rgb(0,255,0)";
+	GameManager.drawSurface.fillStyle = "rgb(0,255,0)";
+	GameManager.drawSurface.lineWidth = 3;
 	if (selectionRectCoords.x1 != null) {
-		GameManager.drawSurface.strokeStyle = "rgb(0,255,0)";
-		GameManager.drawSurface.lineWidth = 3;
 		GameManager.drawSurface.beginPath();
 		GameManager.drawSurface.rect(selectionRectPointList[0],selectionRectPointList[1],selectionRectPointList[2]-selectionRectPointList[0],selectionRectPointList[3]-selectionRectPointList[1]);
+		GameManager.drawSurface.globalAlpha=0.3;
+		GameManager.drawSurface.fillRect(selectionRectPointList[0],selectionRectPointList[1],selectionRectPointList[2]-selectionRectPointList[0],selectionRectPointList[3]-selectionRectPointList[1]);
+		GameManager.drawSurface.globalAlpha=1;
 		GameManager.drawSurface.stroke();
+	}
+	//render selection box
+	GameManager.drawSurface.lineWidth = 2;
+	GameManager.drawSurface.fillStyle = "rgb(0,255,0)";
+	for (var i = 0; i < selection.length; i++) {
+		if (selectionType == "raider") {
+			//draw smallest rotated bounding rect
+			var rectPoints = calculateRectPoints(selection[i],false);
+			GameManager.drawSurface.beginPath();
+			GameManager.drawSurface.moveTo(rectPoints[rectPoints.length-1].x - selection[i].drawLayer.cameraX,rectPoints[rectPoints.length-1].y - selection[i].drawLayer.cameraY);
+			for (var r = 0; r < rectPoints.length; r++) {
+				GameManager.drawSurface.lineTo(rectPoints[r].x - selection[i].drawLayer.cameraX,rectPoints[r].y - selection[i].drawLayer.cameraY);
+			}
+			GameManager.drawSurface.stroke();
+			GameManager.drawSurface.globalAlpha=0.3;
+			GameManager.drawSurface.fill();
+			GameManager.drawSurface.globalAlpha=1;
+			
+			//draw smallest bounding square
+			/*GameManager.drawSurface.beginPath();
+			var rectMaxLength = Math.max(selection[i].rect.width,selection[i].rect.height);
+			var halfRectMaxLength = rectMaxLength/2;
+			GameManager.drawSurface.rect(selection[i].centerX() - halfRectMaxLength - selection[i].drawLayer.cameraX,selection[i].centerY() - halfRectMaxLength - selection[i].drawLayer.cameraY,rectMaxLength,rectMaxLength);
+			GameManager.drawSurface.stroke();*/
+		}
+		else {
+			 GameManager.drawSurface.globalAlpha=0.3;
+			 GameManager.drawSurface.fillRect(selection[i].x - selection[i].drawLayer.cameraX,selection[i].y - selection[i].drawLayer.cameraY,selection[i].rect.width,selection[i].rect.height);
+			 GameManager.drawSurface.globalAlpha=1;
+		}
 	}
 	
 	/*var sweepFound = false;
@@ -913,12 +969,12 @@ function update() {
 	GameManager.drawSurface.fillStyle = "rgb(255, 0, 0)";
 	//GameManager.setFontSize(24);
 	//console.log(GameManager.drawSurface.font);
-	for (var i = 0; i < terrain.length; i++) {
+	/*for (var i = 0; i < terrain.length; i++) {
 		for (var r = 0; r < terrain[i].length; r++) {
 			GameManager.drawText(i + ", " + r,terrain[i][r].centerX()-terrain[i][r].drawLayer.cameraX,terrain[i][r].centerY()-terrain[i][r].drawLayer.cameraY,true,true);
 			//GameManager.drawSurface.fillText(i + ", " + r,terrain[i][r].x-terrain[i][r].drawLayer.cameraX,terrain[i][r].y-terrain[i][r].drawLayer.cameraY);
 		}
-	}
+	}*/
 	//GameManager.drawSurface.fillStyle = "rgb(0, 0, 255)";
 	/*GameManager.setFontSize(36);
 	for (var i = 0; i < terrain.length; i++) {
@@ -947,6 +1003,21 @@ function update() {
 	//GameManager.drawSurface.fillText("Selection: " + (selection.length == 0 ? "None" : selection.constructor.name + " at position: " + (typeof selection.space == "undefined" ? selection.listX + "," + selection.listY : selection.space.listX + "," + selection.space.listY)),8,592); //to be replaced with classic green selection rectangle
 	GameManager.drawSurface.fillText("Selection Type: " + selectionType + (selectionType == null ? "" : (" x " + selection.length)),8,592); //to be replaced with classic green selection rectangle
 	
+	/*console.log("TASKS AVAILABLE START");
+	for (var i = 0; i < tasksAvailable.length; i++) {
+		console.log(tasksAvailable[i]);
+	}
+	console.log("TASKS AVAILABLE END");*/
+	var buildTasksAvailable = 0;
+	for (var i = 0; i < tasksAvailable.length; i++) {
+		if (raiders.objectList[0].taskType(tasksAvailable[i]) == "build") {
+			buildTasksAvailable +=1;
+		}
+	}
+	//if (buildTasksAvailable > 0) {
+	//console.log("build tasks available: " + buildTasksAvailable + (buildTasksAvailable > 0 ? "!!!" : ""));
+	console.log("BUILDINGS NUM: " + buildings.length);
+	//}
 	/*var resourcesAvailable = 0;
 	for (var i = 0; i < tasksAvailable.length; i ++) {
 		if (tasksAvailable[i].space != null) {
