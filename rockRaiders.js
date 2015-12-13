@@ -295,7 +295,7 @@ selectionType = null;
 mousePanning = false;
 keyboardPanning = true;
 
-collectedResources = {"ore":2,"crystal":0};
+collectedResources = {"ore":3,"crystal":0};
 reservedResources = {"ore":0,"crystal":0};
 
 gameLayer = new Layer(0,0,1,1,GameManager.screenWidth,GameManager.screenHeight);
@@ -333,32 +333,33 @@ var terrainMapName = "Surf_01.js";
 var cryoreMapName = "Cror_01.js"; //TODO: CONTINUE ADDING NEW MAPS TO THIS BLOCK OF CODE AND CLEANING IT UP, AND ADD CHECKS IN CASE ANY MAP DOESN'T EXIST FOR THE LEVEL BEING LOADED
 var olFileName = "01.js";
 var predugMapName = "Dugg_01.js";
+var surfaceMapName = "High_01.js";
 for (var i = 0; i < GameManager.scriptObjects[terrainMapName].level.length; i++) {
 	terrain.push([]);
 	for (var r = 0; r < GameManager.scriptObjects[terrainMapName].level[i].length; r++) {
 		
 		if (GameManager.scriptObjects[predugMapName].level[i][r] == 0) {
 			if (GameManager.scriptObjects[terrainMapName].level[i][r] == 5) {
-				terrain[i].push(new Space(4,i,r));	
+				terrain[i].push(new Space(4,i,r,GameManager.scriptObjects[surfaceMapName].level[i][r]));	
 			}
 			else {
-				terrain[i].push(new Space(GameManager.scriptObjects[terrainMapName].level[i][r],i,r));
+				terrain[i].push(new Space(GameManager.scriptObjects[terrainMapName].level[i][r],i,r, GameManager.scriptObjects[surfaceMapName].level[i][r]));
 			}
 		}
 				
 		else if (GameManager.scriptObjects[predugMapName].level[i][r] == 3 || GameManager.scriptObjects[predugMapName].level[i][r] == 4) {
 			//TODO: REPLACE THIS 'GROUND' SPACE WITH SLIMY SLUG HOLE ONCE SLUG HOLES HAVE BEEN IMPLEMENTED AS A GROUND TYPE
-			terrain[i].push(new Space(0,i,r));
+			terrain[i].push(new Space(0,i,r, GameManager.scriptObjects[surfaceMapName].level[i][r]));
 		}
 		else if (GameManager.scriptObjects[predugMapName].level[i][r] == 1 || GameManager.scriptObjects[predugMapName].level[i][r] == 2) {
 			if (GameManager.scriptObjects[terrainMapName].level[i][r] == 6) {
-				terrain[i].push(new Space(6,i,r));
+				terrain[i].push(new Space(6,i,r, GameManager.scriptObjects[surfaceMapName].level[i][r]));
 			}
 			else if (GameManager.scriptObjects[terrainMapName].level[i][r] == 9) {
-				terrain[i].push(new Space(9,i,r));
+				terrain[i].push(new Space(9,i,r, GameManager.scriptObjects[surfaceMapName].level[i][r]));
 			}
 			else {
-				terrain[i].push(new Space(0,i,r));
+				terrain[i].push(new Space(0,i,r, GameManager.scriptObjects[surfaceMapName].level[i][r]));
 			}
 		}
 		
@@ -390,6 +391,13 @@ for (var i = 0; i < GameManager.scriptObjects[predugMapName].level.length; i++) 
 		}
 	}
 }
+
+//for (var i = 0; i < GameManager.scriptObjects[surfaceMapName].level.length; i++) {
+//	for (var r = 0; r < GameManager.scriptObjects[surfaceMapName].level[i].length; r++) {
+//		var currentSurface = GameManager.scriptObjects[surfaceMapName].level[i][r];
+//		terrain[i][r].height = currentSurface;		
+//	}
+//}
 
 var olObject;
 for (var olObjectName in GameManager.scriptObjects[olFileName]) {
@@ -428,6 +436,7 @@ for (var olObjectName in GameManager.scriptObjects[olFileName]) {
     	}
     	currentSpace.powerPathSpace = powerPathSpace;
     	currentSpace.powerPathSpace.setTypeProperties("power path");
+    	currentSpace.headingAngle = (headingDir-180)/180*Math.PI; //use an angle variable separate from drawAngle so that the object does not draw a rotated image when in the fog
     }
 }
 
@@ -902,6 +911,7 @@ function update() {
 	GameManager.drawSurface.strokeStyle = "rgb(0,255,0)";
 	GameManager.drawSurface.fillStyle = "rgb(0,255,0)";
 	GameManager.drawSurface.lineWidth = 3;
+	//render selection box
 	if (selectionRectCoords.x1 != null) {
 		GameManager.drawSurface.beginPath();
 		GameManager.drawSurface.rect(selectionRectPointList[0],selectionRectPointList[1],selectionRectPointList[2]-selectionRectPointList[0],selectionRectPointList[3]-selectionRectPointList[1]);
@@ -910,12 +920,22 @@ function update() {
 		GameManager.drawSurface.globalAlpha=1;
 		GameManager.drawSurface.stroke();
 	}
-	//render selection box
+	
 	GameManager.drawSurface.lineWidth = 2;
-	GameManager.drawSurface.fillStyle = "rgb(0,255,0)";
+	//GameManager.drawSurface.fillStyle = "rgb(0,255,0)";
 	for (var i = 0; i < selection.length; i++) {
 		if (selectionType == "raider") {
+			GameManager.drawSurface.strokeStyle = "rgb(0,255,0)";
+			//draw smallest bounding square
+			GameManager.drawSurface.beginPath();
+			var rectMaxLength = Math.max(selection[i].rect.width,selection[i].rect.height);
+			var halfRectMaxLength = rectMaxLength/2;
+			GameManager.drawSurface.rect(selection[i].centerX() - halfRectMaxLength - selection[i].drawLayer.cameraX,selection[i].centerY() - halfRectMaxLength - selection[i].drawLayer.cameraY,rectMaxLength,rectMaxLength);
+			GameManager.drawSurface.stroke();
+			
 			//draw smallest rotated bounding rect
+			GameManager.drawSurface.fillStyle = "rgb(255,0,0)";
+			GameManager.drawSurface.strokeStyle = "rgb(255,0,0)";
 			var rectPoints = calculateRectPoints(selection[i],false);
 			GameManager.drawSurface.beginPath();
 			GameManager.drawSurface.moveTo(rectPoints[rectPoints.length-1].x - selection[i].drawLayer.cameraX,rectPoints[rectPoints.length-1].y - selection[i].drawLayer.cameraY);
@@ -927,12 +947,7 @@ function update() {
 			GameManager.drawSurface.fill();
 			GameManager.drawSurface.globalAlpha=1;
 			
-			//draw smallest bounding square
-			/*GameManager.drawSurface.beginPath();
-			var rectMaxLength = Math.max(selection[i].rect.width,selection[i].rect.height);
-			var halfRectMaxLength = rectMaxLength/2;
-			GameManager.drawSurface.rect(selection[i].centerX() - halfRectMaxLength - selection[i].drawLayer.cameraX,selection[i].centerY() - halfRectMaxLength - selection[i].drawLayer.cameraY,rectMaxLength,rectMaxLength);
-			GameManager.drawSurface.stroke();*/
+			
 		}
 		else {
 			 GameManager.drawSurface.globalAlpha=0.3;
@@ -967,7 +982,7 @@ function update() {
 		GameManager.drawText(raiders.objectList[i].taskType(raiders.objectList[i].currentTask),raiders.objectList[i].centerX()-raiders.objectList[i].drawLayer.cameraX,raiders.objectList[i].y-raiders.objectList[i].drawLayer.cameraY,true);
 	}
 	GameManager.drawSurface.fillStyle = "rgb(255, 0, 0)";
-	//GameManager.setFontSize(24);
+	GameManager.setFontSize(24);
 	//console.log(GameManager.drawSurface.font);
 	/*for (var i = 0; i < terrain.length; i++) {
 		for (var r = 0; r < terrain[i].length; r++) {
@@ -975,6 +990,12 @@ function update() {
 			//GameManager.drawSurface.fillText(i + ", " + r,terrain[i][r].x-terrain[i][r].drawLayer.cameraX,terrain[i][r].y-terrain[i][r].drawLayer.cameraY);
 		}
 	}*/
+	for (var i = 0; i < terrain.length; i++) {
+		for (var r = 0; r < terrain[i].length; r++) {
+			GameManager.drawText(terrain[i][r].height,terrain[i][r].centerX()-terrain[i][r].drawLayer.cameraX,terrain[i][r].centerY()-terrain[i][r].drawLayer.cameraY,true,true);
+			//GameManager.drawSurface.fillText(i + ", " + r,terrain[i][r].x-terrain[i][r].drawLayer.cameraX,terrain[i][r].y-terrain[i][r].drawLayer.cameraY);
+		}
+	}
 	//GameManager.drawSurface.fillStyle = "rgb(0, 0, 255)";
 	/*GameManager.setFontSize(36);
 	for (var i = 0; i < terrain.length; i++) {

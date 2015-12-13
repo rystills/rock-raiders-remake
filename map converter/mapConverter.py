@@ -16,6 +16,8 @@ def getFileDetails(f):
         fileType = "cryore"
     elif normalizedName.startswith("dugg"):
         fileType = "predug"
+    elif normalizedName.startswith("high"):
+        fileType = "surface"
     elif extension.lower().endswith(".ol"):
         fileType = "ol"
 
@@ -54,7 +56,7 @@ def main():
         i = 0
         levelData = []
 
-        if details["type"] in ("terrain", "cryore", "predug"):
+        if details["type"] in ("terrain", "cryore", "predug", "surface"):
             byte = f.read(1)
             mapWidth = None
             mapHeight = None
@@ -105,7 +107,7 @@ def main():
 
     print("Data successfully read from file: {0}".format(inputFile))
 
-    if details["type"] in ("terrain", "cryore", "predug"):
+    if details["type"] in ("terrain", "cryore", "predug", "surface"):
         print("Map dimensions: {0}x{1} units".format(
               str(mapWidth), str(mapHeight)))
 
@@ -121,7 +123,7 @@ def main():
     # Write the remaining contents of levelData to
     # a new JS file for use by the game engine
     with open(outputFile, "a") as file:
-        if details["type"] in ("terrain", "cryore", "predug"):
+        if details["type"] in ("terrain", "cryore", "predug", "surface"):
             file.write("object = {{ \nlevel: [\n{0}\n]\n}};".format(
                        ",\n".join(map(str, levelData))))
         elif details["type"] == "ol":

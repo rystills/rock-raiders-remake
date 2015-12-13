@@ -265,6 +265,14 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 };
 Space.prototype.updateTouched = function(touched) { //if this space has not yet been revealed then we want it to appear as solid rock, but we leave this.image alone to keep track of its actual image. this might be cheating intended engine use a little bit but thats ok
 	this.touched = touched;
+	
+	if (this.touched == true) {
+		this.drawAngle = this.headingAngle;
+	}
+	else {
+		this.drawAngle = 0;
+	}
+	
 	if (this.touched == false && maskUntouchedSpaces == true) {
 		if (this.image != "solid rock 1 (1).png") {
 			this.changeImage("solid rock 1 (1).png");
@@ -273,6 +281,26 @@ Space.prototype.updateTouched = function(touched) { //if this space has not yet 
 	else {
 		//we never actually modified this.image so we should just be able to use it
 		this.setTypeProperties(this.type);
+		
+		//set brightness / darkness based on height, as long as its not a wall
+		if (!this.isWall) {
+			var heightAlphaChange = .02;
+			this.drawSurface.beginPath();
+			if (this.height > 10) {
+				this.drawSurface.globalAlpha=heightAlphaChange*(this.height - 10);
+				this.drawSurface.fillStyle="rgb(255,255,255)";
+				this.drawSurface.fillRect(0,0,this.rect.width,this.rect.height);
+				
+			}
+			else if (this.height < 10) {
+				this.drawSurface.globalAlpha=heightAlphaChange*3*(10 - this.height); //multiply by a constant to artificially inflate the darkness change, since rendering a black semitransparent rect seems to have much less of an effect than rendering a white semitransparent rect for some reason
+				this.drawSurface.fillStyle="rgb(0,0,0)";
+				this.drawSurface.fillRect(0,0,this.rect.width,this.rect.height);
+				
+			}
+			this.drawSurface.stroke();
+			this.drawSurface.globalAlpha = 1;
+		}
 	}
 };
 Space.prototype.allResourcesPlaced = function() {
@@ -317,9 +345,10 @@ Space.prototype.updatePlacedResources = function(resourceType) {
 		} 
 	}
 };
-function Space(type,listX,listY) {
+function Space(type,listX,listY,height) {
 	//convert basic types from the numbers used in the level files to easily readable strings
 	this.type = type; //this way you can input the string type directly if you're creating a space manually, rather than having to use the level file numbers and converting here
+	this.height = height;
 	this.buildingSiteType = null;
 	if (type == 1) {
 		this.type = "solid rock";
@@ -397,6 +426,8 @@ function Space(type,listX,listY) {
 	this.containedCrystals = 0; //defined by the cryore map and set immediately after Space creation
 	this.contains = new ObjectGroup(); //objects which currently reside on the space. can be infinite (ex. collectables)
 	this.completedBy = null;
+	//this.height = 0;
+	this.headingAngle = 0; //temporary angle variable used to store correct drawAngle when space has not yet been touched (is still in the fog)
 	//this.drilledBy = null;
 	/*if (maskUntouchedSpaces == false) { //need this check since the first time setTypeProperties is called it cannot change the image as the RygameObject constructor has not yet been called
 		this.setTypeProperties(this.type);
