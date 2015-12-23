@@ -601,9 +601,15 @@ function stopMinifig() {
 		if (selection[i].holding == null) { //this should cover the "collect" taskType, as well as "build" and any other task type which involves a held object, as we don't want that object to be duplicated
 			tasksAvailable.push(selection[i].currentTask);
 		}
+		if (selection[i].currentTask.grabPercent != null && selection[i].currentTask.grabPercent < 100) { //still undecided as to whether or not this logic statement should be moved inside the above condition (selection[i].holding == null)
+			selection[i].currentTask.grabPercent = 0;
+		}
 		var currentlyHeld = selection[i].holding;
 		selection[i].clearTask(); //modifications made to clearTask should now mean that if any resources were reserved from the resource collection or dedicated to a building site, the dedication numbers have been correctly decremented
 		selection[i].holding = currentlyHeld; //won't have any effect if it was already null
+		if (selection[i].holding != null) {
+			selection[i].holding.grabPercent = 100; //if the raider was in the process of putting down a collectable but was interrupted, reset its grabPercent as it does't make sense for a collectable to be 'partially put down' after the raider is stopped			
+		}
 	}
 }
 
@@ -856,8 +862,9 @@ function update() {
 				var initialSpace = terrain[p][r];
 				for (var j = 0; j < terrain[p][r].contains.objectList.length + 1; j++) {
 					if (collisionPoint(GameManager.mouseClickPosRight.x,GameManager.mouseClickPosRight.y,initialSpace,initialSpace.affectedByCamera) && ((tasksAvailable.indexOf(initialSpace) != -1) || (tasksInProgress.objectList.indexOf(initialSpace) != -1))) { //don't do anything if the task is already taken by another raider, we don't want to readd it to the task queue
-						if ((j == 0 && (initialSpace.drillable || initialSpace.sweepable || initialSpace.buildable)) || j == 1) { //could optimize by only continuing if j == 1 and initialSpace.walkable == true but won't for now as unwalkable spaces shouldnt have any items in contains anyway
+						if ((j == 0 && (initialSpace.drillable || initialSpace.sweepable || initialSpace.buildable)) || j > 0) { //could optimize by only continuing if j == 1 and initialSpace.walkable == true but won't for now as unwalkable spaces shouldnt have any items in contains anyway
 							clickedTasks.push(initialSpace);
+							console.log("TERRAIN OL LENGTH + 1: " + (terrain[p][r].contains.objectList.length + 1));
 						}
 					}
 					//could optimize by breaking if theres no collision on the square itself rather than checking contains as well, but won't for now as if a contains is on the edge of a space this will cause it to become unclickable except when clicking on the space as well
@@ -868,12 +875,18 @@ function update() {
 		if (clickedTasks.length > 0) {
 			var lowestDrawDepthValue = clickedTasks[0].drawDepth;
 			var lowestDrawDepthId = 0;
+			var inProgress = tasksInProgress.objectList.indexOf(clickedTasks[0]) != -1; //prioritize tasks that are not in progress in the event that multiple tasks are clicked at once
 			for (var p = 1; p < clickedTasks.length; p++) {
-				if (clickedTasks[p].drawDepth < lowestDrawDepthValue) {
+				var curInProgress = tasksInProgress.objectList.indexOf(clickedTasks[p]) != -1;
+				if (curInProgress == inProgress && clickedTasks[p].drawDepth < lowestDrawDepthValue || (inProgress == true && curInProgress == false)) {
 					lowestDrawDepthValue = clickedTasks[p].drawDepth;
 					lowestDrawDepthId = p;
+					if (curInProgress == false) {
+						inProgress = false;
+					}
 				}
 			}
+			console.log("IN PROGESS?: " + inProgress + " CLICKED TASKS LENGTH: " + clickedTasks.length);
 			var selectedTask = clickedTasks[lowestDrawDepthId];
 			
 			var index = tasksUnavailable.objectList.indexOf(selectedTask);
@@ -882,15 +895,21 @@ function update() {
 			}		
 			for (var i = 0; i < selection.length; i++) {	
 			if (selection[i].currentTask == null) { //the only selection[i] type for now; later on any Space (and maybe collectables as well?) or vehicle, etc.. will be a valid selection[i] as even though these things cannot be assigned tasks they can be added to the high priority task queue as well as create menu buttons
-						
+					
 					//selectedTask.taskPriority = 1;
 					if (toolsRequired[selection[i].taskType(selectedTask)] == undefined || selection[i].tools.indexOf(toolsRequired[selection[i].taskType(selectedTask)]) != -1) {
-						selection[i].currentTask = selectedTask;
-						selection[i].currentObjective = selectedTask;
+						
 						var index = tasksAvailable.indexOf(selectedTask);
 						if (index != -1) { //this check should no longer be necessary
 							tasksAvailable.splice(index,1);
 						} 
+						else {
+							if (taskType(selectedTask) == "collect") {
+								break;
+							}
+						}
+						selection[i].currentTask = selectedTask;
+						selection[i].currentObjective = selectedTask;
 						var index = tasksInProgress.objectList.indexOf(selectedTask);
 						if (index == -1) {
 							tasksInProgress.push(selectedTask);
@@ -1037,7 +1056,20 @@ function update() {
 	}
 	//if (buildTasksAvailable > 0) {
 	//console.log("build tasks available: " + buildTasksAvailable + (buildTasksAvailable > 0 ? "!!!" : ""));
-	console.log("BUILDINGS NUM: " + buildings.length);
+	//console.log("BUILDINGS NUM: " + buildings.length);
+	console.log("selection contains?: " + (selection.indexOf(raiders.objectList[0]) != -1) + " currentTask: " + raiders.objectList[0].currentTask);
+	for (var i = 0; i < selection.length; i++) {
+		if (selectionType == "raider" && selection[i].holding != null && selection[i].holding.grabPercent != null) {
+			console.log("CURX: " + selection[i].x + " CURY: " + selection[i].y + " GRAB PERCENT: " + selection[i].holding.grabPercent);
+			//console.log("GRAB PERCENT: " + (selection[i].currentObjective.grabPercent == null ? "NOTHING HELD" : selection[i].currentObjective.grabPercent));
+		}
+	}
+	/*for (var i = 0; i < selection.length; i++) {
+		if (selectionType == "raider" && selection[i].holding != null && selection[i].holding.grabPercent != null) {
+			console.log("CURX: " + selection[i].x + " CURY: " + selection[i].y);
+			//console.log("GRAB PERCENT: " + (selection[i].currentObjective.grabPercent == null ? "NOTHING HELD" : selection[i].currentObjective.grabPercent));
+		}
+	}*/
 	//}
 	/*var resourcesAvailable = 0;
 	for (var i = 0; i < tasksAvailable.length; i ++) {

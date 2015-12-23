@@ -164,12 +164,18 @@ Raider.prototype.update = function() {
 		}
 		else { //if we have reached the end of the path or have no path move directly towards the current objective
 			var reachedObjective = false;
+			var collisionReached = false;
+			var taskType = this.taskType(this.currentTask); //TODO: STORE THIS RATHER THAN REPEATEDLY FINDING IT
 			if (!this.busy) { //TODO: CHANGE ACTIONS TO BE IN A SUBMETHOD SO WE DON'T NEED TO PUT THIS.BUSY ALL OVER THE PLACE
-				reachedObjective = this.moveTowardsPoint(this.currentObjective.centerX(),this.currentObjective.centerY(),distanceTraveled,true);
+				if ((taskType != "sweep") && collisionRect(this,this.currentObjective,true)) { //if we have taskType 'sweep' we need to keep moving until reachedObjective is true, so don't neglect to move just because we are colliding with the objective in that case
+					collisionReached = true;
+				}
+				else {
+					reachedObjective = this.moveTowardsPoint(this.currentObjective.centerX(),this.currentObjective.centerY(),distanceTraveled,true);	
+				}
 			}
 			distanceTraveled = 0; //we are safe setting this to 0 in this case because we don't care how much farther we have to go to get to the objective, since we will stop for at least 1 frame once we reach it to pick it up
-			if (this.busy || collisionRect(this,this.currentObjective,true)) {
-				var taskType = this.taskType(this.currentTask); //TODO: STORE THIS RATHER THAN REPEATEDLY FINDING IT
+			if (this.busy || collisionReached || collisionRect(this,this.currentObjective,true)) {
 				if (!this.busy) {
 					if (taskType == "collect" || taskType == "drill" || taskType == "build" || taskType == "get tool") {
 						//if (taskType == "collect") {
@@ -177,7 +183,7 @@ Raider.prototype.update = function() {
 							//this.drawAngle = getAngle(this.x,this.y,this.currentObjective.x,this.currentObjective.y,true); //its possible for ore to suddenly appear right next to or on top of us (such as if we are sweeping) and then we won't be facing it. So make the raider face the ore before picking it up as a precaution
 						//}
 						//console.log(this.space.centerY());
-						if (this.x == this.xPrevious && this.y == this.yPrevious) {
+						if (this.samePosition(this.x,this.y,this.xPrevious,this.yPrevious)) {
 							freezeAngle = true; //if we didnt move yet and are just moving to suddenly get out of a collision that is occurring we want to preserve our angle
 						}
 						this.moveOutsideCollision(this.currentObjective,this.xPrevious,this.yPrevious);
@@ -492,7 +498,7 @@ Raider.prototype.update = function() {
 		distanceTraveled /= speedModifier;
 	}
 	
-	if ((!freezeAngle) & ((this.x != this.xPrevious) || (this.y != this.yPrevious))) {
+	if ((!freezeAngle) & (!this.samePosition(this.x,this.y,this.xPrevious,this.yPrevious))) {
 		this.drawAngle = getAngle(this.xPrevious,this.yPrevious,this.x,this.y,true);
 	}
 	
@@ -614,6 +620,13 @@ Raider.prototype.upgrade = function() {
 		this.upgradeLevel += 1;
 		this.maxTools += 1;
 	}
+};
+
+Raider.prototype.samePosition = function(x1,y1,x2,y2) {
+	return (x1 == x2 && y1 == y2);
+	/*var decimalAccuracy = 4; //lets try to avoid poor logic which leads to the below code becoming necessary if possible
+	return (parseFloat(x2).toFixed(decimalAccuracy) == parseFloat(x1).toFixed(decimalAccuracy)) && 
+		(parseFloat(y2).toFixed(decimalAccuracy) == parseFloat(y1).toFixed(decimalAccuracy));*/
 };
 
 function Raider(space) { //TODO: BUG WHERE SOMETIMES RAIDER STARTS IN THE RIGHT WALL AT THE VERY BEGINNING. CHECK IF THIS HAS BEEN FIXED

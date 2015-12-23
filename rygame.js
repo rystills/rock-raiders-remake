@@ -35,6 +35,10 @@ var htmlLeft = -1;
 //we have to worry about padding and borders
 //takes an event and a reference to the canvas
 function getMouseDocument(e) {
+	/*return {
+	      x: e.clientX,
+	      y: e.clientY
+	    };*/
 	var element = GameManager.drawSurface, offsetX = 0, offsetY = 0, mx, my;
 
 	// Compute the total offset. It's possible to cache this if you want
