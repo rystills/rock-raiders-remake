@@ -36,8 +36,20 @@ function loadImageAsset(url, name, callback) {
 	img.src = url;
 	//head.appendChild(img);
 }
-function loadSoundAsset(url, name, callback) {
-	//TODO: FILL THIS IN AS SOUNDS ARE REINTRODUCED TO RYJS
+function loadSoundAsset(urlNoExt, name, callback) {
+	var snd = document.createElement('audio');
+	var srcType = ".ogg";
+	if (!(snd.canPlayType && snd.canPlayType('audio/ogg'))) { //use ogg if supported, otherwise fall back to mp4 (cover all modern browsers)
+		srcType = ".m4a";
+	}
+	
+	if (callback != null) {
+		snd.oncanplay = callback(srcType);
+    }
+	
+	GameManager.sounds[name] = snd;
+	
+	snd.src = urlNoExt + srcType;
 }
 
 var loadAssetFile = function() {
@@ -64,9 +76,9 @@ var loadAssets = function() {
 	loadAssetNext();
 	
 };
-var loadAssetNext = function() {
+var loadAssetNext = function(fileExtension) {
 	if (assetNum != -1) {
-		console.log("RyConsole: '" + GameManager.scriptObjects["assets.js"].assets[assetNum][2] + "' successfully loaded from directory '" + GameManager.scriptObjects["assets.js"].assets[assetNum][1] + "' as type '" + GameManager.scriptObjects["assets.js"].assets[assetNum][0] + "'");
+		console.log("RyConsole: '" + GameManager.scriptObjects["assets.js"].assets[assetNum][2] + (typeof fileExtension == 'undefined' ? "" : fileExtension) + "' successfully loaded from directory '" + GameManager.scriptObjects["assets.js"].assets[assetNum][1] + "' as type '" + GameManager.scriptObjects["assets.js"].assets[assetNum][0] + "'");
 	}
 	if (lastScriptName != "") {
 		if (object != null) { //a script doesn't have to have an object to store in the GameManager. if it doesn't have one, don't do anything
@@ -81,7 +93,7 @@ var loadAssetNext = function() {
 		ctx.fillStyle = "black";
 		ctx.fillRect(0,400,canv.width,200);
 		ctx.fillStyle = 'white';
-		ctx.fillText("loading " + GameManager.scriptObjects["assets.js"].assets[assetNum][2],20,580);	
+		ctx.fillText("loading " + GameManager.scriptObjects["assets.js"].assets[assetNum][2] + (typeof fileExtension == 'undefined' ? "" : fileExtension),20,580);	
 		
 		appendString = "";
 		if (GameManager.scriptObjects["assets.js"].assets[assetNum][1] != "") {

@@ -143,7 +143,7 @@ Raider.prototype.update = function() {
 							
 							if (newIndex != -1) { //TODO: CONSIDER WHETHER OR NOT RAIDERS SHOULD BE ALLOWED TO 'STEAL' EACH OTHERS' ACTIVE TASKS
 								//change tasks TODO: CONVERT THIS INTO A METHOD
-								//TODO: THIS CREATES RIGID MOVEMENT WHEN CHANGING TASKS. CONSIDER APPROACHING THIS DIFFERENTLY, INCLUDING SETTING THIS.SPACE EARLIER WHEN CHANGING SPACES (may be fixed now that we check one space ahead of us)
+								//TODO: THIS CREATES RIGID MOVEMENT WHEN CHANGING TASKS. CONSIDER APPROACHING THIS DIFFERENTLY, INCLUDING SETTING THIS.SPACE EARLIER WHEN CHANGING SPACES (may be fixed now that we check one space ahead of us) [should no longer matter as we now update this.space when changing tasks]
 								tasksInProgress.remove(this.currentTask);
 								tasksAvailable.push(this.currentTask);
 								this.currentTask = this.currentPath[this.currentPath.length-1].contains.objectList[i]; //TODO: choose the closest task on the space that is of the same type rather than the first one you find
@@ -280,6 +280,7 @@ Raider.prototype.update = function() {
 						this.holding.grabPercent -= this.dropSpeed; //no need to have a separate variable for this, grabPercent works nicely
 						this.busy = true;
 						if (this.holding.grabPercent <= 0) {
+							this.playDropSound();
 							this.busy = false;
 //							if (this.holding.type == "ore") {
 //								//increase resources if we are at a toolstore, but not if we are at a building site
@@ -420,6 +421,7 @@ Raider.prototype.update = function() {
 						this.currentTask.grabPercent -= this.dropSpeed; //no need to have a separate variable for this, grabPercent works nicely
 						this.busy = true;
 						if (this.currentTask.grabPercent <= 0) {
+							this.playDropSound();
 							this.busy = false;
 //							if (this.holding.type == "ore") {
 //								//increase resources if we are at a toolstore, but not if we are at a building site
@@ -456,6 +458,7 @@ Raider.prototype.update = function() {
 				}
 				else if (taskType == "drill") {
 					this.currentTask.drillPercent += this.drillSpeed;
+					this.drillSound.play();
 					this.busy = true;
 					if (this.currentTask.drillPercent >= 100) {
 						this.currentTask.drillPercent = 100;
@@ -472,6 +475,7 @@ Raider.prototype.update = function() {
 							this.space = this.currentTask;
 						}
 						this.currentTask.sweepPercent += this.sweepSpeed;
+						this.sweepSound.play();
 						this.busy = true;
 						if (this.currentTask.sweepPercent >= 100) {
 							this.currentTask.sweepPercent = 100;
@@ -542,7 +546,17 @@ Raider.prototype.findClosest = function(objectList,remove) {
 		return minIndex;
 	}
 };
+
+Raider.prototype.stopSounds = function() {
+	this.sweepSound.pause();
+	this.sweepSound.currentTime = 0;
+	this.drillSound.pause();
+	this.drillSound.currentTime = 0;
+};
+
 Raider.prototype.clearTask = function() {
+	this.stopSounds();
+	
 	if (this.reservingResource == true) {
 		this.reservingResource = false;
 		reservedResources[this.currentObjectiveResourceType]--;
@@ -629,6 +643,15 @@ Raider.prototype.samePosition = function(x1,y1,x2,y2) {
 		(parseFloat(y2).toFixed(decimalAccuracy) == parseFloat(y1).toFixed(decimalAccuracy));*/
 };
 
+Raider.prototype.playDropSound = function() {
+	if (this.holding.type == "ore") {
+		this.dropOreSound.play();
+	}
+	else if (this.holding.type == "crystal") {
+		this.dropCrystalSound.play();
+	}
+};
+
 function Raider(space) { //TODO: BUG WHERE SOMETIMES RAIDER STARTS IN THE RIGHT WALL AT THE VERY BEGINNING. CHECK IF THIS HAS BEEN FIXED
 	RygameObject.call(this,0,0,1,1,"raider 1 (1).png",gameLayer);
 	this.space = space;
@@ -653,4 +676,11 @@ function Raider(space) { //TODO: BUG WHERE SOMETIMES RAIDER STARTS IN THE RIGHT 
 	this.getToolName = null;
 	this.busy = false; //this means the raider is in the middle of performing a task (ex drilling, picking up an object, etc..) and is NOT walking
 	this.completedLastFrame = []; //if we completed a task we let other raiders know by setting that task's completedBy variable, but we have to make sure to set it back to null on the following frame, regardless of whether or not it is still the currentTask at that time, or if we completed more than one task (see: chain reaction when drilling)
+	this.sweepSound = GameManager.sounds["dig"].cloneNode();
+	this.sweepSound.loop = true;
+	this.drillSound = GameManager.sounds["drtdrillc"].cloneNode();
+	this.drillSound.loop = true;
+	this.dropOreSound = GameManager.sounds["Rockdrop"].cloneNode();
+	this.dropCrystalSound = GameManager.sounds["Crystaldrop"].cloneNode();
+	this.rockBreakSound = GameManager.sounds["ROKBREK1"].cloneNode();
 }

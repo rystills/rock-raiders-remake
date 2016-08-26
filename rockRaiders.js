@@ -650,6 +650,8 @@ var loading = true;
 
 GameManager.drawSurface.font = "48px Arial";
 
+var musicPlayer = new MusicPlayer();
+
 /*var testRaider = new Raider(terrain[0][0]);
 var testOre = new Collectable(terrain[0][0],"ore");
 testRaider.x = 10;
@@ -669,12 +671,14 @@ function update() {
 		
 		if (GameManager.keyStates[String.fromCharCode(13)]) {
 			loading = false;
+			musicPlayer.playRandomSong();
 		}
 		GameManager.drawFrame();
 		GameManager.drawSurface.fillStyle = "rgb(65, 218, 0)";
 		GameManager.drawSurface.fillText("Press Enter to Begin",190,300);
 		return;
 	}
+	musicPlayer.update();
 	GameManager.updateObjects();
 	if (mousePanning) {
 		if (GameManager.mousePos.x < scrollDistance) {

@@ -2,6 +2,7 @@
 //currently no way to dynamically load / unload, will look into this later
 //load type (dir or file),file type (img, snd, or js),directory (blank = root),extension or file name (blank = all file types)
 //due to security concerns, javascript cannot search a dir for files, so load type is no longer a thing
+//sounds will always come in both mp4 and ogg form for browser compatibility, so don't need to specify extension here
 object = {
 		assets: [
           ["img", "images", "power path 1 (1).png"], //power path
@@ -34,6 +35,15 @@ object = {
           ["img", "images", "cancel selection button 1 (1).png"], //cancel selection button
           ["img", "images", "unload minifig button 1 (1).png"], //unload minifig button (drops held object)
           ["img", "images", "stop minifig button 1 (1).png"], //stop minifig button (stops any performed task)
+          ["snd", "sounds", "Crystaldrop"], //drop crystal
+          ["snd", "sounds", "Rockdrop"], //drop ore
+          ["snd", "sounds", "drtdrillc"], //raider drill (drill any wall type)
+          ["snd", "sounds", "dig"], //raider shovel (sweep rubble)
+          ["snd", "sounds", "ROKBREK1"], //wall break sound
+          ["snd", "sounds", "song1-reduced noise"], //song 1
+          ["snd", "sounds", "song2-reduced noise"], //song 2
+          ["snd", "sounds", "song3-reduced noise"], //song 3
+          ["snd", "sounds", "menu theme"], //menu song
           ["js", "levels", "test level 1.js"], //1st level for testing
           ["js", "levels", "test level 2.js"], //2nd level for testing
           ["js", "levels", "Surf_01.js"], //terrain map file of first level from original game converted using map converter
@@ -44,6 +54,7 @@ object = {
           ["js", "classes", "Collectable.js"], //Collectable class
           ["js", "classes", "Raider.js"], //Raider class
           ["js", "classes", "Space.js"], //Space class
-          ["js", "", "rockRaiders.js"] //main game
+          ["js", "classes", "MusicPlayer.js"], //Music Manager class
+          ["js", "", "rockRaiders.js"] //main game file
           ]
 };

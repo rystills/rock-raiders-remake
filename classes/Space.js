@@ -6,6 +6,7 @@ Space.prototype.makeRubble = function(rubbleContainsOre,drilledBy) {
 	if (drilledBy != null) {
 		this.completedBy = drilledBy;
 		drilledBy.completedLastFrame.push(this);
+		drilledBy.rockBreakSound.play(); //TODO: have all walls play this sound, rather than just the immediately drilled one
 	}
 	//this.drilledBy = drilledBy;
 	this.setTypeProperties("rubble 1",false,rubbleContainsOre); //setTypeProperties will check the value of rubbleContainsOre for us, so no need to do a type check here, just pipe it in
@@ -178,7 +179,7 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 		this.isWall = true;
 	}
 	else if (type.slice(0,6) == "rubble") {
-		if (type == "rubble 1") { //this little section could be automated usings strings, but asset names should not be considered reliable in this type of instance, so to keep things clean we write each one out
+		if (type == "rubble 1") { //this little section could be automated using strings, but asset names should not be considered reliable in this type of instance, so to keep things clean we write each one out
 			this.image = "rubble 1 (1).png";
 		}
 		else if (type == "rubble 2") {
