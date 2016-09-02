@@ -468,6 +468,24 @@ function checkUpdateClickSelection() {
 	}
 }
 
+function checkUpdateSelectionType() {
+	if (selection.length == 0) {
+		return;
+	}
+	for (var i = selection.length-1; i >= 0; --i) {
+		if (selection[i].dead == true) {
+			selection.splice(i,1);
+		}
+	}
+	if (selection.length == 0) {
+		cancelSelection();
+		return;
+	}
+	if (selection[0] instanceof Space) {
+		selectionType = selection[0].touched == true ? selection[0].type : "solid rock";
+	}
+}
+
 function checkUpdateCtrlSelection() {
 	if (GameManager.keyStates[String.fromCharCode(17)] == true) { //if ctrl key is currently pressed
 		if (selectionRectCoords.x1 == null) {
@@ -943,6 +961,7 @@ function update() {
 				checkUpdateClickSelection();
 				checkAssignSelectionTask();
 			}
+			checkUpdateSelectionType();
 			checkUpdateCtrlSelection();
 			//update objects
 			GameManager.updateObjects();
