@@ -11,7 +11,7 @@ def getFileDetails(f):
     fileType = None
 
     if normalizedName.startswith("surf"):
-        fileType = "terrian"
+        fileType = "terrain"
     elif normalizedName.startswith("cror"):
         fileType = "cryore"
     elif normalizedName.startswith("dugg"):
@@ -97,7 +97,7 @@ def main():
                     )
                     breakPos = levelData[-1].find(":")
                     if levelData[-1][breakPos+1].isalpha():
-                        levelData[-1] = levelData[-1][:breakPos+1]
+                        levelData[-1] = levelData[-1][:breakPos+1] \
                         + '"' + levelData[-1][breakPos+1:] + '"'
                     if (
                         (levelData[-2][-1] != "{") and

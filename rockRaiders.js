@@ -346,21 +346,21 @@ function loadLevelData() {
 	    if (olObject.type == "TVCamera") {
 	    	gameLayer.cameraX = olObject.xPos*tileSize; //note: coords need to be rescaled since 1 unit in LRR is 1, but 1 unit in the remake is 128 (tile size)
 	    	gameLayer.cameraY = olObject.yPos*tileSize; //note: x/y coords should be the same, but x/y position in terrain list is inverted since terrain list is Y,X format
-	    	gameLayer.cameraX -= parseInt(GameManager.screenWidth/2,10);
-	    	gameLayer.cameraY -= parseInt(GameManager.screenHeight/2,10);//center the camera
+	    	gameLayer.cameraX -= parseIntRound(GameManager.screenWidth/2,10);
+	    	gameLayer.cameraY -= parseIntRound(GameManager.screenHeight/2,10);//center the camera
 	    }
 	    else if (olObject.type == "Pilot") {
-	    	var newRaider = new Raider(terrain[parseInt(olObject.yPos,10)][parseInt(olObject.xPos,10)]); //note inverted x/y coords for terrain list
+	    	var newRaider = new Raider(terrain[parseIntRound(olObject.yPos,10)][parseIntRound(olObject.xPos,10)]); //note inverted x/y coords for terrain list
 	    	newRaider.setCenterX(olObject.xPos*tileSize);
 	    	newRaider.setCenterY(olObject.yPos*tileSize);
 	    	newRaider.drawAngle = (olObject.heading-90)/180*Math.PI; //heading angle appears to be 90 degrees rotated clockwise relative to the remake (this should be because i setup the sprites to face right by default rather than up); also needs to be converted to radians
 	    	raiders.push(newRaider);
 	    }
 	    else if (olObject.type == "Toolstation") {
-	    	var currentSpace = terrain[parseInt(olObject.yPos,10)][parseInt(olObject.xPos,10)];
+	    	var currentSpace = terrain[parseIntRound(olObject.yPos,10)][parseIntRound(olObject.xPos,10)];
 	    	currentSpace.setTypeProperties("tool store");
 	    	var powerPathSpace = null;
-	    	var headingDir = parseInt(olObject.heading,10);
+	    	var headingDir = parseIntRound(olObject.heading,10);
 	    	if (headingDir == 0) {
 	    		powerPathSpace = adjacentSpace(terrain,currentSpace.listX,currentSpace.listY,"up");
 	    	}
@@ -373,6 +373,7 @@ function loadLevelData() {
 	    	else if (headingDir == 270) {
 	    		powerPathSpace = adjacentSpace(terrain,currentSpace.listX,currentSpace.listY,"left");
 	    	}
+	    	console.log("heading dir: " + headingDir);
 	    	currentSpace.powerPathSpace = powerPathSpace;
 	    	currentSpace.powerPathSpace.setTypeProperties("power path");
 	    	currentSpace.headingAngle = (headingDir-180)/180*Math.PI; //use an angle variable separate from drawAngle so that the object does not draw a rotated image when in the fog
@@ -920,11 +921,11 @@ tasksUnavailable = new ObjectGroup();
 raiders = new ObjectGroup();
 collectables = new ObjectGroup();
 tasksInProgress = new ObjectGroup();
-var terrainMapName = "Surf_01.js";
-var cryoreMapName = "Cror_01.js"; //TODO: CONTINUE ADDING NEW MAPS TO THIS BLOCK OF CODE AND CLEANING IT UP, AND ADD CHECKS IN CASE ANY MAP DOESN'T EXIST FOR THE LEVEL BEING LOADED
-var olFileName = "01.js";
-var predugMapName = "Dugg_01.js";
-var surfaceMapName = "High_01.js";
+var terrainMapName = "Surf_02.js";
+var cryoreMapName = "Cror_02.js"; //TODO: CONTINUE ADDING NEW MAPS TO THIS BLOCK OF CODE AND CLEANING IT UP, AND ADD CHECKS IN CASE ANY MAP DOESN'T EXIST FOR THE LEVEL BEING LOADED
+var olFileName = "02.js";
+var predugMapName = "Dugg_02.js";
+var surfaceMapName = "High_02.js";
 buttons = new ObjectGroup();
 
 //TODO: make it so that pieces with no path to them have their spaces marked as "unaccessible" and when you drill a wall or build a dock or fulfill some other objective that allows you to reach new areas find each newly accessible square and unmark those squares
