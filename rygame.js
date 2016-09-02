@@ -459,7 +459,7 @@ GameManagerInternal.prototype.drawFrame = function() {
 	//render objects to frames first (objects are sorted by depth when added, so no need to do any sorting here)
 	for (var i = this.completeObjectList.length-1; i >= 0; i--) {
 		var drawObject = this.completeObjectList[i];
-		if (drawObject.drawLayer.active && (! drawObject.drawLayer.frozen)) {
+		if (drawObject.renderAutomatically && drawObject.drawLayer.active && (!drawObject.drawLayer.frozen)) {
 			drawObject.render();
 		}
 	}
@@ -482,8 +482,13 @@ GameManagerInternal.prototype.drawFrame = function() {
 			}
 		}
 	}
+	
 	this.mouseClickedLeft = false;
 	this.mouseClickedRight = false;
+};
+
+GameManagerInternal.prototype.draw = function(surface, x, y) { //simple draw function. Copied from Layer so that the GameManager can be treated like a layer when necessary.
+	this.drawSurface.drawImage(surface.canvas,x,y);
 };
 
 function GameManagerInternal() {
@@ -542,7 +547,6 @@ function ObjectGroup() {
 
 makeChild("Layer","RygameObject"); //TODO: MAKE THE LAYER CLASS MORE SIMILAR TO THE RYGAMEOBJECT CLASS AND CALL THE RYGAMEOBJECT CONSTRUCTOR
 Layer.prototype.draw = function(surface, x, y) { //NEED TO CHANGE ALL IMAGES / DRAWSURFACES TO CANVAS' SO THEY CAN DRAW ON EACH OTHER
-	//this.drawSurface.
 	this.drawSurface.drawImage(surface.canvas,x,y); //change to drawSurface
 };
 
@@ -575,7 +579,6 @@ function Rect(width,height) { //TODO add xOffset and yOffset variables since rec
 }
 
 makeChild("Button","RygameObject");
-
 Button.prototype.update = function() {
 	if (this.selectionTypeBound != null) {
 		if (this.selectionTypeBound.indexOf(selectionType) == -1) {
@@ -603,8 +606,8 @@ Button.prototype.update = function() {
 	}
 	//console.log(this.mouseDownOnButton);
 };
-function Button(x,y,updateDepth,drawDepth,image,layer,runMethod,affectedByCamera,selectionTypeBound,optionalArgs) { //TODO: MODIFY BUTTON CLASS TO OPERATE LARGELY THE SAME AS THE RYGAME PTHON EDITION BUTTON CLASS
-	RygameObject.call(this,x,y,updateDepth,drawDepth,image,layer,affectedByCamera);
+function Button(x,y,updateDepth,drawDepth,image,layer,runMethod,affectedByCamera,renderAutomatically,selectionTypeBound,optionalArgs) { //TODO: MODIFY BUTTON CLASS TO OPERATE LARGELY THE SAME AS THE RYGAME PTHON EDITION BUTTON CLASS
+	RygameObject.call(this,x,y,updateDepth,drawDepth,image,layer,affectedByCamera,renderAutomatically);
 	this.runMethod = runMethod;
 	this.mouseDownOnButton = false;
 	this.releasedThisFrame = false;
@@ -631,7 +634,7 @@ RygameObject.prototype.updatePosition = function(x, y) { //TODO we will keep thi
 	this.y = y;
 	//console.log("new x: " + x + " new y: " + y);
 };
-RygameObject.prototype.renderGuiElements = function() { //TODO FILL THIS IN WHEN GUI ELEMENTS ARE REIMPLEMENTED
+RygameObject.prototype.renderGuiElements = function(destLayer) { //TODO FILL THIS IN WHEN GUI ELEMENTS ARE REIMPLEMENTED
 	
 };
 RygameObject.prototype.centerX = function() {
@@ -647,28 +650,31 @@ RygameObject.prototype.setCenterX = function(x) {
 RygameObject.prototype.setCenterY = function(y) {
 	this.y = y - (this.rect.height / 2);
 };
-RygameObject.prototype.render = function() {
+RygameObject.prototype.render = function(destLayer) {
 	if (this.visible) {
+		if (destLayer == null) {
+			destLayer = this.drawLayer;
+		}
 		if (this.drawSurface != null) {
 			if (this.affectedByCamera == true) {
-				this.x-=this.drawLayer.cameraX; //move in the opposite direction of the layer camera before rendering (and deciding whether or not you're onscreen). this should be done for gui elements as well in renderGuiElements
-				this.y-=this.drawLayer.cameraY;
+				this.x-=destLayer.cameraX; //move in the opposite direction of the layer camera before rendering (and deciding whether or not you're onscreen). this should be done for gui elements as well in renderGuiElements
+				this.y-=destLayer.cameraY;
 			}
 			if (this.withinLayerBounds()) {
 				if (this.drawAngle == 0) {
-					this.drawLayer.draw(this.drawSurface, this.x,this.y);
+					destLayer.draw(this.drawSurface, this.x,this.y);
 				}
 				else {
-					this.drawLayer.drawSurface.save();
-					this.drawLayer.drawSurface.translate(this.centerX(),this.centerY());
-					this.drawLayer.drawSurface.rotate(this.drawAngle); 
-					this.drawLayer.draw(this.drawSurface, -(this.centerX() - this.x),-(this.centerY() - this.y));
-					this.drawLayer.drawSurface.restore();
+					destLayer.drawSurface.save();
+					destLayer.drawSurface.translate(this.centerX(),this.centerY());
+					destLayer.drawSurface.rotate(this.drawAngle); 
+					destLayer.draw(this.drawSurface, -(this.centerX() - this.x),-(this.centerY() - this.y));
+					destLayer.drawSurface.restore();
 				}
 			}
 			if (this.affectedByCamera == true) {
-				this.x+=this.drawLayer.cameraX; //move back once you're finished rendering.
-				this.y+=this.drawLayer.cameraY;
+				this.x+=destLayer.cameraX; //move back once you're finished rendering.
+				this.y+=destLayer.cameraY;
 			}
 		}
 	}
@@ -774,7 +780,7 @@ RygameObject.prototype.die = function() {
 	this.dead = true;
 };
 
-function RygameObject(x,y,updateDepth,drawDepth,image,layer,affectedByCamera) {
+function RygameObject(x,y,updateDepth,drawDepth,image,layer,affectedByCamera,renderAutomatically) {
 	//x: the starting x position of the object
 	//y: the starting y position of the object
 	//updateDepth: the ordering for drawing the object. Lower Depths are updated earlier.
@@ -782,6 +788,10 @@ function RygameObject(x,y,updateDepth,drawDepth,image,layer,affectedByCamera) {
 	if (affectedByCamera == null) {
 		affectedByCamera = true;
 	}
+	if (renderAutomatically == null) {
+		renderAutomatically = true;
+	}
+	this.renderAutomatically = renderAutomatically;
 	this.affectedByCamera = affectedByCamera;
 	this.dead = false;
 	this.x = x;
