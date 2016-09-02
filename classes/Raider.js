@@ -1,5 +1,9 @@
 makeChild("Raider","RygameObject");
 Raider.prototype.update = function() {
+	if (this.reservingResource && (this.taskType(this.currentTask) == "undefined" || this.taskType(this.currentTask) == undefined)) {
+		pauseGame();
+		console.log("build task type: " + this.taskType(this.currentTask) + " dedicated resources: "+ this.currentTask.dedicatedResources[this.currentObjectiveResourceType] + " required resources: " + this.currentTask.requiredResources[this.currentObjectiveResourceType] + " reserving resource: " + this.reservingResource + " logic is true: " + (this.reservingResource && (!(this.currentTask.dedicatedResources[this.currentObjectiveResourceType] < this.currentTask.requiredResources[this.currentObjectiveResourceType]))));
+	}
 	for (var i = 0; i < this.completedLastFrame.length; i++) {
 		this.completedLastFrame[i].completedBy = null;
 	}
@@ -191,6 +195,12 @@ Raider.prototype.update = function() {
 					}
 				}
 				if (taskType == "build") {
+					//console.log("build task type: " + this.taskType(this.currentTask) + " dedicated resources: "+ this.currentTask.dedicatedResources[this.currentObjectiveResourceType] + " required resources: " + this.currentTask.requiredResources[this.currentObjectiveResourceType] + " reserving resource: " + this.reservingResource + " logic is true: " + (this.reservingResource && (!(this.currentTask.dedicatedResources[this.currentObjectiveResourceType] < this.currentTask.requiredResources[this.currentObjectiveResourceType]))));
+					//make sure our job hasn't been taken by somebody else closer to the building site
+					if (this.reservingResource && (!(this.currentTask.dedicatedResources[this.currentObjectiveResourceType] < this.currentTask.requiredResources[this.currentObjectiveResourceType]))) {
+						this.clearTask();
+						break;
+					}
 					//console.log("building, resource type: " + this.currentObjectiveResourceType);
 					if (this.currentObjective != this.currentTask) {
 						if ((this.busy) || (this.reservingResource)) {

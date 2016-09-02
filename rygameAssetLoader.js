@@ -78,7 +78,7 @@ var loadAssets = function() {
 };
 var loadAssetNext = function(fileExtension) {
 	if (assetNum != -1) {
-		console.log("RyConsole: '" + GameManager.scriptObjects["assets.js"].assets[assetNum][2] + (typeof fileExtension == 'undefined' ? "" : fileExtension) + "' successfully loaded from directory '" + GameManager.scriptObjects["assets.js"].assets[assetNum][1] + "' as type '" + GameManager.scriptObjects["assets.js"].assets[assetNum][0] + "'");
+		console.log("RyConsole: '" + GameManager.scriptObjects["assets.js"].assets[assetNum][2] + (typeof fileExtension === 'object' ? "" : fileExtension) + "' successfully loaded from directory '" + GameManager.scriptObjects["assets.js"].assets[assetNum][1] + "' as type '" + GameManager.scriptObjects["assets.js"].assets[assetNum][0] + "'");
 	}
 	if (lastScriptName != "") {
 		if (object != null) { //a script doesn't have to have an object to store in the GameManager. if it doesn't have one, don't do anything
@@ -93,7 +93,7 @@ var loadAssetNext = function(fileExtension) {
 		ctx.fillStyle = "black";
 		ctx.fillRect(0,400,canv.width,200);
 		ctx.fillStyle = 'white';
-		ctx.fillText("loading " + GameManager.scriptObjects["assets.js"].assets[assetNum][2] + (typeof fileExtension == 'undefined' ? "" : fileExtension),20,580);	
+		ctx.fillText("loading " + GameManager.scriptObjects["assets.js"].assets[assetNum][2] + (typeof fileExtension === 'object' ? "" : fileExtension),20,580);	
 		
 		appendString = "";
 		if (GameManager.scriptObjects["assets.js"].assets[assetNum][1] != "") {
