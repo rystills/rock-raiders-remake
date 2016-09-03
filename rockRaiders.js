@@ -696,6 +696,18 @@ function pauseGame() {
 	paused = !paused;
 }
 
+function checkTogglePause() {
+	if (GameManager.keyStates[String.fromCharCode(80)]) {
+		holdingPKey = true;
+	}
+	else {
+		if (holdingPKey) {
+			pauseGame();
+			holdingPKey = false;
+		}
+	}
+}
+
 function stopMinifig() {
 	if (selection.length == 0) {
 		return;
@@ -854,7 +866,15 @@ function drawAwaitingStartInstructions() { //draw game start instructions if awa
 		
 		GameManager.drawSurface.fillStyle = "rgb(65, 218, 255)";
 		GameManager.setFontSize(72);
-		GameManager.drawSurface.fillText("Press Enter to Begin",70,322);
+		GameManager.drawSurface.fillText("Press Enter to Begin",70,322); //TODO: CENTER THIS AUTOMATICALLY, RATHER THAN ESTIMATING MANUALLY
+	}
+}
+
+function drawPauseInstructions() {
+	if (paused) {
+		GameManager.drawSurface.fillStyle = "rgb(65, 218, 255)";
+		GameManager.setFontSize(72);
+		GameManager.drawSurface.fillText("Paused",278,322); //TODO: CENTER THIS AUTOMATICALLY, RATHER THAN ESTIMATING MANUALLY 
 	}
 }
 
@@ -927,21 +947,20 @@ var olFileName = "02.js";
 var predugMapName = "Dugg_02.js";
 var surfaceMapName = "High_02.js";
 buttons = new ObjectGroup();
-
-//TODO: make it so that pieces with no path to them have their spaces marked as "unaccessible" and when you drill a wall or build a dock or fulfill some other objective that allows you to reach new areas find each newly accessible square and unmark those squares
-
 var selectionRectObject = new RygameObject(0,0,0,0,null,gameLayer); //TODO: MAKE THIS A PROPER OBJECT AND MOVE THE SELECTION RECT CODE TO ITS UPDATE METHOD
 var selectionRectPointList;
 var selectionRectCoordList;
 var awaitingStart = true;
 var paused = false;
+var holdingPKey = false;
 var debug = false;
-
 var musicPlayer = new MusicPlayer();
 GameManager.drawSurface.font = "48px Arial";
-
 createButtons();
 loadLevelData();
+
+//TODO: make it so that pieces with no path to them have their spaces marked as "unaccessible" and when you drill a wall or build a dock or fulfill some other objective that allows you to reach new areas find each newly accessible square and unmark those squares
+
 
 function update() {
 	if (GameManager.drawSurface == null) { //check if canvas has been updated by the html page
@@ -955,6 +974,7 @@ function update() {
 	}
 	else {
 		musicPlayer.update(); //update music regardless of game state
+		checkTogglePause();
 		if (!paused) {
 			//update input
 			checkScrollScreen();
@@ -968,7 +988,6 @@ function update() {
 			GameManager.updateObjects();
 		}
 	}
-	
 		
 	//pre-render; draw solid background
 	GameManager.drawSurface.fillStyle = "rgb(60,45,23)"; //brown background color
@@ -985,6 +1004,7 @@ function update() {
 	}
 	drawUI(); //draw UI last to ensure that it is in front of everything else
 	drawAwaitingStartInstructions();
+	drawPauseInstructions();
 }
 
 _intervalId = setInterval(update, 1000 / GameManager.fps); //set refresh rate to desired fps

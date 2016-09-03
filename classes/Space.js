@@ -91,6 +91,7 @@ Space.prototype.sweep = function() {
 	else if (this.type == "rubble 4") {
 		this.setTypeProperties("ground");
 	}
+	this.adjustHeightAlpha(); //reset height-based alpha after sweeping, as it will be reset after calling setTyleProperties
 };
 
 Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContainsOre,requiredResources,dedicatedResources,placedResources) {
@@ -285,24 +286,27 @@ Space.prototype.updateTouched = function(touched) { //if this space has not yet 
 		
 		//set brightness / darkness based on height, as long as its not a wall
 		if (!this.isWall) {
-			var heightAlphaChange = .02;
-			this.drawSurface.beginPath();
-			if (this.height > 10) {
-				this.drawSurface.globalAlpha=heightAlphaChange*(this.height - 10);
-				this.drawSurface.fillStyle="rgb(255,255,255)";
-				this.drawSurface.fillRect(0,0,this.rect.width,this.rect.height);
-				
-			}
-			else if (this.height < 10) {
-				this.drawSurface.globalAlpha=heightAlphaChange*3*(10 - this.height); //multiply by a constant to artificially inflate the darkness change, since rendering a black semitransparent rect seems to have much less of an effect than rendering a white semitransparent rect for some reason
-				this.drawSurface.fillStyle="rgb(0,0,0)";
-				this.drawSurface.fillRect(0,0,this.rect.width,this.rect.height);
-				
-			}
-			this.drawSurface.stroke();
-			this.drawSurface.globalAlpha = 1;
+			this.adjustHeightAlpha();
 		}
 	}
+};
+Space.prototype.adjustHeightAlpha = function() {
+	var heightAlphaChange = .02;
+	this.drawSurface.beginPath();
+	if (this.height > 10) {
+		this.drawSurface.globalAlpha=heightAlphaChange*(this.height - 10);
+		this.drawSurface.fillStyle="rgb(255,255,255)";
+		this.drawSurface.fillRect(0,0,this.rect.width,this.rect.height);
+		
+	}
+	else if (this.height < 10) {
+		this.drawSurface.globalAlpha=heightAlphaChange*3*(10 - this.height); //multiply by a constant to artificially inflate the darkness change, since rendering a black semitransparent rect seems to have much less of an effect than rendering a white semitransparent rect for some reason
+		this.drawSurface.fillStyle="rgb(0,0,0)";
+		this.drawSurface.fillRect(0,0,this.rect.width,this.rect.height);
+		
+	}
+	this.drawSurface.stroke();
+	this.drawSurface.globalAlpha = 1;
 };
 Space.prototype.allResourcesPlaced = function() {
 	var placedResourceTypes = Object.getOwnPropertyNames(this.placedResources);
