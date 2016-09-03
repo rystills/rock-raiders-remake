@@ -317,10 +317,6 @@ function randomInt(min,max) {//TODO: max appears to be inclusive. needs testing.
     return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
-function parseIntRound(string) {
-	return Math.round(parseFloat(string));
-}
-
 function makeChild(objectName, parentName) {
 	//objectName: the name of the object being given inheritance
 	//parentName: the name of the parent object
