@@ -662,6 +662,11 @@ Raider.prototype.playDropSound = function() {
 	}
 };
 
+Raider.prototype.die = function() {
+	this.stopSounds();
+	return RygameObject.prototype.die.call(this);
+};
+
 function Raider(space) { //TODO: BUG WHERE SOMETIMES RAIDER STARTS IN THE RIGHT WALL AT THE VERY BEGINNING. CHECK IF THIS HAS BEEN FIXED
 	RygameObject.call(this,0,0,1,1,"raider 1 (1).png",gameLayer);
 	this.space = space;

@@ -15,7 +15,7 @@ function printTerrain(terrain) {
 }
 
 function printPath(path) {
-	pathString = "[";
+	var pathString = "[";
 	for (var i = 0; i < path.length; i++) {
 		pathString += " (" + path[path.length-(i+1)].listX + ", " + path[path.length-(i+1)].listY + ") >";
 	}
@@ -181,7 +181,7 @@ function calculatePath(terrain,startSpace,goalSpace,returnAllSolutions) {
 	var closedSet = [];
 	var solutions = [];
 	var finalPathDistance = -1;
-	openSet = [startSpace]; //TODO: we can speed up the algorithm quite a bit if we use hashing for lookup rather than lists
+	var openSet = [startSpace]; //TODO: we can speed up the algorithm quite a bit if we use hashing for lookup rather than lists
 	while (openSet.length > 0) {
 				
 		currentSpace = openSet.shift();  //TODO: keep the list sorted in reverse for this algorithm so that you can insert and remove from the back of the list rather than shifting all of the elements when inserting and removing (minor performance improvement)
@@ -283,7 +283,13 @@ function populateTestCollision() {
 	console.log("COLLISION TEST: " + collisionRect(testRaider,testOre,false));
 }
 
-function loadLevelData() {
+function loadLevelData(name) {
+	levelName = name;
+	terrainMapName = "Surf_" + levelName + ".js";
+	cryoreMapName = "Cror_" + levelName + ".js"; //TODO: CONTINUE ADDING NEW MAPS TO THIS BLOCK OF CODE AND CLEANING IT UP, AND ADD CHECKS IN CASE ANY MAP DOESN'T EXIST FOR THE LEVEL BEING LOADED
+	olFileName = levelName + ".js";
+	predugMapName = "Dugg_" + levelName + ".js";
+	surfaceMapName = "High_" + levelName + ".js";
 	for (var i = 0; i < GameManager.scriptObjects[terrainMapName].level.length; i++) {
 		terrain.push([]);
 		for (var r = 0; r < GameManager.scriptObjects[terrainMapName].level[i].length; r++) {
@@ -373,7 +379,6 @@ function loadLevelData() {
 	    	else if (headingDir == 270) {
 	    		powerPathSpace = adjacentSpace(terrain,currentSpace.listX,currentSpace.listY,"left");
 	    	}
-	    	console.log("heading dir: " + headingDir);
 	    	currentSpace.powerPathSpace = powerPathSpace;
 	    	currentSpace.powerPathSpace.setTypeProperties("power path");
 	    	currentSpace.headingAngle = (headingDir-180)/180*Math.PI; //use an angle variable separate from drawAngle so that the object does not draw a rotated image when in the fog
@@ -570,8 +575,8 @@ function checkAssignSelectionTask() {
 			if (index != -1) {
 				tasksUnavailable.objectList.splice(index,1);
 			}		
-			for (var i = 0; i < selection.length; i++) {	
-			if (selection[i].currentTask == null) { //the only selection[i] type for now; later on any Space (and maybe collectables as well?) or vehicle, etc.. will be a valid selection[i] as even though these things cannot be assigned tasks they can be added to the high priority task queue as well as create menu buttons
+			for (var i = 0; i < selection.length; i++) {	//TODO: allow certain tasks to be performed by raiders even if they are holding something
+			if (selection[i].currentTask == null && selection[i].holding == null) { //raiders are the only valid selection[i] type for now; later on any Space (and maybe collectables as well?) or vehicle, etc.. will be a valid selection[i] as even though these things cannot be assigned tasks they can be added to the high priority task queue as well as create menu buttons
 					
 					//selectedTask.taskPriority = 1;
 					if (toolsRequired[selection[i].taskType(selectedTask)] == undefined || selection[i].tools.indexOf(toolsRequired[selection[i].taskType(selectedTask)]) != -1) {
@@ -693,7 +698,8 @@ function getTool(toolName) {
 }
 
 function pauseGame() {
-	paused = !paused;
+	//paused = !paused;
+	resetLevelVars("01");
 }
 
 function checkTogglePause() {
@@ -910,57 +916,72 @@ function createButtons() {
 	buttons.push(new Button(86,0,0,0,"clear rubble button 1 (1).png",gameLayer, clearRubble,false,false,["rubble 1","rubble 2","rubble 3","rubble 4"]));
 }
 
-tasksAutomated = { //update me manually for now, as the UI does not yet have task priority buttons
-		"sweep":true,
-		"collect":true,
-		"drill":false,
-		"build":true,
-};
+function resetLevelVars(name) {
+	collectedResources = {"ore":0,"crystal":0};
+	reservedResources = {"ore":0,"crystal":0};
+	selectionRectCoords = {x1:null,y1:null};
+	selection = [];
+	selectionType = null;
+	for (var i = 0; i < terrain.length; ++i) {
+		for (var r = 0; r < terrain[i].length; ++r) {
+			terrain[i][r].die();
+		}
+	}
+	terrain = [];
+	for (var i = 0; i < buildings.length; ++i) {
+		buildings[i].die();
+	}
+	buildings = []; //similar to terrain[], just holds spaces which are buildings so that they can be easily located by raiders.
+	for (var i = 0; i < buildingSites.length; ++i) {
+		buildingSites[i].die();
+	}
+	buildingSites = []; //used by raider ai pathfinding in a similar manner to buildings[]
+	tasksAvailable = [];//.concat(collectables.objectList); 
+	tasksUnavailable = new ObjectGroup(); //don't need to removeAll as this simply holds Space or Collectable instances
+	tasksInProgress = new ObjectGroup();
+	raiders.removeAll(true);
+	collectables.removeAll(true);
+	selectionRectObject = new RygameObject(0,0,0,0,null,gameLayer); //TODO: MAKE THIS A PROPER OBJECT AND MOVE THE SELECTION RECT CODE TO ITS UPDATE METHOD
+	selectionRectPointList = [];
+	selectionRectCoordList = [];
+	awaitingStart = true;
+	paused = false;
+	holdingPKey = false;
+	loadLevelData(name);
+	
+}
 
-toolsRequired = { //dict of task type to required tool
-		"sweep":"shovel",
-		"drill":"drill"
-};
-collectedResources = {"ore":3,"crystal":0};
-reservedResources = {"ore":0,"crystal":0};
-var selectionRectCoords = {x1:null,y1:null};
-tileSize = 128;
-scrollDistance = 1;
-scrollSpeed = 20;
-maskUntouchedSpaces = true; //if true, this creates the "fog of war" type effect where unrevealed Spaces appear as solid rock (should only be set to false for debugging purposes)
-selection = [];
-selectionType = null;
-mousePanning = false; //can you scroll the screen using the mouse?
-keyboardPanning = true; //can you scroll the screen using the arrow keys?
-gameLayer = new Layer(0,0,1,1,GameManager.screenWidth,GameManager.screenHeight);
-terrain = [];
-buildings = []; //similar to terrain[], just holds spaces which are buildings so that they can be easily located by raiders.
-buildingSites = []; //used by raider ai pathfinding in a similar manner to buildings[]
-tasksAvailable = [];//.concat(collectables.objectList); 
-tasksUnavailable = new ObjectGroup();
-raiders = new ObjectGroup();
-collectables = new ObjectGroup();
-tasksInProgress = new ObjectGroup();
-var terrainMapName = "Surf_02.js";
-var cryoreMapName = "Cror_02.js"; //TODO: CONTINUE ADDING NEW MAPS TO THIS BLOCK OF CODE AND CLEANING IT UP, AND ADD CHECKS IN CASE ANY MAP DOESN'T EXIST FOR THE LEVEL BEING LOADED
-var olFileName = "02.js";
-var predugMapName = "Dugg_02.js";
-var surfaceMapName = "High_02.js";
-buttons = new ObjectGroup();
-var selectionRectObject = new RygameObject(0,0,0,0,null,gameLayer); //TODO: MAKE THIS A PROPER OBJECT AND MOVE THE SELECTION RECT CODE TO ITS UPDATE METHOD
-var selectionRectPointList;
-var selectionRectCoordList;
-var awaitingStart = true;
-var paused = false;
-var holdingPKey = false;
-var debug = false;
-var musicPlayer = new MusicPlayer();
-GameManager.drawSurface.font = "48px Arial";
-createButtons();
-loadLevelData();
-
-//TODO: make it so that pieces with no path to them have their spaces marked as "unaccessible" and when you drill a wall or build a dock or fulfill some other objective that allows you to reach new areas find each newly accessible square and unmark those squares
-
+function initGlobals() {
+	gameLayer = new Layer(0,0,1,1,GameManager.screenWidth,GameManager.screenHeight);
+	musicPlayer = new MusicPlayer();
+	buttons = new ObjectGroup();
+	createButtons();
+	GameManager.drawSurface.font = "48px Arial";
+	tasksAutomated = { //update me manually for now, as the UI does not yet have task priority buttons
+			"sweep":true,
+			"collect":true,
+			"drill":false,
+			"build":true,
+	};
+	toolsRequired = { //dict of task type to required tool
+			"sweep":"shovel",
+			"drill":"drill"
+	};
+	tileSize = 128;
+	scrollDistance = 1;
+	scrollSpeed = 20;
+	maskUntouchedSpaces = true; //if true, this creates the "fog of war" type effect where unrevealed Spaces appear as solid rock (should only be set to false for debugging purposes)
+	mousePanning = false; //can you scroll the screen using the mouse?
+	keyboardPanning = true; //can you scroll the screen using the arrow keys?
+	debug = false;
+	
+	//some variables need to be given an initial value as resetting them is more complex; init them here
+	terrain = [];
+	buildings = [];
+	buildingSites = [];
+	raiders = new ObjectGroup();
+	collectables = new ObjectGroup();
+}
 
 function update() {
 	if (GameManager.drawSurface == null) { //check if canvas has been updated by the html page
@@ -986,6 +1007,7 @@ function update() {
 			checkUpdateCtrlSelection();
 			//update objects
 			GameManager.updateObjects();
+			buttons.update(selectionType);
 		}
 	}
 		
@@ -1007,4 +1029,7 @@ function update() {
 	drawPauseInstructions();
 }
 
+//TODO: make it so that pieces with no path to them have their spaces marked as "unaccessible" and when you drill a wall or build a dock or fulfill some other objective that allows you to reach new areas find each newly accessible square and unmark those squares
+initGlobals();
+resetLevelVars("01");
 _intervalId = setInterval(update, 1000 / GameManager.fps); //set refresh rate to desired fps

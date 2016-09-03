@@ -438,7 +438,7 @@ GameManagerInternal.prototype.updateObjects = function() {
 	for (var i = 0; i < this.completeObjectList.length; i++) {
 		this.completeObjectList[i].xPrevious = this.completeObjectList[i].x; //TODO: DECIDE IF THE PREVIOUS POSITION VARIABLES SHOULD BE UPDATED BEFORE OR AFTER THE UPDATE METHOD
 		this.completeObjectList[i].yPrevious = this.completeObjectList[i].y;
-		if (typeof this.completeObjectList[i].update == "function") {
+		if (typeof this.completeObjectList[i].update == "function" && this.completeObjectList[i].renderAutomatically) { //TODO: implement updateAutomatically as a separate var from renderAutomatically
 			this.completeObjectList[i].update(); //TODO: CURRENTLY THIS IS SORTED BY DRAWDEPTH; FIND A WAY TO SORT BY UPDATEDEPTH!!
 		}
 	}
@@ -532,6 +532,7 @@ ObjectGroup.prototype.push = function(appendObjectList) {
 ObjectGroup.prototype.pop = function() {
 	var removeObject = this.objectList.pop();
 	removeObject.groupsContained.splice(removeObject.groupsContained.indexOf(this),1);
+	return removeObject;
 };
 ObjectGroup.prototype.remove = function(removeObjectList) { //arbitrary removal as opposed to simply calling pop
 	removeObjectList = [].concat(removeObjectList); //TODO: CONSIDER THE PERFORMANCE DETRIMENT OF CALLING CONCAT HERE
@@ -542,6 +543,24 @@ ObjectGroup.prototype.remove = function(removeObjectList) { //arbitrary removal 
 			this.objectList.splice(position,1);
 			removeObject.groupsContained.splice(removeObject.groupsContained.indexOf(this),1);
 		}
+	}
+};
+ObjectGroup.prototype.removeAll = function(kill) {
+	var curObject;
+	if (kill == null) {
+		kill = false;
+	}
+	while (this.objectList.length > 0) {
+		curObject = this.pop();
+		if (kill) {
+			curObject.die();
+		}
+	}
+};
+
+ObjectGroup.prototype.update = function(optionalArgs) {
+	for (var i = 0; i < this.objectList.length; ++i) {
+		this.objectList[i].update(optionalArgs);
 	}
 };
 
@@ -583,7 +602,7 @@ function Rect(width,height) { //TODO add xOffset and yOffset variables since rec
 }
 
 makeChild("Button","RygameObject");
-Button.prototype.update = function() {
+Button.prototype.update = function(selectionType) {
 	if (this.selectionTypeBound != null) {
 		if (this.selectionTypeBound.indexOf(selectionType) == -1) {
 			if (!(this.selectionTypeBound.length == 0 && selectionType != null)) {
@@ -619,15 +638,7 @@ function Button(x,y,updateDepth,drawDepth,image,layer,runMethod,affectedByCamera
 	this.optionalArgs = optionalArgs;
 	if (this.optionalArgs == null) {
 		this.optionalArgs = [];
-	}
-	if (this.selectionTypeBound != null) {
-		if (this.selectionTypeBound.indexOf(selectionType) == -1) {
-			if (!(this.selectionTypeBound.length == 0 && selectionType != null)) {
-				this.visible = false;
-			}
-		}
 	}	
-	
 }
 
 RygameObject.prototype.updatePosition = function(x, y) { //TODO we will keep this method for now but it should be made obslete in the long run as now that we havew complete control over collisions theres no need to update rect positions until a rygame collision function is called
