@@ -350,72 +350,44 @@ Space.prototype.updatePlacedResources = function(resourceType) {
 		} 
 	}
 };
+
+spaceTypes = {
+		1:"solid rock", 
+		2:"hard rock",
+		'-1':"power path",
+		0:"ground",
+		5:"ground",
+		3:"loose rock",
+		4:"dirt",
+		6:"lava",
+		8:"ore seam",
+		9:"water",
+		10:"energy crystal seam",
+		11:"recharge seam",
+		100:"rubble 1",
+		101:"rubble 2",
+		102:"rubble 3",
+		103:"rubble 4",
+		'-2':"tool store",
+		'-3':"teleport pad",
+		'-101':"building site",
+		'-102':"building site",
+		'-103':"building site"
+		};
+
+
 function Space(type,listX,listY,height) {
 	//convert basic types from the numbers used in the level files to easily readable strings
-	this.type = type; //this way you can input the string type directly if you're creating a space manually, rather than having to use the level file numbers and converting here
 	this.height = height;
 	this.buildingSiteType = null;
-	if (type == 1) {
-		this.type = "solid rock";
-	}
-	if (type == 2) {
-		this.type = "hard rock";
-	}
-	else if (type == -1) {
-		this.type = "power path";
-	}
-	else if (type == 0 || type == 5) { //the wiki page claims that 5 is dirt, but the game (and Map Creator) seems to disagree, and treats 5 as ground
-		this.type = "ground";
-	}
-	else if (type == 3) {
-		this.type = "loose rock";
-	}
-	else if (type == 4) {
-		this.type = "dirt";
-	}
-	else if (type == 6) {
-		this.type = "lava";
-	}
-	else if (type == 8) {
-		this.type = "ore seam";
-	}
-	else if (type == 9) {
-		this.type = "water";
-	}
-	else if (type == 10) {
-		this.type = "energy crystal seam";
-	}
-	else if (type == 11) {
-		this.type = "recharge seam";
-	}
-	else if (type == 100) {
-		this.type = "rubble 1";
-	}
-	else if (type == 101) {
-		this.type = "rubble 2";
-	}
-	else if (type == 102) {
-		this.type = "rubble 3";
-	}
-	else if (type == 103) {
-		this.type = "rubble 4";
-	}
-	else if (type == -2) {
-		this.type = "tool store";
-	}
-	else if (type == -3) {
-		this.type = "teleport pad";
-	}
-	else if (type == -101) {
-		this.type = "building site";
+	this.type = spaceTypes[type]; //this way you can input the string type directly if you're creating a space manually, rather than having to use the level file numbers and converting here
+	if (type == -101) {
 		this.buildingSiteType = "power path"; //TODO: SET 'RUBBLECONTAINSORE' VARIABLE IN THE SAME WAY AND REMOVE IT FROM THE SETTYPEPROPERTIES METHOD HEADER (or make rubbleContainsOre a local int in the Space class so that it only gets set when needed rather than getting modified in the setTypeProperties method)
 	}
 	else if (type == -102) {
-		this.type = "building site";
 		this.buildingSiteType = "tool store"; 
 	}
 	else if (type == -103) {
-		this.type = "building site";
 		this.buildingSiteType = "teleport pad"; 
 	}
 	/*else { //TODO: DELETE THIS CASE ONCE ALL TERRAIN TYPES FROM THE ORIGINAL GAME HAVE A CORRESPONDING TYPE VALUE HERE

@@ -174,9 +174,7 @@ function calculatePath(terrain,startSpace,goalSpace,returnAllSolutions) {
 	
 	goalSpace.parents = [];
 	
-	startSpace.goalDistance = Math.abs(goalSpace.listX - startSpace.listX) + Math.abs(goalSpace.listY - startSpace.listY); //remember this is the least possible distance, not the actual distance
 	startSpace.startDistance = 0;
-	startSpace.finalDistance = startSpace.goalDistance;
 	startSpace.parents = [];
 	var closedSet = [];
 	var solutions = [];
@@ -184,7 +182,7 @@ function calculatePath(terrain,startSpace,goalSpace,returnAllSolutions) {
 	var openSet = [startSpace]; //TODO: we can speed up the algorithm quite a bit if we use hashing for lookup rather than lists
 	while (openSet.length > 0) {
 				
-		currentSpace = openSet.shift();  //TODO: keep the list sorted in reverse for this algorithm so that you can insert and remove from the back of the list rather than shifting all of the elements when inserting and removing (minor performance improvement)
+		var currentSpace = openSet.shift();  //TODO: keep the list sorted in reverse for this algorithm so that you can insert and remove from the back of the list rather than shifting all of the elements when inserting and removing (minor performance improvement)
 		closedSet.push(currentSpace);
 		var adjacentSpaces = [];
 		adjacentSpaces.push(adjacentSpace(terrain,currentSpace.listX,currentSpace.listY,"up"));
@@ -192,11 +190,12 @@ function calculatePath(terrain,startSpace,goalSpace,returnAllSolutions) {
 		adjacentSpaces.push(adjacentSpace(terrain,currentSpace.listX,currentSpace.listY,"left"));
 		adjacentSpaces.push(adjacentSpace(terrain,currentSpace.listX,currentSpace.listY,"right"));
 		for (var k = 0; k < adjacentSpaces.length; k++) {
-			var newSpace = adjacentSpaces[k];
 			
 			if ((finalPathDistance != -1) && (currentSpace.startDistance + 1 > finalPathDistance)) {
 				return solutions;
 			}
+			
+			var newSpace = adjacentSpaces[k];
 			
 			//check this here so that the algorithm is a little bit faster, but also so that paths to non-walkable terrain pieces (such as for drilling) will work
 			if (newSpace == goalSpace) {
@@ -226,23 +225,22 @@ function calculatePath(terrain,startSpace,goalSpace,returnAllSolutions) {
 			
 			if ((newSpace != null) && (newSpace.walkable == true)) {					
 				
-				newStartDistance = currentSpace.startDistance + 1;
-				notInOpenSet = openSet.indexOf(newSpace) == -1;
+				var newStartDistance = currentSpace.startDistance + 1;
+				var notInOpenSet = openSet.indexOf(newSpace) == -1;
 				
 				if ((closedSet.indexOf(newSpace) != -1) && (newSpace.startDistance < newStartDistance)) {
 					continue;
 				}
+				console.log("closedSet.indexOf(newSpace): " + closedSet.indexOf(newSpace) + ", newSpace start distance: " + newSpace.startDistance + ", newStartDistance: " + newStartDistance);
 				
 				if (notInOpenSet || newSpace.startDistance == newStartDistance) { 
 					if (notInOpenSet) {
 						newSpace.parents = [];
 					}
 					newSpace.parents.push(currentSpace);
-					newSpace.goalDistance = Math.abs(goalSpace.listX - newSpace.listX) + Math.abs(goalSpace.listY - newSpace.listY);
 					newSpace.startDistance = newStartDistance;
-					newSpace.finalDistance = newSpace.goalDistance + newSpace.startDistance; //TODO: test this, it does not appear like it should be an effective heuristic to me, not entirely sure yet
 					if (notInOpenSet) {
-						openSet.splice(binarySearch(openSet,newSpace,"finalDistance",true),0,newSpace);
+						openSet.splice(binarySearch(openSet,newSpace,"startDistance",true),0,newSpace);
 					}
 				}
 				
@@ -698,8 +696,7 @@ function getTool(toolName) {
 }
 
 function pauseGame() {
-	//paused = !paused;
-	resetLevelVars("01");
+	paused = !paused;
 }
 
 function checkTogglePause() {
@@ -825,7 +822,7 @@ function drawSelectionBox() {
 	}
 }
 
-function drawSelectedRects() {
+function drawSelectedSquares() {
 	GameManager.drawSurface.strokeStyle = "rgb(0,255,0)";
 	GameManager.drawSurface.fillStyle = "rgb(0,255,0)";
 	GameManager.drawSurface.lineWidth = 2;
@@ -837,11 +834,23 @@ function drawSelectedRects() {
 			var rectMaxLength = Math.max(selection[i].rect.width,selection[i].rect.height);
 			var halfRectMaxLength = rectMaxLength/2;
 			GameManager.drawSurface.rect(selection[i].centerX() - halfRectMaxLength - selection[i].drawLayer.cameraX,selection[i].centerY() - halfRectMaxLength - selection[i].drawLayer.cameraY,rectMaxLength,rectMaxLength);
-			GameManager.drawSurface.stroke();
-			
+			GameManager.drawSurface.stroke();	
+		}
+		else {
+			 GameManager.drawSurface.globalAlpha=0.3;
+			 GameManager.drawSurface.fillRect(selection[i].x - selection[i].drawLayer.cameraX,selection[i].y - selection[i].drawLayer.cameraY,selection[i].rect.width,selection[i].rect.height);
+			 GameManager.drawSurface.globalAlpha=1;
+		}
+	}
+}
+
+function drawSelectedRects() {
+	if (selectionType == "raider") {
+		GameManager.drawSurface.lineWidth = 2;
+		GameManager.drawSurface.fillStyle = "rgb(255,0,0)";
+		GameManager.drawSurface.strokeStyle = "rgb(255,0,0)";
+		for (var i = 0; i < selection.length; i++) {
 			//draw smallest rotated bounding rect
-			GameManager.drawSurface.fillStyle = "rgb(255,0,0)";
-			GameManager.drawSurface.strokeStyle = "rgb(255,0,0)";
 			var rectPoints = calculateRectPoints(selection[i],false);
 			GameManager.drawSurface.beginPath();
 			GameManager.drawSurface.moveTo(rectPoints[rectPoints.length-1].x - selection[i].drawLayer.cameraX,rectPoints[rectPoints.length-1].y - selection[i].drawLayer.cameraY);
@@ -852,14 +861,24 @@ function drawSelectedRects() {
 			GameManager.drawSurface.globalAlpha=0.3;
 			GameManager.drawSurface.fill();
 			GameManager.drawSurface.globalAlpha=1;
-			
-			
 		}
-		else {
-			 GameManager.drawSurface.globalAlpha=0.3;
-			 GameManager.drawSurface.fillRect(selection[i].x - selection[i].drawLayer.cameraX,selection[i].y - selection[i].drawLayer.cameraY,selection[i].rect.width,selection[i].rect.height);
-			 GameManager.drawSurface.globalAlpha=1;
+	}
+}
+
+function highlightRaiderPaths() {
+	var path;
+	for (var r = 0; r < raiders.objectList.length; ++r) {
+		path = raiders.objectList[r].currentPath;
+		if (path == null) {
+			continue;
 		}
+		for (var i = 0; i < path.length; ++i) {
+			GameManager.drawSurface.beginPath();
+			var rectMaxLength = Math.max(path[i].rect.width,path[i].rect.height);
+			var halfRectMaxLength = rectMaxLength/2;
+			GameManager.drawSurface.rect(path[i].centerX() - halfRectMaxLength - path[i].drawLayer.cameraX,path[i].centerY() - halfRectMaxLength - path[i].drawLayer.cameraY,rectMaxLength,rectMaxLength);
+			GameManager.drawSurface.stroke();	
+		}	
 	}
 }
 
@@ -973,7 +992,7 @@ function initGlobals() {
 	maskUntouchedSpaces = true; //if true, this creates the "fog of war" type effect where unrevealed Spaces appear as solid rock (should only be set to false for debugging purposes)
 	mousePanning = false; //can you scroll the screen using the mouse?
 	keyboardPanning = true; //can you scroll the screen using the arrow keys?
-	debug = false;
+	debug = true;
 	
 	//some variables need to be given an initial value as resetting them is more complex; init them here
 	terrain = [];
@@ -1018,8 +1037,10 @@ function update() {
 	GameManager.drawFrame();
 	//post render; draw effects and UI
 	drawSelectionBox();
-	drawSelectedRects();
+	drawSelectedSquares();
 	if (debug) { //render debug info
+		highlightRaiderPaths();
+		drawSelectedRects();
 		drawTerrainVars(["height"]);
 		drawRaiderTasks();
 		drawBuildingSiteMaterials();	
