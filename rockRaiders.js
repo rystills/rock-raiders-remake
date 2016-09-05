@@ -593,9 +593,10 @@ function checkAssignSelectionTask() {
 						if (tasksInProgress.objectList.indexOf(selectedTask) == -1) {
 							tasksInProgress.push(selectedTask);
 						}
+						
 						//TODO: cleanup the code at the top of the Raider class which deals with choosing a task, stick it in a method, and reuse it here for simplicity
 						selection[i].currentPath = findClosestStartPath(selection[i],calculatePath(terrain,selection[i].space,typeof selectedTask.space == "undefined" ? selectedTask: selectedTask.space,true));
-				
+						selection[i].checkChooseCloserEquivalentResource();
 					}
 				}
 			}
