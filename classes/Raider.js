@@ -139,26 +139,39 @@ Raider.prototype.update = function() {
 				//console.log(distanceTraveled);
 				this.space = this.currentPath.pop(); //TODO: CHANGED THE BELOW LINE FROM CURRENTPATH[0].CONTAINS.LENGTH TO CURRENTPATH[0].CONTAINS.OBJECTLIST.LENGTH. CHECK IF THIS HAS BROKEN/CHANGED BEHAVIOR IN ANY WAY
 				if (this.holding == null && (this.currentPath.length > 1 || (this.currentPath[0].walkable == true && this.currentPath[0].contains.objectList.length > 1))) { //if the final space is walkable we still check for closer resources as multiple resources may exist on a single walkable space. if the space is not walkable then there should only be able to be a single task on that space such as to drill that space
+					var currentTaskType = this.taskType(this.currentTask);
+					var closestDistance = -1;
+					var closestObject = null;
+					var closestIndex = -1;
+					var centerX = this.centerX();
+					var centerY = this.centerY();
 					for (var i = 0; i < this.currentPath[this.currentPath.length-1].contains.objectList.length; i++) { //the problem was i was using currentPath[this.currentPath.length-1]. i needed to be using the end of the list, not the begining of the list
 						
-						var currentTaskType = this.taskType(this.currentTask); //TODO: CHANGE THIS LOOP TO FIND THE CLOSEST OBJECT AND THEN ADJUST TASKS AND EVERYTHING ONCE AFTER THE LOOP HAS FINISHED, RATHER THAN CHANGING TASKS EVERY TIME A NEW CLOSEST RESOURCE IS FOUND, AS THIS IS SLIGHTLY INEFFICIENT
 						if (this.taskType(this.currentPath[this.currentPath.length-1].contains.objectList[i]) == currentTaskType) {
 							var newIndex = tasksAvailable.indexOf(this.currentPath[this.currentPath.length-1].contains.objectList[i]); //look for resources on the next space, not the current space
-							
 							if (newIndex != -1) { //TODO: CONSIDER WHETHER OR NOT RAIDERS SHOULD BE ALLOWED TO 'STEAL' EACH OTHERS' ACTIVE TASKS
-								//change tasks TODO: CONVERT THIS INTO A METHOD
-								//TODO: THIS CREATES RIGID MOVEMENT WHEN CHANGING TASKS. CONSIDER APPROACHING THIS DIFFERENTLY, INCLUDING SETTING THIS.SPACE EARLIER WHEN CHANGING SPACES (may be fixed now that we check one space ahead of us) [should no longer matter as we now update this.space when changing tasks]
-								tasksInProgress.remove(this.currentTask);
-								tasksAvailable.push(this.currentTask);
-								this.currentTask = this.currentPath[this.currentPath.length-1].contains.objectList[i]; //TODO: choose the closest task on the space that is of the same type rather than the first one you find
-								//tasksAvailable.remove(this.currentTask);
-								tasksAvailable.splice(newIndex, 1);
-								tasksInProgress.push(this.currentTask);
-								this.currentPath = this.currentPath.splice(-1,1); //technically we no longer need the path at all, but without it the walk speed check will complain
-								this.currentObjective = this.currentTask;
-								break;
+								var distance = getDistance(centerX,centerY,this.currentPath[this.currentPath.length-1].contains.objectList[i].centerX(),this.currentPath[this.currentPath.length-1].contains.objectList[i].centerY());
+								if (closestObject == null || distance < closestDistance) {
+									closestDistance = distance;
+									closestObject = this.currentPath[this.currentPath.length-1].contains.objectList[i];
+									closestIndex = newIndex;
+								}
 							}
 						}
+					}
+					
+					if (closestObject != null) { //switch tasks to the closest object of the same type on this space
+						//change tasks TODO: CONVERT THIS INTO A METHOD
+						//TODO: THIS CREATES RIGID MOVEMENT WHEN CHANGING TASKS. CONSIDER APPROACHING THIS DIFFERENTLY, INCLUDING SETTING THIS.SPACE EARLIER WHEN CHANGING SPACES (may be fixed now that we check one space ahead of us) [should no longer matter as we now update this.space when changing tasks]
+						tasksInProgress.remove(this.currentTask);
+						tasksAvailable.push(this.currentTask);
+						this.currentTask = closestObject; //TODO: choose the closest task on the space that is of the same type rather than the first one you find
+						//tasksAvailable.remove(this.currentTask);
+						tasksAvailable.splice(closestIndex, 1);
+						tasksInProgress.push(this.currentTask);
+						this.currentPath = this.currentPath.splice(-1,1); //technically we no longer need the path at all, but without it the walk speed check will complain
+						this.currentObjective = this.currentTask;
+						break;
 					}
 				}
 			}

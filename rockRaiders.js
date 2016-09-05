@@ -231,7 +231,6 @@ function calculatePath(terrain,startSpace,goalSpace,returnAllSolutions) {
 				if ((closedSet.indexOf(newSpace) != -1) && (newSpace.startDistance < newStartDistance)) {
 					continue;
 				}
-				console.log("closedSet.indexOf(newSpace): " + closedSet.indexOf(newSpace) + ", newSpace start distance: " + newSpace.startDistance + ", newStartDistance: " + newStartDistance);
 				
 				if (notInOpenSet || newSpace.startDistance == newStartDistance) { 
 					if (notInOpenSet) {
