@@ -1,5 +1,11 @@
 makeChild("Raider","RygameObject");
 Raider.prototype.update = function() {
+	//if we are of taskType "build" make sure our job hasn't been taken by somebody else closer to the building site
+	//note that optionally allowing 'undefined' rather than build here should likely be unnecessary
+	if ((this.taskType(this.currentTask) == "build" || this.taskType(this.currentTask) == "undefined") && this.reservingResource && (!(this.currentTask.dedicatedResources[this.currentObjectiveResourceType] < this.currentTask.requiredResources[this.currentObjectiveResourceType]))) {
+		this.clearTask();
+	}
+	//debug test
 	if (this.reservingResource && (this.taskType(this.currentTask) == "undefined" || this.taskType(this.currentTask) == undefined)) {
 		pauseGame();
 		console.log("build task type: " + this.taskType(this.currentTask) + " dedicated resources: "+ this.currentTask.dedicatedResources[this.currentObjectiveResourceType] + " required resources: " + this.currentTask.requiredResources[this.currentObjectiveResourceType] + " reserving resource: " + this.reservingResource + " logic is true: " + (this.reservingResource && (!(this.currentTask.dedicatedResources[this.currentObjectiveResourceType] < this.currentTask.requiredResources[this.currentObjectiveResourceType]))));
@@ -184,7 +190,7 @@ Raider.prototype.update = function() {
 			var collisionReached = false;
 			var taskType = this.taskType(this.currentTask); //TODO: STORE THIS RATHER THAN REPEATEDLY FINDING IT
 			if (!this.busy) { //TODO: CHANGE ACTIONS TO BE IN A SUBMETHOD SO WE DON'T NEED TO PUT THIS.BUSY ALL OVER THE PLACE
-				if ((taskType != "sweep") && collisionRect(this,this.currentObjective,true)) { //if we have taskType 'sweep' we need to keep moving until reachedObjective is true, so don't neglect to move just because we are colliding with the objective in that case
+				if ((!(taskType == "sweep" || taskType == "build" || (taskType == "collect" && this.currentObjective.buildable == true))) && collisionRect(this,this.currentObjective,true)) { //if we have taskType 'sweep' we need to keep moving until reachedObjective is true, so don't neglect to move just because we are colliding with the objective in that case
 					collisionReached = true;
 				}
 				else {
@@ -194,7 +200,7 @@ Raider.prototype.update = function() {
 			distanceTraveled = 0; //we are safe setting this to 0 in this case because we don't care how much farther we have to go to get to the objective, since we will stop for at least 1 frame once we reach it to pick it up
 			if (this.busy || collisionReached || collisionRect(this,this.currentObjective,true)) {
 				if (!this.busy) {
-					if (taskType == "collect" || taskType == "drill" || taskType == "build" || taskType == "get tool") {
+					if ((taskType == "collect" && this.currentObjective.buildable == false) || taskType == "drill" || taskType == "get tool") {
 						//if (taskType == "collect") {
 							//console.log('TEST POINT REACHED');
 							//this.drawAngle = getAngle(this.x,this.y,this.currentObjective.x,this.currentObjective.y,true); //its possible for ore to suddenly appear right next to or on top of us (such as if we are sweeping) and then we won't be facing it. So make the raider face the ore before picking it up as a precaution
@@ -209,11 +215,6 @@ Raider.prototype.update = function() {
 				}
 				if (taskType == "build") {
 					//console.log("build task type: " + this.taskType(this.currentTask) + " dedicated resources: "+ this.currentTask.dedicatedResources[this.currentObjectiveResourceType] + " required resources: " + this.currentTask.requiredResources[this.currentObjectiveResourceType] + " reserving resource: " + this.reservingResource + " logic is true: " + (this.reservingResource && (!(this.currentTask.dedicatedResources[this.currentObjectiveResourceType] < this.currentTask.requiredResources[this.currentObjectiveResourceType]))));
-					//make sure our job hasn't been taken by somebody else closer to the building site
-					if (this.reservingResource && (!(this.currentTask.dedicatedResources[this.currentObjectiveResourceType] < this.currentTask.requiredResources[this.currentObjectiveResourceType]))) {
-						this.clearTask();
-						break;
-					}
 					//console.log("building, resource type: " + this.currentObjectiveResourceType);
 					if (this.currentObjective != this.currentTask) {
 						if ((this.busy) || (this.reservingResource)) {
@@ -300,49 +301,54 @@ Raider.prototype.update = function() {
 						}
 					}
 					else { //TODO: THIS IS ALL REPEAT CODE COPIED FROM THE "COLLECT" CASE; YOU NEED TO BREAK THIS CODE DOWN INTO SMALLER METHODS AND UTILIZE THEM!
-						this.holding.grabPercent -= this.dropSpeed; //no need to have a separate variable for this, grabPercent works nicely
-						this.busy = true;
-						if (this.holding.grabPercent <= 0) {
-							this.playDropSound();
-							this.busy = false;
-//							if (this.holding.type == "ore") {
-//								//increase resources if we are at a toolstore, but not if we are at a building site
-//								collectedResources["ore"]++;
-//							}
-//							else if (this.holding.type == "crystal") {
-//								collectedResources["crystal"]++;
-//							}
-							if (this.currentObjective.type == "building site") {
-								//console.log("before:");
-								//console.log(tasksAvailable);
-								this.currentObjective.updatePlacedResources(this.holding.type);
-								//console.log("after:");
-								//console.log(tasksAvailable);
-								
+						if (this.busy == true || reachedObjective == true) {
+							if (reachedObjective == true) {
+								this.space = this.currentTask;
 							}
-							else if (this.currentObjective.type == "tool store") { //because this is copied from the "collect" section and we are in the "build" section this condition is possibly unreachable
-								var resourcePreviouslyAvailable = resourceAvailable(this.holding.type);
-								collectedResources[this.holding.type]++;
-								if (resourcePreviouslyAvailable == false) {
-									//if no resources of the held type were previous available, check for any building sites that could be reenabled
-									var testTask;
-									for (var k = 0; k < tasksUnavailable.length; k++) {
-										testTask = tasksUnavailable.objectList[k];
-										if (this.taskType(testTask) == "build" && testTask.resourceNeeded(this.holding.type)) {
-											tasksAvailable.push(testTask);
-											tasksUnavailable.objectList.splice(k,1);
-											//continue //TODO: DECIDE WHETHER OR NOT IT IS OK FOR US TO POTENTIALLY REENABLE MORE THAN ONE BUILDING SITE WHEN WE MAY ONLY HAVE 1 OF A REQUIRED RESOURCE TYPE
+							this.holding.grabPercent -= this.dropSpeed; //no need to have a separate variable for this, grabPercent works nicely
+							this.busy = true;
+							if (this.holding.grabPercent <= 0) {
+								this.playDropSound();
+								this.busy = false;
+	//							if (this.holding.type == "ore") {
+	//								//increase resources if we are at a toolstore, but not if we are at a building site
+	//								collectedResources["ore"]++;
+	//							}
+	//							else if (this.holding.type == "crystal") {
+	//								collectedResources["crystal"]++;
+	//							}
+								if (this.currentObjective.type == "building site") {
+									//console.log("before:");
+									//console.log(tasksAvailable);
+									this.currentObjective.updatePlacedResources(this.holding.type);
+									//console.log("after:");
+									//console.log(tasksAvailable);
+									
+								}
+								else if (this.currentObjective.type == "tool store") { //because this is copied from the "collect" section and we are in the "build" section this condition is possibly unreachable
+									var resourcePreviouslyAvailable = resourceAvailable(this.holding.type);
+									collectedResources[this.holding.type]++;
+									if (resourcePreviouslyAvailable == false) {
+										//if no resources of the held type were previous available, check for any building sites that could be reenabled
+										var testTask;
+										for (var k = 0; k < tasksUnavailable.length; k++) {
+											testTask = tasksUnavailable.objectList[k];
+											if (this.taskType(testTask) == "build" && testTask.resourceNeeded(this.holding.type)) {
+												tasksAvailable.push(testTask);
+												tasksUnavailable.objectList.splice(k,1);
+												//continue //TODO: DECIDE WHETHER OR NOT IT IS OK FOR US TO POTENTIALLY REENABLE MORE THAN ONE BUILDING SITE WHEN WE MAY ONLY HAVE 1 OF A REQUIRED RESOURCE TYPE
+											}
 										}
 									}
 								}
+								this.dedicatingResource = false;
+								this.holding.die();
+								//var newIndex = tasksAvailable.indexOf(this.currentTask);
+								//console.log(tasksAvailable);
+								//console.log("INDEX: " + newIndex);
+								//tasksAvailable.splice(newIndex, 1);
+								this.clearTask();
 							}
-							this.dedicatingResource = false;
-							this.holding.die();
-							//var newIndex = tasksAvailable.indexOf(this.currentTask);
-							//console.log(tasksAvailable);
-							//console.log("INDEX: " + newIndex);
-							//tasksAvailable.splice(newIndex, 1);
-							this.clearTask();
 						}
 						//don't think terrain should be object groups instead of lists because spaces should never be being destroyed, but should still keep this under consideration
 					}
@@ -441,40 +447,45 @@ Raider.prototype.update = function() {
 						
 					}
 					else {
-						this.currentTask.grabPercent -= this.dropSpeed; //no need to have a separate variable for this, grabPercent works nicely
-						this.busy = true;
-						if (this.currentTask.grabPercent <= 0) {
-							this.playDropSound();
-							this.busy = false;
-//							if (this.holding.type == "ore") {
-//								//increase resources if we are at a toolstore, but not if we are at a building site
-//								collectedResources["ore"]++;
-//							}
-//							else if (this.holding.type == "crystal") {
-//								collectedResources["crystal"]++;
-//							}
-							if (this.currentObjective.type == "building site") {
-								this.currentObjective.updatePlacedResources(this.holding.type);
+						if (this.busy == true || reachedObjective == true || this.currentObjective.buildable == false) {
+							if (reachedObjective == true) {
+								this.space = this.currentTask;
 							}
-							else if (this.currentObjective.type == "tool store") {
-								var resourcePreviouslyAvailable = resourceAvailable(this.holding.type);
-								collectedResources[this.holding.type]++;
-								if (resourcePreviouslyAvailable == false) {
-									//if no resources of the held type were previous available, check for any building sites that could be reenabled
-									var testTask;
-									for (var k = 0; k < tasksUnavailable.length; k++) {
-										testTask = tasksUnavailable.objectList[k];
-										if (this.taskType(testTask) == "build" && testTask.resourceNeeded(this.holding.type)) {
-											tasksAvailable.push(testTask);
-											tasksUnavailable.objectList.splice(k,1);
-											//continue //TODO: DECIDE WHETHER OR NOT IT IS OK FOR US TO POTENTIALLY REENABLE MORE THAN ONE BUILDING SITE WHEN WE MAY ONLY HAVE 1 OF A REQUIRED RESOURCE TYPE
+							this.currentTask.grabPercent -= this.dropSpeed; //no need to have a separate variable for this, grabPercent works nicely
+							this.busy = true;
+							if (this.currentTask.grabPercent <= 0) {
+								this.playDropSound();
+								this.busy = false;
+	//							if (this.holding.type == "ore") {
+	//								//increase resources if we are at a toolstore, but not if we are at a building site
+	//								collectedResources["ore"]++;
+	//							}
+	//							else if (this.holding.type == "crystal") {
+	//								collectedResources["crystal"]++;
+	//							}
+								if (this.currentObjective.type == "building site") {
+									this.currentObjective.updatePlacedResources(this.holding.type);
+								}
+								else if (this.currentObjective.type == "tool store") {
+									var resourcePreviouslyAvailable = resourceAvailable(this.holding.type);
+									collectedResources[this.holding.type]++;
+									if (resourcePreviouslyAvailable == false) {
+										//if no resources of the held type were previous available, check for any building sites that could be reenabled
+										var testTask;
+										for (var k = 0; k < tasksUnavailable.length; k++) {
+											testTask = tasksUnavailable.objectList[k];
+											if (this.taskType(testTask) == "build" && testTask.resourceNeeded(this.holding.type)) {
+												tasksAvailable.push(testTask);
+												tasksUnavailable.objectList.splice(k,1);
+												//continue //TODO: DECIDE WHETHER OR NOT IT IS OK FOR US TO POTENTIALLY REENABLE MORE THAN ONE BUILDING SITE WHEN WE MAY ONLY HAVE 1 OF A REQUIRED RESOURCE TYPE
+											}
 										}
 									}
 								}
+								this.dedicatingResource = false;
+								this.holding.die();
+								this.clearTask();
 							}
-							this.dedicatingResource = false;
-							this.holding.die();
-							this.clearTask();
 						}
 						//don't think terrain should be object groups instead of lists because spaces should never be being destroyed, but should still keep this under consideration
 					}
