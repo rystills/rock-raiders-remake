@@ -49,6 +49,9 @@ Raider.prototype.update = function() {
 	if ((this.taskType(this.currentTask) == "build" || this.taskType(this.currentTask) == "undefined") && this.reservingResource && (!(this.currentTask.dedicatedResources[this.currentObjectiveResourceType] < this.currentTask.requiredResources[this.currentObjectiveResourceType]))) {
 		this.clearTask();
 	}
+	if (this.taskType(this.currentTask) == "collect") {
+		console.log("current task buildable: " + this.currentTask.buildable + ", current objective buildable: " + this.currentObjective.buildable);
+	}
 	//debug test
 	if (this.reservingResource && (this.taskType(this.currentTask) == "undefined" || this.taskType(this.currentTask) == undefined)) {
 		pauseGame();
@@ -216,7 +219,7 @@ Raider.prototype.update = function() {
 			distanceTraveled = 0; //we are safe setting this to 0 in this case because we don't care how much farther we have to go to get to the objective, since we will stop for at least 1 frame once we reach it to pick it up
 			if (this.busy || collisionReached || collisionRect(this,this.currentObjective,true)) {
 				if (!this.busy) {
-					if ((taskType == "collect" && this.currentObjective.buildable == false) || taskType == "drill" || taskType == "get tool") {
+					if ((taskType == "collect" && this.currentObjective.buildable != true) || taskType == "drill" || taskType == "get tool") {
 						//if (taskType == "collect") {
 							//console.log('TEST POINT REACHED');
 							//this.drawAngle = getAngle(this.x,this.y,this.currentObjective.x,this.currentObjective.y,true); //its possible for ore to suddenly appear right next to or on top of us (such as if we are sweeping) and then we won't be facing it. So make the raider face the ore before picking it up as a precaution
@@ -463,7 +466,7 @@ Raider.prototype.update = function() {
 						
 					}
 					else {
-						if (this.busy == true || reachedObjective == true || this.currentObjective.buildable == false) {
+						if (this.busy == true || reachedObjective == true || this.currentObjective.buildable != true) {
 							if (reachedObjective == true) {
 								this.space = this.currentTask;
 							}
