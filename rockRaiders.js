@@ -334,7 +334,7 @@ function loadLevelData(name) {
 		}
 	}
 
-	for (var i = 0; i < GameManager.scriptObjects[predugMapName].level.length; i++) {
+	for (var i = 0; i < GameManager.scriptObjects[predugMapName].level.length; i++) { //ensure that any walls which do not meet the 'supported' requirement crumble at the start
 		for (var r = 0; r < GameManager.scriptObjects[predugMapName].level[i].length; r++) {
 			if (terrain[i][r].isWall) {
 				terrain[i][r].checkWallSupported();
@@ -342,7 +342,7 @@ function loadLevelData(name) {
 		}
 	}
 
-	for (var i = 0; i < GameManager.scriptObjects[predugMapName].level.length; i++) {
+	for (var i = 0; i < GameManager.scriptObjects[predugMapName].level.length; i++) { //'touch' all exposed spaces in the predug map so that they appear as visible from the start
 		for (var r = 0; r < GameManager.scriptObjects[predugMapName].level[i].length; r++) {
 			var currentPredug = GameManager.scriptObjects[predugMapName].level[i][r];
 			if (currentPredug == 1 || currentPredug == 3) {
@@ -391,7 +391,7 @@ function loadLevelData(name) {
 	}
 }
 
-function taskType(task) {
+function taskType(task,raider) { //optional raider flag allows us to determine what the raider is doing from additional task related variables
 	if (typeof task == "undefined" || task == null) {
 		return null;
 	}
@@ -408,7 +408,7 @@ function taskType(task) {
 		return "collect";
 	}
 	if (typeof task.isBuilding != "undefined" && task.isBuilding == true && task.type == "tool store") {
-		return "get tool";
+		return (raider != null && raider.getToolName != null) ? "get tool" : "upgrade";
 	}
 }
 
@@ -584,7 +584,7 @@ function checkAssignSelectionTask() {
 			if (selection[i].currentTask == null && selection[i].holding == null) { //raiders are the only valid selection[i] type for now; later on any Space (and maybe collectables as well?) or vehicle, etc.. will be a valid selection[i] as even though these things cannot be assigned tasks they can be added to the high priority task queue as well as create menu buttons
 					
 					//selectedTask.taskPriority = 1;
-					if (toolsRequired[selection[i].taskType(selectedTask)] == undefined || selection[i].tools.indexOf(toolsRequired[selection[i].taskType(selectedTask)]) != -1) {
+					if (toolsRequired[selection[i].getTaskType(selectedTask)] == undefined || selection[i].tools.indexOf(toolsRequired[selection[i].getTaskType(selectedTask)]) != -1) {
 						
 						var index = tasksAvailable.indexOf(selectedTask);
 						if (index != -1) { //this check should no longer be necessary
@@ -673,6 +673,30 @@ function buildPowerPath() {
 			selection[i].buildingSiteType = "power path"; //this should probably be assigned somewhere else..
 			selection[i].setTypeProperties("building site"); 
 			tasksAvailable.push(selection[i]);
+		}
+	}
+}
+
+function upgradeRaider() { //TODO: take the 'find path to toolstore' code from this and getTool, and give it its own method.
+	for (var i = 0; i < selection.length; i++) {
+		if (selection[i].currentObjective == null && selection[i].holding == null && selection[i].upgradeLevel < 3) {
+			var newPath = null;
+			var buildingIndex = null;
+			for (var j = 0; j < buildings.length; j++) {
+				buildingIndex = j;
+				if (buildings[j].type == "tool store") {
+					newPath = findClosestStartPath(selection[i],calculatePath(terrain,selection[i].space,buildings[j],true));
+					if (newPath != null) { //TODO: find the closest pathable tool store, rather than simply the first pathable one
+						break;
+					}
+				}
+			}
+			if (newPath == null) {
+				return; //no toolstore found or unable to path to any toolstores
+			}
+			selection[i].currentTask = buildings[buildingIndex];
+			selection[i].currentPath = newPath;
+			selection[i].currentObjective = selection[i].currentTask;
 		}
 	}
 }
@@ -804,7 +828,7 @@ function drawRaiderTasks() {
 	GameManager.setFontSize(36);
 	GameManager.drawSurface.fillStyle = "rgb(200, 220, 255)";
 	for (var i = 0; i < raiders.objectList.length; i++) {
-		GameManager.drawText(raiders.objectList[i].taskType(raiders.objectList[i].currentTask),raiders.objectList[i].centerX()-raiders.objectList[i].drawLayer.cameraX,raiders.objectList[i].y-raiders.objectList[i].drawLayer.cameraY,true);
+		GameManager.drawText(raiders.objectList[i].getTaskType(raiders.objectList[i].currentTask),raiders.objectList[i].centerX()-raiders.objectList[i].drawLayer.cameraX,raiders.objectList[i].y-raiders.objectList[i].drawLayer.cameraY,true);
 	}
 }
 
@@ -954,6 +978,8 @@ function createButtons() {
 
 	//rubble selection buttons
 	buttons.push(new Button(86,0,0,0,"clear rubble button 1 (1).png",gameLayer, clearRubble,false,false,["rubble 1","rubble 2","rubble 3","rubble 4"]));
+	
+	buttons.push(new Button(206,0,0,0,"upgrade button 1 (1).png",gameLayer, upgradeRaider,false,false,["raider"]));
 }
 
 function resetLevelVars(name) {
