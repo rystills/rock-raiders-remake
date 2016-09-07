@@ -136,6 +136,10 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 		this.image = "ground 1 (1).png";
 		this.walkable = true;
 	}
+	else if (type == "slug hole") {
+		this.image = "SlimySlugHole.jpg";
+		this.walkable = true;
+	}
 	else if (type == "power path") {
 		this.image = "power path 1 (1).png";
 		this.walkable = true;
@@ -356,6 +360,8 @@ spaceTypes = {
 		2:"hard rock",
 		'-1':"power path",
 		0:"ground",
+		3:"slug hole",
+		4:"slug hole",
 		5:"ground",
 		3:"loose rock",
 		4:"dirt",

@@ -301,8 +301,7 @@ function loadLevelData(name) {
 			}
 					
 			else if (GameManager.scriptObjects[predugMapName].level[i][r] == 3 || GameManager.scriptObjects[predugMapName].level[i][r] == 4) {
-				//TODO: REPLACE THIS 'GROUND' SPACE WITH SLIMY SLUG HOLE ONCE SLUG HOLES HAVE BEEN IMPLEMENTED AS A GROUND TYPE
-				terrain[i].push(new Space(0,i,r, GameManager.scriptObjects[surfaceMapName].level[i][r]));
+				terrain[i].push(new Space(GameManager.scriptObjects[predugMapName].level[i][r],i,r, GameManager.scriptObjects[surfaceMapName].level[i][r]));
 			}
 			else if (GameManager.scriptObjects[predugMapName].level[i][r] == 1 || GameManager.scriptObjects[predugMapName].level[i][r] == 2) {
 				if (GameManager.scriptObjects[terrainMapName].level[i][r] == 6) {
@@ -699,6 +698,10 @@ function pauseGame() {
 	paused = !paused;
 }
 
+function changeLevels() {
+	resetLevelVars("01");
+}
+
 function checkTogglePause() {
 	if (GameManager.keyStates[String.fromCharCode(80)]) {
 		holdingPKey = true;
@@ -707,6 +710,15 @@ function checkTogglePause() {
 		if (holdingPKey) {
 			pauseGame();
 			holdingPKey = false;
+		}
+	}
+	if (GameManager.keyStates[String.fromCharCode(76)]) {
+		holdingLKey = true;
+	}
+	else {
+		if (holdingLKey) {
+			changeLevels();
+			holdingLKey = false;
 		}
 	}
 }
@@ -966,6 +978,7 @@ function resetLevelVars(name) {
 	awaitingStart = true;
 	paused = false;
 	holdingPKey = false;
+	holdingLKey = false;
 	loadLevelData(name);
 	
 }

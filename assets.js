@@ -35,6 +35,7 @@ object = {
           ["img", "images", "cancel selection button 1 (1).png"], //cancel selection button
           ["img", "images", "unload minifig button 1 (1).png"], //unload minifig button (drops held object)
           ["img", "images", "stop minifig button 1 (1).png"], //stop minifig button (stops any performed task)
+          ["img", "images", "SlimySlugHole.jpg"], //hole out of which slimy slugs can emerge
           ["snd", "sounds", "Crystaldrop"], //drop crystal
           ["snd", "sounds", "Rockdrop"], //drop ore
           ["snd", "sounds", "drtdrillc"], //raider drill (drill any wall type)
