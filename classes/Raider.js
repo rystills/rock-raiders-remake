@@ -379,16 +379,23 @@ Raider.prototype.update = function() {
 					//	this.tools.push(this.getToolName);
 					//}
 					//else {
-					this.tools.unshift(this.getToolName);
-					if (this.tools.length > this.maxTools) {
-						this.tools.pop();
+					this.grabToolPercent+=this.grabToolSpeed;
+					if (this.grabToolPercent >= 100) {
+						this.tools.unshift(this.getToolName);
+						if (this.tools.length > this.maxTools) {
+							this.tools.pop();
+						}
+						this.clearTask();
 					}
-					this.clearTask();
 				}
 				
 				else if (taskType == "upgrade") {
-					this.upgrade();
-					this.clearTask();
+					this.upgradePercent+=this.upgradeSpeed;
+					if (this.upgradePercent >= 100) {
+						this.upgradePercent = 0; //reset upgradePercent after completing an upgrade here, since upgrade percent is preserved when clearing or changing tasks
+						this.upgrade();
+						this.clearTask();
+					}
 				}
 				
 				else if (taskType == "collect") {
@@ -647,6 +654,7 @@ Raider.prototype.clearTask = function() {
 		this.currentTask.taskPriority = 0; //reset the task priority since it will otherwise remain high priority in some instances (eg. we just drilled a high priority wall and now the rubble is high priority too as a result)
 		tasksInProgress.remove(this.currentTask);
 	}
+	this.grabToolPercent = 0;
 	this.getToolName = null;
 	this.busy = false;
 	this.holding = null;
@@ -718,7 +726,11 @@ function Raider(space) { //TODO: BUG WHERE SOMETIMES RAIDER STARTS IN THE RIGHT 
 	this.sweepSpeed = 2;
 	this.reinforceSpeed = 1;
 	this.grabSpeed = 5; 
+	this.upgradeSpeed = .1;
+	this.grabToolSpeed = 20;
 	this.dropSpeed = 8; 
+	this.upgradePercent = 0;
+	this.grabToolPercent = 0;
 	this.tools = ["drill"]; //raiders by default can only carry 2 tools; each upgrade level increases this limit by one
 	this.maxTools = 2;
 	this.upgradeLevel = 0; //max tools held = 2 + upgradeLevel
