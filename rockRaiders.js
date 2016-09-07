@@ -287,41 +287,50 @@ function loadLevelData(name) {
 	olFileName = levelName + ".js";
 	predugMapName = "Dugg_" + levelName + ".js";
 	surfaceMapName = "High_" + levelName + ".js";
+	pathMapName = "path_" + levelName + ".js";
 	for (var i = 0; i < GameManager.scriptObjects[terrainMapName].level.length; i++) {
 		terrain.push([]);
 		for (var r = 0; r < GameManager.scriptObjects[terrainMapName].level[i].length; r++) {
 			
-			if (GameManager.scriptObjects[predugMapName].level[i][r] == 0) {
-				if (GameManager.scriptObjects[terrainMapName].level[i][r] == 5) {
-					terrain[i].push(new Space(4,i,r,GameManager.scriptObjects[surfaceMapName].level[i][r]));	
-				}
-				else {
-					terrain[i].push(new Space(GameManager.scriptObjects[terrainMapName].level[i][r],i,r, GameManager.scriptObjects[surfaceMapName].level[i][r]));
-				}
+			if (GameManager.scriptObjects[pathMapName] && GameManager.scriptObjects[pathMapName].level[i][r] == 1) { //give the path map the highest priority, if it exists
+				terrain[i].push(new Space(100,i,r,GameManager.scriptObjects[surfaceMapName].level[i][r]));	
 			}
-					
-			else if (GameManager.scriptObjects[predugMapName].level[i][r] == 3 || GameManager.scriptObjects[predugMapName].level[i][r] == 4) {
-				terrain[i].push(new Space(GameManager.scriptObjects[predugMapName].level[i][r],i,r, GameManager.scriptObjects[surfaceMapName].level[i][r]));
-			}
-			else if (GameManager.scriptObjects[predugMapName].level[i][r] == 1 || GameManager.scriptObjects[predugMapName].level[i][r] == 2) {
-				if (GameManager.scriptObjects[terrainMapName].level[i][r] == 6) {
-					terrain[i].push(new Space(6,i,r, GameManager.scriptObjects[surfaceMapName].level[i][r]));
-				}
-				else if (GameManager.scriptObjects[terrainMapName].level[i][r] == 9) {
-					terrain[i].push(new Space(9,i,r, GameManager.scriptObjects[surfaceMapName].level[i][r]));
-				}
-				else {
-					terrain[i].push(new Space(0,i,r, GameManager.scriptObjects[surfaceMapName].level[i][r]));
-				}
-			}
-			
-			var currentCryOre = GameManager.scriptObjects[cryoreMapName].level[i][r];
-			if (currentCryOre % 2 == 1) {
-				terrain[i][r].containedCrystals = (currentCryOre + 1) / 2;
+			else if (GameManager.scriptObjects[pathMapName] && GameManager.scriptObjects[pathMapName].level[i][r] == 2) {
+				terrain[i].push(new Space(-1,i,r,GameManager.scriptObjects[surfaceMapName].level[i][r]));	
 			}
 			else {
-				terrain[i][r].containedOre = currentCryOre / 2;
-			}		
+				if (GameManager.scriptObjects[predugMapName].level[i][r] == 0) {
+					if (GameManager.scriptObjects[terrainMapName].level[i][r] == 5) { //soil(5) was removed pre-release, so replace it with dirt(4)
+						terrain[i].push(new Space(4,i,r,GameManager.scriptObjects[surfaceMapName].level[i][r]));	
+					}
+					else {
+						terrain[i].push(new Space(GameManager.scriptObjects[terrainMapName].level[i][r],i,r, GameManager.scriptObjects[surfaceMapName].level[i][r]));
+					}
+				}
+						
+				else if (GameManager.scriptObjects[predugMapName].level[i][r] == 3 || GameManager.scriptObjects[predugMapName].level[i][r] == 4) {
+					terrain[i].push(new Space(GameManager.scriptObjects[predugMapName*10].level[i][r],i,r, GameManager.scriptObjects[surfaceMapName].level[i][r]));
+				}
+				else if (GameManager.scriptObjects[predugMapName].level[i][r] == 1 || GameManager.scriptObjects[predugMapName].level[i][r] == 2) {
+					if (GameManager.scriptObjects[terrainMapName].level[i][r] == 6) {
+						terrain[i].push(new Space(6,i,r, GameManager.scriptObjects[surfaceMapName].level[i][r]));
+					}
+					else if (GameManager.scriptObjects[terrainMapName].level[i][r] == 9) {
+						terrain[i].push(new Space(9,i,r, GameManager.scriptObjects[surfaceMapName].level[i][r]));
+					}
+					else {
+						terrain[i].push(new Space(0,i,r, GameManager.scriptObjects[surfaceMapName].level[i][r]));
+					}
+				}
+				
+				var currentCryOre = GameManager.scriptObjects[cryoreMapName].level[i][r];
+				if (currentCryOre % 2 == 1) {
+					terrain[i][r].containedCrystals = (currentCryOre + 1) / 2;
+				}
+				else {
+					terrain[i][r].containedOre = currentCryOre / 2;
+				}	
+			}
 		}
 	}
 
@@ -699,7 +708,7 @@ function pauseGame() {
 }
 
 function changeLevels() {
-	resetLevelVars("01");
+	resetLevelVars("03");
 }
 
 function checkTogglePause() {

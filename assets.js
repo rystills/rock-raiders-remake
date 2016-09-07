@@ -57,6 +57,12 @@ object = {
           ["js", "levels", "High_02.js"], //surface map file of second level from original game converted using map converter
           ["js", "levels", "02.js"], //OL file of second level from original game converted using map converter
           ["js", "levels", "Dugg_02.js"], //predug file of second level from original game converted using map converter
+          ["js", "levels", "Surf_03.js"], //terrain map file of third level from original game converted using map converter
+          ["js", "levels", "Cror_03.js"], //cryore map file of third level from original game converted using map converter
+          ["js", "levels", "High_03.js"], //surface map file of third level from original game converted using map converter
+          ["js", "levels", "03.js"], //OL file of third level from original game converted using map converter
+          ["js", "levels", "Dugg_03.js"], //predug file of third level from original game converted using map converter
+          ["js", "levels", "path_03.js"], //path file of third level from original game converted using map converter
           ["js", "classes", "Collectable.js"], //Collectable class
           ["js", "classes", "Raider.js"], //Raider class
           ["js", "classes", "Space.js"], //Space class

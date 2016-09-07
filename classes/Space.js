@@ -70,14 +70,10 @@ Space.prototype.sweep = function() {
 	if (this.rubbleContainsOre == true) {
 		var newOre = new Collectable(this,"ore");
 		collectables.push(newOre);
-		//if (tasksAutomated["collect"] == true) {
 		tasksAvailable.push(newOre);
-		//}
 	}
 	if (this.type != "rubble 4") {
-		//if (tasksAutomated["sweep"] == true) {
 		tasksAvailable.push(this);
-		//}
 	}
 	if (this.type == "rubble 1") {
 		this.setTypeProperties("rubble 2",false,this.rubbleContainsOre);
@@ -360,8 +356,8 @@ spaceTypes = {
 		2:"hard rock",
 		'-1':"power path",
 		0:"ground",
-		3:"slug hole",
-		4:"slug hole",
+		30:"slug hole",
+		40:"slug hole",
 		5:"ground",
 		3:"loose rock",
 		4:"dirt",
