@@ -29,11 +29,7 @@ Space.prototype.makeRubble = function(rubbleContainsOre,drilledBy) {
 	
 	this.updateTouched(false); //set it back to false so we can run the search from the newly drilled square (this is also where the 'sweep' task is added to the tasksAvailable list)
 	//note that we call updateTouched before checking the adjacentSpaces
-	var adjacentSpaces = [];
-	adjacentSpaces.push(adjacentSpace(terrain,this.listX,this.listY,"up"));
-	adjacentSpaces.push(adjacentSpace(terrain,this.listX,this.listY,"down"));
-	adjacentSpaces.push(adjacentSpace(terrain,this.listX,this.listY,"left"));
-	adjacentSpaces.push(adjacentSpace(terrain,this.listX,this.listY,"right"));
+	var adjacentSpaces = this.getAdjacentSpaces();
 	
 	for (var i = 0; i < adjacentSpaces.length; i++) {
 		if (adjacentSpaces[i] != null && adjacentSpaces[i].isWall == true) {
@@ -45,6 +41,16 @@ Space.prototype.makeRubble = function(rubbleContainsOre,drilledBy) {
 	touchAllAdjacentSpaces(this);
 	//this.drilledBy = null;
 };
+
+Space.prototype.getAdjacentSpaces = function() {
+	var adjacentSpaces = [];
+	adjacentSpaces.push(adjacentSpace(terrain,this.listX,this.listY,"up"));
+	adjacentSpaces.push(adjacentSpace(terrain,this.listX,this.listY,"down"));
+	adjacentSpaces.push(adjacentSpace(terrain,this.listX,this.listY,"left"));
+	adjacentSpaces.push(adjacentSpace(terrain,this.listX,this.listY,"right"));
+	return adjacentSpaces;
+};
+
 Space.prototype.checkWallSupported = function(drilledBy) {
 	if (!this.isWall) {
 		return;
@@ -351,6 +357,33 @@ Space.prototype.updatePlacedResources = function(resourceType) {
 	}
 };
 
+Space.prototype.activateLandSlide = function() {
+	this.curLandSlideWait = this.minLandSlideWait;
+	adjacentSpaces = this.getAdjacentSpaces();
+	for (var i = 0; i < adjacentSpaces.length; ++i) {
+		if (adjacentSpaces[i].type == "ground") { //TODO: allow land-slides to re-fill partially swept rubble spaces as well (but don't reset rubbleContainsOre)
+			adjacentSpaces[i].setTypeProperties("rubble 1",false,false);
+		}
+	}
+};
+
+Space.prototype.update = function() {
+	if (!this.touched) { //spaces which have not yet been discovered should not trigger land-slides, erode nearby Spaces, etc..
+		return;
+	}
+	if (this.landSlideFrequency > 0) {
+		if (this.curLandSlideWait > 0) { //if another landSlide just occurred, wait a certain amount of time before starting to check for land-slides again
+			--this.curLandSlideWait;
+		}
+		else {
+			//the constant 10000 will give us on average .36 land-slides per second if landSlideFrequency = 1, and 2.88 land-slides per second if landSlideFrequency = 8 
+			if (Math.random() < (this.landSlideFrequency/10000)) {
+				this.activateLandSlide();
+			}
+		}
+	}
+};
+
 spaceTypes = {
 		1:"solid rock", 
 		2:"hard rock",
@@ -377,7 +410,6 @@ spaceTypes = {
 		'-103':"building site"
 		};
 
-
 function Space(type,listX,listY,height) {
 	//convert basic types from the numbers used in the level files to easily readable strings
 	this.height = height;
@@ -403,6 +435,9 @@ function Space(type,listX,listY,height) {
 	this.powerPathSpace = null;
 	this.containedOre = 0; //defined by the cryore map and set immediately after Space creation
 	this.containedCrystals = 0; //defined by the cryore map and set immediately after Space creation
+	this.landSlideFrequency = 0; //how often will land-slides occur on this Space? defined by the fallinMap
+	this.minLandSlideWait = 120; //wait 120 frames after a land-slide before starting to roll the dice for land-slides again
+	this.curLandSlideWait = 0;
 	this.contains = new ObjectGroup(); //objects which currently reside on the space. can be infinite (ex. collectables)
 	this.completedBy = null;
 	//this.height = 0;

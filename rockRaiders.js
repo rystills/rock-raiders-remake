@@ -288,7 +288,10 @@ function loadLevelData(name) {
 	predugMapName = "Dugg_" + levelName + ".js";
 	surfaceMapName = "High_" + levelName + ".js";
 	pathMapName = "path_" + levelName + ".js";
-	for (var i = 0; i < GameManager.scriptObjects[terrainMapName].level.length; i++) {
+	fallinMapName = "Fall_" + levelName + ".js";
+	
+	//load in Space types from terrain, surface, and path maps
+	for (var i = 0; i < GameManager.scriptObjects[terrainMapName].level.length; i++) { 
 		terrain.push([]);
 		for (var r = 0; r < GameManager.scriptObjects[terrainMapName].level[i].length; r++) {
 			
@@ -334,7 +337,8 @@ function loadLevelData(name) {
 		}
 	}
 
-	for (var i = 0; i < GameManager.scriptObjects[predugMapName].level.length; i++) { //ensure that any walls which do not meet the 'supported' requirement crumble at the start
+	//ensure that any walls which do not meet the 'supported' requirement crumble at the start
+	for (var i = 0; i < GameManager.scriptObjects[predugMapName].level.length; i++) { 
 		for (var r = 0; r < GameManager.scriptObjects[predugMapName].level[i].length; r++) {
 			if (terrain[i][r].isWall) {
 				terrain[i][r].checkWallSupported();
@@ -342,7 +346,8 @@ function loadLevelData(name) {
 		}
 	}
 
-	for (var i = 0; i < GameManager.scriptObjects[predugMapName].level.length; i++) { //'touch' all exposed spaces in the predug map so that they appear as visible from the start
+	//'touch' all exposed spaces in the predug map so that they appear as visible from the start
+	for (var i = 0; i < GameManager.scriptObjects[predugMapName].level.length; i++) { 
 		for (var r = 0; r < GameManager.scriptObjects[predugMapName].level[i].length; r++) {
 			var currentPredug = GameManager.scriptObjects[predugMapName].level[i][r];
 			if (currentPredug == 1 || currentPredug == 3) {
@@ -350,8 +355,17 @@ function loadLevelData(name) {
 			}
 		}
 	}
+	
+	//add land-slide frequency to Spaces
+	if (GameManager.scriptObjects[fallinMapName]) {
+		for (var i = 0; i < GameManager.scriptObjects[fallinMapName].level.length; i++) { 
+			for (var r = 0; r < GameManager.scriptObjects[fallinMapName].level[i].length; r++) {
+				terrain[i][r].landSlideFrequency = GameManager.scriptObjects[fallinMapName].level[i][r];
+			}
+		}
+	}
 
-
+	//load in non-space objects next
 	for (var olObjectName in GameManager.scriptObjects[olFileName]) {
 		var olObject = GameManager.scriptObjects[olFileName][olObjectName];
 	    if (olObject.type == "TVCamera") {

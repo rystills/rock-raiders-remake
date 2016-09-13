@@ -20,6 +20,8 @@ def getFileDetails(f):
         fileType = "surface"
     elif normalizedName.startswith("path"):
         fileType = "path"
+    elif normalizedName.startswith("fall"):
+        fileType = "fall"
     elif extension.lower().endswith(".ol"):
         fileType = "ol"
 
@@ -58,7 +60,7 @@ def main():
         i = 0
         levelData = []
 
-        if details["type"] in ("terrain", "cryore", "predug", "surface", "path"):
+        if details["type"] in ("terrain", "cryore", "predug", "surface", "path", "fall"):
             byte = f.read(1)
             mapWidth = None
             mapHeight = None
@@ -109,7 +111,7 @@ def main():
 
     print("Data successfully read from file: {0}".format(inputFile))
 
-    if details["type"] in ("terrain", "cryore", "predug", "surface", "path"):
+    if details["type"] in ("terrain", "cryore", "predug", "surface", "path", "fall"):
         print("Map dimensions: {0}x{1} units".format(
               str(mapWidth), str(mapHeight)))
 
@@ -125,7 +127,7 @@ def main():
     # Write the remaining contents of levelData to
     # a new JS file for use by the game engine
     with open(outputFile, "a") as file:
-        if details["type"] in ("terrain", "cryore", "predug", "surface", "path"):
+        if details["type"] in ("terrain", "cryore", "predug", "surface", "path", "fall"):
             file.write("object = {{ \nlevel: [\n{0}\n]\n}};".format(
                        ",\n".join(map(str, levelData))))
         elif details["type"] == "ol":
