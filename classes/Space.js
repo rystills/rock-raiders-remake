@@ -358,11 +358,13 @@ Space.prototype.updatePlacedResources = function(resourceType) {
 };
 
 Space.prototype.activateLandSlide = function() {
+	console.log("land slide activated. this.type: " + this.type);
 	this.curLandSlideWait = this.minLandSlideWait;
 	adjacentSpaces = this.getAdjacentSpaces();
 	for (var i = 0; i < adjacentSpaces.length; ++i) {
 		if (adjacentSpaces[i].type == "ground") { //TODO: allow land-slides to re-fill partially swept rubble spaces as well (but don't reset rubbleContainsOre)
 			adjacentSpaces[i].setTypeProperties("rubble 1",false,false);
+			tasksAvailable.push(adjacentSpaces[i]);
 		}
 	}
 };

@@ -654,6 +654,12 @@ function grabItem() {
 	}
 }
 
+function reinforceWall() {
+	if (selection.length == 0) {
+		return;
+	}
+}
+
 function drillWall() {
 	if (selection.length == 0) {
 		return;
@@ -979,21 +985,24 @@ function createButtons() {
 	//raider selected buttons
 	buttons.push(new Button(86,0,0,0,"unload minifig button 1 (1).png",gameLayer, unloadMinifig,false,false,["raider"]));
 	buttons.push(new Button(126,0,0,0,"stop minifig button 1 (1).png",gameLayer, stopMinifig,false,false,["raider"]));
-	buttons.push(new Button(166,0,0,0,"get shovel button 1 (1).png",gameLayer, getTool,false,false,["raider"],["shovel"]));
+	buttons.push(new Button(166,0,0,0,"upgrade button 1 (1).png",gameLayer, upgradeRaider,false,false,["raider"]));
+	buttons.push(new Button(206,0,0,0,"get shovel button 1 (1).png",gameLayer, getTool,false,false,["raider"],["shovel"]));
+	buttons.push(new Button(246,0,0,0,"get_Hammer.png",gameLayer, getTool,false,false,["raider"],["hammer"]));
 
 	//item selected buttons
 	buttons.push(new Button(86,0,0,0,"grab item button 1 (1).png",gameLayer, grabItem,false,false,["ore","crystal"]));
 
 	//drillable wall selected buttons
 	buttons.push(new Button(86,0,0,0,"drill wall button 1 (1).png",gameLayer, drillWall,false,false,["dirt", "loose rock", "ore seam", "energy crystal seam"]));
+	
+	//re-inforcable wall selected
+	buttons.push(new Button(126,0,0,0,"Reinforce.png",gameLayer, reinforceWall,false,false,["dirt", "loose rock", "hard rock", "ore seam", "energy crystal seam"]));
 
 	//floor Space selected buttons
 	buttons.push(new Button(86,0,0,0,"build power path button 1 (1).png",gameLayer, buildPowerPath,false,false,["ground"]));
 
 	//rubble selection buttons
 	buttons.push(new Button(86,0,0,0,"clear rubble button 1 (1).png",gameLayer, clearRubble,false,false,["rubble 1","rubble 2","rubble 3","rubble 4"]));
-	
-	buttons.push(new Button(206,0,0,0,"upgrade button 1 (1).png",gameLayer, upgradeRaider,false,false,["raider"]));
 }
 
 function resetLevelVars(name) {

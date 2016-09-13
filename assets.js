@@ -29,6 +29,7 @@ object = {
           ["img", "images", "teleport raider button 1 (1).png"], //teleport rock raider button
           ["img", "images", "grab item button 1 (1).png"], //button to instruct a raider to pick up item (collectable, dynamite, etc..)
           ["img", "images", "drill wall button 1 (1).png"], //button to instruct a raider to drill a wall
+          ["img", "images", "Reinforce.png"], //button to instruct a raider to reinforce a wall
           ["img", "images", "clear rubble button 1 (1).png"], //button to instruct a raider to clear rubble
           ["img", "images", "get shovel button 1 (1).png"], //button to instruct a raider to get a shovel from the nearest toolstore
           ["img", "images", "build power path button 1 (1).png"], //button to instruct a raider to build a power path
@@ -37,6 +38,7 @@ object = {
           ["img", "images", "stop minifig button 1 (1).png"], //stop minifig button (stops any performed task)
           ["img", "images", "SlimySlugHole.jpg"], //hole out of which slimy slugs can emerge
           ["img", "images", "upgrade button 1 (1).png"], //button to upgrade a raider or building
+          ["img", "images", "get_Hammer.png"], //button to instruct a raider to get a hammer from the nearest toolstore
           ["snd", "sounds", "Crystaldrop"], //drop crystal
           ["snd", "sounds", "Rockdrop"], //drop ore
           ["snd", "sounds", "drtdrillc"], //raider drill (drill any wall type)
