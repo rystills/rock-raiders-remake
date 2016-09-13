@@ -126,6 +126,7 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 	this.speedModifier = 1;
 	this.walkable = false;
 	this.drillable = false;
+	this.explodable = false;
 	this.sweepable = false;
 	this.buildable = false;
 	this.isBuilding = false;
@@ -154,6 +155,7 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 	else if (type == "hard rock") {
 		this.image = "hard rock 1 (1).png";
 		this.isWall = true;
+		this.explodable = true;
 	}
 	else if (type == "dirt") {
 		this.image = "dirt 1 (1).png";
@@ -360,12 +362,19 @@ Space.prototype.updatePlacedResources = function(resourceType) {
 Space.prototype.activateLandSlide = function() {
 	console.log("land slide activated. this.type: " + this.type);
 	this.curLandSlideWait = this.minLandSlideWait;
-	adjacentSpaces = this.getAdjacentSpaces();
-	for (var i = 0; i < adjacentSpaces.length; ++i) {
-		if (adjacentSpaces[i].type == "ground") { //TODO: allow land-slides to re-fill partially swept rubble spaces as well (but don't reset rubbleContainsOre)
-			adjacentSpaces[i].setTypeProperties("rubble 1",false,false);
-			tasksAvailable.push(adjacentSpaces[i]);
+	var adjacentSpaces = this.getAdjacentSpaces();
+	var borderingValidWall = false;
+	for (var i = 0; i < adjacentSpaces.length; ++i) { //make sure at least one of the directly adjacent spaces is a valid wall
+		if (adjacentSpaces[i].type == "dirt" || adjacentSpaces[i].type == "loose rock" || adjacentSpaces[i].type == "hard rock" || adjacentSpaces[i].type == "ore seam" || adjacentSpaces[i].type == "energy crystal seam") {
+			//TODO: allow land-slides to re-fill partially swept rubble spaces as well (but don't reset rubbleContainsOre)
+			borderingValidWall = true;
+			console.log("bordering wall type: " + adjacentSpaces[i].type);
+			break;
 		}
+	}
+	if (borderingValidWall) {
+		this.setTypeProperties("rubble 1",false,false);
+		tasksAvailable.push(this);
 	}
 };
 
@@ -373,14 +382,16 @@ Space.prototype.update = function() {
 	if (!this.touched) { //spaces which have not yet been discovered should not trigger land-slides, erode nearby Spaces, etc..
 		return;
 	}
-	if (this.landSlideFrequency > 0) {
-		if (this.curLandSlideWait > 0) { //if another landSlide just occurred, wait a certain amount of time before starting to check for land-slides again
-			--this.curLandSlideWait;
-		}
-		else {
-			//the constant 10000 will give us on average .36 land-slides per second if landSlideFrequency = 1, and 2.88 land-slides per second if landSlideFrequency = 8 
-			if (Math.random() < (this.landSlideFrequency/10000)) {
-				this.activateLandSlide();
+	if (this.type == "ground") { //land-slides may only occur on ground tiles
+		if (this.landSlideFrequency > 0) {
+			if (this.curLandSlideWait > 0) { //if another landSlide just occurred, wait a certain amount of time before starting to check for land-slides again
+				--this.curLandSlideWait;
+			}
+			else {
+				//the constant 10000 will give us on average .36 land-slides per second if landSlideFrequency = 1, and 2.88 land-slides per second if landSlideFrequency = 8 
+				if (Math.random() < (this.landSlideFrequency/10000)) {
+					this.activateLandSlide();
+				}
 			}
 		}
 	}

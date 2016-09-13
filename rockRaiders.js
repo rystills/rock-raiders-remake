@@ -89,7 +89,7 @@ function touchAllAdjacentSpaces(initialSpace) {
 		return;
 	}
 	if (initialSpace.isBuilding == false && (!(initialSpace.walkable || initialSpace.type == "water" || initialSpace.type == "lava"))) {
-		if (initialSpace.drillable) {
+		if (initialSpace.drillable || initialSpace.explodable) {
 			//initialSpace.touched = true;
 			var index = tasksUnavailable.objectList.indexOf(initialSpace);
 			if (index != -1) {
@@ -97,7 +97,7 @@ function touchAllAdjacentSpaces(initialSpace) {
 			}
 			tasksAvailable.push(initialSpace);
 		}
-		initialSpace.updateTouched(initialSpace.drillable || (initialSpace.isBuilding == true)); //the buildings.indexOf section of this or statement should no longer be a possible case
+		initialSpace.updateTouched(initialSpace.drillable || initialSpace.explodable || (initialSpace.isBuilding == true)); //the buildings.indexOf section of this or statement should no longer be a possible case
 		return; //TODO: the above statement has outgrown itself; revise appropriately
 	}
 	//initialSpace.touched = true;
