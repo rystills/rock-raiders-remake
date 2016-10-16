@@ -519,7 +519,7 @@ function GameManagerInternal() {
 GameManager = new GameManagerInternal();
 
 ObjectGroup.prototype.push = function(appendObjectList) {
-	appendObjectList = [].concat(appendObjectList); //TODO: CONSIDER THE PERFORMANCE DETRIMENT OF CALLING CONCAT HERE
+	appendObjectList = [].concat(appendObjectList); //TODO: CONSIDER THE PERFORMANCE impact OF CALLING CONCAT HERE
 	for (var i = 0; i < appendObjectList.length; i++) {
 		this.objectList.push(appendObjectList[i]);
 		appendObjectList[i].groupsContained.push(this);

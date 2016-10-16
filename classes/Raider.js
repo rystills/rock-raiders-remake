@@ -716,6 +716,16 @@ Raider.prototype.die = function() {
 	return RygameObject.prototype.die.call(this);
 };
 
+Raider.prototype.hurt = function(damageAmount) {
+	this.hp -= this.damageAmount;
+	if (this.hp <= 0) {
+		this.die();
+	}
+	else {
+		this.hurtSound.play();
+	}
+};
+
 function Raider(space) { //TODO: BUG WHERE SOMETIMES RAIDER STARTS IN THE RIGHT WALL AT THE VERY BEGINNING. CHECK IF THIS HAS BEEN FIXED
 	RygameObject.call(this,0,0,1,1,"raider 1 (1).png",gameLayer);
 	this.space = space;
@@ -751,4 +761,6 @@ function Raider(space) { //TODO: BUG WHERE SOMETIMES RAIDER STARTS IN THE RIGHT 
 	this.dropOreSound = GameManager.sounds["Rockdrop"].cloneNode();
 	this.dropCrystalSound = GameManager.sounds["Crystaldrop"].cloneNode();
 	this.rockBreakSound = GameManager.sounds["ROKBREK1"].cloneNode();
+	this.hurtSound = GameManager.sounds["hurt1"].cloneNode();
+	this.hp = 100;
 }

@@ -39,6 +39,7 @@ object = {
           ["img", "images", "SlimySlugHole.jpg"], //hole out of which slimy slugs can emerge
           ["img", "images", "upgrade button 1 (1).png"], //button to upgrade a raider or building
           ["img", "images", "get_Hammer.png"], //button to instruct a raider to get a hammer from the nearest toolstore
+          ["img", "images", "landslide 1 (1).png"], //image that appears during a landslide
           ["snd", "sounds", "Crystaldrop"], //drop crystal
           ["snd", "sounds", "Rockdrop"], //drop ore
           ["snd", "sounds", "drtdrillc"], //raider drill (drill any wall type)
@@ -48,6 +49,7 @@ object = {
           ["snd", "sounds", "song2-reduced noise"], //song 2
           ["snd", "sounds", "song3-reduced noise"], //song 3
           ["snd", "sounds", "menu theme"], //menu song
+          ["snd", "sounds", "hurt1"], //raider hurt sound 1
           ["js", "levels", "test level 1.js"], //1st level for testing
           ["js", "levels", "test level 2.js"], //2nd level for testing
           ["js", "levels", "Surf_01.js"], //terrain map file of first level from original game converted using map converter
@@ -71,6 +73,8 @@ object = {
           ["js", "classes", "Collectable.js"], //Collectable class
           ["js", "classes", "Raider.js"], //Raider class
           ["js", "classes", "Space.js"], //Space class
+          ["js", "classes", "LandSlide.js"], //Land Slide class
+          ["js", "classes", "Task.js"], //Task class
           ["js", "classes", "MusicPlayer.js"], //Music Manager class
           ["js", "", "rockRaiders.js"] //main game file
           ]

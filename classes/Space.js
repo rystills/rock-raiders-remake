@@ -374,7 +374,14 @@ Space.prototype.activateLandSlide = function() {
 	}
 	if (borderingValidWall) {
 		this.setTypeProperties("rubble 1",false,false);
-		tasksAvailable.push(this);
+		if (tasksAvailable.indexOf(this) == -1) {
+			tasksAvailable.push(this);
+		}
+		this.landSlides.push([new LandSlide(this)]);
+		
+	}
+	else {
+		console.log("bordering wall type: No valid wall bordered");
 	}
 };
 
@@ -395,6 +402,7 @@ Space.prototype.update = function() {
 			}
 		}
 	}
+	
 };
 
 spaceTypes = {
@@ -460,4 +468,5 @@ function Space(type,listX,listY,height) {
 		this.setTypeProperties(this.type);
 	}*/
 	//this.touched = false;
+	this.landSlides = new ObjectGroup();
 }
