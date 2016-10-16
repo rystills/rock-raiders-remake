@@ -50,6 +50,7 @@ object = {
           ["snd", "sounds", "song3-reduced noise"], //song 3
           ["snd", "sounds", "menu theme"], //menu song
           ["snd", "sounds", "hurt1"], //raider hurt sound 1
+          ["snd", "sounds", "lanslide"], //landslide sound
           ["js", "levels", "test level 1.js"], //1st level for testing
           ["js", "levels", "test level 2.js"], //2nd level for testing
           ["js", "levels", "Surf_01.js"], //terrain map file of first level from original game converted using map converter

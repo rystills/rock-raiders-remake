@@ -4,7 +4,7 @@ LandSlide.prototype.update = function() {
 	if (this.life %10 == 0) { //deal damage to raiders in 5 intervals over lifespan (every 10 frames)
 		for (var i = 0; i < raiders.objectList.length; ++i) {
 			if (collisionRect(this,raiders.objectList[i])) {
-				collidingRaiders.hurt(this.damagePerInstance);
+				raiders.objectList[i].hurt(this.damagePerInstance);
 			}
 		}
 	}

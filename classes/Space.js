@@ -378,6 +378,7 @@ Space.prototype.activateLandSlide = function() {
 			tasksAvailable.push(this);
 		}
 		this.landSlides.push([new LandSlide(this)]);
+		this.landSlideSound.play();
 		
 	}
 	else {
@@ -469,4 +470,5 @@ function Space(type,listX,listY,height) {
 	}*/
 	//this.touched = false;
 	this.landSlides = new ObjectGroup();
+	this.landSlideSound = GameManager.sounds["lanslide"].cloneNode();
 }

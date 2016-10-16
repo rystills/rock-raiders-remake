@@ -993,16 +993,19 @@ function createButtons() {
 	buttons.push(new Button(86,0,0,0,"grab item button 1 (1).png",gameLayer, grabItem,false,false,["ore","crystal"]));
 
 	//drillable wall selected buttons
-	buttons.push(new Button(86,0,0,0,"drill wall button 1 (1).png",gameLayer, drillWall,false,false,["dirt", "loose rock", "ore seam", "energy crystal seam"]));
+	buttons.push(new Button(126,0,0,0,"drill wall button 1 (1).png",gameLayer, drillWall,false,false,["dirt", "loose rock", "ore seam", "energy crystal seam"]));
 	
 	//re-inforcable wall selected
-	buttons.push(new Button(126,0,0,0,"Reinforce.png",gameLayer, reinforceWall,false,false,["dirt", "loose rock", "hard rock", "ore seam", "energy crystal seam"]));
+	buttons.push(new Button(86,0,0,0,"Reinforce.png",gameLayer, reinforceWall,false,false,["dirt", "loose rock", "hard rock", "ore seam", "energy crystal seam"]));
 
 	//floor Space selected buttons
 	buttons.push(new Button(86,0,0,0,"build power path button 1 (1).png",gameLayer, buildPowerPath,false,false,["ground"]));
 
 	//rubble selection buttons
 	buttons.push(new Button(86,0,0,0,"clear rubble button 1 (1).png",gameLayer, clearRubble,false,false,["rubble 1","rubble 2","rubble 3","rubble 4"]));
+	
+	//building selection buttons
+	buttons.push(new Button(86,0,0,0,"upgrade button 1 (1).png",gameLayer, upgradeRaider,false,false,["tool store"]));
 }
 
 function resetLevelVars(name) {
