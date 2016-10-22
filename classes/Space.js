@@ -390,7 +390,7 @@ Space.prototype.update = function() {
 	if (!this.touched) { //spaces which have not yet been discovered should not trigger land-slides, erode nearby Spaces, etc..
 		return;
 	}
-	if (this.type == "ground") { //land-slides may only occur on ground tiles
+	if (this.walkable) { //land-slides may only occur on walkable tiles
 		if (this.landSlideFrequency > 0) {
 			if (this.curLandSlideWait > 0) { //if another landSlide just occurred, wait a certain amount of time before starting to check for land-slides again
 				--this.curLandSlideWait;

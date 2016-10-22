@@ -947,13 +947,19 @@ function highlightRaiderPaths() {
 	}
 }
 
+function dimScreen(dimPercentage) { //darken screen by dimPercentage
+	var prevGlobalAlpha = GameManager.drawSurface.globalAlpha;
+	GameManager.drawSurface.globalAlpha=dimPercentage;
+	GameManager.drawSurface.fillStyle = "rgb(0,0,0)";
+	GameManager.drawSurface.fillRect(0,0,GameManager.screenWidth,GameManager.screenHeight); //darken screen while awaitingStart
+	GameManager.drawSurface.globalAlpha=prevGlobalAlpha;
+	
+}
+
 function drawAwaitingStartInstructions() { //draw game start instructions if awaitingStart
 	if (awaitingStart) { //draw game start instructions if awaitingStart
-		GameManager.drawSurface.globalAlpha=0.4;
-		GameManager.drawSurface.fillStyle = "rgb(0,0,0)";
-		GameManager.drawSurface.fillRect(0,0,GameManager.screenWidth,GameManager.screenHeight); //darken screen while awaitingStart
-		GameManager.drawSurface.globalAlpha=1;
-		
+		dimScreen(.4);
+		GameManager.drawSurface.globalAlpha=1.0;
 		GameManager.drawSurface.fillStyle = "rgb(65, 218, 255)";
 		GameManager.setFontSize(72);
 		GameManager.drawSurface.fillText("Press Enter to Begin",70,322); //TODO: CENTER THIS AUTOMATICALLY, RATHER THAN ESTIMATING MANUALLY
@@ -962,6 +968,8 @@ function drawAwaitingStartInstructions() { //draw game start instructions if awa
 
 function drawPauseInstructions() {
 	if (paused) {
+		dimScreen(.4);
+		GameManager.drawSurface.globalAlpha=1.0;
 		GameManager.drawSurface.fillStyle = "rgb(65, 218, 255)";
 		GameManager.setFontSize(72);
 		GameManager.drawSurface.fillText("Paused",278,322); //TODO: CENTER THIS AUTOMATICALLY, RATHER THAN ESTIMATING MANUALLY 

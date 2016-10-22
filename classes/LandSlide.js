@@ -17,6 +17,6 @@ function LandSlide(space) {
 	RygameObject.call(this,0,0,10,10,this.image,gameLayer);
 	this.setCenterX(space.centerX());
 	this.setCenterY(space.centerY());
-	this.life=50;
-	this.damagePerInstance = 6;
+	this.life=81;
+	this.damagePerInstance = 3;
 }
