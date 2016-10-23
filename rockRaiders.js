@@ -447,10 +447,10 @@ function cancelSelection() {
 }
 
 function checkUpdateClickSelection() {
-	if (GameManager.mouseClickedLeft) { //ignore mouse clicks if they landed on a part of the UI
+	if (GameManager.mouseReleasedLeft) { //ignore mouse clicks if they landed on a part of the UI
 		var raiderSelected = null; //don't bother polling for more than one raider click since they are guaranteed to have the same drawDepth, meaning choosing one is arbitrary - might as well go with the first one found
 		for (var i = 0; i < raiders.objectList.length; i++) {
-			if (collisionPoint(GameManager.mouseClickPosLeft.x,GameManager.mouseClickPosLeft.y,raiders.objectList[i],raiders.objectList[i].affectedByCamera)) {
+			if (collisionPoint(GameManager.mouseReleasedPosLeft.x,GameManager.mouseReleasedPosLeft.y,raiders.objectList[i],raiders.objectList[i].affectedByCamera)) {
 				raiderSelected = raiders.objectList[i];
 				break;
 			}
@@ -463,7 +463,7 @@ function checkUpdateClickSelection() {
 		else {	
 			var itemSelected = null; 
 			for (var i = 0; i < collectables.objectList.length; i++) {
-				if (collisionPoint(GameManager.mouseClickPosLeft.x,GameManager.mouseClickPosLeft.y,collectables.objectList[i],collectables.objectList[i].affectedByCamera)) {
+				if (collisionPoint(GameManager.mouseReleasedPosLeft.x,GameManager.mouseReleasedPosLeft.y,collectables.objectList[i],collectables.objectList[i].affectedByCamera)) {
 					itemSelected = collectables.objectList[i];
 					break;
 				}
@@ -477,7 +477,7 @@ function checkUpdateClickSelection() {
 				var spaceSelected = null;
 				for (var i = 0; i < terrain.length; i++) {
 					for (var r = 0; r < terrain[i].length; r++) {
-						if (collisionPoint(GameManager.mouseClickPosLeft.x,GameManager.mouseClickPosLeft.y,terrain[i][r],terrain[i][r].affectedByCamera)) {
+						if (collisionPoint(GameManager.mouseReleasedPosLeft.x,GameManager.mouseReleasedPosLeft.y,terrain[i][r],terrain[i][r].affectedByCamera)) {
 							spaceSelected = terrain[i][r];
 							break;
 						}
@@ -555,14 +555,14 @@ function checkUpdateCtrlSelection() {
 }
 
 function checkAssignSelectionTask() {
-	if (GameManager.mouseClickedRight && selection.length != 0 && selectionType == "raider") {
+	if (GameManager.mouseReleasedRight && selection.length != 0 && selectionType == "raider") {
 		 //TODO: THIS IS A BIG CHUNK OF REPEAT CODE FROM THE LEFTCLICK TASK DETECTION, THIS DESERVES ITS OWN METHOD FOR SURE
 		var clickedTasks = [];
 		for (var p = 0; p < terrain.length; p++) {
 			for (var r = 0; r < terrain[p].length; r++) {
 				var initialSpace = terrain[p][r];
 				for (var j = 0; j < terrain[p][r].contains.objectList.length + 1; j++) {
-					if (collisionPoint(GameManager.mouseClickPosRight.x,GameManager.mouseClickPosRight.y,initialSpace,initialSpace.affectedByCamera) && ((tasksAvailable.indexOf(initialSpace) != -1) || (tasksInProgress.objectList.indexOf(initialSpace) != -1))) { //don't do anything if the task is already taken by another raider, we don't want to readd it to the task queue
+					if (collisionPoint(GameManager.mouseReleasedPosRight.x,GameManager.mouseReleasedPosRight.y,initialSpace,initialSpace.affectedByCamera) && ((tasksAvailable.indexOf(initialSpace) != -1) || (tasksInProgress.objectList.indexOf(initialSpace) != -1))) { //don't do anything if the task is already taken by another raider, we don't want to readd it to the task queue
 						if ((j == 0 && (initialSpace.drillable || initialSpace.sweepable || initialSpace.buildable)) || j > 0) { //could optimize by only continuing if j == 1 and initialSpace.walkable == true but won't for now as unwalkable spaces shouldnt have any items in contains anyway
 							clickedTasks.push(initialSpace);
 							console.log("TERRAIN OL LENGTH + 1: " + (terrain[p][r].contains.objectList.length + 1));
@@ -694,6 +694,12 @@ function buildPowerPath() {
 			selection[i].setTypeProperties("building site"); 
 			tasksAvailable.push(selection[i]);
 		}
+	}
+}
+
+function upgradeBuilding() {
+	for (var i = 0; i < selection.length; ++i) {
+		selection[i].upgrade();
 	}
 }
 
@@ -978,7 +984,7 @@ function drawPauseInstructions() {
 
 function mouseOverGUI() {
 	for (var i = 0; i < buttons.objectList.length; i++) {
-		if (collisionPoint(GameManager.mousePos.x,GameManager.mousePos.y,buttons.objectList[i],buttons.objectList[i].affectedByCamera)) { //use mouseDownOnButton rather than releasedThisFrame because button activates on mouse release, whereas task selection here activates on mouse press
+		if (buttons.objectList[i].visible && collisionPoint(GameManager.mousePos.x,GameManager.mousePos.y,buttons.objectList[i],buttons.objectList[i].affectedByCamera)) { //use mouseDownOnButton rather than releasedThisFrame because button activates on mouse release, whereas task selection here activates on mouse press
 			return true;
 		}
 	}
@@ -986,34 +992,34 @@ function mouseOverGUI() {
 }
 
 function createButtons() {
-	buttons.push(new Button(0,0,0,0,"teleport raider button 1 (1).png",gameLayer, createRaider,false,false));
-	buttons.push(new Button(46,0,0,0,"cancel selection button 1 (1).png",gameLayer, cancelSelection,false,false,[])); //if selectionTypeBound is an empty list, the button will be visible for all selections except when selection == null
+	buttons.push(new Button(0,0,0,0,"teleport raider button 1 (1).png",gameLayer,"", createRaider,false,false));
+	buttons.push(new Button(46,0,0,0,"cancel selection button 1 (1).png",gameLayer,"", cancelSelection,false,false,[])); //if selectionTypeBound is an empty list, the button will be visible for all selections except when selection == null
 	//6 pixel boundary between general purpose buttons and selection specific buttons
 
 	//raider selected buttons
-	buttons.push(new Button(86,0,0,0,"unload minifig button 1 (1).png",gameLayer, unloadMinifig,false,false,["raider"]));
-	buttons.push(new Button(126,0,0,0,"stop minifig button 1 (1).png",gameLayer, stopMinifig,false,false,["raider"]));
-	buttons.push(new Button(166,0,0,0,"upgrade button 1 (1).png",gameLayer, upgradeRaider,false,false,["raider"]));
-	buttons.push(new Button(206,0,0,0,"get shovel button 1 (1).png",gameLayer, getTool,false,false,["raider"],["shovel"]));
-	buttons.push(new Button(246,0,0,0,"get_Hammer.png",gameLayer, getTool,false,false,["raider"],["hammer"]));
+	buttons.push(new Button(86,0,0,0,"unload minifig button 1 (1).png",gameLayer,"", unloadMinifig,false,false,["raider"]));
+	buttons.push(new Button(126,0,0,0,"stop minifig button 1 (1).png",gameLayer,"", stopMinifig,false,false,["raider"]));
+	buttons.push(new Button(166,0,0,0,"upgrade button 1 (1).png",gameLayer,"", upgradeRaider,false,false,["raider"]));
+	buttons.push(new Button(206,0,0,0,"get shovel button 1 (1).png",gameLayer,"", getTool,false,false,["raider"],["shovel"]));
+	buttons.push(new Button(246,0,0,0,"get_Hammer.png",gameLayer,"", getTool,false,false,["raider"],["hammer"]));
 
 	//item selected buttons
-	buttons.push(new Button(86,0,0,0,"grab item button 1 (1).png",gameLayer, grabItem,false,false,["ore","crystal"]));
+	buttons.push(new Button(86,0,0,0,"grab item button 1 (1).png",gameLayer,"", grabItem,false,false,["ore","crystal"]));
 
 	//drillable wall selected buttons
-	buttons.push(new Button(126,0,0,0,"drill wall button 1 (1).png",gameLayer, drillWall,false,false,["dirt", "loose rock", "ore seam", "energy crystal seam"]));
+	buttons.push(new Button(126,0,0,0,"drill wall button 1 (1).png",gameLayer,"", drillWall,false,false,["dirt", "loose rock", "ore seam", "energy crystal seam"]));
 	
 	//re-inforcable wall selected
-	buttons.push(new Button(86,0,0,0,"Reinforce.png",gameLayer, reinforceWall,false,false,["dirt", "loose rock", "hard rock", "ore seam", "energy crystal seam"]));
+	buttons.push(new Button(86,0,0,0,"Reinforce.png",gameLayer,"", reinforceWall,false,false,["dirt", "loose rock", "hard rock", "ore seam", "energy crystal seam"]));
 
 	//floor Space selected buttons
-	buttons.push(new Button(86,0,0,0,"build power path button 1 (1).png",gameLayer, buildPowerPath,false,false,["ground"]));
+	buttons.push(new Button(86,0,0,0,"build power path button 1 (1).png",gameLayer,"", buildPowerPath,false,false,["ground"]));
 
 	//rubble selection buttons
-	buttons.push(new Button(86,0,0,0,"clear rubble button 1 (1).png",gameLayer, clearRubble,false,false,["rubble 1","rubble 2","rubble 3","rubble 4"]));
+	buttons.push(new Button(86,0,0,0,"clear rubble button 1 (1).png",gameLayer,"", clearRubble,false,false,["rubble 1","rubble 2","rubble 3","rubble 4"]));
 	
 	//building selection buttons
-	buttons.push(new Button(86,0,0,0,"upgrade button 1 (1).png",gameLayer, upgradeRaider,false,false,["tool store"]));
+	buttons.push(new Button(86,0,0,0,"upgrade button 1 (1).png",gameLayer,"", upgradeBuilding,false,false,["tool store"]));
 }
 
 function resetLevelVars(name) {

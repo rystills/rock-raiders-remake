@@ -393,27 +393,29 @@ GameManagerInternal.prototype.initializeRygame = function(is3d) {    //FIND A WA
 		//console.log("MOUSE DOWN");
 		if (e.button == 0) { //left click detected
 			GameManager.mouseDownLeft = true;
-			GameManager.mouseClickedLeft = true;
-			GameManager.mouseClickPosLeft = getMouseDocument(e); //we can use the same method as in mousemove to get the effective mouse position since the mouse coordinates are returned by the event in pageX and pageY regardless of the event type
-			canvasRect = GameManager.drawSurface.canvas.getBoundingClientRect();
-			GameManager.mouseClickPosLeft.x -= canvasRect.left + window.pageXOffset; //might need to take into account other factors besides the page scrolling
-			GameManager.mouseClickPosLeft.y -= canvasRect.top + window.pageYOffset;
+			GameManager.mousePressedLeft = true;
+			GameManager.mousePressedRight = true;
 		}
 		else if (e.button == 2) { //right click detected
 			GameManager.mouseDownRight = true;
-			GameManager.mouseClickedRight = true;
-			GameManager.mouseClickPosRight = getMouseDocument(e); //we can use the same method as in mousemove to get the effective mouse position since the mouse coordinates are returned by the event in pageX and pageY regardless of the event type
-			canvasRect = GameManager.drawSurface.canvas.getBoundingClientRect();
-			GameManager.mouseClickPosRight.x -= canvasRect.left + window.pageXOffset; //might need to take into account other factors besides the page scrolling
-			GameManager.mouseClickPosRight.y -= canvasRect.top + window.pageYOffset;
 		}
 	});
 	document.body.addEventListener("mouseup", function (e) {
 		//console.log("MOUSE UP");
 		if (e.button == 0) {
+			GameManager.mouseReleasedLeft = true;
+			GameManager.mouseReleasedPosLeft = getMouseDocument(e); //we can use the same method as in mousemove to get the effective mouse position since the mouse coordinates are returned by the event in pageX and pageY regardless of the event type
+			canvasRect = GameManager.drawSurface.canvas.getBoundingClientRect();
+			GameManager.mouseReleasedPosLeft.x -= canvasRect.left + window.pageXOffset; //might need to take into account other factors besides the page scrolling
+			GameManager.mouseReleasedPosLeft.y -= canvasRect.top + window.pageYOffset;
 			GameManager.mouseDownLeft = false; //left click detected
 		}
 		else if (e.button == 2) {
+			GameManager.mouseReleasedRight = true;
+			GameManager.mouseReleasedPosRight = getMouseDocument(e); //we can use the same method as in mousemove to get the effective mouse position since the mouse coordinates are returned by the event in pageX and pageY regardless of the event type
+			canvasRect = GameManager.drawSurface.canvas.getBoundingClientRect();
+			GameManager.mouseReleasedPosRight.x -= canvasRect.left + window.pageXOffset; //might need to take into account other factors besides the page scrolling
+			GameManager.mouseReleasedPosRight.y -= canvasRect.top + window.pageYOffset;
 			GameManager.mouseDownRight = false; //right click detected
 		}
 	});
@@ -483,8 +485,10 @@ GameManagerInternal.prototype.drawFrame = function() {
 		}
 	}
 	
-	this.mouseClickedLeft = false;
-	this.mouseClickedRight = false;
+	this.mouseReleasedLeft = false;
+	this.mouseReleasedRight = false;
+	this.mousePressedLeft = false;
+	this.mousePressedRight = false;
 };
 
 GameManagerInternal.prototype.draw = function(surface, x, y) { //simple draw function. Copied from Layer so that the GameManager can be treated like a layer when necessary.
@@ -506,14 +510,16 @@ function GameManagerInternal() {
 	this.mousePos = {x: 1, y: 1};
 	this.mouseDownLeft = false;
 	this.mouseDownRight = false;
-	this.mouseClickedLeft = false; //this variable is only true on the frame when the mouse is clicked. reset to false after drawFrame is called.
-	this.mouseClickedRight = false;
-	this.mouseClickPosLeft = {x: 1, y: 1};
-	this.mouseClickPosRight = {x: 1, y: 1};
+	this.mousePressedLeft = false; //this variable is only true on the frame when the mouse is initially pressed duringa click. reset to false after drawFrame is called.
+	this.mousePressedRight = false;
+	this.mouseReleasedLeft = false; //this variable is only true on the frame when the mouse is released from a click. reset to false after drawFrame is called.
+	this.mouseReleasedRight = false;
+	this.mouseReleasedPosLeft = {x: 1, y: 1};
+	this.mouseReleasedPosRight = {x: 1, y: 1};
 	this.fullScreenKey = "F"; //this is just a default; feel free to change it at any point from the game file
 	this.fontSize = 48; //font size in pixels - first part of html font property (formatted 'fontSizepx fontName')
 	this.fontName = "Arial"; //font name - second part of html font property (formatted 'fontSizepx fontName')
-	}
+}
 
 //create GameManager instance in global namespace to make up for a lack of typical 'static' classes *that support inheritance*
 GameManager = new GameManagerInternal();
@@ -609,12 +615,15 @@ Button.prototype.update = function(selectionType) {
 	}	
 	this.visible = true;
 	this.releasedThisFrame = false;
-	if (GameManager.mouseClickedLeft == true) {
-		if (collisionPoint(GameManager.mouseClickPosLeft.x,GameManager.mouseClickPosLeft.y,this,this.affectedByCamera)) {
+	
+	if (GameManager.mousePressedLeft == true) {
+		this.mouseDownOnButton = false;
+		if (collisionPoint(GameManager.mousePos.x,GameManager.mousePos.y,this,this.affectedByCamera)) {
 			this.mouseDownOnButton = true;
 		}
 	}
-	if (!GameManager.mouseDownLeft) {
+	
+	else if (GameManager.mouseReleasedLeft == true) {
 		if (this.mouseDownOnButton == true) {
 			if (collisionPoint(GameManager.mousePos.x,GameManager.mousePos.y,this,this.affectedByCamera)) {
 				this.runMethod.apply(this,this.optionalArgs);//button has been clicked
@@ -623,18 +632,44 @@ Button.prototype.update = function(selectionType) {
 		}
 		this.mouseDownOnButton = false;
 	}
-	//console.log(this.mouseDownOnButton);
 };
-function Button(x,y,updateDepth,drawDepth,image,layer,runMethod,affectedByCamera,renderAutomatically,selectionTypeBound,optionalArgs) { //TODO: MODIFY BUTTON CLASS TO OPERATE LARGELY THE SAME AS THE RYGAME PTHON EDITION BUTTON CLASS
+
+function Button(x,y,updateDepth,drawDepth,image,layer,text,runMethod,affectedByCamera,renderAutomatically,selectionTypeBound,optionalArgs) { //TODO: MODIFY BUTTON CLASS TO OPERATE LARGELY THE SAME AS THE RYGAME PTHON EDITION BUTTON CLASS
 	RygameObject.call(this,x,y,updateDepth,drawDepth,image,layer,affectedByCamera,renderAutomatically);
 	this.runMethod = runMethod;
 	this.mouseDownOnButton = false;
 	this.releasedThisFrame = false;
+	this.text = text;
 	this.selectionTypeBound = selectionTypeBound;
 	this.optionalArgs = optionalArgs;
 	if (this.optionalArgs == null) {
 		this.optionalArgs = [];
 	}	
+	if (text != "") {
+		var changedDims = false;
+		if (this.drawSurface == null) {
+			this.drawSurface = createContext(0,0,false); 
+		}
+		textDims = this.drawSurface.measureText(text);
+		if (textDims.width > this.drawSurface.canvas.width) {
+			this.drawSurface.canvas.width = textDims.width;
+			console.log(this.drawSurface.canvas.width);
+			this.rect.width = this.drawSurface.canvas.width;
+			changedDims = true;
+		}
+		var height = parseInt(this.drawSurface.font.split(' ')[0].replace('px', '')); //TODO: verify that text height is indeed equal to font name 
+		if (height > this.drawSurface.canvas.height) { //TODO: height here may be an overestimate as it includes space below the text; replace this with render height eventually
+			this.drawSurface.canvas.height = height;
+			this.rect.height = this.drawSurface.canvas.height;
+			changedDims = true;
+		}
+		if (changedDims && this.image != null) {
+			this.drawSurface.clearRect(0,0,this.drawSurface.canvas.width,this.drawSurface.canvas.height);
+			this.drawSurface.drawImage(this.image,0,0);
+		}
+		this.drawSurface.textBaseline="hanging";
+		this.drawSurface.fillText(text,0,0);
+	}
 }
 
 RygameObject.prototype.updatePosition = function(x, y) { //TODO we will keep this method for now but it should be made obslete in the long run as now that we havew complete control over collisions theres no need to update rect positions until a rygame collision function is called
@@ -815,6 +850,7 @@ function RygameObject(x,y,updateDepth,drawDepth,image,layer,affectedByCamera,ren
 	this.updateDepth = updateDepth;
 	this.drawDepth = drawDepth;
 	this.drawSurface = null;
+	this.image = null;
 	if (image != null) {
 		this.image = GameManager.images[image]; //TODO (maybe this todo is a relic from the image to canvas conversion?!)
 		this.drawSurface = createContext(this.image.width,this.image.height,false); 

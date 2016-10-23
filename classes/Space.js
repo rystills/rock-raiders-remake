@@ -51,6 +51,13 @@ Space.prototype.getAdjacentSpaces = function() {
 	return adjacentSpaces;
 };
 
+Space.prototype.upgrade = function() {
+	if (this.upgradeLevel < 2 && collectedResources["ore"] >= 5) {
+		this.upgradeLevel += 1;
+		collectedResources["ore"] -= 5;
+	}
+};
+
 Space.prototype.checkWallSupported = function(drilledBy) {
 	if (!this.isWall) {
 		return;
@@ -455,6 +462,7 @@ function Space(type,listX,listY,height) {
 	this.listX = listX;
 	this.listY = listY;
 	this.powerPathSpace = null;
+	this.upgradeLevel = 0;
 	this.containedOre = 0; //defined by the cryore map and set immediately after Space creation
 	this.containedCrystals = 0; //defined by the cryore map and set immediately after Space creation
 	this.landSlideFrequency = 0; //how often will land-slides occur on this Space? defined by the fallinMap
