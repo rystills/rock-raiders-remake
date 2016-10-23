@@ -1022,7 +1022,20 @@ function createButtons() {
 	buttons.push(new Button(86,0,0,0,"upgrade button 1 (1).png",gameLayer,"", upgradeBuilding,false,false,["tool store"]));
 }
 
+function createMenuButtons() {
+	var yPos = 20;
+	menuButtons.push(new Button(20,yPos,0,0,null,menuLayer,"Levels:",null,false,true));
+	yPos += 40;
+	for (var i = 0; i < GameManager.scriptObjects["levelList.js"].levels.length; ++i) {
+		menuButtons.push(new Button(20,yPos,0,0,null,menuLayer,GameManager.scriptObjects["levelList.js"].levels[i],resetLevelVars,false,true,null,GameManager.scriptObjects["levelList.js"].levels[i]));
+		yPos += 40;
+	}
+}
+
 function resetLevelVars(name) {
+	menuLayer.active = false;
+	gameLayer.active = true;
+	musicPlayer.changeLevels();
 	collectedResources = {"ore":0,"crystal":0};
 	reservedResources = {"ore":0,"crystal":0};
 	selectionRectCoords = {x1:null,y1:null};
@@ -1060,9 +1073,12 @@ function resetLevelVars(name) {
 
 function initGlobals() {
 	gameLayer = new Layer(0,0,1,1,GameManager.screenWidth,GameManager.screenHeight);
+	menuLayer = new Layer(0,0,1,1,GameManager.screenWidth,GameManager.screenHeight,true);
 	musicPlayer = new MusicPlayer();
 	buttons = new ObjectGroup();
+	menuButtons = new ObjectGroup();
 	createButtons();
+	createMenuButtons();
 	GameManager.drawSurface.font = "48px Arial";
 	tasksAutomated = { //update me manually for now, as the UI does not yet have task priority buttons
 			"sweep":true,
@@ -1094,51 +1110,70 @@ function update() {
 	if (GameManager.drawSurface == null) { //check if canvas has been updated by the html page
 		GameManager.drawSurface = document.getElementById('canvas').getContext('2d');
 	}
-	if (awaitingStart) {
-		if (GameManager.keyStates[String.fromCharCode(13)]) { //enter key pressed
-			awaitingStart = false;
-			musicPlayer.playRandomSong();
-		}
-	}
-	else {
-		musicPlayer.update(); //update music regardless of game state
-		checkTogglePause();
-		if (!paused) {
-			//update input
-			checkScrollScreen();
-			if (!mouseOverGUI()) {
-				checkUpdateClickSelection();
-				checkAssignSelectionTask();
-			}
-			checkUpdateSelectionType();
-			checkUpdateCtrlSelection();
-			//update objects
-			GameManager.updateObjects();
-			buttons.update(selectionType);
-		}
-	}
+	if (menuLayer.active) { //menu update
+		//update music
+		musicPlayer.trackNum = 0;
+		musicPlayer.update();
 		
-	//pre-render; draw solid background
-	GameManager.drawSurface.fillStyle = "rgb(60,45,23)"; //brown background color
-	GameManager.drawSurface.fillRect(0, 0, GameManager.screenWidth, GameManager.screenHeight);
-	//inital render; draw all rygame objects
-	GameManager.drawFrame();
-	//post render; draw effects and UI
-	drawSelectionBox();
-	drawSelectedSquares();
-	if (debug) { //render debug info
-		highlightRaiderPaths();
-		drawSelectedRects();
-		drawTerrainVars(["height"]);
-		drawRaiderTasks();
-		drawBuildingSiteMaterials();	
+		//update objects
+		GameManager.updateObjects();
+		menuButtons.update();
+		
+		//pre-render; draw solid background
+		GameManager.drawSurface.fillStyle = "rgb(128,28,108)"; //purple background color
+		GameManager.drawSurface.fillRect(0, 0, GameManager.screenWidth, GameManager.screenHeight);
+		
+		//inital render; draw all rygame objects
+		GameManager.drawFrame();
 	}
-	drawUI(); //draw UI last to ensure that it is in front of everything else
-	drawAwaitingStartInstructions();
-	drawPauseInstructions();
+	
+	else if (gameLayer.active) { //game update
+		if (awaitingStart) {
+			if (GameManager.keyStates[String.fromCharCode(13)]) { //enter key pressed
+				awaitingStart = false;
+				//update music
+				musicPlayer.playRandomSong();
+			}
+		}
+		else {
+			musicPlayer.update(); //update music regardless of game state
+			checkTogglePause();
+			if (!paused) {
+				//update input
+				checkScrollScreen();
+				if (!mouseOverGUI()) {
+					checkUpdateClickSelection();
+					checkAssignSelectionTask();
+				}
+				checkUpdateSelectionType();
+				checkUpdateCtrlSelection();
+				//update objects
+				GameManager.updateObjects();
+				buttons.update(selectionType);
+			}
+		}
+			
+		//pre-render; draw solid background
+		GameManager.drawSurface.fillStyle = "rgb(60,45,23)"; //brown background color
+		GameManager.drawSurface.fillRect(0, 0, GameManager.screenWidth, GameManager.screenHeight);
+		//inital render; draw all rygame objects
+		GameManager.drawFrame();
+		//post render; draw effects and UI
+		drawSelectionBox();
+		drawSelectedSquares();
+		if (debug) { //render debug info
+			highlightRaiderPaths();
+			drawSelectedRects();
+			drawTerrainVars(["height"]);
+			drawRaiderTasks();
+			drawBuildingSiteMaterials();	
+		}
+		drawUI(); //draw UI last to ensure that it is in front of everything else
+		drawAwaitingStartInstructions();
+		drawPauseInstructions();
+	}
 }
 
 //TODO: make it so that pieces with no path to them have their spaces marked as "unaccessible" and when you drill a wall or build a dock or fulfill some other objective that allows you to reach new areas find each newly accessible square and unmark those squares
 initGlobals();
-resetLevelVars("02");
 _intervalId = setInterval(update, 1000 / GameManager.fps); //set refresh rate to desired fps

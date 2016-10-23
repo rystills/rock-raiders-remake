@@ -13,7 +13,21 @@ MusicPlayer.prototype.playRandomSong = function() {
 };
 
 MusicPlayer.prototype.update = function() {
-	if (GameManager.sounds["song" + this.trackNum + "-reduced noise"].paused) {
+	if (this.trackNum == 0) {
+		if (GameManager.sounds["menu theme"].paused) {
+			GameManager.sounds["menu theme"].play();
+		}
+	}
+	else if (GameManager.sounds["song" + this.trackNum + "-reduced noise"].paused) {
 		this.playRandomSong();
+	}
+};
+
+MusicPlayer.prototype.changeLevels = function() {
+	if (this.trackNum == 0) {
+		GameManager.sounds["menu theme"].pause();
+	}
+	else {
+		GameManager.sounds["song" + this.trackNum + "-reduced noise"].pause();
 	}
 };

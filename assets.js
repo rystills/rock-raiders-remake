@@ -71,6 +71,7 @@ object = {
           ["js", "levels", "path_03.js"], //path file of third level from original game converted using map converter
           ["js", "levels", "Fall_02.js"], //fallin file of second level from original game converted using map converter
           ["js", "levels", "Fall_03.js"], //fallin file of third level from original game converted using map converter
+          ["js", "levels", "levelList.js"], //list of names of playable levels, to be used by the main menu for level selection
           ["js", "classes", "Collectable.js"], //Collectable class
           ["js", "classes", "Raider.js"], //Raider class
           ["js", "classes", "Space.js"], //Space class

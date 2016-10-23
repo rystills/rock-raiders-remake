@@ -437,7 +437,7 @@ GameManagerInternal.prototype.updateObjects = function() {
 		this.completeObjectList[i].xPrevious = this.completeObjectList[i].x; //TODO: DECIDE IF THE PREVIOUS POSITION VARIABLES SHOULD BE UPDATED BEFORE OR AFTER THE UPDATE METHOD
 		this.completeObjectList[i].yPrevious = this.completeObjectList[i].y;
 		if (typeof this.completeObjectList[i].update == "function" && this.completeObjectList[i].renderAutomatically) { //TODO: implement updateAutomatically as a separate var from renderAutomatically
-			this.completeObjectList[i].update(); //TODO: CURRENTLY THIS IS SORTED BY DRAWDEPTH; FIND A WAY TO SORT BY UPDATEDEPTH!!
+			this.completeObjectList[i].attemptUpdate(); //TODO: CURRENTLY THIS IS SORTED BY DRAWDEPTH; FIND A WAY TO SORT BY UPDATEDEPTH!!
 		}
 	}
 };
@@ -562,7 +562,7 @@ ObjectGroup.prototype.removeAll = function(kill) {
 
 ObjectGroup.prototype.update = function(optionalArgs) {
 	for (var i = 0; i < this.objectList.length; ++i) {
-		this.objectList[i].update(optionalArgs);
+		this.objectList[i].attemptUpdate(optionalArgs);
 	}
 };
 
@@ -575,7 +575,7 @@ Layer.prototype.draw = function(surface, x, y) { //NEED TO CHANGE ALL IMAGES / D
 	this.drawSurface.drawImage(surface.canvas,x,y); //change to drawSurface
 };
 
-function Layer(x,y,updateDepth,drawDepth,width,height) { //BECAUSE CANVASES AND IMAGES WORK DIFFERENT IN HTML5 COMPARED TO PYGAME, WE MAY NO LONGER NEED TO USE A BLANK BACKGROUND TO CLEAR EACH LAYER EVERY FRAME IF THEY AUTOCLEAR IN HTML5
+function Layer(x,y,updateDepth,drawDepth,width,height,startActive) { //BECAUSE CANVASES AND IMAGES WORK DIFFERENT IN HTML5 COMPARED TO PYGAME, WE MAY NO LONGER NEED TO USE A BLANK BACKGROUND TO CLEAR EACH LAYER EVERY FRAME IF THEY AUTOCLEAR IN HTML5
 	this.x = x; //TODO: CHANGE LAYER TO USE A RECT FOR ITS DIMENSIONS INSTEAD OF WIDTH AND HEIGHT, LIKE RYGAMEOBJECT
 	this.y = y;
 	this.width = width;
@@ -585,7 +585,10 @@ function Layer(x,y,updateDepth,drawDepth,width,height) { //BECAUSE CANVASES AND 
 	//this.drawSurface = new Canvas
 	this.drawSurface = createContext(this.width,this.height,false);
 	//this.drawSurface.
-	this.active = true; //TO FILL IN LATER, AS IS THE CASE WITH MANY FIELDS RIGHT NOW
+	this.active = false;
+	if (startActive == true) {
+		this.active = true; //TO FILL IN LATER, AS IS THE CASE WITH MANY FIELDS RIGHT NOW
+	}
 	this.frozen = false; //TO FILL IN LATER
 	this.freezeFirstFrame = false; //TO FILL IN LATER
 	this.background = null;
@@ -626,7 +629,9 @@ Button.prototype.update = function(selectionType) {
 	else if (GameManager.mouseReleasedLeft == true) {
 		if (this.mouseDownOnButton == true) {
 			if (collisionPoint(GameManager.mousePos.x,GameManager.mousePos.y,this,this.affectedByCamera)) {
-				this.runMethod.apply(this,this.optionalArgs);//button has been clicked
+				if (this.runMethod != null) {
+					this.runMethod.apply(this,this.optionalArgs);//button has been clicked
+				}
 				this.releasedThisFrame = true;
 			}
 		}
@@ -650,14 +655,15 @@ function Button(x,y,updateDepth,drawDepth,image,layer,text,runMethod,affectedByC
 		if (this.drawSurface == null) {
 			this.drawSurface = createContext(0,0,false); 
 		}
+		this.drawSurface.font = "32px " + GameManager.fontName;
+		
+		var height = parseInt(this.drawSurface.font.split(' ')[0].replace('px', '')); //TODO: verify that text height is indeed equal to font name 
 		textDims = this.drawSurface.measureText(text);
 		if (textDims.width > this.drawSurface.canvas.width) {
 			this.drawSurface.canvas.width = textDims.width;
-			console.log(this.drawSurface.canvas.width);
 			this.rect.width = this.drawSurface.canvas.width;
 			changedDims = true;
 		}
-		var height = parseInt(this.drawSurface.font.split(' ')[0].replace('px', '')); //TODO: verify that text height is indeed equal to font name 
 		if (height > this.drawSurface.canvas.height) { //TODO: height here may be an overestimate as it includes space below the text; replace this with render height eventually
 			this.drawSurface.canvas.height = height;
 			this.rect.height = this.drawSurface.canvas.height;
@@ -668,6 +674,8 @@ function Button(x,y,updateDepth,drawDepth,image,layer,text,runMethod,affectedByC
 			this.drawSurface.drawImage(this.image,0,0);
 		}
 		this.drawSurface.textBaseline="hanging";
+		this.drawSurface.font = "32px " + GameManager.fontName;
+		this.drawSurface.fillStyle = "rgb(0,256,0)"; //green text color
 		this.drawSurface.fillText(text,0,0);
 	}
 }
@@ -824,6 +832,12 @@ RygameObject.prototype.die = function() {
 	}
 	GameManager.removeObject(this);
 	this.dead = true;
+};
+
+RygameObject.prototype.attemptUpdate = function(optionalArgs) {
+	if (this.drawLayer.active && (!this.drawLayer.frozen)) {
+		this.update(optionalArgs);
+	}
 };
 
 function RygameObject(x,y,updateDepth,drawDepth,image,layer,affectedByCamera,renderAutomatically) {
