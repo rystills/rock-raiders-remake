@@ -1027,11 +1027,9 @@ function createMenuButtons() {
 	menuButtons.push(new Button(20,yPos,0,0,null,menuLayer,"Levels:",null,false,true));
 	yPos += 40;
 	
-	for (var level in GameManager.scriptObjects["levelList.js"].levels) {
-		if (GameManager.scriptObjects["levelList.js"].levels.hasOwnProperty(level)) {
-			menuButtons.push(new Button(20,yPos,0,0,null,menuLayer,GameManager.scriptObjects["levelList.js"].levels[level],resetLevelVars,false,true,null,[level]));
-			yPos += 40;
-		}
+	for (var i = 0; i < GameManager.scriptObjects["levelList.js"].levels.length; ++i) {
+		menuButtons.push(new Button(20,yPos,0,0,null,menuLayer,GameManager.scriptObjects["Info_" + GameManager.scriptObjects["levelList.js"].levels[i] + ".js"].name,resetLevelVars,false,true,null,[GameManager.scriptObjects["levelList.js"].levels[i]]));
+		yPos += 40;
 	}
 }
 

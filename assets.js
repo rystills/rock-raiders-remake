@@ -56,16 +56,19 @@ object = {
           ["js", "levels", "Surf_01.js"], //terrain map file of first level from original game converted using map converter
           ["js", "levels", "Cror_01.js"], //cryore map file of first level from original game converted using map converter
           ["js", "levels", "High_01.js"], //surface map file of first level from original game converted using map converter
+          ["js", "levels", "Info_01.js"], //info file for first level
           ["js", "levels", "01.js"], //OL file of first level from original game converted using map converter
           ["js", "levels", "Dugg_01.js"], //predug file of first level from original game converted using map converter
           ["js", "levels", "Surf_02.js"], //terrain map file of second level from original game converted using map converter
           ["js", "levels", "Cror_02.js"], //cryore map file of second level from original game converted using map converter
           ["js", "levels", "High_02.js"], //surface map file of second level from original game converted using map converter
+          ["js", "levels", "Info_02.js"], //info file for second level
           ["js", "levels", "02.js"], //OL file of second level from original game converted using map converter
           ["js", "levels", "Dugg_02.js"], //predug file of second level from original game converted using map converter
           ["js", "levels", "Surf_03.js"], //terrain map file of third level from original game converted using map converter
           ["js", "levels", "Cror_03.js"], //cryore map file of third level from original game converted using map converter
           ["js", "levels", "High_03.js"], //surface map file of third level from original game converted using map converter
+          ["js", "levels", "Info_03.js"], //info file for third level
           ["js", "levels", "03.js"], //OL file of third level from original game converted using map converter
           ["js", "levels", "Dugg_03.js"], //predug file of third level from original game converted using map converter
           ["js", "levels", "path_03.js"], //path file of third level from original game converted using map converter
