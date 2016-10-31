@@ -1078,8 +1078,8 @@ function initGlobals() {
 	musicPlayer = new MusicPlayer();
 	buttons = new ObjectGroup();
 	menuButtons = new ObjectGroup();
-	createButtons();
-	createMenuButtons();
+	createButtons(); //create all in-game UI buttons initially, as there is no reason to load and unload these
+	createMenuButtons(); //create all menu buttons
 	GameManager.drawSurface.font = "48px Arial";
 	tasksAutomated = { //update me manually for now, as the UI does not yet have task priority buttons
 			"sweep":true,

@@ -5,6 +5,7 @@
 //sounds will always come in both mp4 and ogg form for browser compatibility, so don't need to specify extension here
 object = {
 		assets: [
+		  //globals
           ["img", "images", "power path 1 (1).png"], //power path
           ["img", "images", "ore 1 (1).png"], //ore
           ["img", "images", "energy crystal 1 (1).png"], //energy crystal
@@ -51,36 +52,48 @@ object = {
           ["snd", "sounds", "menu theme"], //menu song
           ["snd", "sounds", "hurt1"], //raider hurt sound 1
           ["snd", "sounds", "lanslide"], //landslide sound
-          ["js", "levels", "test level 1.js"], //1st level for testing
-          ["js", "levels", "test level 2.js"], //2nd level for testing
-          ["js", "levels", "Surf_01.js"], //terrain map file of first level from original game converted using map converter
-          ["js", "levels", "Cror_01.js"], //cryore map file of first level from original game converted using map converter
-          ["js", "levels", "High_01.js"], //surface map file of first level from original game converted using map converter
-          ["js", "levels", "Info_01.js"], //info file for first level
-          ["js", "levels", "01.js"], //OL file of first level from original game converted using map converter
-          ["js", "levels", "Dugg_01.js"], //predug file of first level from original game converted using map converter
-          ["js", "levels", "Surf_02.js"], //terrain map file of second level from original game converted using map converter
-          ["js", "levels", "Cror_02.js"], //cryore map file of second level from original game converted using map converter
-          ["js", "levels", "High_02.js"], //surface map file of second level from original game converted using map converter
-          ["js", "levels", "Info_02.js"], //info file for second level
-          ["js", "levels", "02.js"], //OL file of second level from original game converted using map converter
-          ["js", "levels", "Dugg_02.js"], //predug file of second level from original game converted using map converter
-          ["js", "levels", "Surf_03.js"], //terrain map file of third level from original game converted using map converter
-          ["js", "levels", "Cror_03.js"], //cryore map file of third level from original game converted using map converter
-          ["js", "levels", "High_03.js"], //surface map file of third level from original game converted using map converter
-          ["js", "levels", "Info_03.js"], //info file for third level
-          ["js", "levels", "03.js"], //OL file of third level from original game converted using map converter
-          ["js", "levels", "Dugg_03.js"], //predug file of third level from original game converted using map converter
-          ["js", "levels", "path_03.js"], //path file of third level from original game converted using map converter
-          ["js", "levels", "Fall_02.js"], //fallin file of second level from original game converted using map converter
-          ["js", "levels", "Fall_03.js"], //fallin file of third level from original game converted using map converter
+          ["js", "levels", "test level 1.js"], //1st test level (deprecated)
+          ["js", "levels", "test level 2.js"], //2nd test level (deprecated)
           ["js", "levels", "levelList.js"], //list of names of playable levels, to be used by the main menu for level selection
+          ["js", "levels", "objectiveText.js"], //list of objective, failure, completion, and crystalFailure messages for each level
           ["js", "classes", "Collectable.js"], //Collectable class
           ["js", "classes", "Raider.js"], //Raider class
           ["js", "classes", "Space.js"], //Space class
           ["js", "classes", "LandSlide.js"], //Land Slide class
           ["js", "classes", "Task.js"], //Task class
           ["js", "classes", "MusicPlayer.js"], //Music Manager class
-          ["js", "", "rockRaiders.js"] //main game file
+          
+          //level 1 files
+          ["js", "levels", "Surf_01.js"], //terrain map file of first level from original game converted using map converter
+          ["js", "levels", "Cror_01.js"], //cryore map file of first level from original game converted using map converter
+          ["js", "levels", "High_01.js"], //surface map file of first level from original game converted using map converter
+          ["js", "levels", "Info_01.js"], //info file for first level
+          ["js", "levels", "Dugg_01.js"], //predug file of first level from original game converted using map converter
+          ["js", "levels", "01.js"], //OL file of first level from original game converted using map converter
+          ["snd", "sounds", "Misobj01"], //mission objective audio clip
+          ["snd", "sounds", "suc01"], //win audio clip
+          ["snd", "sounds", "fail01"], //lose audio clip
+          ["snd", "sounds", "failcrys"], //lose due to too few crystals remain audio clip (eaten by monster, fallen into lava, etc..)
+          
+          //level 2 files
+          ["js", "levels", "Surf_02.js"], //terrain map file of second level from original game converted using map converter
+          ["js", "levels", "Cror_02.js"], //cryore map file of second level from original game converted using map converter
+          ["js", "levels", "High_02.js"], //surface map file of second level from original game converted using map converter
+          ["js", "levels", "Info_02.js"], //info file for second level
+          ["js", "levels", "Dugg_02.js"], //predug file of second level from original game converted using map converter
+          ["js", "levels", "02.js"], //OL file of second level from original game converted using map converter
+          
+          //level 3 files
+          ["js", "levels", "Surf_03.js"], //terrain map file of third level from original game converted using map converter
+          ["js", "levels", "Cror_03.js"], //cryore map file of third level from original game converted using map converter
+          ["js", "levels", "High_03.js"], //surface map file of third level from original game converted using map converter
+          ["js", "levels", "Info_03.js"], //info file for third level
+          ["js", "levels", "Dugg_03.js"], //predug file of third level from original game converted using map converter
+          ["js", "levels", "path_03.js"], //path file of third level from original game converted using map converter
+          ["js", "levels", "Fall_02.js"], //fallin file of second level from original game converted using map converter
+          ["js", "levels", "Fall_03.js"], //fallin file of third level from original game converted using map converter
+          ["js", "levels", "03.js"], //OL file of third level from original game converted using map converter
+          
+          ["js", "", "rockRaiders.js"] //main game file (put last as this contains the main game loop)
           ]
 };
