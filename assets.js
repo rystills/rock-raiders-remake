@@ -57,6 +57,7 @@ object = {
           ["js", "levels", "levelList.js"], //list of names of playable levels, to be used by the main menu for level selection
           ["js", "levels", "objectiveText.js"], //list of objective, failure, completion, and crystalFailure messages for each level
           ["js", "classes", "Collectable.js"], //Collectable class
+          ["js", "classes", "HealthBar.js"], //Health Bar class
           ["js", "classes", "Raider.js"], //Raider class
           ["js", "classes", "Space.js"], //Space class
           ["js", "classes", "LandSlide.js"], //Land Slide class

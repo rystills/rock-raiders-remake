@@ -713,11 +713,12 @@ Raider.prototype.playDropSound = function() {
 
 Raider.prototype.die = function() {
 	this.stopSounds();
+	this.healthBar.die();
 	return RygameObject.prototype.die.call(this);
 };
 
 Raider.prototype.hurt = function(damageAmount) {
-	this.hp -= this.damageAmount;
+	this.hp -= damageAmount;
 	if (this.hp <= 0) {
 		this.die();
 	}
@@ -762,5 +763,7 @@ function Raider(space) { //TODO: BUG WHERE SOMETIMES RAIDER STARTS IN THE RIGHT 
 	this.dropCrystalSound = GameManager.sounds["Crystaldrop"].cloneNode();
 	this.rockBreakSound = GameManager.sounds["ROKBREK1"].cloneNode();
 	this.hurtSound = GameManager.sounds["hurt1"].cloneNode();
-	this.hp = 100;
+	this.maxHp = 100;
+	this.hp = this.maxHp;
+	this.healthBar = new HealthBar(this);
 }

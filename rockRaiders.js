@@ -165,6 +165,8 @@ function findClosestStartPath(startObject,paths) {
 }
 
 function calculatePath(terrain,startSpace,goalSpace,returnAllSolutions) { 
+	/*find shortest path from startSpace to a space satisfying desiredProperty (note: path goes from end to start, not from start to end)*/
+	//if startSpace meets the desired property, return it without doing any further calculations
 	if (startSpace == goalSpace) {
 		if (!returnAllSolutions) {
 			return [goalSpace];
@@ -172,6 +174,7 @@ function calculatePath(terrain,startSpace,goalSpace,returnAllSolutions) {
 		return [[goalSpace]];
 	}
 	
+	//initialize starting variables
 	goalSpace.parents = [];
 	
 	startSpace.startDistance = 0;
@@ -180,6 +183,7 @@ function calculatePath(terrain,startSpace,goalSpace,returnAllSolutions) {
 	var solutions = [];
 	var finalPathDistance = -1;
 	var openSet = [startSpace]; //TODO: we can speed up the algorithm quite a bit if we use hashing for lookup rather than lists
+	//main iteration: keep popping spaces from the back until we have found a solution (or all equal solutions if returnAllSolutions is True) or openSet is empty (in which case there is no solution)
 	while (openSet.length > 0) {
 				
 		var currentSpace = openSet.shift();  //TODO: keep the list sorted in reverse for this algorithm so that you can insert and remove from the back of the list rather than shifting all of the elements when inserting and removing (minor performance improvement)
@@ -189,8 +193,10 @@ function calculatePath(terrain,startSpace,goalSpace,returnAllSolutions) {
 		adjacentSpaces.push(adjacentSpace(terrain,currentSpace.listX,currentSpace.listY,"down"));
 		adjacentSpaces.push(adjacentSpace(terrain,currentSpace.listX,currentSpace.listY,"left"));
 		adjacentSpaces.push(adjacentSpace(terrain,currentSpace.listX,currentSpace.listY,"right"));
+		
+		//main inner iteration: check each space in adjacentSpaces for validity
 		for (var k = 0; k < adjacentSpaces.length; k++) {
-			
+			//if returnAllSolutions is True and we have surpassed finalPathDistance, exit immediately
 			if ((finalPathDistance != -1) && (currentSpace.startDistance + 1 > finalPathDistance)) {
 				return solutions;
 			}
@@ -198,11 +204,14 @@ function calculatePath(terrain,startSpace,goalSpace,returnAllSolutions) {
 			var newSpace = adjacentSpaces[k];
 			
 			//check this here so that the algorithm is a little bit faster, but also so that paths to non-walkable terrain pieces (such as for drilling) will work
+			//if the newSpace is a goal, find a path back to startSpace (or all equal paths if returnAllSolutions is True)
 			if (newSpace == goalSpace) {
-				newSpace.parents = [currentSpace];
+				newSpace.parents = [currentSpace]; //start the path with currentSpace and work our way back
 				pathsFound = [[newSpace]];
+				
+				//grow out the list of paths back in pathsFound until all valid paths have been exhausted
 				while (pathsFound.length > 0) {
-					if (pathsFound[0][pathsFound[0].length-1].parents[0] == startSpace) {
+					if (pathsFound[0][pathsFound[0].length-1].parents[0] == startSpace) { //we've reached the start space, thus completing this path
 						if (!returnAllSolutions) {
 							return pathsFound[0];
 						}
@@ -211,6 +220,7 @@ function calculatePath(terrain,startSpace,goalSpace,returnAllSolutions) {
 						continue;
 						
 					}
+					//branch additional paths for each parent of the current path's current space
 					for (var i = 0; i < pathsFound[0][pathsFound[0].length-1].parents.length; i++) {
 						if (i == pathsFound[0][pathsFound[0].length-1].parents.length - 1) {
 							pathsFound[0].push(pathsFound[0][pathsFound[0].length-1].parents[i]);
@@ -223,22 +233,25 @@ function calculatePath(terrain,startSpace,goalSpace,returnAllSolutions) {
 				}
 			}
 			
+			//attempt to keep branching from newSpace as long as it is a walkable type
 			if ((newSpace != null) && (newSpace.walkable == true)) {					
 				
 				var newStartDistance = currentSpace.startDistance + 1;
 				var notInOpenSet = openSet.indexOf(newSpace) == -1;
 				
+				//don't bother with newSpace if it has already been visited unless our new distance from the start space is smaller than its existing startDistance
 				if ((closedSet.indexOf(newSpace) != -1) && (newSpace.startDistance < newStartDistance)) {
 					continue;
 				}
 				
+				//accept newSpace if newSpace has not yet been visited or its new distance from the start space is equal to its existing startDistance
 				if (notInOpenSet || newSpace.startDistance == newStartDistance) { 
-					if (notInOpenSet) {
+					if (notInOpenSet) { //only reset parent list if this is the first time we are visiting newSpace
 						newSpace.parents = [];
 					}
 					newSpace.parents.push(currentSpace);
 					newSpace.startDistance = newStartDistance;
-					if (notInOpenSet) {
+					if (notInOpenSet) { //if newSpace does not yet exist in the open set, insert it into the appropriate position using a binary search
 						openSet.splice(binarySearch(openSet,newSpace,"startDistance",true),0,newSpace);
 					}
 				}
@@ -246,10 +259,10 @@ function calculatePath(terrain,startSpace,goalSpace,returnAllSolutions) {
 			}
 		}
 	}
-	if (solutions.length == 0) {
+	if (solutions.length == 0) { //if solutions is null then that means that no path was found
 		return null;
 	}
-	return solutions; //if solutions is null then that means that no path was found
+	return solutions; 
 	
 }
 
