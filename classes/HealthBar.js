@@ -1,7 +1,7 @@
 makeChild("HealthBar","RygameObject");
 HealthBar.prototype.update = function() {
-	this.x = this.raider.x;
-	this.y = this.raider.y - 20;
+	this.setCenterX(this.raider.centerX());
+	this.y = this.raider.y - 12;
 	if (this.prevHp != this.raider.hp) {
 		this.prevHp = this.raider.hp;
 		console.log(this.raider.hp);
@@ -19,10 +19,10 @@ HealthBar.prototype.updateBar = function() {
 
 function HealthBar(raider,barWidth, barHeight) {
 	if (barWidth == null) {
-		barWidth = 100;
+		barWidth = 40;
 	}
 	if (barHeight == null) {
-		barHeight = 20;
+		barHeight = 12;
 	}
 	RygameObject.call(this,0,0,10,10,null,gameLayer);
 	this.raider = raider;

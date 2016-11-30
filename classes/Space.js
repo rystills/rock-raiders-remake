@@ -381,6 +381,7 @@ Space.prototype.activateLandSlide = function() {
 	}
 	if (borderingValidWall) {
 		this.setTypeProperties("rubble 1",false,false);
+		this.adjustHeightAlpha();
 		if (tasksAvailable.indexOf(this) == -1) {
 			tasksAvailable.push(this);
 		}
