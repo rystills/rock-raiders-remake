@@ -796,7 +796,7 @@ function checkTogglePause() {
 	}
 	else {
 		if (holdingLKey) {
-			returnToMainMenu();
+			//returnToMainMenu();
 			holdingLKey = false;
 		}
 	}
@@ -999,6 +999,9 @@ function drawPauseInstructions() {
 		GameManager.drawSurface.fillStyle = "rgb(65, 218, 255)";
 		GameManager.setFontSize(72);
 		GameManager.drawSurface.fillText("Paused",278,322); //TODO: CENTER THIS AUTOMATICALLY, RATHER THAN ESTIMATING MANUALLY 
+		for (var i = 0; i < pauseButtons.objectList.length; ++i) { //attempt to draw buttons here so that they are rendered in front of other post-render graphics
+			pauseButtons.objectList[i].render(GameManager);
+		}
 	}
 }
 
@@ -1040,6 +1043,8 @@ function createButtons() {
 	
 	//building selection buttons
 	buttons.push(new Button(86,0,0,0,"upgrade button 1 (1).png",gameLayer,"", upgradeBuilding,false,false,["tool store"]));
+	
+	pauseButtons.push(new Button(20,200,0,0,null,gameLayer,"Return to Main Menu", returnToMainMenu,false,false));
 }
 
 function createMenuButtons() {
@@ -1113,6 +1118,7 @@ function initGlobals() {
 	menuLayer = new Layer(0,0,1,1,GameManager.screenWidth,GameManager.screenHeight,true);
 	musicPlayer = new MusicPlayer();
 	buttons = new ObjectGroup();
+	pauseButtons = new ObjectGroup();
 	menuButtons = new ObjectGroup();
 	createButtons(); //create all in-game UI buttons initially, as there is no reason to load and unload these
 	createMenuButtons(); //create all menu buttons
@@ -1187,6 +1193,9 @@ function update() {
 				//update objects
 				GameManager.updateObjects();
 				buttons.update(selectionType);
+			}
+			else {
+				pauseButtons.update();
 			}
 		}
 			
