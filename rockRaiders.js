@@ -1078,7 +1078,7 @@ function resetLevelVars(name) {
 	menuLayer.active = false;
 	gameLayer.active = true;
 	musicPlayer.changeLevels();
-	collectedResources = {"ore":0,"crystal":0};
+	collectedResources = {"ore":0,"crystal":4};
 	reservedResources = {"ore":0,"crystal":0};
 	selectionRectCoords = {x1:null,y1:null};
 	selection = [];
@@ -1149,6 +1149,18 @@ function initGlobals() {
 	collectables = new ObjectGroup();
 }
 
+function checkAccomplishedObjective() {
+	//check if current level objective has been accomplished
+	objective = GameManager.scriptObjects["Info_" + levelName + ".js"].objective;
+	if (objective[0] == "collect") {
+		won = (collectedResources[objective[1]] >= parseInt(objective[2]));
+	}
+	
+	if (won) {
+		returnToMainMenu();
+	}
+}
+
 function update() {
 	if (GameManager.drawSurface == null) { //check if canvas has been updated by the html page
 		GameManager.drawSurface = document.getElementById('canvas').getContext('2d');
@@ -1197,6 +1209,7 @@ function update() {
 			else {
 				pauseButtons.update();
 			}
+			checkAccomplishedObjective();
 		}
 			
 		//pre-render; draw solid background
