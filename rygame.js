@@ -619,6 +619,13 @@ Button.prototype.update = function(selectionType) {
 	this.visible = true;
 	this.releasedThisFrame = false;
 	
+	this.drawSurface = this.normalSurface;
+	
+	//if this button is not currently interactive, don't need to update anything else
+	if (!this.clickable) {
+		return;
+	}
+	
 	if (GameManager.mousePressedLeft == true) {
 		this.mouseDownOnButton = false;
 		if (collisionPoint(GameManager.mousePos.x,GameManager.mousePos.y,this,this.affectedByCamera)) {
@@ -637,9 +644,19 @@ Button.prototype.update = function(selectionType) {
 		}
 		this.mouseDownOnButton = false;
 	}
+	
+	if (collisionPoint(GameManager.mousePos.x,GameManager.mousePos.y,this,this.affectedByCamera)) {
+		if (this.mouseDownOnButton) {
+			this.drawSurface = this.darkenedSurface;
+		}
+		else {
+			this.drawSurface = this.brightenedSurface;
+		}
+	}
+	
 };
 
-function Button(x,y,updateDepth,drawDepth,image,layer,text,runMethod,affectedByCamera,renderAutomatically,selectionTypeBound,optionalArgs) { //TODO: MODIFY BUTTON CLASS TO OPERATE LARGELY THE SAME AS THE RYGAME PTHON EDITION BUTTON CLASS
+function Button(x,y,updateDepth,drawDepth,image,layer,text,runMethod,affectedByCamera,renderAutomatically,selectionTypeBound,optionalArgs,clickable) { //TODO: MODIFY BUTTON CLASS TO OPERATE LARGELY THE SAME AS THE RYGAME PTHON EDITION BUTTON CLASS
 	RygameObject.call(this,x,y,updateDepth,drawDepth,image,layer,affectedByCamera,renderAutomatically);
 	this.runMethod = runMethod;
 	this.mouseDownOnButton = false;
@@ -647,6 +664,7 @@ function Button(x,y,updateDepth,drawDepth,image,layer,text,runMethod,affectedByC
 	this.text = text;
 	this.selectionTypeBound = selectionTypeBound;
 	this.optionalArgs = optionalArgs;
+	this.clickable = (clickable == null ? true : clickable);
 	if (this.optionalArgs == null) {
 		this.optionalArgs = [];
 	}	
@@ -678,6 +696,11 @@ function Button(x,y,updateDepth,drawDepth,image,layer,text,runMethod,affectedByC
 		this.drawSurface.fillStyle = "rgb(0,256,0)"; //green text color
 		this.drawSurface.fillText(text,0,0);
 	}
+	
+	//create brightened and darkened version of drawSurface
+	this.normalSurface = this.drawSurface;
+	this.brightenedSurface = updateBrightness(this.normalSurface,20);
+	this.darkenedSurface = updateBrightness(this.normalSurface,-20);
 }
 
 RygameObject.prototype.updatePosition = function(x, y) { //TODO we will keep this method for now but it should be made obslete in the long run as now that we havew complete control over collisions theres no need to update rect positions until a rygame collision function is called
@@ -882,4 +905,14 @@ function RygameObject(x,y,updateDepth,drawDepth,image,layer,affectedByCamera,ren
 	this.visible = true;
 	GameManager.addObject(this);
 	
+}
+
+function updateBrightness(oldContext,brightnessPercent) {
+	//copy old canvas to new canvas
+	newContext = createContext(oldContext.canvas.width,oldContext.canvas.height,false); 
+	newContext.drawImage(oldContext.canvas,0,0);
+	newContext.globalAlpha = brightnessPercent;
+	newContext.fillStyle = brightnessPercent >= 0 ? 'rgba(225,225,225,' + (brightnessPercent/100) + ')' : 'rgba(0,0,0,' + (-1*(brightnessPercent/100)) + ')';
+	newContext.fillRect(0,0,newContext.canvas.width,newContext.canvas.height);
+	return newContext;
 }

@@ -49,14 +49,6 @@ Raider.prototype.update = function() {
 	if ((this.getTaskType(this.currentTask) == "build" || this.getTaskType(this.currentTask) == "undefined") && this.reservingResource && (!(this.currentTask.dedicatedResources[this.currentObjectiveResourceType] < this.currentTask.requiredResources[this.currentObjectiveResourceType]))) {
 		this.clearTask();
 	}
-	if (this.getTaskType(this.currentTask) == "collect") {
-		console.log("current task buildable: " + this.currentTask.buildable + ", current objective buildable: " + this.currentObjective.buildable);
-	}
-	//debug test
-	if (this.reservingResource && (this.getTaskType(this.currentTask) == "undefined" || this.getTaskType(this.currentTask) == undefined)) {
-		pauseGame();
-		console.log("build task type: " + this.getTaskType(this.currentTask) + " dedicated resources: "+ this.currentTask.dedicatedResources[this.currentObjectiveResourceType] + " required resources: " + this.currentTask.requiredResources[this.currentObjectiveResourceType] + " reserving resource: " + this.reservingResource + " logic is true: " + (this.reservingResource && (!(this.currentTask.dedicatedResources[this.currentObjectiveResourceType] < this.currentTask.requiredResources[this.currentObjectiveResourceType]))));
-	}
 	for (var i = 0; i < this.completedLastFrame.length; i++) {
 		this.completedLastFrame[i].completedBy = null;
 	}

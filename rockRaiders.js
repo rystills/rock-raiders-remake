@@ -578,7 +578,9 @@ function checkAssignSelectionTask() {
 					if (collisionPoint(GameManager.mouseReleasedPosRight.x,GameManager.mouseReleasedPosRight.y,initialSpace,initialSpace.affectedByCamera) && ((tasksAvailable.indexOf(initialSpace) != -1) || (tasksInProgress.objectList.indexOf(initialSpace) != -1))) { //don't do anything if the task is already taken by another raider, we don't want to readd it to the task queue
 						if ((j == 0 && (initialSpace.drillable || initialSpace.sweepable || initialSpace.buildable)) || j > 0) { //could optimize by only continuing if j == 1 and initialSpace.walkable == true but won't for now as unwalkable spaces shouldnt have any items in contains anyway
 							clickedTasks.push(initialSpace);
-							console.log("TERRAIN OL LENGTH + 1: " + (terrain[p][r].contains.objectList.length + 1));
+							if (debug) {
+								console.log("TERRAIN OL LENGTH + 1: " + (terrain[p][r].contains.objectList.length + 1));
+							}
 						}
 					}
 					//could optimize by breaking if theres no collision on the square itself rather than checking contains as well, but won't for now as if a contains is on the edge of a space this will cause it to become unclickable except when clicking on the space as well
@@ -600,7 +602,9 @@ function checkAssignSelectionTask() {
 					}
 				}
 			}
-			console.log("IN PROGESS?: " + inProgress + " CLICKED TASKS LENGTH: " + clickedTasks.length);
+			if (debug) {
+				console.log("IN PROGESS?: " + inProgress + " CLICKED TASKS LENGTH: " + clickedTasks.length);
+			}
 			var selectedTask = clickedTasks[lowestDrawDepthId];
 			
 			var index = tasksUnavailable.objectList.indexOf(selectedTask);
@@ -1040,7 +1044,7 @@ function createButtons() {
 
 function createMenuButtons() {
 	var yPos = 20;
-	menuButtons.push(new Button(20,yPos,0,0,null,menuLayer,"Levels:",null,false,true));
+	menuButtons.push(new Button(20,yPos,0,0,null,menuLayer,"Levels:",null,false,true,null,[],false));
 	yPos += 40;
 	
 	for (var i = 0; i < GameManager.scriptObjects["levelList.js"].levels.length; ++i) {
