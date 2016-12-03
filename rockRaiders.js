@@ -770,8 +770,11 @@ function pauseGame() {
 	paused = !paused;
 }
 
-function changeLevels() {
-	resetLevelVars("03");
+function changeLevels(levelName) {
+	if (levelName == null) {
+		levelName = "03";
+	}
+	resetLevelVars(levelName);
 }
 
 function checkTogglePause() {
@@ -789,7 +792,7 @@ function checkTogglePause() {
 	}
 	else {
 		if (holdingLKey) {
-			changeLevels();
+			returnToMainMenu();
 			holdingLKey = false;
 		}
 	}
@@ -1044,6 +1047,13 @@ function createMenuButtons() {
 		menuButtons.push(new Button(20,yPos,0,0,null,menuLayer,GameManager.scriptObjects["Info_" + GameManager.scriptObjects["levelList.js"].levels[i] + ".js"].name,resetLevelVars,false,true,null,[GameManager.scriptObjects["levelList.js"].levels[i]]));
 		yPos += 40;
 	}
+}
+
+function returnToMainMenu() {
+	//toggle game and menu layers and swap music tracks
+	menuLayer.active = true;
+	gameLayer.active = false;
+	musicPlayer.changeLevels();
 }
 
 function resetLevelVars(name) {

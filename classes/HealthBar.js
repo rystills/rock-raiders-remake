@@ -10,26 +10,32 @@ HealthBar.prototype.update = function() {
 };
 
 HealthBar.prototype.updateBar = function() {
-	this.drawSurface.fillStyle = "blue";
-	this.drawSurface.fillRect(0,0,this.barWidth,this.barHeight);
+	this.drawSurface.fillStyle = "rgb(0,255,0)";
+	this.drawSurface.fillRect(0,0,this.barWidth+2*this.barBorderSize,this.barHeight+2*this.barBorderSize);
 	this.drawSurface.fillStyle = "red";
+	this.drawSurface.fillRect(this.barBorderSize,this.barBorderSize,this.barWidth,this.barHeight);
+	this.drawSurface.fillStyle = "rgb(0,255,0)";
 	//console.log(this.barWidth * (this.raider.hp / this.raider.maxHp));
-	this.drawSurface.fillRect(0,0,this.barWidth * (this.raider.hp / this.raider.maxHp),this.barHeight);
+	this.drawSurface.fillRect(this.barBorderSize,this.barBorderSize,this.barWidth * (this.raider.hp / this.raider.maxHp),this.barHeight);
 };
 
-function HealthBar(raider,barWidth, barHeight) {
+function HealthBar(raider,barWidth, barHeight,barBorderSize) {
 	if (barWidth == null) {
-		barWidth = 40;
+		barWidth = 38;
 	}
 	if (barHeight == null) {
-		barHeight = 12;
+		barHeight = 10;
+	}
+	if (barBorderSize == null) {
+		barBorderSize = 1;
 	}
 	RygameObject.call(this,0,0,10,10,null,gameLayer);
 	this.raider = raider;
 	this.prevHp = raider.hp;
 	this.barWidth = barWidth;
 	this.barHeight = barHeight;
-	this.drawSurface = createContext(this.barWidth,this.barHeight,false); 
-	this.rect = new Rect(this.barWidth,this.barHeight);
+	this.barBorderSize = barBorderSize;
+	this.drawSurface = createContext(this.barWidth + 2*this.barBorderSize,this.barHeight + 2*this.barBorderSize,false); 
+	this.rect = new Rect(this.barWidth + 2*this.barBorderSize,this.barHeight + 2*this.barBorderSize);
 	this.updateBar();
 }
