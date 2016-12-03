@@ -1054,6 +1054,15 @@ function returnToMainMenu() {
 	menuLayer.active = true;
 	gameLayer.active = false;
 	musicPlayer.changeLevels();
+	stopAllSounds();
+}
+
+function stopAllSounds() {
+	//stop all currently playing sounds
+	//stop all raider sounds
+	for (var i = 0; i < raiders.objectList.length; i++) {
+		raiders.objectList[i].stopSounds();
+	}
 }
 
 function resetLevelVars(name) {

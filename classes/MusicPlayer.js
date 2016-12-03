@@ -26,8 +26,10 @@ MusicPlayer.prototype.update = function() {
 MusicPlayer.prototype.changeLevels = function() {
 	if (this.trackNum == 0) {
 		GameManager.sounds["menu theme"].pause();
+		GameManager.sounds["menu theme"].currentTime = 0;
 	}
 	else {
 		GameManager.sounds["song" + this.trackNum + "-reduced noise"].pause();
+		GameManager.sounds["song" + this.trackNum + "-reduced noise"].currentTime = 0;
 	}
 };
