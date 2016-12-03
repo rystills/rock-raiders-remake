@@ -992,6 +992,12 @@ function drawAwaitingStartInstructions() { //draw game start instructions if awa
 	}
 }
 
+function drawScoreScreenButtons() {
+	for (var i = 0; i < scoreScreenButtons.objectList.length; ++i) {
+		scoreScreenButtons.objectList[i].render(GameManager);
+	}
+}
+
 function drawPauseInstructions() {
 	if (paused) {
 		dimScreen(.4);
@@ -1045,6 +1051,8 @@ function createButtons() {
 	buttons.push(new Button(86,0,0,0,"upgrade button 1 (1).png",gameLayer,"", upgradeBuilding,false,false,["tool store"]));
 	
 	pauseButtons.push(new Button(20,200,0,0,null,gameLayer,"Return to Main Menu", returnToMainMenu,false,false));
+	
+	scoreScreenButtons.push(new Button(20,200,0,0,null,scoreScreenLayer,"Return to Main Menu", returnToMainMenu,false,false));
 }
 
 function createMenuButtons() {
@@ -1116,10 +1124,12 @@ function resetLevelVars(name) {
 function initGlobals() {
 	gameLayer = new Layer(0,0,1,1,GameManager.screenWidth,GameManager.screenHeight);
 	menuLayer = new Layer(0,0,1,1,GameManager.screenWidth,GameManager.screenHeight,true);
+	scoreScreenLayer = new Layer(0,0,1,1,GameManager.screenWidth,GameManager.screenHeight);
 	musicPlayer = new MusicPlayer();
 	buttons = new ObjectGroup();
 	pauseButtons = new ObjectGroup();
 	menuButtons = new ObjectGroup();
+	scoreScreenButtons = new ObjectGroup();
 	createButtons(); //create all in-game UI buttons initially, as there is no reason to load and unload these
 	createMenuButtons(); //create all menu buttons
 	GameManager.drawSurface.font = "48px Arial";
@@ -1157,8 +1167,16 @@ function checkAccomplishedObjective() {
 	}
 	
 	if (won) {
-		returnToMainMenu();
+		showScoreScreen();
 	}
+}
+
+function showScoreScreen() {
+	//switch to scoreScreenLayer 
+	gameLayer.active = false;
+	scoreScreenLayer.active = true;
+	musicPlayer.changeLevels();
+	stopAllSounds();
 }
 
 function update() {
@@ -1177,6 +1195,21 @@ function update() {
 		//pre-render; draw solid background
 		GameManager.drawSurface.fillStyle = "rgb(128,28,108)"; //purple background color
 		GameManager.drawSurface.fillRect(0, 0, GameManager.screenWidth, GameManager.screenHeight);
+		
+		//inital render; draw all rygame objects
+		GameManager.drawFrame();
+	}
+	
+	else if (scoreScreenLayer.active) {
+		//update objects
+		GameManager.updateObjects();
+		scoreScreenButtons.update();
+		
+		//pre-render; draw solid background
+		GameManager.drawSurface.fillStyle = "rgb(28,108,108)"; //turqoise background color
+		GameManager.drawSurface.fillRect(0, 0, GameManager.screenWidth, GameManager.screenHeight);
+		
+		drawScoreScreenButtons();
 		
 		//inital render; draw all rygame objects
 		GameManager.drawFrame();
