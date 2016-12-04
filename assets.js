@@ -50,6 +50,7 @@ object = {
           ["snd", "sounds", "song2-reduced noise"], //song 2
           ["snd", "sounds", "song3-reduced noise"], //song 3
           ["snd", "sounds", "menu theme"], //menu song
+          ["snd", "sounds", "score screen"], //score screen song
           ["snd", "sounds", "hurt1"], //raider hurt sound 1
           ["snd", "sounds", "lanslide"], //landslide sound
           ["js", "levels", "test level 1.js"], //1st test level (deprecated)

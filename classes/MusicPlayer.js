@@ -18,6 +18,11 @@ MusicPlayer.prototype.update = function() {
 			GameManager.sounds["menu theme"].play();
 		}
 	}
+	else if (this.trackNum == -1) {
+		if (GameManager.sounds["score screen"].paused) {
+			GameManager.sounds["score screen"].play();
+		}
+	}
 	else if (GameManager.sounds["song" + this.trackNum + "-reduced noise"].paused) {
 		this.playRandomSong();
 	}
@@ -27,6 +32,10 @@ MusicPlayer.prototype.changeLevels = function() {
 	if (this.trackNum == 0) {
 		GameManager.sounds["menu theme"].pause();
 		GameManager.sounds["menu theme"].currentTime = 0;
+	}
+	else if (this.trackNum == -1) {
+		GameManager.sounds["score screen"].pause();
+		GameManager.sounds["score screen"].currentTime = 0;
 	}
 	else {
 		GameManager.sounds["song" + this.trackNum + "-reduced noise"].pause();

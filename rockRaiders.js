@@ -992,12 +992,6 @@ function drawAwaitingStartInstructions() { //draw game start instructions if awa
 	}
 }
 
-function drawScoreScreenButtons() {
-	for (var i = 0; i < scoreScreenButtons.objectList.length; ++i) {
-		scoreScreenButtons.objectList[i].render(GameManager);
-	}
-}
-
 function drawPauseInstructions() {
 	if (paused) {
 		dimScreen(.4);
@@ -1052,7 +1046,8 @@ function createButtons() {
 	
 	pauseButtons.push(new Button(20,200,0,0,null,gameLayer,"Return to Main Menu", returnToMainMenu,false,false));
 	
-	scoreScreenButtons.push(new Button(20,200,0,0,null,scoreScreenLayer,"Return to Main Menu", returnToMainMenu,false,false));
+	scoreScreenButtons.push(new Button(200,100,0,0,null,scoreScreenLayer,"Score: 0", null,false,true,null,[],false));
+	scoreScreenButtons.push(new Button(20,200,0,0,null,scoreScreenLayer,"Return to Main Menu", returnToMainMenu,false,true));
 }
 
 function createMenuButtons() {
@@ -1181,7 +1176,7 @@ function initGlobals() {
 	raiders = new ObjectGroup();
 	collectables = new ObjectGroup();
 	levelScores = getLevelScores();
-	console.log(levelScores);
+	lastLevelScore = 0;
 }
 
 function getLevelScores() {
@@ -1223,7 +1218,9 @@ function showScoreScreen() {
 	scoreScreenLayer.active = true;
 	musicPlayer.changeLevels();
 	stopAllSounds();
-	setLevelScore(calculateLevelScore());
+	lastLevelScore = calculateLevelScore();
+	setLevelScore(lastLevelScore);
+	scoreScreenButtons.objectList[0].updateText(scoreScreenButtons.objectList[0].text.split(":")[0] + ": " + lastLevelScore);
 }
 
 function update() {
@@ -1247,7 +1244,11 @@ function update() {
 		GameManager.drawFrame();
 	}
 	
-	else if (scoreScreenLayer.active) {
+	else if (scoreScreenLayer.active) { //score screen update
+		//update music
+		musicPlayer.trackNum = -1;
+		musicPlayer.update();
+		
 		//update objects
 		GameManager.updateObjects();
 		scoreScreenButtons.update();
@@ -1255,9 +1256,7 @@ function update() {
 		//pre-render; draw solid background
 		GameManager.drawSurface.fillStyle = "rgb(28,108,108)"; //turqoise background color
 		GameManager.drawSurface.fillRect(0, 0, GameManager.screenWidth, GameManager.screenHeight);
-		
-		drawScoreScreenButtons();
-		
+				
 		//inital render; draw all rygame objects
 		GameManager.drawFrame();
 	}

@@ -656,19 +656,16 @@ Button.prototype.update = function(selectionType) {
 	
 };
 
-function Button(x,y,updateDepth,drawDepth,image,layer,text,runMethod,affectedByCamera,renderAutomatically,selectionTypeBound,optionalArgs,clickable) { //TODO: MODIFY BUTTON CLASS TO OPERATE LARGELY THE SAME AS THE RYGAME PTHON EDITION BUTTON CLASS
-	RygameObject.call(this,x,y,updateDepth,drawDepth,image,layer,affectedByCamera,renderAutomatically);
-	this.runMethod = runMethod;
-	this.mouseDownOnButton = false;
-	this.releasedThisFrame = false;
-	this.text = text;
-	this.selectionTypeBound = selectionTypeBound;
-	this.optionalArgs = optionalArgs;
-	this.clickable = (clickable == null ? true : clickable);
-	if (this.optionalArgs == null) {
-		this.optionalArgs = [];
-	}	
-	if (text != "") {
+Button.prototype.updateText = function(newText,clearFirst) {
+	if (clearFirst == null) {
+		clearFirst = true;
+	}
+	if (clearFirst && this.drawSurface != null) {
+		this.drawSurface.clearRect(0,0,this.drawSurface.canvas.width,this.drawSurface.canvas.height);
+	}
+	
+	this.text = newText;
+	if (this.text != "") {
 		var changedDims = false;
 		if (this.drawSurface == null) {
 			this.drawSurface = createContext(0,0,false); 
@@ -676,7 +673,7 @@ function Button(x,y,updateDepth,drawDepth,image,layer,text,runMethod,affectedByC
 		this.drawSurface.font = "32px " + GameManager.fontName;
 		
 		var height = parseInt(this.drawSurface.font.split(' ')[0].replace('px', '')); //TODO: verify that text height is indeed equal to font name 
-		textDims = this.drawSurface.measureText(text);
+		textDims = this.drawSurface.measureText(this.text);
 		if (textDims.width > this.drawSurface.canvas.width) {
 			this.drawSurface.canvas.width = textDims.width;
 			this.rect.width = this.drawSurface.canvas.width;
@@ -694,13 +691,27 @@ function Button(x,y,updateDepth,drawDepth,image,layer,text,runMethod,affectedByC
 		this.drawSurface.textBaseline="hanging";
 		this.drawSurface.font = "32px " + GameManager.fontName;
 		this.drawSurface.fillStyle = "rgb(0,256,0)"; //green text color
-		this.drawSurface.fillText(text,0,0);
+		this.drawSurface.fillText(this.text,0,0);
 	}
 	
 	//create brightened and darkened version of drawSurface
 	this.normalSurface = this.drawSurface;
-	this.brightenedSurface = updateBrightness(this.normalSurface,20);
-	this.darkenedSurface = updateBrightness(this.normalSurface,-20);
+	this.brightenedSurface = this.drawSurface == null ? null : updateBrightness(this.normalSurface,20);
+	this.darkenedSurface = this.drawSurface == null ? null : updateBrightness(this.normalSurface,-20);
+};
+
+function Button(x,y,updateDepth,drawDepth,image,layer,text,runMethod,affectedByCamera,renderAutomatically,selectionTypeBound,optionalArgs,clickable) { //TODO: MODIFY BUTTON CLASS TO OPERATE LARGELY THE SAME AS THE RYGAME PTHON EDITION BUTTON CLASS
+	RygameObject.call(this,x,y,updateDepth,drawDepth,image,layer,affectedByCamera,renderAutomatically);
+	this.runMethod = runMethod;
+	this.mouseDownOnButton = false;
+	this.releasedThisFrame = false;
+	this.selectionTypeBound = selectionTypeBound;
+	this.optionalArgs = optionalArgs;
+	this.clickable = (clickable == null ? true : clickable);
+	if (this.optionalArgs == null) {
+		this.optionalArgs = [];
+	}	
+	this.updateText(text,false);
 }
 
 RygameObject.prototype.updatePosition = function(x, y) { //TODO we will keep this method for now but it should be made obslete in the long run as now that we havew complete control over collisions theres no need to update rect positions until a rygame collision function is called
