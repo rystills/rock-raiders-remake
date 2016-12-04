@@ -1069,6 +1069,7 @@ function createMenuButtons() {
 function returnToMainMenu() {
 	//toggle game and menu layers and swap music tracks
 	menuLayer.active = true;
+	scoreScreenLayer.active = false;
 	gameLayer.active = false;
 	musicPlayer.changeLevels();
 	stopAllSounds();
@@ -1163,7 +1164,7 @@ function checkAccomplishedObjective() {
 	//check if current level objective has been accomplished
 	objective = GameManager.scriptObjects["Info_" + levelName + ".js"].objective;
 	if (objective[0] == "collect") {
-		won = (collectedResources[objective[1]] >= parseInt(objective[2]));
+		won = (collectedResources[objective[1][0]] >= parseInt(objective[1][1]));
 	}
 	
 	if (won) {

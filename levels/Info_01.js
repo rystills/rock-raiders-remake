@@ -1,4 +1,4 @@
 object = {
 		name : "Driller Night!", //original first level name
-		objective : ["collect","crystal",5]
+		objective : ["collect",["crystal",5]]
 };
