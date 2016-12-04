@@ -1136,11 +1136,12 @@ function getCookie(cname) {
     return "";
 }
 
-function setCookie(cname, cvalue, exdays) {
-    var d = new Date();
-    d.setTime(d.getTime() + (exdays*24*60*60*1000));
-    var expires = "expires="+ d.toUTCString();
-    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+function setValue(name, value) {
+    localStorage.setItem(name,value);
+}
+
+function getValue(name) {
+	return localStorage.getItem(name);
 }
 
 function initGlobals() {
@@ -1180,13 +1181,14 @@ function initGlobals() {
 	raiders = new ObjectGroup();
 	collectables = new ObjectGroup();
 	levelScores = getLevelScores();
+	console.log(levelScores);
 }
 
 function getLevelScores() {
 	levelScores = {};
-	levelScores["01"] = getCookie("01");
-	levelScores["02"] = getCookie("02");
-	levelScores["03"] = getCookie("03");
+	levelScores["01"] = getValue("01") == null ? -1 : getValue("01");
+	levelScores["02"] = getValue("02") == null ? -1 : getValue("02");
+	levelScores["03"] = getValue("03") == null ? -1 : getValue("03");
 	return levelScores;
 }
 
@@ -1202,11 +1204,16 @@ function checkAccomplishedObjective() {
 	}
 }
 
+function calculateLevelScore() {
+	//determine level score from 0-100 based off off several factors, including ore and crystals collected, oxygen remaining, and time taken
+	return 100;
+}
+
 function setLevelScore(score) {
 	//update level dict and cookie to reflect the player's higest score
 	if (levelScores[levelName] < score) {
 		levelScores[levelName] = score;
-		setCookie(levelName,score,999999999999);
+		setValue(levelName,score);
 	}
 }
 
@@ -1216,7 +1223,7 @@ function showScoreScreen() {
 	scoreScreenLayer.active = true;
 	musicPlayer.changeLevels();
 	stopAllSounds();
-	setLevelScore(100);
+	setLevelScore(calculateLevelScore());
 }
 
 function update() {
