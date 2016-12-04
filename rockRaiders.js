@@ -1056,13 +1056,20 @@ function createMenuButtons() {
 	yPos += 40;
 	
 	for (var i = 0; i < GameManager.scriptObjects["levelList.js"].levels.length; ++i) {
-		menuButtons.push(new Button(20,yPos,0,0,null,menuLayer,GameManager.scriptObjects["Info_" + GameManager.scriptObjects["levelList.js"].levels[i] + ".js"].name,resetLevelVars,false,true,null,[GameManager.scriptObjects["levelList.js"].levels[i]]));
+		var score = levelScores[GameManager.scriptObjects["levelList.js"].levels[i]];
+		menuButtons.push(new Button(20,yPos,0,0,null,menuLayer,GameManager.scriptObjects["Info_" + GameManager.scriptObjects["levelList.js"].levels[i] + ".js"].name + (score >= 0 ? " - best score: " + score : ""),resetLevelVars,false,true,null,[GameManager.scriptObjects["levelList.js"].levels[i]]));
 		yPos += 40;
 	}
 }
 
 function returnToMainMenu() {
-	//toggle game and menu layers and swap music tracks
+	//toggle game and menu layers and swap music tracks, as well as update level score strings if coming from score screen
+	if (scoreScreenLayer.active) { //update score strings if coming from score layer, as this means we may have updated one of the level scores
+		for (var i = 0; i < GameManager.scriptObjects["levelList.js"].levels.length; ++i) {
+			var score = levelScores[GameManager.scriptObjects["levelList.js"].levels[i]];
+			menuButtons.objectList[i].updateText(GameManager.scriptObjects["Info_" + GameManager.scriptObjects["levelList.js"].levels[i] + ".js"].name + (score >= 0 ? " - best score: " + score : ""));
+		}
+	}
 	menuLayer.active = true;
 	scoreScreenLayer.active = false;
 	gameLayer.active = false;
@@ -1116,21 +1123,6 @@ function resetLevelVars(name) {
 	loadLevelData(name);
 }
 
-function getCookie(cname) {
-    var name = cname + "=";
-    var ca = document.cookie.split(';');
-    for(var i = 0; i <ca.length; i++) {
-        var c = ca[i];
-        while (c.charAt(0)==' ') {
-            c = c.substring(1);
-        }
-        if (c.indexOf(name) == 0) {
-            return c.substring(name.length,c.length);
-        }
-    }
-    return "";
-}
-
 function setValue(name, value) {
     localStorage.setItem(name,value);
 }
@@ -1143,6 +1135,8 @@ function initGlobals() {
 	gameLayer = new Layer(0,0,1,1,GameManager.screenWidth,GameManager.screenHeight);
 	menuLayer = new Layer(0,0,1,1,GameManager.screenWidth,GameManager.screenHeight,true);
 	scoreScreenLayer = new Layer(0,0,1,1,GameManager.screenWidth,GameManager.screenHeight);
+	levelScores = getLevelScores();
+	lastLevelScore = 0;
 	musicPlayer = new MusicPlayer();
 	buttons = new ObjectGroup();
 	pauseButtons = new ObjectGroup();
@@ -1175,8 +1169,6 @@ function initGlobals() {
 	buildingSites = [];
 	raiders = new ObjectGroup();
 	collectables = new ObjectGroup();
-	levelScores = getLevelScores();
-	lastLevelScore = 0;
 }
 
 function getLevelScores() {

@@ -920,7 +920,7 @@ function RygameObject(x,y,updateDepth,drawDepth,image,layer,affectedByCamera,ren
 
 function updateBrightness(oldContext,brightnessPercent) {
 	//copy old canvas to new canvas
-	newContext = createContext(oldContext.canvas.width,oldContext.canvas.height,false); 
+	var newContext = createContext(oldContext.canvas.width,oldContext.canvas.height,false); 
 	newContext.drawImage(oldContext.canvas,0,0);
 	newContext.globalAlpha = brightnessPercent;
 	newContext.fillStyle = brightnessPercent >= 0 ? 'rgba(225,225,225,' + (brightnessPercent/100) + ')' : 'rgba(0,0,0,' + (-1*(brightnessPercent/100)) + ')';
