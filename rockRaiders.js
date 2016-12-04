@@ -1119,7 +1119,28 @@ function resetLevelVars(name) {
 	holdingPKey = false;
 	holdingLKey = false;
 	loadLevelData(name);
-	
+}
+
+function getCookie(cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for(var i = 0; i <ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length,c.length);
+        }
+    }
+    return "";
+}
+
+function setCookie(cname, cvalue, exdays) {
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays*24*60*60*1000));
+    var expires = "expires="+ d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
 }
 
 function initGlobals() {
@@ -1158,6 +1179,15 @@ function initGlobals() {
 	buildingSites = [];
 	raiders = new ObjectGroup();
 	collectables = new ObjectGroup();
+	levelScores = getLevelScores();
+}
+
+function getLevelScores() {
+	levelScores = {};
+	levelScores["01"] = getCookie("01");
+	levelScores["02"] = getCookie("02");
+	levelScores["03"] = getCookie("03");
+	return levelScores;
 }
 
 function checkAccomplishedObjective() {
@@ -1172,12 +1202,21 @@ function checkAccomplishedObjective() {
 	}
 }
 
+function setLevelScore(score) {
+	//update level dict and cookie to reflect the player's higest score
+	if (levelScores[levelName] < score) {
+		levelScores[levelName] = score;
+		setCookie(levelName,score,999999999999);
+	}
+}
+
 function showScoreScreen() {
 	//switch to scoreScreenLayer 
 	gameLayer.active = false;
 	scoreScreenLayer.active = true;
 	musicPlayer.changeLevels();
 	stopAllSounds();
+	setLevelScore(100);
 }
 
 function update() {
