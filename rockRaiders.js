@@ -1067,7 +1067,7 @@ function returnToMainMenu() {
 	if (scoreScreenLayer.active) { //update score strings if coming from score layer, as this means we may have updated one of the level scores
 		for (var i = 0; i < GameManager.scriptObjects["levelList.js"].levels.length; ++i) {
 			var score = levelScores[GameManager.scriptObjects["levelList.js"].levels[i]];
-			menuButtons.objectList[i].updateText(GameManager.scriptObjects["Info_" + GameManager.scriptObjects["levelList.js"].levels[i] + ".js"].name + (score >= 0 ? " - best score: " + score : ""));
+			menuButtons.objectList[i+1].updateText(GameManager.scriptObjects["Info_" + GameManager.scriptObjects["levelList.js"].levels[i] + ".js"].name + (score >= 0 ? " - best score: " + score : ""));
 		}
 	}
 	menuLayer.active = true;
