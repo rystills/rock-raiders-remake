@@ -657,6 +657,7 @@ Button.prototype.update = function(selectionType) {
 };
 
 Button.prototype.updateText = function(newText,clearFirst) {
+	var brightnessShiftPercent = 25;
 	if (clearFirst == null) {
 		clearFirst = true;
 	}
@@ -664,43 +665,59 @@ Button.prototype.updateText = function(newText,clearFirst) {
 		this.drawSurface.clearRect(0,0,this.drawSurface.canvas.width,this.drawSurface.canvas.height);
 	}
 	
+	//create brightened and darkened version of drawSurface
+	this.normalSurface = this.drawSurface;
+	this.brightenedSurface = this.drawSurface == null ? null : updateBrightness(this.normalSurface,brightnessShiftPercent);
+	this.darkenedSurface = this.drawSurface == null ? null : updateBrightness(this.normalSurface,-brightnessShiftPercent);
+
 	this.text = newText;
 	if (this.text != "") {
 		var changedDims = false;
 		if (this.drawSurface == null) {
 			this.drawSurface = createContext(0,0,false); 
+			this.normalSurface = this.drawSurface;
+			this.brightenedSurface = createContext(0,0,false); 
+			this.darkenedSurface = createContext(0,0,false); 
 		}
-		this.drawSurface.font = "32px " + GameManager.fontName;
-		
-		var height = parseInt(this.drawSurface.font.split(' ')[0].replace('px', '')); //TODO: verify that text height is indeed equal to font name 
-		textDims = this.drawSurface.measureText(this.text);
-		if (textDims.width > this.drawSurface.canvas.width) {
-			this.drawSurface.canvas.width = textDims.width;
-			this.rect.width = this.drawSurface.canvas.width;
-			changedDims = true;
+		var drawSurfaces = [this.darkenedSurface,this.normalSurface,this.brightenedSurface]; 
+		var baseR = 0;
+		var baseG = 245;
+		var baseB = 0;
+		for (var i = 0; i < 3; ++i) {
+			
+			drawSurfaces[i].font = "32px " + GameManager.fontName;
+			
+			var height = parseInt(drawSurfaces[i].font.split(' ')[0].replace('px', '')); //TODO: verify that text height is indeed equal to font name 
+			textDims = drawSurfaces[i].measureText(this.text);
+			if (textDims.width > drawSurfaces[i].canvas.width) {
+				drawSurfaces[i].canvas.width = textDims.width;
+				this.rect.width = drawSurfaces[i].canvas.width;
+				changedDims = true;
+			}
+			if (height > drawSurfaces[i].canvas.height) { //TODO: height here may be an overestimate as it includes space below the text; replace this with render height eventually
+				drawSurfaces[i].canvas.height = height;
+				this.rect.height = drawSurfaces[i].canvas.height;
+				changedDims = true;
+			}
+			if (changedDims && this.image != null) {
+				drawSurfaces[i].clearRect(0,0,drawSurfaces[i].canvas.width,drawSurfaces[i].canvas.height);
+				drawSurfaces[i].drawImage(this.image,0,0);
+				updateBrightness(drawSurfaces[i],brightnessShiftPercent,true);
+				
+			}
+			
+			drawSurfaces[i].textBaseline="hanging";
+			drawSurfaces[i].font = "32px " + GameManager.fontName;
+			//todo: convert to HSV, adjust brightness, then convert back to RGB, rather than just statically shifting R,G,B channels
+			drawSurfaces[i].fillStyle = (i == 0 ? "rgb(" + Math.round(Math.max(baseR - brightnessShiftPercent*.01*255,0)) + ","+ Math.round(Math.max(baseG - brightnessShiftPercent*.01*255,0)) + ","+ Math.round(Math.max(baseB - brightnessShiftPercent*.01*255,0)) + ")"
+			: ( i == 1 ? "rgb(" + baseR + "," + baseG + "," + baseB + ")" : "rgb(" + Math.round(Math.min(baseR + brightnessShiftPercent*.01*255,255)) + ","+ Math.round(Math.min(baseG + brightnessShiftPercent*.01*255,255)) + ","+ Math.round(Math.min(baseB + brightnessShiftPercent*.01*255,255)) + ")"));
+			drawSurfaces[i].fillText(this.text,0,0);
+			//console.log(drawSurfaces[i].fillStyle);
 		}
-		if (height > this.drawSurface.canvas.height) { //TODO: height here may be an overestimate as it includes space below the text; replace this with render height eventually
-			this.drawSurface.canvas.height = height;
-			this.rect.height = this.drawSurface.canvas.height;
-			changedDims = true;
-		}
-		if (changedDims && this.image != null) {
-			this.drawSurface.clearRect(0,0,this.drawSurface.canvas.width,this.drawSurface.canvas.height);
-			this.drawSurface.drawImage(this.image,0,0);
-		}
-		this.drawSurface.textBaseline="hanging";
-		this.drawSurface.font = "32px " + GameManager.fontName;
-		this.drawSurface.fillStyle = "rgb(0,256,0)"; //green text color
-		this.drawSurface.fillText(this.text,0,0);
 	}
-	
-	//create brightened and darkened version of drawSurface
-	this.normalSurface = this.drawSurface;
-	this.brightenedSurface = this.drawSurface == null ? null : updateBrightness(this.normalSurface,20);
-	this.darkenedSurface = this.drawSurface == null ? null : updateBrightness(this.normalSurface,-20);
 };
 
-function Button(x,y,updateDepth,drawDepth,image,layer,text,runMethod,affectedByCamera,renderAutomatically,selectionTypeBound,optionalArgs,clickable) { //TODO: MODIFY BUTTON CLASS TO OPERATE LARGELY THE SAME AS THE RYGAME PTHON EDITION BUTTON CLASS
+function Button(x,y,updateDepth,drawDepth,image,layer,text,runMethod,affectedByCamera,renderAutomatically,selectionTypeBound,optionalArgs,clickable) { //TODO: MODIFY BUTTON CLASS TO OPERATE LARGELY THE SAME AS THE RYGAME PYTHON EDITION BUTTON CLASS
 	RygameObject.call(this,x,y,updateDepth,drawDepth,image,layer,affectedByCamera,renderAutomatically);
 	this.runMethod = runMethod;
 	this.mouseDownOnButton = false;
@@ -918,12 +935,15 @@ function RygameObject(x,y,updateDepth,drawDepth,image,layer,affectedByCamera,ren
 	
 }
 
-function updateBrightness(oldContext,brightnessPercent) {
+function updateBrightness(oldContext,brightnessPercent,operateInPlace) {
+	if (operateInPlace == null) {
+		operateInPlace = false;
+	}
 	//copy old canvas to new canvas
-	var newContext = createContext(oldContext.canvas.width,oldContext.canvas.height,false); 
+	var newContext = operateInPlace ? oldCanvas : createContext(oldContext.canvas.width,oldContext.canvas.height,false); 
 	newContext.drawImage(oldContext.canvas,0,0);
 	newContext.globalAlpha = brightnessPercent;
-	newContext.fillStyle = brightnessPercent >= 0 ? 'rgba(225,225,225,' + (brightnessPercent/100) + ')' : 'rgba(0,0,0,' + (-1*(brightnessPercent/100)) + ')';
+	newContext.fillStyle = brightnessPercent >= 0 ? 'rgba(225,225,225,' + (brightnessPercent*.01) + ')' : 'rgba(0,0,0,' + (-1*(brightnessPercent*.01)) + ')';
 	newContext.fillRect(0,0,newContext.canvas.width,newContext.canvas.height);
 	return newContext;
 }
