@@ -457,6 +457,7 @@ function createRaider() {
 function cancelSelection() {
 	selection = [];
 	selectionType = null;
+	openMenu = "";
 }
 
 function checkUpdateClickSelection() {
@@ -899,6 +900,13 @@ function drawUI() {
 	}
 }
 
+function drawScoreScreenUI() {
+	GameManager.setFontSize(48);
+	GameManager.drawSurface.fillStyle = "rgb(65, 218, 0)";
+	GameManager.drawSurface.fillText("Ore: " + collectedResources["ore"],600,40);
+	GameManager.drawSurface.fillText("Energy Crystals: " + collectedResources["crystal"],341,100);
+}
+
 function drawSelectionBox() {
 	if (selectionRectCoords.x1 != null) {
 		GameManager.drawSurface.strokeStyle = "rgb(0,255,0)";
@@ -1014,17 +1022,27 @@ function mouseOverGUI() {
 	return false;
 }
 
+function openBuildingMenu() {
+	openMenu = "building";
+}
+
 function createButtons() {
+	//base level buttons
 	buttons.push(new Button(0,0,0,0,"teleport raider button 1 (1).png",gameLayer,"", createRaider,false,false));
+	buttons.push(new Button(0,46,0,0,"open building menu button 1 (1).png",gameLayer,"", openBuildingMenu,false,false));
+	
 	buttons.push(new Button(46,0,0,0,"cancel selection button 1 (1).png",gameLayer,"", cancelSelection,false,false,[])); //if selectionTypeBound is an empty list, the button will be visible for all selections except when selection == null
 	//6 pixel boundary between general purpose buttons and selection specific buttons
-
+	
+	//building menu open buttons
+	buttons.push(new Button(46,46,0,0,"ToolStation.png",gameLayer,"", unloadMinifig,false,false,null,["building"]));
+	
 	//raider selected buttons
 	buttons.push(new Button(86,0,0,0,"unload minifig button 1 (1).png",gameLayer,"", unloadMinifig,false,false,["raider"]));
 	buttons.push(new Button(126,0,0,0,"stop minifig button 1 (1).png",gameLayer,"", stopMinifig,false,false,["raider"]));
 	buttons.push(new Button(166,0,0,0,"upgrade button 1 (1).png",gameLayer,"", upgradeRaider,false,false,["raider"]));
-	buttons.push(new Button(206,0,0,0,"get shovel button 1 (1).png",gameLayer,"", getTool,false,false,["raider"],["shovel"]));
-	buttons.push(new Button(246,0,0,0,"get_Hammer.png",gameLayer,"", getTool,false,false,["raider"],["hammer"]));
+	buttons.push(new Button(206,0,0,0,"get shovel button 1 (1).png",gameLayer,"", getTool,false,false,["raider"],null,["shovel"]));
+	buttons.push(new Button(246,0,0,0,"get_Hammer.png",gameLayer,"", getTool,false,false,["raider"],null,["hammer"]));
 
 	//item selected buttons
 	buttons.push(new Button(86,0,0,0,"grab item button 1 (1).png",gameLayer,"", grabItem,false,false,["ore","crystal"]));
@@ -1046,18 +1064,18 @@ function createButtons() {
 	
 	pauseButtons.push(new Button(20,200,0,0,null,gameLayer,"Return to Main Menu", returnToMainMenu,false,false));
 	
-	scoreScreenButtons.push(new Button(200,100,0,0,null,scoreScreenLayer,"Score: 0", null,false,true,null,[],false));
+	scoreScreenButtons.push(new Button(200,135,0,0,null,scoreScreenLayer,"Score: 0", null,false,true,null,null,[],false));
 	scoreScreenButtons.push(new Button(20,200,0,0,null,scoreScreenLayer,"Return to Main Menu", returnToMainMenu,false,true));
 }
 
 function createMenuButtons() {
 	var yPos = 20;
-	menuButtons.push(new Button(20,yPos,0,0,null,menuLayer,"Levels:",null,false,true,null,[],false));
+	menuButtons.push(new Button(20,yPos,0,0,null,menuLayer,"Levels:",null,false,true,null,null,[],false));
 	yPos += 40;
 	
 	for (var i = 0; i < GameManager.scriptObjects["levelList.js"].levels.length; ++i) {
 		var score = levelScores[GameManager.scriptObjects["levelList.js"].levels[i]];
-		menuButtons.push(new Button(20,yPos,0,0,null,menuLayer,GameManager.scriptObjects["Info_" + GameManager.scriptObjects["levelList.js"].levels[i] + ".js"].name + (score >= 0 ? " - best score: " + score : ""),resetLevelVars,false,true,null,[GameManager.scriptObjects["levelList.js"].levels[i]]));
+		menuButtons.push(new Button(20,yPos,0,0,null,menuLayer,GameManager.scriptObjects["Info_" + GameManager.scriptObjects["levelList.js"].levels[i] + ".js"].name + (score >= 0 ? " - best score: " + score : ""),resetLevelVars,false,true,null,null,[GameManager.scriptObjects["levelList.js"].levels[i]]));
 		yPos += 40;
 	}
 }
@@ -1093,6 +1111,8 @@ function resetLevelVars(name) {
 	reservedResources = {"ore":0,"crystal":0};
 	selectionRectCoords = {x1:null,y1:null};
 	selection = [];
+	openMenu = "";
+	lastLevelScore = 0;
 	selectionType = null;
 	for (var i = 0; i < terrain.length; ++i) {
 		for (var r = 0; r < terrain[i].length; ++r) {
@@ -1136,7 +1156,6 @@ function initGlobals() {
 	menuLayer = new Layer(0,0,1,1,GameManager.screenWidth,GameManager.screenHeight,true);
 	scoreScreenLayer = new Layer(0,0,1,1,GameManager.screenWidth,GameManager.screenHeight);
 	levelScores = getLevelScores();
-	lastLevelScore = 0;
 	musicPlayer = new MusicPlayer();
 	buttons = new ObjectGroup();
 	pauseButtons = new ObjectGroup();
@@ -1193,7 +1212,7 @@ function checkAccomplishedObjective() {
 
 function calculateLevelScore() {
 	//determine level score from 0-100 based off off several factors, including ore and crystals collected, oxygen remaining, and time taken
-	return 100 * Math.min(1,(collectedResources["ore"] / 30) * .5 + (collectedResources["crystal"] / 5) * .5);
+	return Math.round(100 * Math.min(1,(collectedResources["ore"] / 30) * .5 + (collectedResources["crystal"] / 5) * .5));
 }
 
 function setLevelScore(score) {
@@ -1251,6 +1270,9 @@ function update() {
 				
 		//inital render; draw all rygame objects
 		GameManager.drawFrame();
+		
+		//post-render; draw effects and UI
+		drawScoreScreenUI();
 	}
 	
 	else if (gameLayer.active) { //game update
@@ -1275,7 +1297,7 @@ function update() {
 				checkUpdateCtrlSelection();
 				//update objects
 				GameManager.updateObjects();
-				buttons.update(selectionType);
+				buttons.update([selectionType,openMenu]);
 			}
 			else {
 				pauseButtons.update();

@@ -40,6 +40,8 @@ object = {
           ["img", "images", "SlimySlugHole.jpg"], //hole out of which slimy slugs can emerge
           ["img", "images", "upgrade button 1 (1).png"], //button to upgrade a raider or building
           ["img", "images", "get_Hammer.png"], //button to instruct a raider to get a hammer from the nearest toolstore
+          ["img", "images", "open building menu button 1 (1).png"], //button to open up the building menu
+          ["img", "images", "ToolStation.png"], //button to select to build tool store from building menu
           ["img", "images", "landslide 1 (1).png"], //image that appears during a landslide
           ["snd", "sounds", "Crystaldrop"], //drop crystal
           ["snd", "sounds", "Rockdrop"], //drop ore

@@ -607,10 +607,22 @@ function Rect(width,height) { //TODO add xOffset and yOffset variables since rec
 }
 
 makeChild("Button","RygameObject");
-Button.prototype.update = function(selectionType) {
+Button.prototype.update = function(selectionType,openMenu) {
+	if (openMenu == null) {
+		openMenu = "";
+	}
 	if (this.selectionTypeBound != null) {
 		if (this.selectionTypeBound.indexOf(selectionType) == -1) {
-			if (!(this.selectionTypeBound.length == 0 && selectionType != null)) {
+			if (!(this.selectionTypeBound.length == 0 && (selectionType != null || openMenu != ""))) {
+				this.visible = false;
+				return;
+			}
+		}
+	}	
+	if (this.openMenuBound != null) {
+		console.log(this.openMenuBound);
+		if (this.openMenuBound.indexOf(openMenu) == -1) {
+			if (!(this.openMenuBound.length == 0 && (selectionType != null || openMenu != ""))) {
 				this.visible = false;
 				return;
 			}
@@ -717,12 +729,13 @@ Button.prototype.updateText = function(newText,clearFirst) {
 	}
 };
 
-function Button(x,y,updateDepth,drawDepth,image,layer,text,runMethod,affectedByCamera,renderAutomatically,selectionTypeBound,optionalArgs,clickable) { //TODO: MODIFY BUTTON CLASS TO OPERATE LARGELY THE SAME AS THE RYGAME PYTHON EDITION BUTTON CLASS
+function Button(x,y,updateDepth,drawDepth,image,layer,text,runMethod,affectedByCamera,renderAutomatically,selectionTypeBound,openMenuBound,optionalArgs,clickable) { //TODO: MODIFY BUTTON CLASS TO OPERATE LARGELY THE SAME AS THE RYGAME PYTHON EDITION BUTTON CLASS
 	RygameObject.call(this,x,y,updateDepth,drawDepth,image,layer,affectedByCamera,renderAutomatically);
 	this.runMethod = runMethod;
 	this.mouseDownOnButton = false;
 	this.releasedThisFrame = false;
 	this.selectionTypeBound = selectionTypeBound;
+	this.openMenuBound = openMenuBound;
 	this.optionalArgs = optionalArgs;
 	this.clickable = (clickable == null ? true : clickable);
 	if (this.optionalArgs == null) {
@@ -887,7 +900,7 @@ RygameObject.prototype.die = function() {
 
 RygameObject.prototype.attemptUpdate = function(optionalArgs) {
 	if (this.drawLayer.active && (!this.drawLayer.frozen)) {
-		this.update(optionalArgs);
+		this.update.apply(this,optionalArgs);
 	}
 };
 

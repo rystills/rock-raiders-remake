@@ -10,7 +10,7 @@ HealthBar.prototype.update = function() {
 };
 
 HealthBar.prototype.updateBar = function() {
-	this.drawSurface.fillStyle = "rgb(0,255,0)";
+	this.drawSurface.fillStyle = "rgb(0,135,0)"; //have the outline be a fair bit darker than the filling
 	this.drawSurface.fillRect(0,0,this.barWidth+2*this.barBorderSize,this.barHeight+2*this.barBorderSize);
 	this.drawSurface.fillStyle = "red";
 	this.drawSurface.fillRect(this.barBorderSize,this.barBorderSize,this.barWidth,this.barHeight);
