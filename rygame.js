@@ -620,7 +620,6 @@ Button.prototype.update = function(selectionType,openMenu) {
 		}
 	}	
 	if (this.openMenuBound != null) {
-		console.log(this.openMenuBound);
 		if (this.openMenuBound.indexOf(openMenu) == -1) {
 			if (!(this.openMenuBound.length == 0 && (selectionType != null || openMenu != ""))) {
 				this.visible = false;

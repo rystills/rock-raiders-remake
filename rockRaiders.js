@@ -1023,7 +1023,14 @@ function mouseOverGUI() {
 }
 
 function openBuildingMenu() {
+	cancelSelection();
 	openMenu = "building";
+}
+
+function startBuildingPlacer(buildingType) {
+	buildingPlacer.visible = true;
+	buildingPlacer.type = buildingType;
+	cancelSelection();
 }
 
 function createButtons() {
@@ -1035,7 +1042,7 @@ function createButtons() {
 	//6 pixel boundary between general purpose buttons and selection specific buttons
 	
 	//building menu open buttons
-	buttons.push(new Button(46,46,0,0,"ToolStation.png",gameLayer,"", unloadMinifig,false,false,null,["building"]));
+	buttons.push(new Button(46,46,0,0,"ToolStation.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["tool store"]));
 	
 	//raider selected buttons
 	buttons.push(new Button(86,0,0,0,"unload minifig button 1 (1).png",gameLayer,"", unloadMinifig,false,false,["raider"]));
@@ -1181,6 +1188,7 @@ function initGlobals() {
 	mousePanning = false; //can you scroll the screen using the mouse?
 	keyboardPanning = true; //can you scroll the screen using the arrow keys?
 	debug = false;
+	buildingPlacer = new BuildingPlacer();
 	
 	//some variables need to be given an initial value as resetting them is more complex; init them here
 	terrain = [];
@@ -1232,6 +1240,13 @@ function showScoreScreen() {
 	lastLevelScore = calculateLevelScore();
 	setLevelScore(lastLevelScore);
 	scoreScreenButtons.objectList[0].updateText(scoreScreenButtons.objectList[0].text.split(":")[0] + ": " + lastLevelScore);
+}
+
+function checkCloseMenu() {
+	//disallow menus from being open while the user has an active selection
+	if (selection.length != 0) {
+		openMenu = "";
+	}
 }
 
 function update() {
@@ -1298,6 +1313,7 @@ function update() {
 				//update objects
 				GameManager.updateObjects();
 				buttons.update([selectionType,openMenu]);
+				checkCloseMenu();
 			}
 			else {
 				pauseButtons.update();

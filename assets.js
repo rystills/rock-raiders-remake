@@ -64,6 +64,7 @@ object = {
           ["js", "classes", "Raider.js"], //Raider class
           ["js", "classes", "Space.js"], //Space class
           ["js", "classes", "LandSlide.js"], //Land Slide class
+          ["js", "classes", "BuildingPlacer.js"], //Widget for building-placement class
           ["js", "classes", "Task.js"], //Task class
           ["js", "classes", "MusicPlayer.js"], //Music Manager class
           
