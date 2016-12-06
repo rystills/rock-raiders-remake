@@ -1089,7 +1089,7 @@ function resetLevelVars(name) {
 	menuLayer.active = false;
 	gameLayer.active = true;
 	musicPlayer.changeLevels();
-	collectedResources = {"ore":0,"crystal":4};
+	collectedResources = {"ore":0,"crystal":0};
 	reservedResources = {"ore":0,"crystal":0};
 	selectionRectCoords = {x1:null,y1:null};
 	selection = [];
@@ -1193,7 +1193,7 @@ function checkAccomplishedObjective() {
 
 function calculateLevelScore() {
 	//determine level score from 0-100 based off off several factors, including ore and crystals collected, oxygen remaining, and time taken
-	return 100;
+	return 100 * Math.min(1,(collectedResources["ore"] / 30) * .5 + (collectedResources["crystal"] / 5) * .5);
 }
 
 function setLevelScore(score) {
