@@ -935,11 +935,6 @@ function drawSelectedSquares() {
 			GameManager.drawSurface.rect(selection[i].centerX() - halfRectMaxLength - selection[i].drawLayer.cameraX,selection[i].centerY() - halfRectMaxLength - selection[i].drawLayer.cameraY,rectMaxLength,rectMaxLength);
 			GameManager.drawSurface.stroke();	
 		}
-		else {
-			 GameManager.drawSurface.globalAlpha=0.3;
-			 GameManager.drawSurface.fillRect(selection[i].x - selection[i].drawLayer.cameraX,selection[i].y - selection[i].drawLayer.cameraY,selection[i].rect.width,selection[i].rect.height);
-			 GameManager.drawSurface.globalAlpha=1;
-		}
 	}
 }
 
@@ -1189,6 +1184,7 @@ function initGlobals() {
 	keyboardPanning = true; //can you scroll the screen using the arrow keys?
 	debug = false;
 	buildingPlacer = new BuildingPlacer();
+	tileSelectedGraphic = new TileSelectedGraphic();
 	
 	//some variables need to be given an initial value as resetting them is more complex; init them here
 	terrain = [];
