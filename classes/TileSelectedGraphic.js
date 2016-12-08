@@ -3,7 +3,6 @@ makeChild("TileSelectedGraphic","RygameObject");
 TileSelectedGraphic.prototype.update = function() {
 	if (selection.length != 0 && selectionType != "raider") {
 		this.visible = true;
-		console.log(selection);
 		this.x = selection[0].x; //todo: support multi-selection here rather than just the first selected object
 		this.y = selection[0].y;
 	}

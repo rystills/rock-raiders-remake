@@ -1025,6 +1025,7 @@ function openBuildingMenu() {
 function startBuildingPlacer(buildingType) {
 	buildingPlacer.visible = true;
 	buildingPlacer.type = buildingType;
+	buildingPlacer.updatePosition();
 	cancelSelection();
 }
 
@@ -1182,7 +1183,7 @@ function initGlobals() {
 	maskUntouchedSpaces = true; //if true, this creates the "fog of war" type effect where unrevealed Spaces appear as solid rock (should only be set to false for debugging purposes)
 	mousePanning = false; //can you scroll the screen using the mouse?
 	keyboardPanning = true; //can you scroll the screen using the arrow keys?
-	debug = false;
+	debug = true;
 	buildingPlacer = new BuildingPlacer();
 	tileSelectedGraphic = new TileSelectedGraphic();
 	
@@ -1300,12 +1301,14 @@ function update() {
 			if (!paused) {
 				//update input
 				checkScrollScreen();
-				if (!mouseOverGUI()) {
-					checkUpdateClickSelection();
-					checkAssignSelectionTask();
+				if (!buildingPlacer.visible) {
+					if (!mouseOverGUI()) {
+						checkUpdateClickSelection();
+						checkAssignSelectionTask();
+					}
+					checkUpdateSelectionType();
+					checkUpdateCtrlSelection();
 				}
-				checkUpdateSelectionType();
-				checkUpdateCtrlSelection();
 				//update objects
 				GameManager.updateObjects();
 				buttons.update([selectionType,openMenu]);
@@ -1328,7 +1331,7 @@ function update() {
 		if (debug) { //render debug info
 			highlightRaiderPaths();
 			drawSelectedRects();
-			drawTerrainVars(["height"]);
+			drawTerrainVars(["listX"]);
 			drawRaiderTasks();
 			drawBuildingSiteMaterials();	
 		}
