@@ -1023,8 +1023,7 @@ function openBuildingMenu() {
 }
 
 function startBuildingPlacer(buildingType) {
-	buildingPlacer.visible = true;
-	buildingPlacer.type = buildingType;
+	buildingPlacer.start(buildingType);
 	buildingPlacer.updatePosition();
 	cancelSelection();
 }
