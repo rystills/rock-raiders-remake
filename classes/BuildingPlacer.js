@@ -6,6 +6,8 @@ BuildingPlacer.prototype.update = function() {
 			return;
 		}
 		
+		this.checkUpdateKeyPress();
+		
 		this.updatePosition();	
 		for (var i =0; i < this.children.length; ++i) {
 			this.children[i].updatePosition();
@@ -27,15 +29,38 @@ BuildingPlacer.prototype.update = function() {
 	}
 };
 
-BuildingPlacer.prototype.start = function(type) {
+BuildingPlacer.prototype.checkUpdateKeyPress = function() {
+	//check if the R key is pressed
+	if (GameManager.keyStates[String.fromCharCode(82)]) {
+		this.holdingRKey = true;
+	}
+	else {
+		if (this.holdingRKey) {
+			this.rotate();
+			this.holdingRKey = false;
+		}
+	}
+};
+
+BuildingPlacer.prototype.rotate = function() {
+	this.dir = (this.dir+1)%4;
+	//restart with new dir to create children in the correct position
+	this.stop();
+	this.start(this.buildingType,true);
+	console.log(this.children.length);
+};
+
+BuildingPlacer.prototype.start = function(type,keepDir) {
 	this.visible = true;
 	if (type != null) {
 		this.buildingType = type;
 	}
-	
-	this.dir = 0;
+	if (keepDir != true) {
+		this.dir = 0;
+	}
+	                                  
 	if (type == "tool store") {
-		this.children.push(new BuildingPlacer("power path",true,1,0));
+		this.children.push(new BuildingPlacer("power path",true,BuildingPlacer.dirOffsets[this.dir][0],BuildingPlacer.dirOffsets[this.dir][1]));
 	}
 	for (var i = 0; i < this.children.length; ++i) {
 		this.children[i].start();
@@ -116,4 +141,12 @@ function BuildingPlacer(buildingType,isHelper,xOffset,yOffset) {
 	this.xOffset = xOffset;
 	this.yOffset = yOffset;
 	this.children = [];
+	this.holdingRKey = false;
 }
+
+//how each direction alters x,y coordinate placement
+BuildingPlacer.dirOffsets = [];
+BuildingPlacer.dirOffsets.push([1,0]);
+BuildingPlacer.dirOffsets.push([0,-1]);
+BuildingPlacer.dirOffsets.push([-1,0]);
+BuildingPlacer.dirOffsets.push([0,1]);
