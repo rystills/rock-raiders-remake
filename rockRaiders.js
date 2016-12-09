@@ -905,8 +905,11 @@ function drawUI() {
 	GameManager.setFontSize(36);
 	GameManager.drawSurface.fillText("Selection Type: " + selectionType + (selectionType == null ? "" : (" x " + selection.length)),8,592); //to be replaced with classic green selection rectangle	
 	
-	for (var i = 0; i < buttons.objectList.length; ++i) { //attempt to draw buttons here so that they are rendered in front of other post-render graphics
-		buttons.objectList[i].render(GameManager);
+	//don't draw buttons when buildingPlacer is active
+	if (!buildingPlacer.visible) {
+		for (var i = 0; i < buttons.objectList.length; ++i) { //attempt to draw buttons here so that they are rendered in front of other post-render graphics
+			buttons.objectList[i].render(GameManager);
+		}
 	}
 }
 
@@ -1036,10 +1039,6 @@ function startBuildingPlacer(buildingType) {
 	buildingPlacer.start(buildingType);
 	buildingPlacer.updatePosition();
 	cancelSelection();
-	
-	//disable teleport raidere and open building menu buttons while buildingPlacer is active
-	buttons.objectList[0].clickable = false;
-	buttons.objectList[1].clickable = false;
 }
 
 function createButtons() {
@@ -1327,13 +1326,11 @@ function update() {
 				//update objects
 				GameManager.updateObjects();
 				
-				//re-enable first two buttons when buildingPlacer stops
+				//don't update buttons when buildingPlacer is active
 				if (!buildingPlacer.visible) {
-					buttons.objectList[0].clickable = true;
-					buttons.objectList[1].clickable = true;
+					buttons.update([selectionType,openMenu]);
+					checkCloseMenu();
 				}
-				buttons.update([selectionType,openMenu]);
-				checkCloseMenu();
 			}
 			else {
 				pauseButtons.update();
