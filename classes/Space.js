@@ -103,7 +103,10 @@ Space.prototype.sweep = function() {
 	this.adjustHeightAlpha(); //reset height-based alpha after sweeping, as it will be reset after calling setTyleProperties
 };
 
-Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContainsOre,requiredResources,dedicatedResources,placedResources) {
+Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContainsOre,requiredResources,dedicatedResources,placedResources,drawAngle) {
+	if (drawAngle != null) {
+		this.drawAngle = drawAngle;
+	}
 	if ((rubbleContainsOre != true) && (this.rubbleContainsOre != true)) { //certain variables, such as rubbleContainsOre, should stay true even when this method is called multiple times
 		rubbleContainsOre = false;
 	}

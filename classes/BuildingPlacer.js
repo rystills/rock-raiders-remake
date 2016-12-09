@@ -119,7 +119,7 @@ BuildingPlacer.prototype.updatePosition = function() {
 };
 
 BuildingPlacer.prototype.placeBuilding = function(space) {
-	space.setTypeProperties(this.buildingType);
+	space.setTypeProperties(this.buildingType,null,null,null,null,null,(this.dir*90 - 90 + (this.dir % 2 == 1 ? 180 : 0)) * (Math.PI / 180));
 	if (!this.isHelper) {
 		buildings.push(space);
 	}
