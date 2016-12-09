@@ -9,23 +9,29 @@ BuildingPlacer.prototype.update = function() {
 		this.checkUpdateKeyPress();
 		
 		this.updatePosition();	
+		
+		this.drawSurface = this.invalidSurface;
 		for (var i =0; i < this.children.length; ++i) {
+			this.children[i].drawSurface = this.children[i].invalidSurface;
 			this.children[i].updatePosition();
 		}
 		var currentSpace = this.getCurrentSpace();
-		if (GameManager.mouseReleasedLeft && this.positionValid(currentSpace)) {
-			var childPositionsValid = true;
-			for (var i = 0; i < this.children.length; ++i) {
-				if (!this.children[i].positionValid(this.children[i].getCurrentSpace())) {
-					childPositionsValid = false;
-					break;
-				}
+		var positionValid = this.positionValid(currentSpace);
+		var childPositionsValid = true;
+		for (var i = 0; i < this.children.length; ++i) {
+			if (!this.children[i].positionValid(this.children[i].getCurrentSpace())) {
+				childPositionsValid = false;
+				continue;
 			}
-			if (childPositionsValid) {
-				this.placeBuilding(currentSpace);
-				return;
-			}
+			this.children[i].drawSurface = this.children[i].validSurface;
 		}
+		if (GameManager.mouseReleasedLeft && positionValid && childPositionsValid) {
+			this.placeBuilding(currentSpace);
+			return;
+		}
+		if (positionValid) {
+			this.drawSurface = this.validSurface;
+		}		
 	}
 };
 
@@ -119,7 +125,6 @@ BuildingPlacer.prototype.placeBuilding = function(space) {
 
 BuildingPlacer.prototype.getCurrentSpace = function() {
 	//remember that the grid is actually (y,x) rather than (x,y)
-	//console.log(this.isHelper);
 	return terrain[Math.floor((this.y + gameLayer.cameraY)/tileSize)][Math.floor((this.x + gameLayer.cameraX)/tileSize)];
 };
 
@@ -132,10 +137,17 @@ function BuildingPlacer(buildingType,isHelper,xOffset,yOffset) {
 	}
 	RygameObject.call(this,0,0,1000000,10000,null,gameLayer,false); //update after Space, and draw in front of space
 	this.buildingType = buildingType;
+	
 	this.drawSurface = createContext(tileSize,tileSize,false);
 	this.drawSurface.globalAlpha=.25;
 	this.drawSurface.fillStyle = "rgb(255,0,0)";
-	this.drawSurface.fillRect(0,0,this.drawSurface.canvas.width,this.drawSurface.canvas.height); //darken screen while awaitingStart
+	this.drawSurface.fillRect(0,0,this.drawSurface.canvas.width,this.drawSurface.canvas.height); //red semi-transparent overlay
+	this.invalidSurface = this.drawSurface;
+	this.validSurface = createContext(tileSize,tileSize,false);
+	this.validSurface.globalAlpha=.25;
+	this.validSurface.fillStyle = "rgb(0,255,0)";
+	this.validSurface.fillRect(0,0,this.drawSurface.canvas.width,this.drawSurface.canvas.height); //green semi-transparent overlay
+	
 	this.visible = false;
 	this.isHelper = (isHelper == true ? true : false);
 	this.xOffset = xOffset;
