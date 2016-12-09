@@ -424,20 +424,22 @@ GameManagerInternal.prototype.initializeRygame = function(is3d) {    //FIND A WA
 	});
 };
 GameManagerInternal.prototype.addObject = function(object) { //TODO still need to decide on adding single objects vs lists of objects natively
-	this.completeObjectList.splice(binarySearch(this.completeObjectList,object,"drawDepth"),0,object); 
+	this.renderOrderedCompleteObjectList.splice(binarySearch(this.renderOrderedCompleteObjectList,object,"drawDepth"),0,object);
+	this.updateOrderedCompleteObjectList.splice(binarySearch(this.updateOrderedCompleteObjectList,object,"updateDepth"),0,object); 
 };
 GameManagerInternal.prototype.removeObject = function(object) { //TODO still need to decide on adding single objects vs lists of objects natively
-	this.completeObjectList.splice(this.completeObjectList.indexOf(object),1); 
+	this.renderOrderedCompleteObjectList.splice(this.renderOrderedCompleteObjectList.indexOf(object),1); 
+	this.updateOrderedCompleteObjectList.splice(this.updateOrderedCompleteObjectList.indexOf(object),1); 	
 };
 GameManagerInternal.prototype.addLayer = function(layer) {
 	this.completeLayerList.splice(binarySearch(this.completeLayerList,layer,"drawDepth"),0,layer); 
 };
 GameManagerInternal.prototype.updateObjects = function() {
-	for (var i = 0; i < this.completeObjectList.length; i++) {
-		this.completeObjectList[i].xPrevious = this.completeObjectList[i].x; //TODO: DECIDE IF THE PREVIOUS POSITION VARIABLES SHOULD BE UPDATED BEFORE OR AFTER THE UPDATE METHOD
-		this.completeObjectList[i].yPrevious = this.completeObjectList[i].y;
-		if (typeof this.completeObjectList[i].update == "function" && this.completeObjectList[i].renderAutomatically) { //TODO: implement updateAutomatically as a separate var from renderAutomatically
-			this.completeObjectList[i].attemptUpdate(); //TODO: CURRENTLY THIS IS SORTED BY DRAWDEPTH; FIND A WAY TO SORT BY UPDATEDEPTH!!
+	for (var i = 0; i < this.updateOrderedCompleteObjectList.length; i++) {
+		this.updateOrderedCompleteObjectList[i].xPrevious = this.updateOrderedCompleteObjectList[i].x; //TODO: DECIDE IF THE PREVIOUS POSITION VARIABLES SHOULD BE UPDATED BEFORE OR AFTER THE UPDATE METHOD
+		this.updateOrderedCompleteObjectList[i].yPrevious = this.updateOrderedCompleteObjectList[i].y;
+		if (typeof this.updateOrderedCompleteObjectList[i].update == "function" && this.updateOrderedCompleteObjectList[i].updateAutomatically) {
+			this.updateOrderedCompleteObjectList[i].attemptUpdate(); 
 		}
 	}
 };
@@ -459,15 +461,15 @@ GameManagerInternal.prototype.drawFrame = function() {
 	}
 		
 	//render objects to frames first (objects are sorted by depth when added, so no need to do any sorting here)
-	for (var i = this.completeObjectList.length-1; i >= 0; i--) {
-		var drawObject = this.completeObjectList[i];
+	for (var i = this.renderOrderedCompleteObjectList.length-1; i >= 0; i--) {
+		var drawObject = this.renderOrderedCompleteObjectList[i];
 		if (drawObject.renderAutomatically && drawObject.drawLayer.active && (!drawObject.drawLayer.frozen)) {
 			drawObject.render();
 		}
 	}
 	
-	for (var i = this.completeObjectList.length-1; i >= 0; i--) {
-		var drawGuiObject = this.completeObjectList[i];
+	for (var i = this.renderOrderedCompleteObjectList.length-1; i >= 0; i--) {
+		var drawGuiObject = this.renderOrderedCompleteObjectList[i];
 		if (drawGuiObject.drawLayer.active && (! drawGuiObject.drawLayer.frozen)) {
 			drawGuiObject.renderGuiElements();
 		}
@@ -502,7 +504,8 @@ function GameManagerInternal() {
 	this.fps = 40;
 	this.keyStates = [];
 	this.completeLayerList = [];
-	this.completeObjectList = [];
+	this.renderOrderedCompleteObjectList = [];
+	this.updateOrderedCompleteObjectList = [];
 	this.drawSurface = null;
 	this.screenWidth = null;
 	this.screenHeight = null;
@@ -903,7 +906,7 @@ RygameObject.prototype.attemptUpdate = function(optionalArgs) {
 	}
 };
 
-function RygameObject(x,y,updateDepth,drawDepth,image,layer,affectedByCamera,renderAutomatically) {
+function RygameObject(x,y,updateDepth,drawDepth,image,layer,affectedByCamera,renderAutomatically,updateAutomatically) {
 	//x: the starting x position of the object
 	//y: the starting y position of the object
 	//updateDepth: the ordering for drawing the object. Lower Depths are updated earlier.
@@ -914,7 +917,11 @@ function RygameObject(x,y,updateDepth,drawDepth,image,layer,affectedByCamera,ren
 	if (renderAutomatically == null) {
 		renderAutomatically = true;
 	}
+	if (updateAutomatically == null) {
+		updateAutomatically = true;
+	}
 	this.renderAutomatically = renderAutomatically;
+	this.updateAutomatically = updateAutomatically;
 	this.affectedByCamera = affectedByCamera;
 	this.dead = false;
 	this.x = x;

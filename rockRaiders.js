@@ -1197,7 +1197,7 @@ function initGlobals() {
 	maskUntouchedSpaces = true; //if true, this creates the "fog of war" type effect where unrevealed Spaces appear as solid rock (should only be set to false for debugging purposes)
 	mousePanning = false; //can you scroll the screen using the mouse?
 	keyboardPanning = true; //can you scroll the screen using the arrow keys?
-	debug = true;
+	debug = false; //should the game render any active debug info?
 	buildingPlacer = new BuildingPlacer();
 	tileSelectedGraphic = new TileSelectedGraphic();
 	

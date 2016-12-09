@@ -9,7 +9,6 @@ BuildingPlacer.prototype.update = function() {
 		this.checkUpdateKeyPress();
 		
 		this.updatePosition();	
-		console.log("x: " + this.x + ", y: " + this.y);
 		
 		this.drawSurface = this.invalidSurface;
 		for (var i =0; i < this.children.length; ++i) {
