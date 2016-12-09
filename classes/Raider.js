@@ -169,7 +169,9 @@ Raider.prototype.update = function() {
 	var speedModifier; 
 	var freezeAngle = false;
 	var distanceTraveled = this.speed;
-	while (distanceTraveled > 0) {
+	
+	//if currentPath is null, there is no way to get to the current task
+	while ( (distanceTraveled > 0)) {
 		speedModifier = this.space.speedModifier; //we are only on the current space
 		if (collisionRect(this,this.currentPath[this.currentPath.length-1])) {
 			if (!collisionRect(this,this.space)) {

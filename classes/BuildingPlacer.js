@@ -54,6 +54,10 @@ BuildingPlacer.prototype.positionValid = function(space) {
 	if (space.type != "ground") {
 		return false;
 	}
+	//power paths are allowed to be colliding with other objects, as long as they are still being placed on a ground tile
+	if (this.buildingType == "power path") {
+		return true;
+	}
 	//do not allow placement on a space on which any raiders are currently colliding
 	for (var i = 0; i < raiders.objectList.length; ++i) {
 		if (collisionRect(raiders.objectList[i], space)) {

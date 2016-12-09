@@ -612,6 +612,8 @@ function checkAssignSelectionTask() {
 			if (index != -1) {
 				tasksUnavailable.objectList.splice(index,1);
 			}		
+			
+			var assignedAtLeastOnce = false;
 			for (var i = 0; i < selection.length; i++) {	//TODO: allow certain tasks to be performed by raiders even if they are holding something
 			if (selection[i].currentTask == null && selection[i].holding == null) { //raiders are the only valid selection[i] type for now; later on any Space (and maybe collectables as well?) or vehicle, etc.. will be a valid selection[i] as even though these things cannot be assigned tasks they can be added to the high priority task queue as well as create menu buttons
 					
@@ -630,15 +632,23 @@ function checkAssignSelectionTask() {
 						selection[i].currentTask = selectedTask;
 						selection[i].currentObjective = selectedTask;
 						
-						if (tasksInProgress.objectList.indexOf(selectedTask) == -1) {
-							tasksInProgress.push(selectedTask);
-						}
-						
 						//TODO: cleanup the code at the top of the Raider class which deals with choosing a task, stick it in a method, and reuse it here for simplicity
 						selection[i].currentPath = findClosestStartPath(selection[i],calculatePath(terrain,selection[i].space,typeof selectedTask.space == "undefined" ? selectedTask: selectedTask.space,true));
 						selection[i].checkChooseCloserEquivalentResource();
+						
+						//don't assign the task if a valid path to the task cannot be found for the raider
+						if (selection[i].currentPath == null) {
+							selection[i].currentTask = null;
+							selection[i].currentObjective = null;
+						}
+						else {
+							assignedAtLeastOnce = true;
+						}
 					}
 				}
+			}
+			if (assignedAtLeastOnce && (tasksInProgress.objectList.indexOf(selectedTask) == -1)) {
+				tasksInProgress.push(selectedTask);
 			}
 		}
 	}
