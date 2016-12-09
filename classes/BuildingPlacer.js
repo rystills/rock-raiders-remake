@@ -7,24 +7,35 @@ BuildingPlacer.prototype.update = function() {
 		}
 		
 		this.updatePosition();	
+		for (var i =0; i < this.children.length; ++i) {
+			this.children[i].updatePosition();
+		}
 		var currentSpace = this.getCurrentSpace();
 		if (GameManager.mouseReleasedLeft && this.positionValid(currentSpace)) {
-			this.placeBuilding(currentSpace);
-			return;
+			var childPositionsValid = true;
+			for (var i = 0; i < this.children.length; ++i) {
+				if (!this.children[i].positionValid(this.children[i].getCurrentSpace())) {
+					childPositionsValid = false;
+					break;
+				}
+			}
+			if (childPositionsValid) {
+				this.placeBuilding(currentSpace);
+				return;
+			}
 		}
-	}
-	for (var i =0; i < this.children.length; ++i) {
-		this.children[i].x = this.x + tileSize;
-		this.children[i].y = this.y;
 	}
 };
 
 BuildingPlacer.prototype.start = function(type) {
 	this.visible = true;
-	this.type = type;
+	if (type != null) {
+		this.buildingType = type;
+	}
+	
 	this.dir = 0;
 	if (type == "tool store") {
-		this.children.push(new BuildingPlacer(this.type,true));
+		this.children.push(new BuildingPlacer("power path",true,1,0));
 	}
 	for (var i = 0; i < this.children.length; ++i) {
 		this.children[i].start();
@@ -53,31 +64,43 @@ BuildingPlacer.prototype.positionValid = function(space) {
 };
 
 BuildingPlacer.prototype.updatePosition = function() {
-	//helpers are positioned manually by the primary BuildingPlacer
-	if (!this.isHelper) {
-		this.x = GameManager.mousePos.x;
-		this.x += (gameLayer.cameraX % tileSize);
-		this.x = Math.floor(this.x / tileSize) * tileSize;
-		this.x -= (gameLayer.cameraX % tileSize);
-		this.y = GameManager.mousePos.y;
-		this.y += (gameLayer.cameraY % tileSize);
-		this.y = Math.floor(this.y / tileSize) * tileSize;
-		this.y -= (gameLayer.cameraY % tileSize);
-	}
+	this.x = GameManager.mousePos.x;
+	this.x += (gameLayer.cameraX % tileSize);
+	this.x = Math.floor(this.x / tileSize) * tileSize;
+	this.x -= (gameLayer.cameraX % tileSize);
+	this.y = GameManager.mousePos.y;
+	this.y += (gameLayer.cameraY % tileSize);
+	this.y = Math.floor(this.y / tileSize) * tileSize;
+	this.y -= (gameLayer.cameraY % tileSize);
+	this.x += tileSize * this.xOffset;
+	this.y += tileSize * this.yOffset;
 };
 
 BuildingPlacer.prototype.placeBuilding = function(space) {
-	space.setTypeProperties(this.type);
-	buildings.push(space);
+	space.setTypeProperties(this.buildingType);
+	if (!this.isHelper) {
+		buildings.push(space);
+	}
+	
+	for (var i = 0; i < this.children.length; ++i) {
+		this.children[i].placeBuilding(this.children[i].getCurrentSpace());
+	}
 	this.stop();
 };
 
 BuildingPlacer.prototype.getCurrentSpace = function() {
 	//remember that the grid is actually (y,x) rather than (x,y)
+	//console.log(this.isHelper);
 	return terrain[Math.floor((this.y + gameLayer.cameraY)/tileSize)][Math.floor((this.x + gameLayer.cameraX)/tileSize)];
 };
 
-function BuildingPlacer(buildingType,isHelper) {
+function BuildingPlacer(buildingType,isHelper,xOffset,yOffset) {
+	if (xOffset == null) {
+		xOffset = 0;
+	}
+	if (yOffset == null) {
+		yOffset = 0;
+	}
 	RygameObject.call(this,0,0,1000000,10000,null,gameLayer,false); //update after Space, and draw in front of space
 	this.buildingType = buildingType;
 	this.drawSurface = createContext(tileSize,tileSize,false);
@@ -86,5 +109,7 @@ function BuildingPlacer(buildingType,isHelper) {
 	this.drawSurface.fillRect(0,0,this.drawSurface.canvas.width,this.drawSurface.canvas.height); //darken screen while awaitingStart
 	this.visible = false;
 	this.isHelper = (isHelper == true ? true : false);
+	this.xOffset = xOffset;
+	this.yOffset = yOffset;
 	this.children = [];
 }
