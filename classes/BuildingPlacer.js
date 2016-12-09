@@ -9,6 +9,7 @@ BuildingPlacer.prototype.update = function() {
 		this.checkUpdateKeyPress();
 		
 		this.updatePosition();	
+		console.log("x: " + this.x + ", y: " + this.y);
 		
 		this.drawSurface = this.invalidSurface;
 		for (var i =0; i < this.children.length; ++i) {
@@ -35,6 +36,11 @@ BuildingPlacer.prototype.update = function() {
 	}
 };
 
+BuildingPlacer.prototype.withinLayerBounds = function() {
+	//override withinLayerBounds to return true as we do not actually maintain a valid rect, and will therefore be considered out-of-bounds and not rendered otherwise
+	return true;
+};
+
 BuildingPlacer.prototype.checkUpdateKeyPress = function() {
 	//check if the R key is pressed
 	if (GameManager.keyStates[String.fromCharCode(82)]) {
@@ -53,7 +59,6 @@ BuildingPlacer.prototype.rotate = function() {
 	//restart with new dir to create children in the correct position
 	this.stop();
 	this.start(this.buildingType,true);
-	console.log(this.children.length);
 };
 
 BuildingPlacer.prototype.start = function(type,keepDir) {
@@ -101,6 +106,8 @@ BuildingPlacer.prototype.positionValid = function(space) {
 BuildingPlacer.prototype.updatePosition = function() {
 	this.x = GameManager.mousePos.x;
 	this.x += (gameLayer.cameraX % tileSize);
+	//console.log(this.x / tileSize > 1);
+	//this.x = ((this.x / tileSize > 1) ? Math.floor(this.x / tileSize) : Math.ceil(this.x / tileSize)) * tileSize;
 	this.x = Math.floor(this.x / tileSize) * tileSize;
 	this.x -= (gameLayer.cameraX % tileSize);
 	this.y = GameManager.mousePos.y;

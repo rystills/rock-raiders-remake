@@ -1105,6 +1105,7 @@ function returnToMainMenu() {
 	gameLayer.active = false;
 	musicPlayer.changeLevels();
 	stopAllSounds();
+	buildingPlacer.stop();
 }
 
 function stopAllSounds() {
