@@ -1036,6 +1036,10 @@ function startBuildingPlacer(buildingType) {
 	buildingPlacer.start(buildingType);
 	buildingPlacer.updatePosition();
 	cancelSelection();
+	
+	//disable teleport raidere and open building menu buttons while buildingPlacer is active
+	buttons.objectList[0].clickable = false;
+	buttons.objectList[1].clickable = false;
 }
 
 function createButtons() {
@@ -1048,6 +1052,7 @@ function createButtons() {
 	
 	//building menu open buttons
 	buttons.push(new Button(46,46,0,0,"ToolStation.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["tool store"]));
+	buttons.push(new Button(46,86,0,0,"SMteleport.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["teleport pad"]));
 	
 	//raider selected buttons
 	buttons.push(new Button(86,0,0,0,"unload minifig button 1 (1).png",gameLayer,"", unloadMinifig,false,false,["raider"]));
@@ -1321,6 +1326,12 @@ function update() {
 				}
 				//update objects
 				GameManager.updateObjects();
+				
+				//re-enable first two buttons when buildingPlacer stops
+				if (!buildingPlacer.visible) {
+					buttons.objectList[0].clickable = true;
+					buttons.objectList[1].clickable = true;
+				}
 				buttons.update([selectionType,openMenu]);
 				checkCloseMenu();
 			}

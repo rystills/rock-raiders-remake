@@ -11,6 +11,11 @@ TileSelectedGraphic.prototype.update = function() {
 	}
 };
 
+TileSelectedGraphic.prototype.withinLayerBounds = function() {
+	//override withinLayerBounds to return true as we do not actually maintain a valid rect, and will therefore be considered out-of-bounds and not rendered otherwise
+	return true;
+};
+
 function TileSelectedGraphic() {
 	RygameObject.call(this,0,0,500000,5000,null,gameLayer); //depth between Space and BuildingPlacer
 	

@@ -70,7 +70,7 @@ BuildingPlacer.prototype.start = function(type,keepDir) {
 		this.dir = 0;
 	}
 	                                  
-	if (type == "tool store") {
+	if (type == "tool store" || type == "teleport pad") {
 		this.children.push(new BuildingPlacer("power path",true,BuildingPlacer.dirOffsets[this.dir][0],BuildingPlacer.dirOffsets[this.dir][1]));
 	}
 	for (var i = 0; i < this.children.length; ++i) {
