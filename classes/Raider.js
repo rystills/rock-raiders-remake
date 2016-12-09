@@ -1,8 +1,11 @@
 makeChild("Raider","RygameObject");
-Raider.prototype.checkChooseCloserEquivalentResource = function() { //check if a closer equivalent resource is present; return true if switched tasks
+Raider.prototype.checkChooseCloserEquivalentResource = function(removeCurrentTask) { //check if a closer equivalent resource is present; return true if switched tasks
 	var currentTaskType = this.getTaskType(this.currentTask); //TODO: consider using this function when getting resources from the toolstore as well
 	if (!(currentTaskType == "collect" && this.holding == null)) {
 		return;
+	}
+	if (removeCurrentTask == null) {
+		removeCurrentTask = true;
 	}
 	var closestDistance = -1;
 	var closestObject = null;
@@ -30,8 +33,11 @@ Raider.prototype.checkChooseCloserEquivalentResource = function() { //check if a
 	if (closestObject != null) { //switch tasks to the closest object of the same type on this space
 		//change tasks TODO: CONVERT THIS INTO A METHOD
 		//TODO: THIS CREATES RIGID MOVEMENT WHEN CHANGING TASKS. CONSIDER APPROACHING THIS DIFFERENTLY, INCLUDING SETTING THIS.SPACE EARLIER WHEN CHANGING SPACES (may be fixed now that we check one space ahead of us) [should no longer matter as we now update this.space when changing tasks]
-		tasksInProgress.remove(this.currentTask);
-		tasksAvailable.push(this.currentTask);
+		if (removeCurrentTask) {
+			tasksInProgress.remove(this.currentTask);
+			tasksAvailable.push(this.currentTask);
+		}
+		
 		this.currentTask = closestObject; //TODO: choose the closest task on the space that is of the same type rather than the first one you find
 		//tasksAvailable.remove(this.currentTask);
 		tasksAvailable.splice(closestIndex, 1);

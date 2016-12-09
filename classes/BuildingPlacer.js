@@ -118,9 +118,12 @@ BuildingPlacer.prototype.updatePosition = function() {
 };
 
 BuildingPlacer.prototype.placeBuilding = function(space) {
-	space.setTypeProperties(this.buildingType,null,null,null,null,null,(this.dir*90 - 90 + (this.dir % 2 == 1 ? 180 : 0)) * (Math.PI / 180));
-	if (!this.isHelper) {
-		buildings.push(space);
+	if (this.buildingType == "power path") {
+		space.setTypeProperties(this.buildingType,null,null,null,null,null,(this.dir*90 - 90 + (this.dir % 2 == 1 ? 180 : 0)) * (Math.PI / 180));
+	}
+	else {
+		space.buildingSiteType = this.buildingType;
+		space.setTypeProperties("building site",null,null,null,null,null,(this.dir*90 - 90 + (this.dir % 2 == 1 ? 180 : 0)) * (Math.PI / 180));
 	}
 	
 	for (var i = 0; i < this.children.length; ++i) {

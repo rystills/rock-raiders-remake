@@ -614,6 +614,7 @@ function checkAssignSelectionTask() {
 			}		
 			
 			var assignedAtLeastOnce = false;
+			var taskWasAvailable = false;
 			for (var i = 0; i < selection.length; i++) {	//TODO: allow certain tasks to be performed by raiders even if they are holding something
 			if (selection[i].currentTask == null && selection[i].holding == null) { //raiders are the only valid selection[i] type for now; later on any Space (and maybe collectables as well?) or vehicle, etc.. will be a valid selection[i] as even though these things cannot be assigned tasks they can be added to the high priority task queue as well as create menu buttons
 					
@@ -622,6 +623,7 @@ function checkAssignSelectionTask() {
 						
 						var index = tasksAvailable.indexOf(selectedTask);
 						if (index != -1) { //this check should no longer be necessary
+							taskWasAvailable = true;
 							tasksAvailable.splice(index,1);
 						} 
 						else {
@@ -634,14 +636,16 @@ function checkAssignSelectionTask() {
 						
 						//TODO: cleanup the code at the top of the Raider class which deals with choosing a task, stick it in a method, and reuse it here for simplicity
 						selection[i].currentPath = findClosestStartPath(selection[i],calculatePath(terrain,selection[i].space,typeof selectedTask.space == "undefined" ? selectedTask: selectedTask.space,true));
-						selection[i].checkChooseCloserEquivalentResource();
+						var foundCloserResource = selection[i].checkChooseCloserEquivalentResource(false);
 						
 						//don't assign the task if a valid path to the task cannot be found for the raider
 						if (selection[i].currentPath == null) {
 							selection[i].currentTask = null;
 							selection[i].currentObjective = null;
 						}
-						else {
+						
+						//don't add this resource to tasksInProgress if we chose a closer resource instead
+						else if (!foundCloserResource) {
 							assignedAtLeastOnce = true;
 						}
 					}
@@ -649,6 +653,9 @@ function checkAssignSelectionTask() {
 			}
 			if (assignedAtLeastOnce && (tasksInProgress.objectList.indexOf(selectedTask) == -1)) {
 				tasksInProgress.push(selectedTask);
+			}
+			else if (taskWasAvailable) {
+				tasksAvailable.push(selectedTask);
 			}
 		}
 	}
