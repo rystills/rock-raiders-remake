@@ -1117,6 +1117,7 @@ function returnToMainMenu() {
 	musicPlayer.changeLevels();
 	stopAllSounds();
 	buildingPlacer.stop();
+	tileSelectedGraphic.visible = false;
 }
 
 function stopAllSounds() {

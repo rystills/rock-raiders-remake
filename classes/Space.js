@@ -269,6 +269,7 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 			var index = buildingSites.indexOf(this);
 			if (index == -1) {
 				buildingSites.push(this);
+				tasksAvailable.push(this);
 			}
 		}
 		
