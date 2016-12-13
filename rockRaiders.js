@@ -1145,20 +1145,14 @@ function resetLevelVars(name) {
 		}
 	}
 	terrain = [];
-	for (var i = 0; i < buildings.length; ++i) {
-		buildings[i].die();
-	}
+	//don't need to kill buildings or buildingSites as these are just a type of space
 	buildings = []; //similar to terrain[], just holds spaces which are buildings so that they can be easily located by raiders.
-	for (var i = 0; i < buildingSites.length; ++i) {
-		buildingSites[i].die();
-	}
 	buildingSites = []; //used by raider ai pathfinding in a similar manner to buildings[]
 	tasksAvailable = [];//.concat(collectables.objectList); 
 	tasksUnavailable = new ObjectGroup(); //don't need to removeAll as this simply holds Space or Collectable instances
 	tasksInProgress = new ObjectGroup();
 	raiders.removeAll(true);
 	collectables.removeAll(true);
-	selectionRectObject = new RygameObject(0,0,0,0,null,gameLayer); //TODO: MAKE THIS A PROPER OBJECT AND MOVE THE SELECTION RECT CODE TO ITS UPDATE METHOD
 	selectionRectPointList = [];
 	selectionRectCoordList = [];
 	awaitingStart = true;
@@ -1207,6 +1201,7 @@ function initGlobals() {
 	keyboardPanning = true; //can you scroll the screen using the arrow keys?
 	debug = false; //should the game render any active debug info?
 	buildingPlacer = new BuildingPlacer();
+	selectionRectObject = new RygameObject(0,0,0,0,null,gameLayer);
 	tileSelectedGraphic = new TileSelectedGraphic();
 	
 	//some variables need to be given an initial value as resetting them is more complex; init them here

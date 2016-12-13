@@ -62,7 +62,6 @@ BuildingPlacer.prototype.rotate = function() {
 
 BuildingPlacer.prototype.start = function(type,keepDir) {
 	this.visible = true;
-	console.log("starting buildingPlacer. visible: " + this.visible + ", isHelper: " + this.isHelper);
 	if (type != null) {
 		this.buildingType = type;
 	}
@@ -79,12 +78,13 @@ BuildingPlacer.prototype.start = function(type,keepDir) {
 };
 
 BuildingPlacer.prototype.stop = function() {
-	this.visible = false;
-	while (this.children.length > 0) {
-		this.children[this.children.length - 1].die();
-		this.children.pop();
+	if (this.visible) {
+		this.visible = false;
+		while (this.children.length > 0) {
+			this.children[this.children.length - 1].die();
+			this.children.pop();
+		}
 	}
-	console.log("stopping buildingPlacer. visible: " + this.visible + ", isHelper: " + this.isHelper);
 };
 
 BuildingPlacer.prototype.positionValid = function(space) {
