@@ -1,4 +1,29 @@
 makeChild("Raider","RygameObject");
+Raider.prototype.chooseClosestBuilding = function(buildingList) {
+	//return the closest building from the list via pathfinding
+	var shortestPathLength = -1;
+	var shortestStartDistance = -1;
+	//var shortestPath = null;
+	var nearestBuilding = null;
+	
+	for (var i = 0; i < buildingList.length; ++i) {
+		var currentPath = findClosestStartPath(this,calculatePath(terrain,this.space,typeof buildingList[i].space == "undefined" ? buildingList[i]: buildingList[i].space,true));
+		if (currentPath == null || currentPath.length == 0) {
+			continue;
+		}
+		var currentLength = currentPath.length;
+		var currentStartDistance = getDistance(this.centerX,this.centerY,currentPath[currentPath.length-1].centerX(),currentPath[currentPath.length-1].centerY());
+		if (shortestPathLength == -1 || currentLength < shortestPathLength || currentLength == shortestPathLength && currentStartDistance < shortestStartDistance) {
+			//shortestPath = currentPath;
+			shortestPathLength = currentLength;
+			shortestStartDistance = currentStartDistance;
+			nearestBuilding = buildingList[i];
+		}
+	}
+	//console.log("found building with shortest path. path length: " + shortestPath.length);
+	return nearestBuilding;
+};
+
 Raider.prototype.checkChooseCloserEquivalentResource = function(removeCurrentTask) { //check if a closer equivalent resource is present; return true if switched tasks
 	var currentTaskType = this.getTaskType(this.currentTask); //TODO: consider using this function when getting resources from the toolstore as well
 	if (!(currentTaskType == "collect" && this.holding == null)) {
@@ -77,7 +102,7 @@ Raider.prototype.update = function() {
 	if ((selection.indexOf(this) != -1) && (this.currentTask == null)) { //don't start a new task if currently selected unless instructed to
 		return;
 	}
-	var destinationSite;
+	var destinationSites = null;
 	while (this.currentTask == null) { //pick a new task
 		if (this.holding != null) {
 			this.currentTask = this.holding;
@@ -94,16 +119,17 @@ Raider.prototype.update = function() {
 			}
 			this.currentObjective = this.currentTask;
 			if (this.getTaskType(this.currentTask) == "build") {
+				destinationSites = [];
 				destinationSite = null;
 				if (buildings.length > 0) {
-					for (var i = 0; i < buildings.length; i++) {
+					for (var i = 0; i < buildings.length; i++) { //compile all toolstores, then find closest one
 						if (buildings[i].type == "tool store" && buildings[i].touched == true) { //if its not touched yet it is not pathable so dont choose it (this case should be impossible though because buildings that start out in Fog are not added to the buildings list until they are touched)
-							destinationSite = buildings[i];
-							break;
+							destinationSites.push(buildings[i]);
 						}
 					}
 				}
-				if ((destinationSite != null)) {
+				if ((destinationSites.length > 0)) {
+					destinationSite = this.chooseClosestBuilding(destinationSites);
 					//loop through all potential resourceTypes and see if any of them is needed by the building site and exists in the stash
 					this.currentObjective = destinationSite;
 					var dedicatedResourceTypes = Object.getOwnPropertyNames(this.currentTask.dedicatedResources); //TODO: THIS IS COPIED FROM THE RESOURCENEEDED METHOD, AND SHOULD BE PUT IN ITS OWN SUBMETHOD AS IT IS REPEAT CODE
@@ -418,6 +444,7 @@ Raider.prototype.update = function() {
 							}
 						}
 						if (this.currentTask.grabPercent >= 100) {
+							destinationSites = [];
 							destinationSite = null;
 							if (buildingSites.length > 0) {
 								for (var i = 0; i < buildingSites.length; i++) {
@@ -438,24 +465,24 @@ Raider.prototype.update = function() {
 												}
 											}
 										}
-										destinationSite = buildingSites[i];
-										break;
+										destinationSites.push(buildingSites[i]);
 									}
 								}
 							}
-							if (destinationSite != null) {
+							if (destinationSites.length > 0) {
+								destinationSite = this.chooseClosestBuilding(destinationSites);
 								this.currentObjective = destinationSite;
 							}
 							else {
 								if (buildings.length > 0) {
 									for (var i = 0; i < buildings.length; i++) {
 										if (buildings[i].type == "tool store") {
-											destinationSite = buildings[i];
-											break;
+											destinationSites.push(buildings[i]);
 										}
 									}
 								}
-								if (destinationSite != null) {
+								if (destinationSites.length > 0) {
+									destinationSite = this.chooseClosestBuilding(destinationSites);
 									this.currentObjective = destinationSite;
 								}
 								else {
