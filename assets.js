@@ -31,7 +31,9 @@ object = {
           //buildings
           ["img", "images", "teleport pad 1 (1).png"], //teleport pad
           ["img", "images", "tool store 1 (1).png"], //tool store
-          ["img", "images", "power station 1 (1).png"], //power station
+          ["img", "images", "power station topLeft 1 (1).png"], //top-left image for power station
+          ["img", "images", "power station topRight 1 (1).png"], //top-right image for power station
+          ["img", "images", "power station powerPath 1 (1).png"], //bottom-right image for power station - power path with resource collection bin hanging over it
           
           //NPCs
           ["img", "images", "raider 1 (1).png"], //rock raider
@@ -53,6 +55,7 @@ object = {
           ["img", "images", "open building menu button 1 (1).png"], //button to open up the building menu
           ["img", "images", "ToolStation.png"], //button to select to build tool store from building menu
           ["img", "images", "SMteleport.png"], //button to select to build teleport pad from building menu
+          ["img", "images", "PowerStation.png"], //button to select to build power station from building menu
           
           //effects
           ["img", "images", "landslide 1 (1).png"], //image that appears during a landslide

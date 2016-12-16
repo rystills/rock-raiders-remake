@@ -70,7 +70,11 @@ BuildingPlacer.prototype.start = function(type,keepDir) {
 	}
 	                                  
 	if (type == "tool store" || type == "teleport pad") {
-		this.children.push(new BuildingPlacer("power path",true,BuildingPlacer.dirOffsets[this.dir][0],BuildingPlacer.dirOffsets[this.dir][1]));
+		this.children.push(new BuildingPlacer("power path",true,BuildingPlacer.dirOffsets[this.dir][0][0],BuildingPlacer.dirOffsets[this.dir][0][1]));
+	}
+	else if (type == "power station") {
+		this.children.push(new BuildingPlacer("power station topRight",true,BuildingPlacer.dirOffsets[this.dir][0][0],BuildingPlacer.dirOffsets[this.dir][0][1]));
+		this.children.push(new BuildingPlacer("power station powerPath",true,BuildingPlacer.dirOffsets[this.dir][1][0],BuildingPlacer.dirOffsets[this.dir][1][1]));
 	}
 	for (var i = 0; i < this.children.length; ++i) {
 		this.children[i].start();
@@ -120,7 +124,7 @@ BuildingPlacer.prototype.updatePosition = function() {
 };
 
 BuildingPlacer.prototype.placeBuilding = function(space) {
-	if (this.buildingType == "power path") {
+	if (this.buildingType == "power path" || this.buildingType == "power station powerPath") {
 		space.setTypeProperties(this.buildingType,null,null,null,null,null,(this.dir*90 - 90 + (this.dir % 2 == 1 ? 180 : 0)) * (Math.PI / 180));
 	}
 	else {
@@ -171,7 +175,7 @@ function BuildingPlacer(buildingType,isHelper,xOffset,yOffset) {
 
 //how each direction alters x,y coordinate placement
 BuildingPlacer.dirOffsets = [];
-BuildingPlacer.dirOffsets.push([1,0]);
-BuildingPlacer.dirOffsets.push([0,-1]);
-BuildingPlacer.dirOffsets.push([-1,0]);
-BuildingPlacer.dirOffsets.push([0,1]);
+BuildingPlacer.dirOffsets.push([[1,0],[1,1]]);
+BuildingPlacer.dirOffsets.push([[0,-1],[1,-1]]);
+BuildingPlacer.dirOffsets.push([[-1,0],[-1,-1]]);
+BuildingPlacer.dirOffsets.push([[0,1],[-1,1]]);

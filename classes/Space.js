@@ -131,6 +131,12 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 		else if (this.buildingSiteType == "teleport pad") {
 			requiredResources = {"ore":10,"crystal":1}; 
 		}
+		else if (this.buildingSiteType == "power station") {
+			requiredResources = {"ore":7,"crystal":1};
+		}
+		else if (this.buildingSiteType == "power station topRight") {
+			requiredResources = {"ore":8,"crystal":1};
+		}
 	}
 	this.type = type;
 	this.speedModifier = 1;
@@ -153,8 +159,8 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 		this.image = "SlimySlugHole.jpg";
 		this.walkable = true;
 	}
-	else if (type == "power path") {
-		this.image = "power path 1 (1).png";
+	else if (type == "power path" || type == "power station powerPath") {
+		this.image = (type == "power station powerPath" ? "power station powerPath 1 (1).png" : "power path 1 (1).png");
 		this.walkable = true;
 		this.speedModifier = 1.5;
 	}
@@ -216,6 +222,16 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 	}
 	else if (type == "teleport pad") {
 		this.image = "teleport pad 1 (1).png";
+		this.isBuilding = true;
+		if (this.touched == true) {
+			var index = buildings.indexOf(this);
+			if (index == -1) {
+				buildings.push(this);
+			}
+		}
+	}
+	else if (type == "power station" || type == "power station topRight") {
+		this.image = (type == "power station" ? "power station topLeft 1 (1).png" : "power station topRight 1 (1).png");
 		this.isBuilding = true;
 		if (this.touched == true) {
 			var index = buildings.indexOf(this);
@@ -441,7 +457,8 @@ spaceTypes = {
 		'-3':"teleport pad",
 		'-101':"building site",
 		'-102':"building site",
-		'-103':"building site"
+		'-103':"building site",
+		'-104':"building site"
 		};
 
 function Space(type,listX,listY,height) {
@@ -457,6 +474,9 @@ function Space(type,listX,listY,height) {
 	}
 	else if (type == -103) {
 		this.buildingSiteType = "teleport pad"; 
+	}
+	else if (type == -104) {
+		this.buildingSiteType = "power station"; 
 	}
 	/*else { //TODO: DELETE THIS CASE ONCE ALL TERRAIN TYPES FROM THE ORIGINAL GAME HAVE A CORRESPONDING TYPE VALUE HERE
 		this.type = "power path";
