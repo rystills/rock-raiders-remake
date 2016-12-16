@@ -1,19 +1,18 @@
-//note that text files (such as levels or assets) should be stored in .js files and in variables rather than in text files, as text files cnanot be loaded from the machine without user interference due to safety restrictions
+//note that text files (such as levels or assets) should be stored in .js files and in variables rather than in text files, as text files cannot be loaded from the machine without user interference due to safety restrictions
 //currently no way to dynamically load / unload, will look into this later
 //load type (dir or file),file type (img, snd, or js),directory (blank = root),extension or file name (blank = all file types)
 //due to security concerns, javascript cannot search a dir for files, so load type is no longer a thing
 //sounds will always come in both mp4 and ogg form for browser compatibility, so don't need to specify extension here
 object = {
 		assets: [
-		  //globals
-          ["img", "images", "power path 1 (1).png"], //power path
+		  //~images~
+		  //collectables
           ["img", "images", "ore 1 (1).png"], //ore
           ["img", "images", "energy crystal 1 (1).png"], //energy crystal
-          ["img", "images", "teleport pad 1 (1).png"], //teleport pad
-          ["img", "images", "tool store 1 (1).png"], //tool store
-          ["img", "images", "raider 1 (1).png"], //rock raider
+          
+          //spaces
           ["img", "images", "ground 1 (1).png"], //ground
-          ["img", "images", "building site 1 (1).png"], //building site
+          ["img", "images", "power path 1 (1).png"], //power path
           ["img", "images", "lava 1 (1).png"], //lava
           ["img", "images", "water 1 (1).png"], //water
           ["img", "images", "energy crystal seam 1 (1).png"], //energy crystal seam
@@ -22,11 +21,22 @@ object = {
           ["img", "images", "dirt 1 (1).png"], //dirt
           ["img", "images", "loose rock 1 (1).png"], //loose rock
           ["img", "images", "hard rock 1 (1).png"], //hard rock
+          ["img", "images", "solid rock 1 (1).png"], //solid rock
           ["img", "images", "rubble 1 (1).png"], //rubble swept 0 times. 4 sweeps required to clear fully
           ["img", "images", "rubble 2 (1).png"], //rubble swept 1 time. 3 sweeps required to clear fully
           ["img", "images", "rubble 3 (1).png"], //rubble swept 2 times. 2 sweeps required to clear fully
           ["img", "images", "rubble 4 (1).png"], //rubble swept 3 times. 1 sweep required to clear fully
-          ["img", "images", "solid rock 1 (1).png"], //solid rock
+          ["img", "images", "building site 1 (1).png"], //building site
+          
+          //buildings
+          ["img", "images", "teleport pad 1 (1).png"], //teleport pad
+          ["img", "images", "tool store 1 (1).png"], //tool store
+          ["img", "images", "power station 1 (1).png"], //power station
+          
+          //NPCs
+          ["img", "images", "raider 1 (1).png"], //rock raider
+          
+          //buttons
           ["img", "images", "teleport raider button 1 (1).png"], //teleport rock raider button
           ["img", "images", "grab item button 1 (1).png"], //button to instruct a raider to pick up item (collectable, dynamite, etc..)
           ["img", "images", "drill wall button 1 (1).png"], //button to instruct a raider to drill a wall
@@ -43,7 +53,11 @@ object = {
           ["img", "images", "open building menu button 1 (1).png"], //button to open up the building menu
           ["img", "images", "ToolStation.png"], //button to select to build tool store from building menu
           ["img", "images", "SMteleport.png"], //button to select to build teleport pad from building menu
+          
+          //effects
           ["img", "images", "landslide 1 (1).png"], //image that appears during a landslide
+          
+          //~sounds~
           ["snd", "sounds", "Crystaldrop"], //drop crystal
           ["snd", "sounds", "Rockdrop"], //drop ore
           ["snd", "sounds", "drtdrillc"], //raider drill (drill any wall type)
@@ -56,10 +70,8 @@ object = {
           ["snd", "sounds", "score screen"], //score screen song
           ["snd", "sounds", "hurt1"], //raider hurt sound 1
           ["snd", "sounds", "lanslide"], //landslide sound
-          ["js", "levels", "test level 1.js"], //1st test level (deprecated)
-          ["js", "levels", "test level 2.js"], //2nd test level (deprecated)
-          ["js", "levels", "levelList.js"], //list of names of playable levels, to be used by the main menu for level selection
-          ["js", "levels", "objectiveText.js"], //list of objective, failure, completion, and crystalFailure messages for each level
+          
+          //~scripts~
           ["js", "classes", "Collectable.js"], //Collectable class
           ["js", "classes", "HealthBar.js"], //Health Bar class
           ["js", "classes", "Raider.js"], //Raider class
@@ -69,6 +81,14 @@ object = {
           ["js", "classes", "TileSelectedGraphic.js"], //simple class which shows the tile highlight graphic depending on selection
           ["js", "classes", "Task.js"], //Task class
           ["js", "classes", "MusicPlayer.js"], //Music Manager class
+          
+          //level data list files
+          ["js", "levels", "levelList.js"], //list of names of playable levels, to be used by the main menu for level selection
+          ["js", "levels", "objectiveText.js"], //list of objective, failure, completion, and crystalFailure messages for each level
+          
+          //test level files
+          ["js", "levels", "test level 1.js"], //1st test level (deprecated)
+          ["js", "levels", "test level 2.js"], //2nd test level (deprecated)          
           
           //level 1 files
           ["js", "levels", "Surf_01.js"], //terrain map file of first level from original game converted using map converter
@@ -101,6 +121,7 @@ object = {
           ["js", "levels", "Fall_03.js"], //fallin file of third level from original game converted using map converter
           ["js", "levels", "03.js"], //OL file of third level from original game converted using map converter
           
+          //core
           ["js", "", "rockRaiders.js"] //main game file (put last as this contains the main game loop)
           ]
 };
