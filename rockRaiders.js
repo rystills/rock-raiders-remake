@@ -897,10 +897,11 @@ function drawRaiderTasks() {
 }
 
 function drawBuildingSiteMaterials() {
-	GameManager.setFontSize(48);
+	GameManager.setFontSize(24);
 	GameManager.drawSurface.fillStyle = "rgb(165, 100, 255)";
 	for (var i = 0; i < buildingSites.length; i++) {
-		GameManager.drawText("Ore: " + buildingSites[i].placedResources["ore"] + "/" + buildingSites[i].requiredResources["ore"],buildingSites[i].centerX()-buildingSites[i].drawLayer.cameraX,buildingSites[i].y-buildingSites[i].drawLayer.cameraY,true);
+		//GameManager.drawText("Ore: " + buildingSites[i].placedResources["ore"] + "/" + buildingSites[i].requiredResources["ore"],buildingSites[i].centerX()-buildingSites[i].drawLayer.cameraX,buildingSites[i].y-buildingSites[i].drawLayer.cameraY,true);
+		GameManager.drawText(buildingSites[i].placedResources["ore"] + "/" + buildingSites[i].requiredResources["ore"] + ", " + buildingSites[i].placedResources["crystal"] + "/" + buildingSites[i].requiredResources["crystal"],buildingSites[i].centerX()-buildingSites[i].drawLayer.cameraX,buildingSites[i].y-buildingSites[i].drawLayer.cameraY,true);
 	}
 }
 
@@ -1200,7 +1201,7 @@ function initGlobals() {
 	maskUntouchedSpaces = true; //if true, this creates the "fog of war" type effect where unrevealed Spaces appear as solid rock (should only be set to false for debugging purposes)
 	mousePanning = false; //can you scroll the screen using the mouse?
 	keyboardPanning = true; //can you scroll the screen using the arrow keys?
-	debug = false; //should the game render any active debug info?
+	debug = true; //should the game render any active debug info?
 	buildingPlacer = new BuildingPlacer();
 	selectionRectObject = new RygameObject(0,0,0,0,null,gameLayer);
 	tileSelectedGraphic = new TileSelectedGraphic();

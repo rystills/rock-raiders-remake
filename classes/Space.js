@@ -2,6 +2,11 @@ makeChild("Space","RygameObject");
 Space.prototype.makeFloor = function() {
 	this.setTypeProperties("ground",this.image == "ground 1 (1).png");
 };
+
+Space.prototype.toString = function() {
+	return "Space [" + this.x + ", " + this.y + "]";
+};
+
 Space.prototype.makeRubble = function(rubbleContainsOre,drilledBy) {
 	if (drilledBy != null) {
 		this.completedBy = drilledBy;
