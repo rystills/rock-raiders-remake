@@ -304,6 +304,9 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 		this.changeImage(this.image);
 		
 	}
+	if (type == "building site") {
+		this.updatePlacedResources(); //if building site requires no resources or started with all required resources, build immediately
+	}
 };
 Space.prototype.updateTouched = function(touched) { //if this space has not yet been revealed then we want it to appear as solid rock, but we leave this.image alone to keep track of its actual image. this might be cheating intended engine use a little bit but thats ok
 	this.touched = touched;
@@ -378,7 +381,9 @@ Space.prototype.resourceNeeded = function(resourceType) {
 	return false;
 };
 Space.prototype.updatePlacedResources = function(resourceType) {
-	this.placedResources[resourceType]++;
+	if (resourceType) {
+		this.placedResources[resourceType]++;
+	}
 	if (this.allResourcesPlaced()) {
 		//console.log("all resources placed");
 		this.setTypeProperties(this.buildingSiteType);

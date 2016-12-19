@@ -78,6 +78,7 @@ BuildingPlacer.prototype.start = function(type,keepDir) {
 	}
 	for (var i = 0; i < this.children.length; ++i) {
 		this.children[i].start();
+		this.children[i].dir = this.dir;
 	}
 };
 
