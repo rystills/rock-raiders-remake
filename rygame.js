@@ -681,8 +681,8 @@ Button.prototype.updateText = function(newText,clearFirst) {
 	
 	//create brightened and darkened version of drawSurface
 	this.normalSurface = this.drawSurface;
-	this.brightenedSurface = this.drawSurface == null ? null : updateBrightness(this.normalSurface,brightnessShiftPercent);
-	this.darkenedSurface = this.drawSurface == null ? null : updateBrightness(this.normalSurface,-brightnessShiftPercent);
+	this.brightenedSurface = this.drawSurface == null ? null : this.image == null ? createContext(this.normalSurface.canvas.width,this.normalSurface.canvas.height) : updateBrightness(this.normalSurface,brightnessShiftPercent);
+	this.darkenedSurface = this.drawSurface == null ? null : this.image == null ? createContext(this.normalSurface.canvas.width,this.normalSurface.canvas.height) : updateBrightness(this.normalSurface,-brightnessShiftPercent);
 
 	this.text = newText;
 	if (this.text != "") {
@@ -694,9 +694,9 @@ Button.prototype.updateText = function(newText,clearFirst) {
 			this.darkenedSurface = createContext(0,0,false); 
 		}
 		var drawSurfaces = [this.darkenedSurface,this.normalSurface,this.brightenedSurface]; 
-		var baseR = 0;
-		var baseG = 245;
-		var baseB = 0;
+		var baseR = this.textColor[0];
+		var baseG = this.textColor[1];
+		var baseB = this.textColor[2];
 		for (var i = 0; i < 3; ++i) {
 			
 			drawSurfaces[i].font = "32px " + GameManager.fontName;
@@ -731,7 +731,7 @@ Button.prototype.updateText = function(newText,clearFirst) {
 	}
 };
 
-function Button(x,y,updateDepth,drawDepth,image,layer,text,runMethod,affectedByCamera,renderAutomatically,selectionTypeBound,openMenuBound,optionalArgs,clickable,updateAutomatically) { //TODO: MODIFY BUTTON CLASS TO OPERATE LARGELY THE SAME AS THE RYGAME PYTHON EDITION BUTTON CLASS
+function Button(x,y,updateDepth,drawDepth,image,layer,text,runMethod,affectedByCamera,renderAutomatically,selectionTypeBound,openMenuBound,optionalArgs,clickable,updateAutomatically,textColor) { //TODO: MODIFY BUTTON CLASS TO OPERATE LARGELY THE SAME AS THE RYGAME PYTHON EDITION BUTTON CLASS
 	if (updateAutomatically == null) {
 		updateAutomatically = false; //default to false rather than true for now, as current buttons expect this functionality
 	}
@@ -743,6 +743,7 @@ function Button(x,y,updateDepth,drawDepth,image,layer,text,runMethod,affectedByC
 	this.openMenuBound = openMenuBound;
 	this.optionalArgs = optionalArgs;
 	this.clickable = (clickable == null ? true : clickable);
+	this.textColor = (textColor == null ? [0,245,0] : textColor); //set default text color to an almost pure green
 	if (this.optionalArgs == null) {
 		this.optionalArgs = [];
 	}	
@@ -967,5 +968,9 @@ function updateBrightness(oldContext,brightnessPercent,operateInPlace) {
 	newContext.globalAlpha = brightnessPercent;
 	newContext.fillStyle = brightnessPercent >= 0 ? 'rgba(225,225,225,' + (brightnessPercent*.01) + ')' : 'rgba(0,0,0,' + (-1*(brightnessPercent*.01)) + ')';
 	newContext.fillRect(0,0,newContext.canvas.width,newContext.canvas.height);
+	
+	//set context vars back when we are done
+	newContext.globalAlpha = oldContext.globalAlpha;
+	newContext.fillStype = oldContext.fillStyle;
 	return newContext;
 }

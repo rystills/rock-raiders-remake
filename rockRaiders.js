@@ -1103,6 +1103,18 @@ function createMenuButtons() {
 		menuButtons.push(new Button(20,yPos,0,0,null,menuLayer,GameManager.scriptObjects["Info_" + GameManager.scriptObjects["levelList.js"].levels[i] + ".js"].name + (score >= 0 ? " - best score: " + score : ""),resetLevelVars,false,true,null,null,[GameManager.scriptObjects["levelList.js"].levels[i]]));
 		yPos += 40;
 	}
+	
+	yPos = 20;
+	menuButtons.push(new Button(540,yPos,0,0,null,menuLayer,"Options:",null,false,true,null,null,[],false,false,[0,220,245]));
+	yPos += 40;
+	menuButtons.push(new Button(540,yPos,0,0,null,menuLayer,"Edge Panning" + (mousePanning ?  " ✓" : " X"),toggleEdgePanning,false,true,null,null,[menuButtons.objectList.length],true,false,[0,220,245]));
+}
+
+//toggle the global setting for whether or not the mouse may scroll the screen by pointing at the edges
+function toggleEdgePanning(buttonIndex) {
+	mousePanning = !mousePanning;
+	setValue("mousePanning", mousePanning);
+	menuButtons.objectList[buttonIndex].updateText("Edge Panning" + (mousePanning ?  " ✓" : " X"));
 }
 
 function returnToMainMenu() {
@@ -1173,6 +1185,14 @@ function getValue(name) {
 }
 
 function initGlobals() {
+	tileSize = 128;
+	scrollDistance = 1;
+	scrollSpeed = 20;
+	maskUntouchedSpaces = true; //if true, this creates the "fog of war" type effect where unrevealed Spaces appear as solid rock (should only be set to false for debugging purposes)
+	mousePanning = getValue("mousePanning") == "true" ? true : false; //can you scroll the screen using the mouse?
+	keyboardPanning = true; //can you scroll the screen using the arrow keys?
+	debug = true; //should the game render any active debug info?
+	
 	gameLayer = new Layer(0,0,1,1,GameManager.screenWidth,GameManager.screenHeight);
 	menuLayer = new Layer(0,0,1,1,GameManager.screenWidth,GameManager.screenHeight,true);
 	scoreScreenLayer = new Layer(0,0,1,1,GameManager.screenWidth,GameManager.screenHeight);
@@ -1195,13 +1215,6 @@ function initGlobals() {
 			"sweep":"shovel",
 			"drill":"drill"
 	};
-	tileSize = 128;
-	scrollDistance = 1;
-	scrollSpeed = 20;
-	maskUntouchedSpaces = true; //if true, this creates the "fog of war" type effect where unrevealed Spaces appear as solid rock (should only be set to false for debugging purposes)
-	mousePanning = false; //can you scroll the screen using the mouse?
-	keyboardPanning = true; //can you scroll the screen using the arrow keys?
-	debug = true; //should the game render any active debug info?
 	buildingPlacer = new BuildingPlacer();
 	selectionRectObject = new RygameObject(0,0,0,0,null,gameLayer);
 	tileSelectedGraphic = new TileSelectedGraphic();

@@ -163,7 +163,7 @@ function BuildingPlacer(buildingType,isHelper,xOffset,yOffset) {
 	this.invalidSurface = this.drawSurface;
 	this.validSurface = createContext(tileSize,tileSize,false);
 	this.validSurface.globalAlpha=.25;
-	this.validSurface.fillStyle = "rgb(0,255,0)";
+	this.validSurface.fillStyle = (buildingType == "power path" || buildingType == "power station powerPath" ? "rgb(200,255,0)" : "rgb(0,255,0)"); //color power paths yellowish
 	this.validSurface.fillRect(0,0,this.drawSurface.canvas.width,this.drawSurface.canvas.height); //green semi-transparent overlay
 	
 	this.visible = false;
