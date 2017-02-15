@@ -499,7 +499,7 @@ function checkUpdateClickSelection() {
 				}
 				if (spaceSelected != null) {
 					selection = [spaceSelected];
-					selectionType = spaceSelected.touched == true ? spaceSelected.type : "solid rock";
+					selectionType = spaceSelected.touched == true ? spaceSelected.type : "Hidden";
 				}
 			}
 		}
@@ -521,7 +521,7 @@ function checkUpdateSelectionType() {
 		return;
 	}
 	if (selection[0] instanceof Space) {
-		selectionType = selection[0].touched == true ? selection[0].type : "solid rock";
+		selectionType = selection[0].touched == true ? selection[0].type : "Hidden";
 	}
 }
 
@@ -911,7 +911,7 @@ function drawUI() {
 	GameManager.drawSurface.fillText("Ore: " + collectedResources["ore"],600,40);
 	GameManager.drawSurface.fillText("Energy Crystals: " + collectedResources["crystal"],341,100);
 	GameManager.setFontSize(36);
-	GameManager.drawSurface.fillText("Selection Type: " + selectionType + (selectionType == null ? "" : (" x " + selection.length)),8,592); //to be replaced with classic green selection rectangle	
+	GameManager.drawSurface.fillText("Selection Type: " + selectionType + (selectionType == null ? "" : selection.length == 1 ? "" : (" x " + selection.length)),8,592); //to be replaced with classic green selection rectangle	
 	
 	//don't draw buttons when buildingPlacer is active
 	if (!buildingPlacer.visible) {
@@ -1108,6 +1108,10 @@ function createMenuButtons() {
 	menuButtons.push(new Button(540,yPos,0,0,null,menuLayer,"Options:",null,false,true,null,null,[],false,false,[0,220,245]));
 	yPos += 40;
 	menuButtons.push(new Button(540,yPos,0,0,null,menuLayer,"Edge Panning" + (mousePanning ?  " ✓" : " X"),toggleEdgePanning,false,true,null,null,[menuButtons.objectList.length],true,false,[0,220,245]));
+	yPos += 40
+	menuButtons.push(new Button(540,yPos,0,0,null,menuLayer,"Debug Mode" + (debug ?  " ✓" : " X"),toggleDebugMode,false,true,null,null,[menuButtons.objectList.length],true,false,[0,220,245]));
+	yPos += 40
+	menuButtons.push(new Button(540,yPos,0,0,null,menuLayer,"Enable Fog" + (maskUntouchedSpaces ?  " ✓" : " X"),toggleFog,false,true,null,null,[menuButtons.objectList.length],true,false,[0,220,245]));
 }
 
 //toggle the global setting for whether or not the mouse may scroll the screen by pointing at the edges
@@ -1115,6 +1119,18 @@ function toggleEdgePanning(buttonIndex) {
 	mousePanning = !mousePanning;
 	setValue("mousePanning", mousePanning);
 	menuButtons.objectList[buttonIndex].updateText("Edge Panning" + (mousePanning ?  " ✓" : " X"));
+}
+
+function toggleDebugMode(buttonIndex) {
+	debug = !debug;
+	setValue("debug", debug);
+	menuButtons.objectList[buttonIndex].updateText("Debug Mode" + (debug ?  " ✓" : " X"));
+}
+
+function toggleFog(buttonIndex) {
+	maskUntouchedSpaces = !maskUntouchedSpaces;
+	setValue("fog",maskUntouchedSpaces);
+	menuButtons.objectList[buttonIndex].updateText("Enable Fog" + (maskUntouchedSpaces ?  " ✓" : " X"));
 }
 
 function returnToMainMenu() {
@@ -1188,10 +1204,10 @@ function initGlobals() {
 	tileSize = 128;
 	scrollDistance = 1;
 	scrollSpeed = 20;
-	maskUntouchedSpaces = true; //if true, this creates the "fog of war" type effect where unrevealed Spaces appear as solid rock (should only be set to false for debugging purposes)
+	maskUntouchedSpaces = getValue("fog") == "true" ? true : false; //if true, this creates the "fog of war" type effect where unrevealed Spaces appear as solid rock (should only be set to false for debugging purposes)
 	mousePanning = getValue("mousePanning") == "true" ? true : false; //can you scroll the screen using the mouse?
 	keyboardPanning = true; //can you scroll the screen using the arrow keys?
-	debug = true; //should the game render any active debug info?
+	debug = getValue("debug") == "true" ? true : false; //should the game render any active debug info?
 	
 	gameLayer = new Layer(0,0,1,1,GameManager.screenWidth,GameManager.screenHeight);
 	menuLayer = new Layer(0,0,1,1,GameManager.screenWidth,GameManager.screenHeight,true);
