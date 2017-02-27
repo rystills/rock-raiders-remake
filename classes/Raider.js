@@ -449,22 +449,6 @@ Raider.prototype.update = function() {
 							if (buildingSites.length > 0) {
 								for (var i = 0; i < buildingSites.length; i++) {
 									if (buildingSites[i].resourceNeeded(this.holding.type)) {
-										//adjust dedicated resource number because we have elected to take our resource to this building site rather than to the tool store, but dont update building's list of secured resources until we actually get there and drop off the resource
-										buildingSites[i].dedicatedResources[this.holding.type]++;
-										this.dedicatingResource = true;
-										if (!buildingSites[i].resourceNeeded()) {
-											var newIndex = tasksAvailable.indexOf(buildingSites[i]);
-											//tasksAvailable.remove(buildingSites[i]);
-											if (newIndex != -1) { //the build task may be in tasksUnavailable if there are not currently any resources available to work with
-												tasksAvailable.splice(newIndex, 1);
-											}
-											else {
-												newIndex = tasksUnavailable.objectList.indexOf(buildingSites[i]);
-												if (newIndex != -1) { //this is just an extra precaution; this case should never be false
-													tasksUnavailable.objectList.splice(newIndex, 1);
-												}
-											}
-										}
 										destinationSites.push(buildingSites[i]);
 									}
 								}
@@ -472,6 +456,22 @@ Raider.prototype.update = function() {
 							if (destinationSites.length > 0) {
 								destinationSite = this.chooseClosestBuilding(destinationSites);
 								this.currentObjective = destinationSite;
+								//adjust dedicated resource number because we have elected to take our resource to this building site rather than to the tool store, but dont update building's list of secured resources until we actually get there and drop off the resource
+								destinationSite.dedicatedResources[this.holding.type]++;
+								this.dedicatingResource = true;
+								if (!destinationSite.resourceNeeded()) {
+									var newIndex = tasksAvailable.indexOf(destinationSite);
+									//tasksAvailable.remove(buildingSites[i]);
+									if (newIndex != -1) { //the build task may be in tasksUnavailable if there are not currently any resources available to work with
+										tasksAvailable.splice(newIndex, 1);
+									}
+									else {
+										newIndex = tasksUnavailable.objectList.indexOf(destinationSite);
+										if (newIndex != -1) { //this is just an extra precaution; this case should never be false
+											tasksUnavailable.objectList.splice(newIndex, 1);
+										}
+									}
+								}
 							}
 							else {
 								if (buildings.length > 0) {
