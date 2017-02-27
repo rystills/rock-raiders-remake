@@ -137,10 +137,16 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 			requiredResources = {"ore":10,"crystal":1}; 
 		}
 		else if (this.buildingSiteType == "power station") {
-			requiredResources = {"ore":7,"crystal":1};
+			requiredResources = {"ore":8,"crystal":1};
 		}
 		else if (this.buildingSiteType == "power station topRight") {
-			requiredResources = {"ore":8,"crystal":1};
+			requiredResources = {"ore":7,"crystal":1};
+		}
+		else if (this.buildingSiteType == "geological center") {
+			requiredResources = {"ore":8,"crystal":2};
+		}
+		else if (this.buildingSiteType == "geological center right") {
+			requiredResources = {"ore":7,"crystal":1};
 		}
 	}
 	this.type = type;
@@ -245,6 +251,18 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 			}
 		}
 	}
+	
+	else if (type == "geological center" || type == "geological center right") {
+		this.image = (type == "geological center" ? "geological center left 1 (1).png" : "geological center right 1 (1).png");
+		this.isBuilding = true;
+		if (this.touched == true) {
+			var index = buildings.indexOf(this);
+			if (index == -1) {
+				buildings.push(this);
+			}
+		}
+	}
+	
 	else if (type == "tool store") {
 		this.image = "tool store 1 (1).png";
 		this.isBuilding = true;
@@ -487,6 +505,9 @@ function Space(type,listX,listY,height) {
 	}
 	else if (type == -104) {
 		this.buildingSiteType = "power station"; 
+	}
+	else if (type == -105) {
+		this.buildingSiteType = "geological center"; 
 	}
 	/*else { //TODO: DELETE THIS CASE ONCE ALL TERRAIN TYPES FROM THE ORIGINAL GAME HAVE A CORRESPONDING TYPE VALUE HERE
 		this.type = "power path";

@@ -34,6 +34,8 @@ object = {
           ["img", "images", "power station topLeft 1 (1).png"], //top-left image for power station
           ["img", "images", "power station topRight 1 (1).png"], //top-right image for power station
           ["img", "images", "power station powerPath 1 (1).png"], //bottom-right image for power station - power path with resource collection bin hanging over it
+          ["img", "images", "geological center left 1 (1).png"], //left image for geological center
+          ["img", "images", "geological center right 1 (1).png"], //left image for geological center
           
           //NPCs
           ["img", "images", "raider 1 (1).png"], //rock raider

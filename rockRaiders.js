@@ -1092,7 +1092,7 @@ function createButtons() {
 	buttons.push(new Button(86,0,0,0,"clear rubble button 1 (1).png",gameLayer,"", clearRubble,false,false,["rubble 1","rubble 2","rubble 3","rubble 4"]));
 	
 	//building selection buttons
-	buttons.push(new Button(86,0,0,0,"upgrade button 1 (1).png",gameLayer,"", upgradeBuilding,false,false,["tool store"]));
+	buttons.push(new Button(86,0,0,0,"upgrade button 1 (1).png",gameLayer,"", upgradeBuilding,false,false,["tool store", "teleport pad", "power station", "geological center"]));
 	
 	pauseButtons.push(new Button(20,200,0,0,null,gameLayer,"Return to Main Menu", returnToMainMenu,false,false));
 	
@@ -1169,7 +1169,7 @@ function resetLevelVars(name) {
 	menuLayer.active = false;
 	gameLayer.active = true;
 	musicPlayer.changeLevels();
-	collectedResources = {"ore":0,"crystal":0};
+	collectedResources = {"ore":20,"crystal":3};
 	reservedResources = {"ore":0,"crystal":0};
 	selectionRectCoords = {x1:null,y1:null};
 	selection = [];

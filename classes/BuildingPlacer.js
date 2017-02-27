@@ -76,6 +76,9 @@ BuildingPlacer.prototype.start = function(type,keepDir) {
 		this.children.push(new BuildingPlacer("power station topRight",true,BuildingPlacer.dirOffsets[this.dir][0][0],BuildingPlacer.dirOffsets[this.dir][0][1]));
 		this.children.push(new BuildingPlacer("power station powerPath",true,BuildingPlacer.dirOffsets[this.dir][1][0],BuildingPlacer.dirOffsets[this.dir][1][1]));
 	}
+	else if (type == "geological center") {
+		this.children.push(new BuildingPlacer("geological center right",true,BuildingPlacer.dirOffsets[this.dir][0][0],BuildingPlacer.dirOffsets[this.dir][0][1]));
+	}
 	for (var i = 0; i < this.children.length; ++i) {
 		this.children[i].start();
 		this.children[i].dir = this.dir;
