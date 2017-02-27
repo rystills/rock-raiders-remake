@@ -36,6 +36,7 @@ object = {
           ["img", "images", "power station powerPath 1 (1).png"], //bottom-right image for power station - power path with resource collection bin hanging over it
           ["img", "images", "geological center left 1 (1).png"], //left image for geological center
           ["img", "images", "geological center right 1 (1).png"], //left image for geological center
+          ["img", "images", "docks 1 (1).png"], //docks
           
           //NPCs
           ["img", "images", "raider 1 (1).png"], //rock raider
@@ -59,7 +60,7 @@ object = {
           //building buttons
           ["img", "images", "ToolStation.png"], //button to select to build tool store from building menu
           ["img", "images", "SMteleport.png"], //button to select to build teleport pad from building menu
-          ["img", "images", "dock.png"], //button to select to build dock from building menu
+          ["img", "images", "docks.png"], //button to select to build docks from building menu
           ["img", "images", "PowerStation.png"], //button to select to build power station from building menu
           ["img", "images", "barracks.png"], //button to select to build support station from building menu
           ["img", "images", "Upgrade.png"], //button to select to build upgrade station from building menu

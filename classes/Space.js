@@ -148,6 +148,9 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 		else if (this.buildingSiteType == "geological center right") {
 			requiredResources = {"ore":7,"crystal":1};
 		}
+		else if (this.buildingSiteType == "docks") {
+			requiredResources = {"ore":8,"crystal":1};
+		}
 	}
 	this.type = type;
 	this.speedModifier = 1;
@@ -233,6 +236,16 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 	}
 	else if (type == "teleport pad") {
 		this.image = "teleport pad 1 (1).png";
+		this.isBuilding = true;
+		if (this.touched == true) {
+			var index = buildings.indexOf(this);
+			if (index == -1) {
+				buildings.push(this);
+			}
+		}
+	}
+	else if (type == "docks") {
+		this.image = "docks 1 (1).png";
 		this.isBuilding = true;
 		if (this.touched == true) {
 			var index = buildings.indexOf(this);

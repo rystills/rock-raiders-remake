@@ -1060,7 +1060,7 @@ function createButtons() {
 	//building menu open buttons
 	buttons.push(new Button(46,40,0,0,"ToolStation.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["tool store"]));
 	buttons.push(new Button(46,80,0,0,"SMteleport.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["teleport pad"]));
-	buttons.push(new Button(46,120,0,0,"dock.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["docks"]));
+	buttons.push(new Button(46,120,0,0,"docks.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["docks"]));
 	buttons.push(new Button(46,160,0,0,"PowerStation.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["power station"]));
 	buttons.push(new Button(46,200,0,0,"barracks.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["support station"]));
 	buttons.push(new Button(46,240,0,0,"Upgrade.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["upgrade station"]));
@@ -1092,7 +1092,7 @@ function createButtons() {
 	buttons.push(new Button(86,0,0,0,"clear rubble button 1 (1).png",gameLayer,"", clearRubble,false,false,["rubble 1","rubble 2","rubble 3","rubble 4"]));
 	
 	//building selection buttons
-	buttons.push(new Button(86,0,0,0,"upgrade button 1 (1).png",gameLayer,"", upgradeBuilding,false,false,["tool store", "teleport pad", "power station", "geological center"]));
+	buttons.push(new Button(86,0,0,0,"upgrade button 1 (1).png",gameLayer,"", upgradeBuilding,false,false,["tool store", "teleport pad", "power station", "docks", "geological center", "support station", "super teleport", "mining laser", "upgrade station", "ore refinery"]));
 	
 	pauseButtons.push(new Button(20,200,0,0,null,gameLayer,"Return to Main Menu", returnToMainMenu,false,false));
 	
