@@ -1060,7 +1060,14 @@ function createButtons() {
 	//building menu open buttons
 	buttons.push(new Button(46,40,0,0,"ToolStation.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["tool store"]));
 	buttons.push(new Button(46,80,0,0,"SMteleport.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["teleport pad"]));
-	buttons.push(new Button(46,120,0,0,"PowerStation.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["power station"]));
+	buttons.push(new Button(46,120,0,0,"dock.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["docks"]));
+	buttons.push(new Button(46,160,0,0,"PowerStation.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["power station"]));
+	buttons.push(new Button(46,200,0,0,"barracks.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["support station"]));
+	buttons.push(new Button(46,240,0,0,"Upgrade.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["upgrade station"]));
+	buttons.push(new Button(46,280,0,0,"Geo.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["geological center"]));
+	buttons.push(new Button(46,320,0,0,"Orerefinery.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["ore refinery"]));
+	buttons.push(new Button(46,360,0,0,"Gunstation.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["mining laser"]));
+	buttons.push(new Button(46,400,0,0,"LargeTeleporter.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["super teleport"]));
 	
 	//raider selected buttons
 	buttons.push(new Button(86,0,0,0,"unload minifig button 1 (1).png",gameLayer,"", unloadMinifig,false,false,["raider"]));

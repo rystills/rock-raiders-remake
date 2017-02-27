@@ -53,9 +53,18 @@ object = {
           ["img", "images", "upgrade button 1 (1).png"], //button to upgrade a raider or building
           ["img", "images", "get_Hammer.png"], //button to instruct a raider to get a hammer from the nearest toolstore
           ["img", "images", "open building menu button 1 (1).png"], //button to open up the building menu
+          
+          //building buttons
           ["img", "images", "ToolStation.png"], //button to select to build tool store from building menu
           ["img", "images", "SMteleport.png"], //button to select to build teleport pad from building menu
+          ["img", "images", "dock.png"], //button to select to build dock from building menu
           ["img", "images", "PowerStation.png"], //button to select to build power station from building menu
+          ["img", "images", "barracks.png"], //button to select to build support station from building menu
+          ["img", "images", "Upgrade.png"], //button to select to build upgrade station from building menu
+          ["img", "images", "Geo.png"], //button to select to build geological center from building menu
+          ["img", "images", "Orerefinery.png"], //button to select to build ore refinery from building menu
+          ["img", "images", "Gunstation.png"], //button to select to build mining laser from building menu
+          ["img", "images", "LargeTeleporter.png"], //button to select to build super teleport from building menu
           
           //effects
           ["img", "images", "landslide 1 (1).png"], //image that appears during a landslide
