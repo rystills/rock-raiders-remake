@@ -37,6 +37,9 @@ object = {
           ["img", "images", "geological center left 1 (1).png"], //left image for geological center
           ["img", "images", "geological center right 1 (1).png"], //left image for geological center
           ["img", "images", "docks 1 (1).png"], //docks
+          ["img", "images", "support station 1 (1).png"], //support station
+          ["img", "images", "upgrade station left 1 (1).png"], //left image for upgrade station
+          ["img", "images", "upgrade station right 1 (1).png"], //left image for upgrade station
           
           //NPCs
           ["img", "images", "raider 1 (1).png"], //rock raider

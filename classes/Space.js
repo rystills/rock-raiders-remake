@@ -151,6 +151,15 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 		else if (this.buildingSiteType == "docks") {
 			requiredResources = {"ore":8,"crystal":1};
 		}
+		else if (this.buildingSiteType == "support station") {
+			requiredResources = {"ore":15,"crystal":3};
+		}
+		else if (this.buildingSiteType == "upgrade station") {
+			requiredResources = {"ore":10,"crystal":2};
+		}
+		else if (this.buildingSiteType == "upgrade station right") {
+			requiredResources = {"ore":10,"crystal":1};
+		}
 	}
 	this.type = type;
 	this.speedModifier = 1;
@@ -254,6 +263,16 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 			}
 		}
 	}
+	else if (type == "support station") {
+		this.image = "support station 1 (1).png";
+		this.isBuilding = true;
+		if (this.touched == true) {
+			var index = buildings.indexOf(this);
+			if (index == -1) {
+				buildings.push(this);
+			}
+		}
+	}
 	else if (type == "power station" || type == "power station topRight") {
 		this.image = (type == "power station" ? "power station topLeft 1 (1).png" : "power station topRight 1 (1).png");
 		this.isBuilding = true;
@@ -267,6 +286,17 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 	
 	else if (type == "geological center" || type == "geological center right") {
 		this.image = (type == "geological center" ? "geological center left 1 (1).png" : "geological center right 1 (1).png");
+		this.isBuilding = true;
+		if (this.touched == true) {
+			var index = buildings.indexOf(this);
+			if (index == -1) {
+				buildings.push(this);
+			}
+		}
+	}
+	
+	else if (type == "upgrade station" || type == "upgrade station right") {
+		this.image = (type == "upgrade station" ? "upgrade station left 1 (1).png" : "upgrade station right 1 (1).png");
 		this.isBuilding = true;
 		if (this.touched == true) {
 			var index = buildings.indexOf(this);

@@ -69,7 +69,7 @@ BuildingPlacer.prototype.start = function(type,keepDir) {
 		this.dir = 0;
 	}
 	                                  
-	if (type == "tool store" || type == "teleport pad" || type == "docks") {
+	if (type == "tool store" || type == "teleport pad" || type == "docks" || type == "support station") {
 		this.children.push(new BuildingPlacer("power path",true,BuildingPlacer.dirOffsets[this.dir][0][0],BuildingPlacer.dirOffsets[this.dir][0][1]));
 	}
 	else if (type == "power station") {
@@ -78,6 +78,9 @@ BuildingPlacer.prototype.start = function(type,keepDir) {
 	}
 	else if (type == "geological center") {
 		this.children.push(new BuildingPlacer("geological center right",true,BuildingPlacer.dirOffsets[this.dir][0][0],BuildingPlacer.dirOffsets[this.dir][0][1]));
+	}
+	else if (type == "upgrade station") {
+		this.children.push(new BuildingPlacer("upgrade station right",true,BuildingPlacer.dirOffsets[this.dir][0][0],BuildingPlacer.dirOffsets[this.dir][0][1]));
 	}
 	for (var i = 0; i < this.children.length; ++i) {
 		this.children[i].start();
