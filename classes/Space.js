@@ -160,6 +160,12 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 		else if (this.buildingSiteType == "upgrade station right") {
 			requiredResources = {"ore":10,"crystal":1};
 		}
+		else if (this.buildingSiteType == "ore refinery") {
+			requiredResources = {"ore":10,"crystal":2};
+		}
+		else if (this.buildingSiteType == "ore refinery right") {
+			requiredResources = {"ore":10,"crystal":1};
+		}
 	}
 	this.type = type;
 	this.speedModifier = 1;
@@ -297,6 +303,17 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 	
 	else if (type == "upgrade station" || type == "upgrade station right") {
 		this.image = (type == "upgrade station" ? "upgrade station left 1 (1).png" : "upgrade station right 1 (1).png");
+		this.isBuilding = true;
+		if (this.touched == true) {
+			var index = buildings.indexOf(this);
+			if (index == -1) {
+				buildings.push(this);
+			}
+		}
+	}
+	
+	else if (type == "ore refinery" || type == "ore refinery right") {
+		this.image = (type == "ore refinery" ? "ore refinery left 1 (1).png" : "ore refinery right 1 (1).png");
 		this.isBuilding = true;
 		if (this.touched == true) {
 			var index = buildings.indexOf(this);

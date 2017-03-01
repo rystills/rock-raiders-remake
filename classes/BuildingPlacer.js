@@ -76,6 +76,10 @@ BuildingPlacer.prototype.start = function(type,keepDir) {
 		this.children.push(new BuildingPlacer("power station topRight",true,BuildingPlacer.dirOffsets[this.dir][0][0],BuildingPlacer.dirOffsets[this.dir][0][1]));
 		this.children.push(new BuildingPlacer("power station powerPath",true,BuildingPlacer.dirOffsets[this.dir][1][0],BuildingPlacer.dirOffsets[this.dir][1][1]));
 	}
+	else if (type == "ore refinery") {
+		this.children.push(new BuildingPlacer("ore refinery right",true,BuildingPlacer.dirOffsets[this.dir][0][0],BuildingPlacer.dirOffsets[this.dir][0][1]));
+		this.children.push(new BuildingPlacer("power path",true,BuildingPlacer.dirOffsets[this.dir][2][0],BuildingPlacer.dirOffsets[this.dir][2][1]));
+	}
 	else if (type == "geological center") {
 		this.children.push(new BuildingPlacer("geological center right",true,BuildingPlacer.dirOffsets[this.dir][0][0],BuildingPlacer.dirOffsets[this.dir][0][1]));
 	}
@@ -180,9 +184,9 @@ function BuildingPlacer(buildingType,isHelper,xOffset,yOffset) {
 	this.holdingRKey = false;
 }
 
-//how each direction alters x,y coordinate placement
+//how each direction alters y,x coordinate placement
 BuildingPlacer.dirOffsets = [];
-BuildingPlacer.dirOffsets.push([[1,0],[1,1]]);
-BuildingPlacer.dirOffsets.push([[0,-1],[1,-1]]);
-BuildingPlacer.dirOffsets.push([[-1,0],[-1,-1]]);
-BuildingPlacer.dirOffsets.push([[0,1],[-1,1]]);
+BuildingPlacer.dirOffsets.push([[1,0],[1,1],[2,0]]);
+BuildingPlacer.dirOffsets.push([[0,-1],[1,-1],[0,-2]]);
+BuildingPlacer.dirOffsets.push([[-1,0],[-1,-1],[-2,0]]);
+BuildingPlacer.dirOffsets.push([[0,1],[-1,1],[0,2]]);
