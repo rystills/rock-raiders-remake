@@ -44,6 +44,8 @@ object = {
           ["img", "images", "ore refinery right 1 (1).png"], //right image for ore refinery
           ["img", "images", "mining laser left 1 (1).png"], //left image for mining laser
           ["img", "images", "mining laser right 1 (1).png"], //right image for mining laser
+          ["img", "images", "super teleport topLeft 1 (1).png"], //top-left image for super teleport
+          ["img", "images", "super teleport topRight 1 (1).png"], //top-right image for super teleport
           
           //NPCs
           ["img", "images", "raider 1 (1).png"], //rock raider

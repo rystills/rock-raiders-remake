@@ -172,6 +172,12 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 		else if (this.buildingSiteType == "mining laser right") {
 			requiredResources = {"ore":7,"crystal":0};
 		}
+		else if (this.buildingSiteType == "super teleport") {
+			requiredResources = {"ore":10,"crystal":2};
+		}
+		else if (this.buildingSiteType == "super teleport topRight") {
+			requiredResources = {"ore":10,"crystal":1};
+		}
 	}
 	this.type = type;
 	this.speedModifier = 1;
@@ -331,6 +337,17 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 	
 	else if (type == "mining laser" || type == "mining laser right") {
 		this.image = (type == "mining laser" ? "mining laser left 1 (1).png" : "mining laser right 1 (1).png");
+		this.isBuilding = true;
+		if (this.touched == true) {
+			var index = buildings.indexOf(this);
+			if (index == -1) {
+				buildings.push(this);
+			}
+		}
+	}
+	
+	else if (type == "super teleport" || type == "super teleport topRight") {
+		this.image = (type == "super teleport" ? "super teleport topLeft 1 (1).png" : "super teleport topRight 1 (1).png");
 		this.isBuilding = true;
 		if (this.touched == true) {
 			var index = buildings.indexOf(this);

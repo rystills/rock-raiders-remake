@@ -89,6 +89,11 @@ BuildingPlacer.prototype.start = function(type,keepDir) {
 	else if (type == "upgrade station") {
 		this.children.push(new BuildingPlacer("upgrade station right",true,BuildingPlacer.dirOffsets[this.dir][0][0],BuildingPlacer.dirOffsets[this.dir][0][1]));
 	}
+	else if (type == "super teleport") {
+		this.children.push(new BuildingPlacer("super teleport topRight",true,BuildingPlacer.dirOffsets[this.dir][0][0],BuildingPlacer.dirOffsets[this.dir][0][1]));
+		this.children.push(new BuildingPlacer("power path",true,BuildingPlacer.dirOffsets[this.dir][1][0],BuildingPlacer.dirOffsets[this.dir][1][1]));
+		this.children.push(new BuildingPlacer("power path",true,-1*BuildingPlacer.dirOffsets[this.dir][0][1],BuildingPlacer.dirOffsets[this.dir][0][0]));
+	}
 	for (var i = 0; i < this.children.length; ++i) {
 		this.children[i].start();
 		this.children[i].dir = this.dir;
