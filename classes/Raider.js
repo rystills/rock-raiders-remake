@@ -203,7 +203,11 @@ Raider.prototype.update = function() {
 	var distanceTraveled = this.speed;
 	
 	//if currentPath is null, there is no way to get to the current task
-	while (this.currentPath != null && distanceTraveled > 0) {
+	while (distanceTraveled > 0) {
+		if (this.currentPath == null) {
+			console.log("No path found to current task! am I stuck?");
+			break;
+		}
 		speedModifier = this.space.speedModifier; //we are only on the current space
 		if (collisionRect(this,this.currentPath[this.currentPath.length-1])) {
 			if (!collisionRect(this,this.space)) {

@@ -42,6 +42,8 @@ object = {
           ["img", "images", "upgrade station right 1 (1).png"], //right image for upgrade station
           ["img", "images", "ore refinery left 1 (1).png"], //left image for ore refinery
           ["img", "images", "ore refinery right 1 (1).png"], //right image for ore refinery
+          ["img", "images", "mining laser left 1 (1).png"], //left image for mining laser
+          ["img", "images", "mining laser right 1 (1).png"], //right image for mining laser
           
           //NPCs
           ["img", "images", "raider 1 (1).png"], //rock raider

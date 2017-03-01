@@ -83,6 +83,9 @@ BuildingPlacer.prototype.start = function(type,keepDir) {
 	else if (type == "geological center") {
 		this.children.push(new BuildingPlacer("geological center right",true,BuildingPlacer.dirOffsets[this.dir][0][0],BuildingPlacer.dirOffsets[this.dir][0][1]));
 	}
+	else if (type == "mining laser") {
+		this.children.push(new BuildingPlacer("mining laser right",true,BuildingPlacer.dirOffsets[this.dir][0][0],BuildingPlacer.dirOffsets[this.dir][0][1]));
+	}
 	else if (type == "upgrade station") {
 		this.children.push(new BuildingPlacer("upgrade station right",true,BuildingPlacer.dirOffsets[this.dir][0][0],BuildingPlacer.dirOffsets[this.dir][0][1]));
 	}

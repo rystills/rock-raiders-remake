@@ -166,6 +166,12 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 		else if (this.buildingSiteType == "ore refinery right") {
 			requiredResources = {"ore":10,"crystal":1};
 		}
+		else if (this.buildingSiteType == "mining laser") {
+			requiredResources = {"ore":8,"crystal":1};
+		}
+		else if (this.buildingSiteType == "mining laser right") {
+			requiredResources = {"ore":7,"crystal":0};
+		}
 	}
 	this.type = type;
 	this.speedModifier = 1;
@@ -314,6 +320,17 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 	
 	else if (type == "ore refinery" || type == "ore refinery right") {
 		this.image = (type == "ore refinery" ? "ore refinery left 1 (1).png" : "ore refinery right 1 (1).png");
+		this.isBuilding = true;
+		if (this.touched == true) {
+			var index = buildings.indexOf(this);
+			if (index == -1) {
+				buildings.push(this);
+			}
+		}
+	}
+	
+	else if (type == "mining laser" || type == "mining laser right") {
+		this.image = (type == "mining laser" ? "mining laser left 1 (1).png" : "mining laser right 1 (1).png");
 		this.isBuilding = true;
 		if (this.touched == true) {
 			var index = buildings.indexOf(this);
