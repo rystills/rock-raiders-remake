@@ -473,7 +473,6 @@ function checkUpdateClickSelection() {
 			selection = [raiderSelected];
 			selectionType = "raider";
 		}
-		
 		else {	
 			var itemSelected = null; 
 			for (var i = 0; i < collectables.objectList.length; i++) {
@@ -496,12 +495,19 @@ function checkUpdateClickSelection() {
 							break;
 						}
 					}
+					if (spaceSelected != null) {
+						break;
+					}
 				}
 				if (spaceSelected != null) {
 					selection = [spaceSelected];
 					selectionType = spaceSelected.touched == true ? spaceSelected.type : "Hidden";
 				}
 			}
+		}
+		
+		if (selectionType != "raider" && openMenu == "tool") { //automatically close tool menu if a raider is no longer selected
+			openMenu = "";
 		}
 			
 	}
@@ -1039,8 +1045,24 @@ function mouseOverGUI() {
 }
 
 function openBuildingMenu() {
-	cancelSelection();
-	openMenu = "building";
+	if (openMenu == "building") {
+		openMenu = "";
+	}
+	else {
+		cancelSelection(); //this clears selection and sets openMenu to ""
+		openMenu = "building";	
+	}
+}
+
+function openToolMenu() {
+	if (selectionType == "raider") {
+		if (openMenu == "tool") {
+			openMenu = "";
+		}
+		else {
+			openMenu = "tool";		
+		}
+	}
 }
 
 function startBuildingPlacer(buildingType) {
@@ -1073,14 +1095,17 @@ function createButtons() {
 	buttons.push(new Button(86,0,0,0,"unload minifig button 1 (1).png",gameLayer,"", unloadMinifig,false,false,["raider"]));
 	buttons.push(new Button(126,0,0,0,"stop minifig button 1 (1).png",gameLayer,"", stopMinifig,false,false,["raider"]));
 	buttons.push(new Button(166,0,0,0,"upgrade button 1 (1).png",gameLayer,"", upgradeRaider,false,false,["raider"]));
-	buttons.push(new Button(206,0,0,0,"get_Drill.png",gameLayer,"", getTool,false,false,["raider"],null,["drill"]));
-	buttons.push(new Button(246,0,0,0,"get_Hammer.png",gameLayer,"", getTool,false,false,["raider"],null,["hammer"]));
-	buttons.push(new Button(286,0,0,0,"get_Shovel.png",gameLayer,"", getTool,false,false,["raider"],null,["shovel"]));
-	buttons.push(new Button(326,0,0,0,"get_Wrench.png",gameLayer,"", getTool,false,false,["raider"],null,["wrench"]));
-	buttons.push(new Button(366,0,0,0,"get_Freezer.png",gameLayer,"", getTool,false,false,["raider"],null,["freezer"]));
-	buttons.push(new Button(406,0,0,0,"get_Pusher.png",gameLayer,"", getTool,false,false,["raider"],null,["pusher"]));
-	buttons.push(new Button(446,0,0,0,"get_Lazer.png",gameLayer,"", getTool,false,false,["raider"],null,["laser"]));
-	buttons.push(new Button(486,0,0,0,"get_Sonic_Blaster.png",gameLayer,"", getTool,false,false,["raider"],null,["blaster"]));
+	buttons.push(new Button(206,0,0,0,"getTool.png",gameLayer,"", openToolMenu,false,false,["raider"]));
+	
+	//get tool buttons
+	buttons.push(new Button(206,40,0,0,"get_Drill.png",gameLayer,"", getTool,false,false,["raider"],["tool"],["drill"]));
+	buttons.push(new Button(206,80,0,0,"get_Hammer.png",gameLayer,"", getTool,false,false,["raider"],["tool"],["hammer"]));
+	buttons.push(new Button(206,120,0,0,"get_Shovel.png",gameLayer,"", getTool,false,false,["raider"],["tool"],["shovel"]));
+	buttons.push(new Button(206,160,0,0,"get_Wrench.png",gameLayer,"", getTool,false,false,["raider"],["tool"],["wrench"]));
+	buttons.push(new Button(206,200,0,0,"get_Freezer.png",gameLayer,"", getTool,false,false,["raider"],["tool"],["freezer"]));
+	buttons.push(new Button(206,240,0,0,"get_Pusher.png",gameLayer,"", getTool,false,false,["raider"],["tool"],["pusher"]));
+	buttons.push(new Button(206,280,0,0,"get_Lazer.png",gameLayer,"", getTool,false,false,["raider"],["tool"],["laser"]));
+	buttons.push(new Button(206,320,0,0,"get_Sonic_Blaster.png",gameLayer,"", getTool,false,false,["raider"],["tool"],["blaster"]));
 
 	//item selected buttons
 	buttons.push(new Button(86,0,0,0,"grab item button 1 (1).png",gameLayer,"", grabItem,false,false,["ore","crystal"]));
@@ -1301,9 +1326,11 @@ function showScoreScreen() {
 }
 
 function checkCloseMenu() {
-	//disallow menus from being open while the user has an active selection
+	//disallow main menus from being open while the user has an active selection (submenues are allowed)
 	if (selection.length != 0) {
-		openMenu = "";
+		if (openMenu == "building") {
+			openMenu = "";	
+		}
 	}
 }
 
@@ -1378,6 +1405,7 @@ function update() {
 					buttons.update([selectionType,openMenu]);
 					checkCloseMenu();
 				}
+			
 			}
 			else {
 				pauseButtons.update();
