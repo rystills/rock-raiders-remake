@@ -1073,8 +1073,14 @@ function createButtons() {
 	buttons.push(new Button(86,0,0,0,"unload minifig button 1 (1).png",gameLayer,"", unloadMinifig,false,false,["raider"]));
 	buttons.push(new Button(126,0,0,0,"stop minifig button 1 (1).png",gameLayer,"", stopMinifig,false,false,["raider"]));
 	buttons.push(new Button(166,0,0,0,"upgrade button 1 (1).png",gameLayer,"", upgradeRaider,false,false,["raider"]));
-	buttons.push(new Button(206,0,0,0,"get shovel button 1 (1).png",gameLayer,"", getTool,false,false,["raider"],null,["shovel"]));
+	buttons.push(new Button(206,0,0,0,"get_Drill.png",gameLayer,"", getTool,false,false,["raider"],null,["drill"]));
 	buttons.push(new Button(246,0,0,0,"get_Hammer.png",gameLayer,"", getTool,false,false,["raider"],null,["hammer"]));
+	buttons.push(new Button(286,0,0,0,"get_Shovel.png",gameLayer,"", getTool,false,false,["raider"],null,["shovel"]));
+	buttons.push(new Button(326,0,0,0,"get_Wrench.png",gameLayer,"", getTool,false,false,["raider"],null,["wrench"]));
+	buttons.push(new Button(366,0,0,0,"get_Freezer.png",gameLayer,"", getTool,false,false,["raider"],null,["freezer"]));
+	buttons.push(new Button(406,0,0,0,"get_Pusher.png",gameLayer,"", getTool,false,false,["raider"],null,["pusher"]));
+	buttons.push(new Button(446,0,0,0,"get_Lazer.png",gameLayer,"", getTool,false,false,["raider"],null,["laser"]));
+	buttons.push(new Button(486,0,0,0,"get_Sonic_Blaster.png",gameLayer,"", getTool,false,false,["raider"],null,["blaster"]));
 
 	//item selected buttons
 	buttons.push(new Button(86,0,0,0,"grab item button 1 (1).png",gameLayer,"", grabItem,false,false,["ore","crystal"]));

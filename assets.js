@@ -56,15 +56,24 @@ object = {
           ["img", "images", "drill wall button 1 (1).png"], //button to instruct a raider to drill a wall
           ["img", "images", "Reinforce.png"], //button to instruct a raider to reinforce a wall
           ["img", "images", "clear rubble button 1 (1).png"], //button to instruct a raider to clear rubble
-          ["img", "images", "get shovel button 1 (1).png"], //button to instruct a raider to get a shovel from the nearest toolstore
           ["img", "images", "build power path button 1 (1).png"], //button to instruct a raider to build a power path
           ["img", "images", "cancel selection button 1 (1).png"], //cancel selection button
           ["img", "images", "unload minifig button 1 (1).png"], //unload minifig button (drops held object)
           ["img", "images", "stop minifig button 1 (1).png"], //stop minifig button (stops any performed task)
           ["img", "images", "SlimySlugHole.jpg"], //hole out of which slimy slugs can emerge
           ["img", "images", "upgrade button 1 (1).png"], //button to upgrade a raider or building
-          ["img", "images", "get_Hammer.png"], //button to instruct a raider to get a hammer from the nearest toolstore
           ["img", "images", "open building menu button 1 (1).png"], //button to open up the building menu
+          
+          //grab item buttons
+          ["img", "images", "getTool.png"], //button to open the 'get tool' raider submenu
+          ["img", "images", "get_Drill.png"], //button to instruct a raider to get a drill from the nearest toolstore
+          ["img", "images", "get_Shovel.png"], //button to instruct a raider to get a shovel from the nearest toolstore
+          ["img", "images", "get_Hammer.png"], //button to instruct a raider to get a hammer from the nearest toolstore
+          ["img", "images", "get_Wrench.png"], //button to instruct a raider to get a wrench from the nearest toolstore
+          ["img", "images", "get_Freezer.png"], //button to instruct a raider to get a freezer beam from the nearest toolstore
+          ["img", "images", "get_Pusher.png"], //button to instruct a raider to get a pusher beam from the nearest toolstore
+          ["img", "images", "get_Lazer.png"], //button to instruct a raider to get a lazer beam from the nearest toolstore
+          ["img", "images", "get_Sonic_Blaster.png"], //button to instruct a raider to get a sonic blaster from the nearest toolstore
           
           //building buttons
           ["img", "images", "ToolStation.png"], //button to select to build tool store from building menu
