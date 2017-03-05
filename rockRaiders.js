@@ -937,6 +937,21 @@ function drawScoreScreenUI() {
 	GameManager.drawSurface.fillText("Energy Crystals: " + collectedResources["crystal"],341,100);
 }
 
+//draw held tools and skills for each raider
+function drawRaiderInfo() {
+	var heldWidth = GameManager.images["have am nothing.png"].width;
+	var heldHeight = GameManager.images["have am nothing.png"].height;
+	for (var i = 0; i < raiders.objectList.length; ++i) {
+		var maxTools = 2 + raiders.objectList[i].upgradeLevel;
+		for (var j = 0; j < maxTools; ++j) {
+			var curImageName = raiders.objectList[i].tools.length > j ? "have " + raiders.objectList[i].tools[j] + ".png" : "have am nothing.png";
+			GameManager.drawSurface.drawImage(GameManager.images[curImageName], 
+					raiders.objectList[i].centerX() - (heldWidth*maxTools)/2 + (heldWidth * j) - raiders.objectList[i].drawLayer.cameraX,
+					raiders.objectList[i].y - 28 - raiders.objectList[i].drawLayer.cameraY);
+		}
+	}
+}
+
 function drawSelectionBox() {
 	if (selectionRectCoords.x1 != null) {
 		GameManager.drawSurface.strokeStyle = "rgb(0,255,0)";
@@ -1107,7 +1122,7 @@ function createButtons() {
 	buttons.push(new Button(206,160,0,0,"get_Wrench.png",gameLayer,"", getTool,false,false,["raider"],["tool"],["wrench"]));
 	buttons.push(new Button(206,200,0,0,"get_Freezer.png",gameLayer,"", getTool,false,false,["raider"],["tool"],["freezer"]));
 	buttons.push(new Button(206,240,0,0,"get_Pusher.png",gameLayer,"", getTool,false,false,["raider"],["tool"],["pusher"]));
-	buttons.push(new Button(206,280,0,0,"get_Lazer.png",gameLayer,"", getTool,false,false,["raider"],["tool"],["laser"]));
+	buttons.push(new Button(206,280,0,0,"get_laser.png",gameLayer,"", getTool,false,false,["raider"],["tool"],["laser"]));
 	buttons.push(new Button(206,320,0,0,"get_Sonic_Blaster.png",gameLayer,"", getTool,false,false,["raider"],["tool"],["blaster"]));
 
 	//item selected buttons
@@ -1422,6 +1437,7 @@ function update() {
 		//inital render; draw all rygame objects
 		GameManager.drawFrame();
 		//post render; draw effects and UI
+		drawRaiderInfo();
 		drawSelectionBox();
 		drawSelectedSquares();
 		if (debug) { //render debug info

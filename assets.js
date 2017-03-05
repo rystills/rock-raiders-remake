@@ -72,8 +72,22 @@ object = {
           ["img", "images", "get_Wrench.png"], //button to instruct a raider to get a wrench from the nearest toolstore
           ["img", "images", "get_Freezer.png"], //button to instruct a raider to get a freezer beam from the nearest toolstore
           ["img", "images", "get_Pusher.png"], //button to instruct a raider to get a pusher beam from the nearest toolstore
-          ["img", "images", "get_Lazer.png"], //button to instruct a raider to get a lazer beam from the nearest toolstore
+          ["img", "images", "get_laser.png"], //button to instruct a raider to get a laser beam from the nearest toolstore
           ["img", "images", "get_Sonic_Blaster.png"], //button to instruct a raider to get a sonic blaster from the nearest toolstore
+          
+          //held tools and skills images
+          ["img", "images", "have drill.png"], //image indicating that a raider is currently carrying a drill in this tool slot
+          ["img", "images", "have shovel.png"], //image indicating that a raider is currently carrying a shovel in this tool slot
+          ["img", "images", "have hammer.png"], //image indicating that a raider is currently carrying a hammer in this tool slot
+          ["img", "images", "have wrench.png"], //image indicating that a raider is currently carrying a wrench in this tool slot
+          ["img", "images", "have freezer.png"], //image indicating that a raider is currently carrying a freezer beam in this tool slot
+          ["img", "images", "have pusher.png"], //image indicating that a raider is currently carrying a pusher beam in this tool slot
+          ["img", "images", "have laser.png"], //image indicating that a raider is currently carrying a laser beam in this tool slot
+          ["img", "images", "have blaster.png"], //image indicating that a raider is currently carrying a sonic blaster in this tool slot
+          ["img", "images", "have am nothing.png"], //image indicating that a raider is not currently carrying a tool or does not have a skill in this slot
+          ["img", "images", "am pilot.png"], //image indicating that a raider is a pilot
+          ["img", "images", "am driver.png"], //image indicating that a raider is a driver
+          ["img", "images", "am explosives expert.png"], //image indicating that a raider is an explosives expert
           
           //building buttons
           ["img", "images", "ToolStation.png"], //button to select to build tool store from building menu

@@ -720,7 +720,7 @@ Raider.prototype.getTaskType = function(task) {
 };*/
 
 Raider.prototype.upgrade = function() {
-	if (this.upgradeLevel < 3) {
+	if (this.upgradeLevel < this.maxUpgradeLevel) {
 		this.upgradeLevel += 1;
 		this.maxTools += 1;
 	}
@@ -775,6 +775,7 @@ function Raider(space) { //TODO: BUG WHERE SOMETIMES RAIDER STARTS IN THE RIGHT 
 	this.grabToolPercent = 0;
 	this.tools = ["drill"]; //raiders by default can only carry 2 tools; each upgrade level increases this limit by one
 	this.maxTools = 2;
+	this.maxUpgradeLevel = 3;
 	this.upgradeLevel = 0; //max tools held = 2 + upgradeLevel
 	this.currentTask = null; 
 	this.currentPath = null;
