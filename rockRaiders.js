@@ -898,7 +898,10 @@ function drawRaiderTasks() {
 	GameManager.setFontSize(36);
 	GameManager.drawSurface.fillStyle = "rgb(200, 220, 255)";
 	for (var i = 0; i < raiders.objectList.length; i++) {
-		GameManager.drawText(raiders.objectList[i].getTaskType(raiders.objectList[i].currentTask),raiders.objectList[i].centerX()-raiders.objectList[i].drawLayer.cameraX,raiders.objectList[i].y-raiders.objectList[i].drawLayer.cameraY,true);
+		curTask = raiders.objectList[i].getTaskType(raiders.objectList[i].currentTask);
+		if (debug || curTask != null) { //only display the current task if it is not null or if debug mode is enabled
+			GameManager.drawText(curTask,raiders.objectList[i].centerX()-raiders.objectList[i].drawLayer.cameraX,raiders.objectList[i].y-raiders.objectList[i].drawLayer.cameraY,true);	
+		}
 	}
 }
 
@@ -1425,9 +1428,9 @@ function update() {
 			highlightRaiderPaths();
 			drawSelectedRects();
 			drawTerrainVars(["listX"]);
-			drawRaiderTasks();
 			drawBuildingSiteMaterials();	
 		}
+		drawRaiderTasks();
 		drawUI(); //draw UI last to ensure that it is in front of everything else
 		drawAwaitingStartInstructions();
 		drawPauseInstructions();

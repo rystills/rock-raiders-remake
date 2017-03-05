@@ -17,7 +17,7 @@ function goFullScreen() {
 	}
 }
 
-//mouse code (this snippet is taken from a stackOverflow answer.
+//mouse code - Snippet taken from StackOverflow
 var stylePaddingLeft = -1;
 var stylePaddingTop = -1;
 var styleBorderLeft = -1;
