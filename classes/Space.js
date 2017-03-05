@@ -522,10 +522,14 @@ Space.prototype.activateLandSlide = function() {
 		}
 	}
 	if (borderingValidWall) {
-		this.setTypeProperties("rubble 1",false,false);
-		this.adjustHeightAlpha();
-		if (tasksAvailable.indexOf(this) == -1) {
-			tasksAvailable.push(this);
+		if (this.type == "ground" || this.type == "rubble 1" || this.type == "rubble 2" || this.type == "rubble 3" || this.type == "rubble 4") { 
+			//only change tile type if you are a ground or rubble tile
+			console.log(this.type);
+			this.setTypeProperties("rubble 1",false,false);
+			this.adjustHeightAlpha();
+			if (tasksAvailable.indexOf(this) == -1) {
+				tasksAvailable.push(this);
+			}
 		}
 		this.landSlides.push([new LandSlide(this)]);
 		this.landSlideSound.play();
@@ -577,10 +581,37 @@ spaceTypes = {
 		103:"rubble 4",
 		'-2':"tool store",
 		'-3':"teleport pad",
+		'-4':"docks",
+		'-5':"power station",
+		'-5.2':"power station topRight",
+		'-6':"support station",
+		'-7':"upgrade station",
+		'-7.2':"upgrade station right",
+		'-8':"geological center",
+		'-8.2':"geological center right",
+		'-9':"ore refinery",
+		'-9.2':"ore refinery right",
+		'-10':"mining laser",
+		'-10.2':"mining laser right",
+		'-11':"super teleport",
+		'-11.2':"super teleport topRight",
 		'-101':"building site",
 		'-102':"building site",
 		'-103':"building site",
-		'-104':"building site"
+		'-104':"building site",
+		'-105':"building site",
+		'-105.2':"building site",
+		'-106':"building site",
+		'-107':"building site",
+		'-107.2':"building site",
+		'-108':"building site",
+		'-108.2':"building site",
+		'-109':"building site",
+		'-109.2':"building site",
+		'-110':"building site",
+		'-110.2':"building site",
+		'-111':"building site",
+		'-111.2':"building site"
 		};
 
 function Space(type,listX,listY,height) {
@@ -598,10 +629,46 @@ function Space(type,listX,listY,height) {
 		this.buildingSiteType = "teleport pad"; 
 	}
 	else if (type == -104) {
-		this.buildingSiteType = "power station"; 
+		this.buildingSiteType = "docks"; 
 	}
 	else if (type == -105) {
+		this.buildingSiteType = "power station"; 
+	}
+	else if (type == '-105.2') {
+		this.buildingSiteType = "power station topRight"; 
+	}
+	else if (type == -106) {
+		this.buildingSiteType = "support station"; 
+	}
+	else if (type == -107) {
+		this.buildingSiteType = "upgrade station"; 
+	}
+	else if (type == -'107.2') {
+		this.buildingSiteType = "upgrade station right"; 
+	}
+	else if (type == -108) {
 		this.buildingSiteType = "geological center"; 
+	}
+	else if (type == -'108.2') {
+		this.buildingSiteType = "geological center right"; 
+	}
+	else if (type == -109) {
+		this.buildingSiteType = "ore refinery"; 
+	}
+	else if (type == -'109.2') {
+		this.buildingSiteType = "ore refinery right"; 
+	}
+	else if (type == -110) {
+		this.buildingSiteType = "mining laser"; 
+	}
+	else if (type == -'110.2') {
+		this.buildingSiteType = "mining laser right"; 
+	}
+	else if (type == -111) {
+		this.buildingSiteType = "super teleport"; 
+	}
+	else if (type == -'111.2') {
+		this.buildingSiteType = "super teleport topRight"; 
 	}
 	/*else { //TODO: DELETE THIS CASE ONCE ALL TERRAIN TYPES FROM THE ORIGINAL GAME HAVE A CORRESPONDING TYPE VALUE HERE
 		this.type = "power path";
