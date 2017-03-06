@@ -774,6 +774,13 @@ function Raider(space) { //TODO: BUG WHERE SOMETIMES RAIDER STARTS IN THE RIGHT 
 	this.upgradePercent = 0;
 	this.grabToolPercent = 0;
 	this.tools = ["drill"]; //raiders by default can only carry 2 tools; each upgrade level increases this limit by one
+	//learned skills
+	this.amPilot = false;
+	this.amSailor = false;
+	this.amDriver = false;
+	this.amExplosivesExpert = false;
+	this.amGeologist = false;
+	this.amEngineer = false;
 	this.maxTools = 2;
 	this.maxUpgradeLevel = 3;
 	this.upgradeLevel = 0; //max tools held = 2 + upgradeLevel

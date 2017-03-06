@@ -111,6 +111,9 @@ BuildingPlacer.prototype.stop = function() {
 };
 
 BuildingPlacer.prototype.positionValid = function(space) {
+	if (space == null) { //this should only happen when we are hovering out of bounds
+		return false;
+	}
 	if (space.type != "ground") {
 		return false;
 	}

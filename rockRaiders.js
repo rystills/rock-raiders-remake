@@ -939,6 +939,7 @@ function drawScoreScreenUI() {
 
 //draw held tools and skills for each raider
 function drawRaiderInfo() {
+	//draw held items
 	var heldWidth = GameManager.images["have am nothing.png"].width;
 	var heldHeight = GameManager.images["have am nothing.png"].height;
 	for (var i = 0; i < raiders.objectList.length; ++i) {
@@ -947,6 +948,19 @@ function drawRaiderInfo() {
 			var curImageName = raiders.objectList[i].tools.length > j ? "have " + raiders.objectList[i].tools[j] + ".png" : "have am nothing.png";
 			GameManager.drawSurface.drawImage(GameManager.images[curImageName], 
 					raiders.objectList[i].centerX() - (heldWidth*maxTools)/2 + (heldWidth * j) - raiders.objectList[i].drawLayer.cameraX,
+					raiders.objectList[i].y - 28 - heldHeight - raiders.objectList[i].drawLayer.cameraY);
+		}
+	}
+	
+	//draw learned skills
+	var maxSkills = 6;
+	var skills = [["amDriver","am driver.png"],["amEngineer","am engineer.png"],["amGeologist","am geologist.png"],["amPilot","am pilot.png"],
+		["amSailor","am sailor.png"],["amExplosivesExpert","am explosives expert.png"]];
+	for (var i = 0; i < raiders.objectList.length; ++i) {
+		for (var j = 0; j < 6; ++j) {
+			var curImageName = raiders.objectList[i][skills[j][0]] ? skills[j][1] : "have am nothing.png";
+			GameManager.drawSurface.drawImage(GameManager.images[curImageName], 
+					raiders.objectList[i].centerX() - (heldWidth*maxSkills)/2 + (heldWidth * j) - raiders.objectList[i].drawLayer.cameraX,
 					raiders.objectList[i].y - 28 - raiders.objectList[i].drawLayer.cameraY);
 		}
 	}
