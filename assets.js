@@ -88,7 +88,10 @@ object = {
           ["img", "images", "am pilot.png"], //image indicating that a raider is a pilot
           ["img", "images", "am driver.png"], //image indicating that a raider is a driver
           ["img", "images", "am explosives expert.png"], //image indicating that a raider is an explosives expert
-          
+          ["img", "images", "am sailor.png"], //image indicating that a raider is a sailor
+          ["img", "images", "am geologist.png"], //image indicating that a raider is a geologist
+          ["img", "images", "am engineer.png"], //image indicating that a raider is an engineer
+		  
           //building buttons
           ["img", "images", "ToolStation.png"], //button to select to build tool store from building menu
           ["img", "images", "SMteleport.png"], //button to select to build teleport pad from building menu
