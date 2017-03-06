@@ -118,7 +118,7 @@ BuildingPlacer.prototype.positionValid = function(space) {
 		return false;
 	}
 	//power paths are allowed to be colliding with other objects, as long as they are still being placed on a ground tile
-	if (this.buildingType == "power path") {
+	if (this.buildingType == "power path" || this.buildingType == "power station powerPath") {
 		return true;
 	}
 	//do not allow placement on a space on which any raiders are currently colliding
@@ -127,8 +127,31 @@ BuildingPlacer.prototype.positionValid = function(space) {
 			return false;
 		}
 	}
-	return true;
+	if (this.isHelper ||this.touchingPowerPath(space)) { //helpers don't need to perform power path collision check, as the master checks that
+		return true;
+	}
+	for (var i = 0; i < this.children.length; ++i) {
+		if (this.children[i].touchingPowerPath(this.children[i].getCurrentSpace())) {
+			return true;
+		}
+	}
+	return false;
 };
+
+BuildingPlacer.prototype.touchingPowerPath = function(space) {
+	if (adjacentSpace(terrain,space.listX,space.listY,"up").type == "power path") {
+		return true;
+	}
+	if (adjacentSpace(terrain,space.listX,space.listY,"down").type == "power path") {
+		return true;
+	}
+	if (adjacentSpace(terrain,space.listX,space.listY,"left").type == "power path") {
+		return true;
+	}
+	if (adjacentSpace(terrain,space.listX,space.listY,"right").type == "power path") {
+		return true;
+	}
+}
 
 BuildingPlacer.prototype.updatePosition = function() {
 	this.x = GameManager.mousePos.x;
