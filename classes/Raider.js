@@ -800,7 +800,6 @@ function Raider(space) { //TODO: BUG WHERE SOMETIMES RAIDER STARTS IN THE RIGHT 
 	this.drillSound.loop = true;
 	this.dropOreSound = GameManager.sounds["Rockdrop"].cloneNode();
 	this.dropCrystalSound = GameManager.sounds["Crystaldrop"].cloneNode();
-	this.rockBreakSound = GameManager.sounds["ROKBREK1"].cloneNode();
 	this.hurtSound = GameManager.sounds["hurt1"].cloneNode();
 	this.maxHp = 100;
 	this.hp = this.maxHp;

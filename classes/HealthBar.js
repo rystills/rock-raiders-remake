@@ -4,7 +4,6 @@ HealthBar.prototype.update = function() {
 	this.y = this.raider.y - 12;
 	if (this.prevHp != this.raider.hp) {
 		this.prevHp = this.raider.hp;
-		console.log(this.raider.hp);
 		this.updateBar();
 	}
 };
@@ -15,7 +14,6 @@ HealthBar.prototype.updateBar = function() {
 	this.drawSurface.fillStyle = "red";
 	this.drawSurface.fillRect(this.barBorderSize,this.barBorderSize,this.barWidth,this.barHeight);
 	this.drawSurface.fillStyle = "rgb(0,255,0)";
-	//console.log(this.barWidth * (this.raider.hp / this.raider.maxHp));
 	this.drawSurface.fillRect(this.barBorderSize,this.barBorderSize,this.barWidth * (this.raider.hp / this.raider.maxHp),this.barHeight);
 };
 

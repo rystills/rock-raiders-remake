@@ -11,8 +11,9 @@ Space.prototype.makeRubble = function(rubbleContainsOre,drilledBy) {
 	if (drilledBy != null) {
 		this.completedBy = drilledBy;
 		drilledBy.completedLastFrame.push(this);
-		drilledBy.rockBreakSound.play(); //TODO: have all walls play this sound, rather than just the immediately drilled one
+		
 	}
+	this.rockBreakSound.play();
 	//this.drilledBy = drilledBy;
 	this.setTypeProperties("rubble 1",false,rubbleContainsOre); //setTypeProperties will check the value of rubbleContainsOre for us, so no need to do a type check here, just pipe it in
 	for (var i = this.containedCrystals; i > 0; i--) {
@@ -689,6 +690,7 @@ function Space(type,listX,listY,height) {
 	this.completedBy = null;
 	//this.height = 0;
 	this.headingAngle = 0; //temporary angle variable used to store correct drawAngle when space has not yet been touched (is still in the fog)
+	this.rockBreakSound = (this.drillable ? GameManager.sounds["ROKBREK1"].cloneNode() : null);
 	//this.drilledBy = null;
 	/*if (maskUntouchedSpaces == false) { //need this check since the first time setTypeProperties is called it cannot change the image as the RygameObject constructor has not yet been called
 		this.setTypeProperties(this.type);
