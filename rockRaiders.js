@@ -1097,10 +1097,57 @@ function openToolMenu() {
 	}
 }
 
+function buildRequirementsMet(buildingType) {
+	buildingRequirements = []
+	if (buildingType == "teleport pad") {
+		buildingRequirements = ["tool store"];
+	}
+	else if (buildingType == "docks") {
+		buildingRequirements = ["tool store", "teleport pad"];
+	}
+	else if (buildingType == "power station") {
+		buildingRequirements = ["tool store", "teleport pad"];
+	}
+	else if (buildingType == "ore refinery") {
+		buildingRequirements = ["tool store", "teleport pad", "power station"];
+	}
+	else if (buildingType == "geological center") {
+		buildingRequirements = ["tool store", "teleport pad", "power station"];
+	}
+	else if (buildingType == "mining laser") {
+		buildingRequirements = ["tool store", "teleport pad", "power station"];
+	}
+	else if (buildingType == "upgrade station") {
+		buildingRequirements = ["tool store", "teleport pad", "power station"];
+	}
+	else if (buildingType == "support station") {
+		buildingRequirements = ["tool store", "teleport pad", "power station"];
+	}
+	else if (buildingType == "super teleport") {
+		buildingRequirements = ["tool store", "teleport pad", "power station", "support station"];
+	}
+	
+	for (var i = 0; i < buildingRequirements.length; ++i) {
+		var requirementMet = false;
+		for (var j = 0; j < buildings.length; ++j) {
+			if (buildings[j].type == buildingRequirements[i]) {
+				requirementMet = true;
+				break;
+			}
+		}
+		if (!requirementMet) {
+			return false;
+		}
+	}
+	return true;
+}
+
 function startBuildingPlacer(buildingType) {
-	buildingPlacer.start(buildingType);
-	buildingPlacer.updatePosition();
-	cancelSelection();
+	if (buildRequirementsMet(buildingType)) {
+		buildingPlacer.start(buildingType);
+		buildingPlacer.updatePosition();
+		cancelSelection();
+	}
 }
 
 function createButtons() {
@@ -1136,7 +1183,7 @@ function createButtons() {
 	buttons.push(new Button(206,160,0,0,"get_Wrench.png",gameLayer,"", getTool,false,false,["raider"],["tool"],["wrench"]));
 	buttons.push(new Button(206,200,0,0,"get_Freezer.png",gameLayer,"", getTool,false,false,["raider"],["tool"],["freezer"]));
 	buttons.push(new Button(206,240,0,0,"get_Pusher.png",gameLayer,"", getTool,false,false,["raider"],["tool"],["pusher"]));
-	buttons.push(new Button(206,280,0,0,"get_laser.png",gameLayer,"", getTool,false,false,["raider"],["tool"],["laser"]));
+	buttons.push(new Button(206,280,0,0,"get_Laser.png",gameLayer,"", getTool,false,false,["raider"],["tool"],["laser"]));
 	buttons.push(new Button(206,320,0,0,"get_Sonic_Blaster.png",gameLayer,"", getTool,false,false,["raider"],["tool"],["blaster"]));
 
 	//item selected buttons

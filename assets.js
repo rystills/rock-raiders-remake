@@ -72,7 +72,7 @@ object = {
           ["img", "images", "get_Wrench.png"], //button to instruct a raider to get a wrench from the nearest toolstore
           ["img", "images", "get_Freezer.png"], //button to instruct a raider to get a freezer beam from the nearest toolstore
           ["img", "images", "get_Pusher.png"], //button to instruct a raider to get a pusher beam from the nearest toolstore
-          ["img", "images", "get_laser.png"], //button to instruct a raider to get a laser beam from the nearest toolstore
+          ["img", "images", "get_Laser.png"], //button to instruct a raider to get a laser beam from the nearest toolstore
           ["img", "images", "get_Sonic_Blaster.png"], //button to instruct a raider to get a sonic blaster from the nearest toolstore
           
           //held tools and skills images
