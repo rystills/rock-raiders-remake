@@ -383,7 +383,7 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 							//console.log("stuck at this point");
 							if (resourceAvailable(dedicatedResourceTypes[i])) {					
 								tasksAvailable.push(testTask);
-								tasksUnavailable.objectList.splice(k,1);
+								tasksUnavailable.remove(tasksUnavailable.objectList[k]); //use remove rather than splicing to update object groupsContained
 								break;
 							}
 						}					
@@ -505,7 +505,6 @@ Space.prototype.updatePlacedResources = function(resourceType) {
 		if (index != -1) { //this check should never evaluate to false, but we do it regardless as a safety precaution
 			buildingSites.splice(index,1);
 			//buildings.push(this); //added to buildings in setTypeProperties, so no need to add it here
-			console.log("num buildings: " + buildings.length);
 		} 
 	}
 };

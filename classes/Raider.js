@@ -384,7 +384,7 @@ Raider.prototype.update = function() {
 											testTask = tasksUnavailable.objectList[k];
 											if (this.getTaskType(testTask) == "build" && testTask.resourceNeeded(this.holding.type)) {
 												tasksAvailable.push(testTask);
-												tasksUnavailable.objectList.splice(k,1);
+												tasksUnavailable.remove(tasksUnavailable.objectList[k]); //use remove rather than splicing to update object groupsContained
 												//continue //TODO: DECIDE WHETHER OR NOT IT IS OK FOR US TO POTENTIALLY REENABLE MORE THAN ONE BUILDING SITE WHEN WE MAY ONLY HAVE 1 OF A REQUIRED RESOURCE TYPE
 											}
 										}
@@ -472,7 +472,7 @@ Raider.prototype.update = function() {
 									else {
 										newIndex = tasksUnavailable.objectList.indexOf(destinationSite);
 										if (newIndex != -1) { //this is just an extra precaution; this case should never be false
-											tasksUnavailable.objectList.splice(newIndex, 1);
+											tasksUnavailable.remove(destinationSite); //use remove rather than splicing to update object groupsContained
 										}
 									}
 								}
@@ -531,7 +531,7 @@ Raider.prototype.update = function() {
 											testTask = tasksUnavailable.objectList[k];
 											if (this.getTaskType(testTask) == "build" && testTask.resourceNeeded(this.holding.type)) {
 												tasksAvailable.push(testTask);
-												tasksUnavailable.objectList.splice(k,1);
+												tasksUnavailable.remove(tasksUnavailable.objectList[k]); //use remove rather than splicing to update object groupsContained
 												//continue //TODO: DECIDE WHETHER OR NOT IT IS OK FOR US TO POTENTIALLY REENABLE MORE THAN ONE BUILDING SITE WHEN WE MAY ONLY HAVE 1 OF A REQUIRED RESOURCE TYPE
 											}
 										}

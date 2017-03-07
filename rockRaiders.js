@@ -75,14 +75,14 @@ function touchAllAdjacentSpaces(initialSpace) {
 	if (initialSpace.touched) {
 		var index = tasksUnavailable.objectList.indexOf(initialSpace); //if the task or its contains are in tasksUnavailable, move them back into tasksAvailable now that they've been rediscovered
 		if (index != -1) {
-			tasksUnavailable.objectList.splice(index,1);
+			tasksUnavailable.remove(initialSpace); //use remove rather than splicing to update object groupsContained
 			tasksAvailable.push(initialSpace); //we know its a valid task if its in tasksUnavailable, so no need to check
 		}
 		for (var i = 0; i < initialSpace.contains.objectList.length; i++) {
 			//add each member of contains to tasksavailable if it is currently in tasksUnavailable
 			var index = tasksUnavailable.objectList.indexOf(initialSpace.contains.objectList[i]);
 			if (index != -1) {
-				tasksUnavailable.objectList.splice(index,1);
+				tasksUnavailable.remove(initialSpace.contains.objectList[i]); //use remove rather than splicing to update object groupsContained
 				tasksAvailable.push(initialSpace.contains.objectList[i]);
 			}
 		}
@@ -93,7 +93,7 @@ function touchAllAdjacentSpaces(initialSpace) {
 			//initialSpace.touched = true;
 			var index = tasksUnavailable.objectList.indexOf(initialSpace);
 			if (index != -1) {
-				tasksUnavailable.objectList.splice(index,1);
+				tasksUnavailable.remove(initialSpace); //use remove rather than splicing to update object groupsContained
 			}
 			tasksAvailable.push(initialSpace);
 		}
@@ -105,14 +105,14 @@ function touchAllAdjacentSpaces(initialSpace) {
 	if (initialSpace.sweepable) {
 		var index = tasksUnavailable.objectList.indexOf(initialSpace);
 		if (index != -1) {
-			tasksUnavailable.objectList.splice(index,1);
+			tasksUnavailable.remove(initialSpace); //use remove rather than splicing to update object groupsContained
 		}
 		tasksAvailable.push(initialSpace);
 	}
 	if (initialSpace.buildable && initialSpace.resourceNeeded()) { //didnt say else in case a space may be allowed to be both buildable and sweepable at the same time
 		var index = tasksUnavailable.objectList.indexOf(initialSpace);
 		if (index != -1) {
-			tasksUnavailable.objectList.splice(index,1);
+			tasksUnavailable.remove(initialSpace); //use remove rather than splicing to update object groupsContained
 		}
 		tasksAvailable.push(initialSpace);
 	}
@@ -121,7 +121,7 @@ function touchAllAdjacentSpaces(initialSpace) {
 		//add each member of contains to tasksavailable
 		var index = tasksUnavailable.objectList.indexOf(initialSpace.contains.objectList[i]);
 		if (index != -1) {
-			tasksUnavailable.objectList.splice(index,1);
+			tasksUnavailable.remove(initialSpace.contains.objectList[i]); //use remove rather than splicing to update object groupsContained
 		}
 		tasksAvailable.push(initialSpace.contains.objectList[i]);
 	}
@@ -616,7 +616,7 @@ function checkAssignSelectionTask() {
 			
 			var index = tasksUnavailable.objectList.indexOf(selectedTask);
 			if (index != -1) {
-				tasksUnavailable.objectList.splice(index,1);
+				tasksUnavailable.remove(selectedTask); //use remove rather than splicing to update object groupsContained
 			}		
 			
 			var assignedAtLeastOnce = false;
