@@ -1130,7 +1130,7 @@ function buildRequirementsMet(buildingType) {
 	for (var i = 0; i < buildingRequirements.length; ++i) {
 		var requirementMet = false;
 		for (var j = 0; j < buildings.length; ++j) {
-			if (buildings[j].type == buildingRequirements[i]) {
+			if (buildings[j].type == buildingRequirements[i] && buildings[j].upgradeLevel >= 1) { //building must be upgraded at least once to build next building
 				requirementMet = true;
 				break;
 			}
@@ -1143,7 +1143,7 @@ function buildRequirementsMet(buildingType) {
 }
 
 function startBuildingPlacer(buildingType) {
-	if (buildRequirementsMet(buildingType)) {
+	if (buildRequirementsMet(buildingType)) { //buttons now take care of this check, but it can't hurt to check it one more time here
 		buildingPlacer.start(buildingType);
 		buildingPlacer.updatePosition();
 		cancelSelection();
@@ -1159,16 +1159,16 @@ function createButtons() {
 	//6 pixel boundary between general purpose buttons and selection specific buttons
 	
 	//building menu open buttons
-	buttons.push(new Button(46,40,0,0,"ToolStation.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["tool store"]));
-	buttons.push(new Button(46,80,0,0,"SMteleport.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["teleport pad"]));
-	buttons.push(new Button(46,120,0,0,"docks.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["docks"]));
-	buttons.push(new Button(46,160,0,0,"PowerStation.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["power station"]));
-	buttons.push(new Button(46,200,0,0,"barracks.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["support station"]));
-	buttons.push(new Button(46,240,0,0,"Upgrade.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["upgrade station"]));
-	buttons.push(new Button(46,280,0,0,"Geo.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["geological center"]));
-	buttons.push(new Button(46,320,0,0,"Orerefinery.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["ore refinery"]));
-	buttons.push(new Button(46,360,0,0,"Gunstation.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["mining laser"]));
-	buttons.push(new Button(46,400,0,0,"LargeTeleporter.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["super teleport"]));
+	buttons.push(new Button(46,40,0,0,"ToolStation.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["tool store"],true,true,null,buildRequirementsMet,["tool store"]));
+	buttons.push(new Button(46,80,0,0,"SMteleport.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["teleport pad"],true,true,null,buildRequirementsMet,["teleport pad"]));
+	buttons.push(new Button(46,120,0,0,"docks.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["docks"],true,true,null,buildRequirementsMet,["docks"]));
+	buttons.push(new Button(46,160,0,0,"PowerStation.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["power station"],true,true,null,buildRequirementsMet,["power station"]));
+	buttons.push(new Button(46,200,0,0,"barracks.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["support station"],true,true,null,buildRequirementsMet,["support station"]));
+	buttons.push(new Button(46,240,0,0,"Upgrade.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["upgrade station"],true,true,null,buildRequirementsMet,["upgrade station"]));
+	buttons.push(new Button(46,280,0,0,"Geo.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["geological center"],true,true,null,buildRequirementsMet,["geological center"]));
+	buttons.push(new Button(46,320,0,0,"Orerefinery.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["ore refinery"],true,true,null,buildRequirementsMet,["ore refinery"]));
+	buttons.push(new Button(46,360,0,0,"Gunstation.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["mining laser"],true,true,null,buildRequirementsMet,["mining laser"]));
+	buttons.push(new Button(46,400,0,0,"LargeTeleporter.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["super teleport"],true,true,null,buildRequirementsMet,["super teleport"]));
 	
 	//raider selected buttons
 	buttons.push(new Button(86,0,0,0,"unload minifig button 1 (1).png",gameLayer,"", unloadMinifig,false,false,["raider"]));

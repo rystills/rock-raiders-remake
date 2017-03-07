@@ -635,6 +635,17 @@ Button.prototype.update = function(selectionType,openMenu) {
 	
 	this.drawSurface = this.normalSurface;
 	
+	if (this.additionalRequirement != null) {
+		if (!(this.additionalRequirement.apply(this,this.additionalRequirementArgs))) {
+			this.clickable = false;
+			this.drawSurface = this.unavailableSurface;
+		}
+		else {
+			this.clickable = this.normallyClickable;
+			
+		}
+	}
+	
 	//if this button is not currently interactive, don't need to update anything else
 	if (!this.clickable) {
 		return;
@@ -683,7 +694,8 @@ Button.prototype.updateText = function(newText,clearFirst) {
 	this.normalSurface = this.drawSurface;
 	this.brightenedSurface = this.drawSurface == null ? null : this.image == null ? createContext(this.normalSurface.canvas.width,this.normalSurface.canvas.height) : updateBrightness(this.normalSurface,brightnessShiftPercent);
 	this.darkenedSurface = this.drawSurface == null ? null : this.image == null ? createContext(this.normalSurface.canvas.width,this.normalSurface.canvas.height) : updateBrightness(this.normalSurface,-brightnessShiftPercent);
-
+	this.unavailableSurface = this.drawSurface == null ? null : this.image == null ? createContext(this.normalSurface.canvas.width,this.normalSurface.canvas.height) : updateBrightness(this.normalSurface,-brightnessShiftPercent*2);
+	
 	this.text = newText;
 	if (this.text != "") {
 		var changedDims = false;
@@ -692,6 +704,7 @@ Button.prototype.updateText = function(newText,clearFirst) {
 			this.normalSurface = this.drawSurface;
 			this.brightenedSurface = createContext(0,0,false); 
 			this.darkenedSurface = createContext(0,0,false); 
+			this.unavailableSurface = createContext(0,0,false);
 		}
 		var drawSurfaces = [this.darkenedSurface,this.normalSurface,this.brightenedSurface]; 
 		var baseR = this.textColor[0];
@@ -731,11 +744,13 @@ Button.prototype.updateText = function(newText,clearFirst) {
 	}
 };
 
-function Button(x,y,updateDepth,drawDepth,image,layer,text,runMethod,affectedByCamera,renderAutomatically,selectionTypeBound,openMenuBound,optionalArgs,clickable,updateAutomatically,textColor) { //TODO: MODIFY BUTTON CLASS TO OPERATE LARGELY THE SAME AS THE RYGAME PYTHON EDITION BUTTON CLASS
+function Button(x,y,updateDepth,drawDepth,image,layer,text,runMethod,affectedByCamera,renderAutomatically,selectionTypeBound,openMenuBound,optionalArgs,clickable,updateAutomatically,textColor,additionalRequirement, additionalRequirementArgs) { //TODO: MODIFY BUTTON CLASS TO OPERATE LARGELY THE SAME AS THE RYGAME PYTHON EDITION BUTTON CLASS
 	if (updateAutomatically == null) {
 		updateAutomatically = false; //default to false rather than true for now, as current buttons expect this functionality
 	}
 	RygameObject.call(this,x,y,updateDepth,drawDepth,image,layer,affectedByCamera,renderAutomatically,updateAutomatically);
+	this.additionalRequirement = additionalRequirement;
+	this.additionalRequirementArgs = additionalRequirementArgs;
 	this.runMethod = runMethod;
 	this.mouseDownOnButton = false;
 	this.releasedThisFrame = false;
@@ -743,6 +758,7 @@ function Button(x,y,updateDepth,drawDepth,image,layer,text,runMethod,affectedByC
 	this.openMenuBound = openMenuBound;
 	this.optionalArgs = optionalArgs;
 	this.clickable = (clickable == null ? true : clickable);
+	this.normallyClickable = this.clickable;
 	this.textColor = (textColor == null ? [0,245,0] : textColor); //set default text color to an almost pure green
 	if (this.optionalArgs == null) {
 		this.optionalArgs = [];
