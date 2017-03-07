@@ -283,7 +283,7 @@ Raider.prototype.update = function() {
 										else {
 											newIndex = tasksUnavailable.objectList.indexOf(this.currentTask);
 											if (newIndex != -1) { //this is just an extra precaution; this case should never be false
-												tasksUnavailable.objectList.splice(newIndex, 1);
+												tasksUnavailable.remove(this.currentTask); //use remove rather than splicing to update object groupsContained
 											}
 										}
 									}
