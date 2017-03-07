@@ -504,7 +504,8 @@ Space.prototype.updatePlacedResources = function(resourceType) {
 		var index = buildingSites.indexOf(this);
 		if (index != -1) { //this check should never evaluate to false, but we do it regardless as a safety precaution
 			buildingSites.splice(index,1);
-			buildings.push(this);
+			//buildings.push(this); //added to buildings in setTypeProperties, so no need to add it here
+			console.log("num buildings: " + buildings.length);
 		} 
 	}
 };

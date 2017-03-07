@@ -895,10 +895,15 @@ RygameObject.prototype.addGroupContained = function(group) {
 };
 RygameObject.prototype.die = function() { 
 	while (this.groupsContained.length > 0) {
+		console.log("before: " + this.groupsContained);
+		console.log("index: " + this.groupsContained[0].objectList.indexOf(this));
 		this.groupsContained[0].remove(this);
+		console.log("after: " + this.groupsContained);
 	}
 	while (this.groupsOwned.length > 0) {
-		this.groupsOwned[0].remove(this);
+		var curObject = this.groupsOwned[0];
+		this.groupsOwned.shift();
+		curObject.die();
 	}
 	GameManager.removeObject(this);
 	this.dead = true;
