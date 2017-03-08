@@ -373,7 +373,7 @@ function loadLevelData(name) {
 	if (GameManager.scriptObjects[fallinMapName]) {
 		for (var i = 0; i < GameManager.scriptObjects[fallinMapName].level.length; i++) { 
 			for (var r = 0; r < GameManager.scriptObjects[fallinMapName].level[i].length; r++) {
-				terrain[i][r].landSlideFrequency = GameManager.scriptObjects[fallinMapName].level[i][r];
+				terrain[i][r].setLandSlideFrequency(GameManager.scriptObjects[fallinMapName].level[i][r]);
 			}
 		}
 	}

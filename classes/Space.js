@@ -13,6 +13,9 @@ Space.prototype.makeRubble = function(rubbleContainsOre,drilledBy) {
 		drilledBy.completedLastFrame.push(this);
 		
 	}
+	if (!this.rockBreakSound) { //if we are not drillable but were drilled indirectly, we don't have this sound yet, so clone it now
+		this.rockBreakSound = GameManager.sounds["ROKBREK1"].cloneNode();
+	}
 	this.rockBreakSound.play();
 	//this.drilledBy = drilledBy;
 	this.setTypeProperties("rubble 1",false,rubbleContainsOre); //setTypeProperties will check the value of rubbleContainsOre for us, so no need to do a type check here, just pipe it in
@@ -541,6 +544,14 @@ Space.prototype.activateLandSlide = function() {
 	}
 };
 
+Space.prototype.setLandSlideFrequency = function(frequency) {
+	if (frequency != 0) {
+		this.landSlideFrequency = frequency;
+		this.landSlides = new ObjectGroup();
+		this.landSlideSound = GameManager.sounds["lanslide"].cloneNode();
+	}
+}
+
 Space.prototype.update = function() {
 	if (!this.touched) { //spaces which have not yet been discovered should not trigger land-slides, erode nearby Spaces, etc..
 		return;
@@ -691,11 +702,13 @@ function Space(type,listX,listY,height) {
 	//this.height = 0;
 	this.headingAngle = 0; //temporary angle variable used to store correct drawAngle when space has not yet been touched (is still in the fog)
 	this.rockBreakSound = (this.drillable ? GameManager.sounds["ROKBREK1"].cloneNode() : null);
+	//this.rockBreakSound = GameManager.sounds["ROKBREK1"].cloneNode();
 	//this.drilledBy = null;
 	/*if (maskUntouchedSpaces == false) { //need this check since the first time setTypeProperties is called it cannot change the image as the RygameObject constructor has not yet been called
 		this.setTypeProperties(this.type);
 	}*/
 	//this.touched = false;
-	this.landSlides = new ObjectGroup();
-	this.landSlideSound = GameManager.sounds["lanslide"].cloneNode();
+	this.landSlides = null;
+	this.landSlideSound = null;
+	//this.landSlideSound = GameManager.sounds["lanslide"].cloneNode();
 }
