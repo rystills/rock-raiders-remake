@@ -1,6 +1,8 @@
 var urlBase = document.URL.substring(0,document.URL.lastIndexOf("/")).split("%20").join(" ") + "/"; //remove the "xyz.html" segment of the url
 console.log("RyConsole: current directory detected as '" + urlBase + "'");
 
+overrideLoadingScreen = null; //if a script modifies this to a function, it will be called when refreshing the screen after each asset load
+
 function loadScriptAsset(url, callback) //note: this function is partially copied from a stackOverflow answer, hence the out of character comments
     {
     // Adding the script tag to the head as suggested before
@@ -89,11 +91,16 @@ var loadAssetNext = function(fileExtension) {
 	}
 	assetNum++;
 	if (assetNum < GameManager.scriptObjects["assets.js"].assets.length) {
-		
-		ctx.fillStyle = "black";
-		ctx.fillRect(0,400,canv.width,200);
-		ctx.fillStyle = 'white';
-		ctx.fillText("loading " + GameManager.scriptObjects["assets.js"].assets[assetNum][2] + (typeof fileExtension === 'object' ? "" : fileExtension),20,580);	
+		if (overrideLoadingScreen) {
+			overrideLoadingScreen(assetNum,GameManager.scriptObjects["assets.js"].assets.length);
+		}
+		else {
+			ctx.fillStyle = "black";
+			ctx.fillRect(0,400,canv.width,200);
+			ctx.fillStyle = 'white';
+			ctx.fillText("loading " + GameManager.scriptObjects["assets.js"].assets[assetNum][2] + (typeof fileExtension === 'object' ? "" : fileExtension),20,580);	
+			
+		}
 		
 		appendString = "";
 		if (GameManager.scriptObjects["assets.js"].assets[assetNum][1] != "") {

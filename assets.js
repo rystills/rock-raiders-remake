@@ -5,6 +5,11 @@
 //sounds will always come in both mp4 and ogg form for browser compatibility, so don't need to specify extension here
 object = {
 		assets: [
+		  //loading screen resources
+		  ["img", "images", "loading screen.png"], //loading screen image
+		  ["img", "images", "loading bar.png"], //loading bar container image
+		  ["js","","loadingScreenOverride.js"], //script to override loading screen to Rock Raiders loading screen
+			
 		  //~images~
 		  //collectables
           ["img", "images", "ore 1 (1).png"], //ore
