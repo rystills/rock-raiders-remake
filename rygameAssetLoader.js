@@ -98,7 +98,12 @@ var loadAssetNext = function(fileExtension) {
 			ctx.fillStyle = "black";
 			ctx.fillRect(0,400,canv.width,200);
 			ctx.fillStyle = 'white';
-			ctx.fillText("loading " + GameManager.scriptObjects["assets.js"].assets[assetNum][2] + (typeof fileExtension === 'object' ? "" : fileExtension),20,580);	
+			var loadString = "loading " + GameManager.scriptObjects["assets.js"].assets[assetNum][2] + (typeof fileExtension === 'object' ? "" : fileExtension);
+			//remove 'undefined' from the end of the loading string if it gets appended in the browser
+			if (loadString.slice(-9) == "undefined") {
+				loadString = loadString.slice(0,-9);
+			}
+			ctx.fillText(loadString,20,580);	
 			
 		}
 		
