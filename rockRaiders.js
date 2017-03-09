@@ -1211,7 +1211,7 @@ function createButtons() {
 }
 
 function createMenuButtons() {
-	var yPos = 20;
+	var yPos = 220;
 	menuButtons.push(new Button(20,yPos,0,0,null,menuLayer,"Levels:",null,false,true,null,null,[],false));
 	yPos += 40;
 	
@@ -1221,7 +1221,7 @@ function createMenuButtons() {
 		yPos += 40;
 	}
 	
-	yPos = 20;
+	yPos = 220;
 	menuButtons.push(new Button(540,yPos,0,0,null,menuLayer,"Options:",null,false,true,null,null,[],false,false,[0,220,245]));
 	yPos += 40;
 	menuButtons.push(new Button(540,yPos,0,0,null,menuLayer,"Edge Panning" + (mousePanning ?  " ✓" : " X"),toggleEdgePanning,false,true,null,null,[menuButtons.objectList.length],true,false,[0,220,245]));
@@ -1426,9 +1426,8 @@ function update() {
 		GameManager.updateObjects();
 		menuButtons.update();
 		
-		//pre-render; draw solid background
-		GameManager.drawSurface.fillStyle = "rgb(128,28,108)"; //purple background color
-		GameManager.drawSurface.fillRect(0, 0, GameManager.screenWidth, GameManager.screenHeight);
+		//pre-render; draw menu background
+		GameManager.drawSurface.drawImage(GameManager.images["MenuBGpic.png"],0,0);
 		
 		//inital render; draw all rygame objects
 		GameManager.drawFrame();

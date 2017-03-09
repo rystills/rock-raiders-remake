@@ -11,6 +11,9 @@ object = {
 		  ["js","","loadingScreenOverride.js"], //script to override loading screen to Rock Raiders loading screen
 			
 		  //~images~
+		  //menu resources
+          ["img", "images", "MenuBGpic.png"], //main menu background
+		  
 		  //collectables
           ["img", "images", "ore 1 (1).png"], //ore
           ["img", "images", "energy crystal 1 (1).png"], //energy crystal
