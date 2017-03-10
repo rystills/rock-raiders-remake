@@ -777,7 +777,6 @@ function getTool(toolName) {
 	for (var i = 0; i < selection.length; i++) {
 		if (selection[i].currentObjective == null && selection[i].holding == null && selection[i].tools.indexOf(toolName) == -1) { //&& selection[i].tools.length < selection[i].maxTools) {
 			var newPath = pathToClosestBuilding(selection[i],"tool store");
-			console.log(newPath);
 			if (newPath == null) {			
 				continue;
 			}
