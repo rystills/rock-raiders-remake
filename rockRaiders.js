@@ -744,24 +744,29 @@ function upgradeBuilding() {
 	}
 }
 
+//determine the closest path to the closest building of buildingType from raider. return null if no path is found.
+function pathToClosestBuilding(raider, buildingType) {
+	destinationSites = [];
+	destinationSite = null;
+	if (buildings.length > 0) {
+		for (var i = 0; i < buildings.length; ++i) {
+			if (buildings[i].type == buildingType) {
+				destinationSites.push(buildings[i]);
+			}
+		}
+	}
+	var closestBuilding = raider.chooseClosestBuilding(destinationSites);
+	return findClosestStartPath(raider,calculatePath(terrain,raider.space,closestBuilding,true));
+}
+
 function upgradeRaider() { //TODO: take the 'find path to toolstore' code from this and getTool, and give it its own method.
 	for (var i = 0; i < selection.length; i++) {
 		if (selection[i].currentObjective == null && selection[i].holding == null && selection[i].upgradeLevel < 3) {
-			var newPath = null;
-			var buildingIndex = null;
-			for (var j = 0; j < buildings.length; j++) {
-				buildingIndex = j;
-				if (buildings[j].type == "tool store") {
-					newPath = findClosestStartPath(selection[i],calculatePath(terrain,selection[i].space,buildings[j],true));
-					if (newPath != null) { //TODO: find the closest pathable tool store, rather than simply the first pathable one
-						break;
-					}
-				}
-			}
+			var newPath = pathToClosestBuilding(selection[i],"tool store");
 			if (newPath == null) {
-				return; //no toolstore found or unable to path to any toolstores
+				continue; //no toolstore found or unable to path to any toolstores from this raider
 			}
-			selection[i].currentTask = buildings[buildingIndex];
+			selection[i].currentTask = newPath[0];
 			selection[i].currentPath = newPath;
 			selection[i].currentObjective = selection[i].currentTask;
 		}
@@ -771,21 +776,12 @@ function upgradeRaider() { //TODO: take the 'find path to toolstore' code from t
 function getTool(toolName) {
 	for (var i = 0; i < selection.length; i++) {
 		if (selection[i].currentObjective == null && selection[i].holding == null && selection[i].tools.indexOf(toolName) == -1) { //&& selection[i].tools.length < selection[i].maxTools) {
-			var newPath = null;
-			var buildingIndex = null;
-			for (var j = 0; j < buildings.length; j++) {
-				buildingIndex = j;
-				if (buildings[j].type == "tool store") {
-					newPath = findClosestStartPath(selection[i],calculatePath(terrain,selection[i].space,buildings[j],true));
-					if (newPath != null) {
-						break;
-					}
-				}
+			var newPath = pathToClosestBuilding(selection[i],"tool store");
+			console.log(newPath);
+			if (newPath == null) {			
+				continue;
 			}
-			if (newPath == null) {
-				return; //no toolstore found or unable to path to any toolstores
-			}
-			selection[i].currentTask = buildings[buildingIndex];
+			selection[i].currentTask = newPath[0];
 			selection[i].currentPath = newPath;
 			selection[i].currentObjective = selection[i].currentTask;
 			selection[i].getToolName = toolName;
