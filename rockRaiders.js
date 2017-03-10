@@ -1274,7 +1274,7 @@ function resetLevelVars(name) {
 	menuLayer.active = false;
 	gameLayer.active = true;
 	musicPlayer.changeLevels();
-	collectedResources = {"ore":20,"crystal":3};
+	collectedResources = {"ore":0,"crystal":0};
 	reservedResources = {"ore":0,"crystal":0};
 	selectionRectCoords = {x1:null,y1:null};
 	selection = [];
