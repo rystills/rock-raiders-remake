@@ -6,114 +6,141 @@
 object = {
 		assets: [
 		  //loading screen resources
-		  ["img", "images", "loading screen.png"], //loading screen image
-		  ["img", "images", "loading bar.png"], //loading bar container image
+		  ["img", "images\\menus", "loading screen.png"], //loading screen image
+		  ["img", "images\\menus", "loading bar.png"], //loading bar container image
 		  ["js","","loadingScreenOverride.js"], //script to override loading screen to Rock Raiders loading screen
 			
 		  //~images~
 		  //menu resources
-          ["img", "images", "MenuBGpic.png"], //main menu background
+          ["img", "images\\menus", "MenuBGpic.png"], //main menu background
+          
+          //level images
+          ["img", "images\\level_select", "Level01.png"], //level 1 image
+          ["img", "images\\level_select", "Level02.png"], //level 2 image
+          ["img", "images\\level_select", "Level03.png"], //level 3 image
+          ["img", "images\\level_select", "Level04.png"], //level 4 image
+          ["img", "images\\level_select", "Level05.png"], //level 5 image
+          ["img", "images\\level_select", "Level06.png"], //level 6 image
+          ["img", "images\\level_select", "Level07.png"], //level 7 image
+          ["img", "images\\level_select", "Level08.png"], //level 8 image
+          ["img", "images\\level_select", "Level09.png"], //level 9 image
+          ["img", "images\\level_select", "Level10.png"], //level 10 image
+          ["img", "images\\level_select", "Level11.png"], //level 11 image
+          ["img", "images\\level_select", "Level12.png"], //level 12 image
+          ["img", "images\\level_select", "Level13.png"], //level 13 image
+          ["img", "images\\level_select", "Level14.png"], //level 14 image
+          ["img", "images\\level_select", "Level15.png"], //level 15 image
+          ["img", "images\\level_select", "Level16.png"], //level 16 image
+          ["img", "images\\level_select", "Level17.png"], //level 17 image
+          ["img", "images\\level_select", "Level18.png"], //level 18 image
+          ["img", "images\\level_select", "Level19.png"], //level 19 image
+          ["img", "images\\level_select", "Level20.png"], //level 20 image
+          ["img", "images\\level_select", "Level21.png"], //level 21 image
+          ["img", "images\\level_select", "Level22.png"], //level 22 image
+          ["img", "images\\level_select", "Level23.png"], //level 23 image
+          ["img", "images\\level_select", "Level24.png"], //level 24 image
+          ["img", "images\\level_select", "Level25.png"], //level 25 image
 		  
 		  //collectables
-          ["img", "images", "ore 1 (1).png"], //ore
-          ["img", "images", "energy crystal 1 (1).png"], //energy crystal
+          ["img", "images\\objects", "ore 1 (1).png"], //ore
+          ["img", "images\\objects", "energy crystal 1 (1).png"], //energy crystal
           
           //spaces
-          ["img", "images", "ground 1 (1).png"], //ground
-          ["img", "images", "power path 1 (1).png"], //power path
-          ["img", "images", "lava 1 (1).png"], //lava
-          ["img", "images", "water 1 (1).png"], //water
-          ["img", "images", "energy crystal seam 1 (1).png"], //energy crystal seam
-          ["img", "images", "ore seam 1 (1).png"], //ore seam
-          ["img", "images", "recharge seam 1 (1).png"], //recharge seam
-          ["img", "images", "dirt 1 (1).png"], //dirt
-          ["img", "images", "loose rock 1 (1).png"], //loose rock
-          ["img", "images", "hard rock 1 (1).png"], //hard rock
-          ["img", "images", "solid rock 1 (1).png"], //solid rock
-          ["img", "images", "rubble 1 (1).png"], //rubble swept 0 times. 4 sweeps required to clear fully
-          ["img", "images", "rubble 2 (1).png"], //rubble swept 1 time. 3 sweeps required to clear fully
-          ["img", "images", "rubble 3 (1).png"], //rubble swept 2 times. 2 sweeps required to clear fully
-          ["img", "images", "rubble 4 (1).png"], //rubble swept 3 times. 1 sweep required to clear fully
-          ["img", "images", "building site 1 (1).png"], //building site
+          ["img", "images\\spaces", "ground 1 (1).png"], //ground
+          ["img", "images\\spaces", "power path 1 (1).png"], //power path
+          ["img", "images\\spaces", "lava 1 (1).png"], //lava
+          ["img", "images\\spaces", "water 1 (1).png"], //water
+          ["img", "images\\spaces", "energy crystal seam 1 (1).png"], //energy crystal seam
+          ["img", "images\\spaces", "ore seam 1 (1).png"], //ore seam
+          ["img", "images\\spaces", "recharge seam 1 (1).png"], //recharge seam
+          ["img", "images\\spaces", "dirt 1 (1).png"], //dirt
+          ["img", "images\\spaces", "loose rock 1 (1).png"], //loose rock
+          ["img", "images\\spaces", "hard rock 1 (1).png"], //hard rock
+          ["img", "images\\spaces", "solid rock 1 (1).png"], //solid rock
+          ["img", "images\\spaces", "rubble 1 (1).png"], //rubble swept 0 times. 4 sweeps required to clear fully
+          ["img", "images\\spaces", "rubble 2 (1).png"], //rubble swept 1 time. 3 sweeps required to clear fully
+          ["img", "images\\spaces", "rubble 3 (1).png"], //rubble swept 2 times. 2 sweeps required to clear fully
+          ["img", "images\\spaces", "rubble 4 (1).png"], //rubble swept 3 times. 1 sweep required to clear fully
+          ["img", "images\\spaces", "building site 1 (1).png"], //building site
+          ["img", "images\\spaces", "SlimySlugHole.jpg"], //hole out of which slimy slugs can emerge
           
           //buildings
-          ["img", "images", "teleport pad 1 (1).png"], //teleport pad
-          ["img", "images", "tool store 1 (1).png"], //tool store
-          ["img", "images", "power station topLeft 1 (1).png"], //top-left image for power station
-          ["img", "images", "power station topRight 1 (1).png"], //top-right image for power station
-          ["img", "images", "power station powerPath 1 (1).png"], //bottom-right image for power station - power path with resource collection bin hanging over it
-          ["img", "images", "geological center left 1 (1).png"], //left image for geological center
-          ["img", "images", "geological center right 1 (1).png"], //right image for geological center
-          ["img", "images", "docks 1 (1).png"], //docks
-          ["img", "images", "support station 1 (1).png"], //support station
-          ["img", "images", "upgrade station left 1 (1).png"], //left image for upgrade station
-          ["img", "images", "upgrade station right 1 (1).png"], //right image for upgrade station
-          ["img", "images", "ore refinery left 1 (1).png"], //left image for ore refinery
-          ["img", "images", "ore refinery right 1 (1).png"], //right image for ore refinery
-          ["img", "images", "mining laser left 1 (1).png"], //left image for mining laser
-          ["img", "images", "mining laser right 1 (1).png"], //right image for mining laser
-          ["img", "images", "super teleport topLeft 1 (1).png"], //top-left image for super teleport
-          ["img", "images", "super teleport topRight 1 (1).png"], //top-right image for super teleport
+          ["img", "images\\buildings", "teleport pad 1 (1).png"], //teleport pad
+          ["img", "images\\buildings", "tool store 1 (1).png"], //tool store
+          ["img", "images\\buildings", "power station topLeft 1 (1).png"], //top-left image for power station
+          ["img", "images\\buildings", "power station topRight 1 (1).png"], //top-right image for power station
+          ["img", "images\\buildings", "power station powerPath 1 (1).png"], //bottom-right image for power station - power path with resource collection bin hanging over it
+          ["img", "images\\buildings", "geological center left 1 (1).png"], //left image for geological center
+          ["img", "images\\buildings", "geological center right 1 (1).png"], //right image for geological center
+          ["img", "images\\buildings", "docks 1 (1).png"], //docks
+          ["img", "images\\buildings", "support station 1 (1).png"], //support station
+          ["img", "images\\buildings", "upgrade station left 1 (1).png"], //left image for upgrade station
+          ["img", "images\\buildings", "upgrade station right 1 (1).png"], //right image for upgrade station
+          ["img", "images\\buildings", "ore refinery left 1 (1).png"], //left image for ore refinery
+          ["img", "images\\buildings", "ore refinery right 1 (1).png"], //right image for ore refinery
+          ["img", "images\\buildings", "mining laser left 1 (1).png"], //left image for mining laser
+          ["img", "images\\buildings", "mining laser right 1 (1).png"], //right image for mining laser
+          ["img", "images\\buildings", "super teleport topLeft 1 (1).png"], //top-left image for super teleport
+          ["img", "images\\buildings", "super teleport topRight 1 (1).png"], //top-right image for super teleport
           
           //NPCs
-          ["img", "images", "raider 1 (1).png"], //rock raider
+          ["img", "images\\objects", "raider 1 (1).png"], //rock raider
           
           //buttons
-          ["img", "images", "teleport raider button 1 (1).png"], //teleport rock raider button
-          ["img", "images", "grab item button 1 (1).png"], //button to instruct a raider to pick up item (collectable, dynamite, etc..)
-          ["img", "images", "drill wall button 1 (1).png"], //button to instruct a raider to drill a wall
-          ["img", "images", "Reinforce.png"], //button to instruct a raider to reinforce a wall
-          ["img", "images", "clear rubble button 1 (1).png"], //button to instruct a raider to clear rubble
-          ["img", "images", "build power path button 1 (1).png"], //button to instruct a raider to build a power path
-          ["img", "images", "cancel selection button 1 (1).png"], //cancel selection button
-          ["img", "images", "unload minifig button 1 (1).png"], //unload minifig button (drops held object)
-          ["img", "images", "stop minifig button 1 (1).png"], //stop minifig button (stops any performed task)
-          ["img", "images", "SlimySlugHole.jpg"], //hole out of which slimy slugs can emerge
-          ["img", "images", "upgrade button 1 (1).png"], //button to upgrade a raider or building
-          ["img", "images", "open building menu button 1 (1).png"], //button to open up the building menu
+          ["img", "images\\buttons", "teleport raider button 1 (1).png"], //teleport rock raider button
+          ["img", "images\\buttons", "grab item button 1 (1).png"], //button to instruct a raider to pick up item (collectable, dynamite, etc..)
+          ["img", "images\\buttons", "drill wall button 1 (1).png"], //button to instruct a raider to drill a wall
+          ["img", "images\\buttons", "Reinforce.png"], //button to instruct a raider to reinforce a wall
+          ["img", "images\\buttons", "clear rubble button 1 (1).png"], //button to instruct a raider to clear rubble
+          ["img", "images\\buttons", "build power path button 1 (1).png"], //button to instruct a raider to build a power path
+          ["img", "images\\buttons", "cancel selection button 1 (1).png"], //cancel selection button
+          ["img", "images\\buttons", "unload minifig button 1 (1).png"], //unload minifig button (drops held object)
+          ["img", "images\\buttons", "stop minifig button 1 (1).png"], //stop minifig button (stops any performed task)
+          ["img", "images\\buttons", "upgrade button 1 (1).png"], //button to upgrade a raider or building
+          ["img", "images\\buttons", "open building menu button 1 (1).png"], //button to open up the building menu
           
           //grab item buttons
-          ["img", "images", "getTool.png"], //button to open the 'get tool' raider submenu
-          ["img", "images", "get_Drill.png"], //button to instruct a raider to get a drill from the nearest toolstore
-          ["img", "images", "get_Shovel.png"], //button to instruct a raider to get a shovel from the nearest toolstore
-          ["img", "images", "get_Hammer.png"], //button to instruct a raider to get a hammer from the nearest toolstore
-          ["img", "images", "get_Wrench.png"], //button to instruct a raider to get a wrench from the nearest toolstore
-          ["img", "images", "get_Freezer.png"], //button to instruct a raider to get a freezer beam from the nearest toolstore
-          ["img", "images", "get_Pusher.png"], //button to instruct a raider to get a pusher beam from the nearest toolstore
-          ["img", "images", "get_Laser.png"], //button to instruct a raider to get a laser beam from the nearest toolstore
-          ["img", "images", "get_Sonic_Blaster.png"], //button to instruct a raider to get a sonic blaster from the nearest toolstore
+          ["img", "images\\buttons", "getTool.png"], //button to open the 'get tool' raider submenu
+          ["img", "images\\buttons", "get_Drill.png"], //button to instruct a raider to get a drill from the nearest toolstore
+          ["img", "images\\buttons", "get_Shovel.png"], //button to instruct a raider to get a shovel from the nearest toolstore
+          ["img", "images\\buttons", "get_Hammer.png"], //button to instruct a raider to get a hammer from the nearest toolstore
+          ["img", "images\\buttons", "get_Wrench.png"], //button to instruct a raider to get a wrench from the nearest toolstore
+          ["img", "images\\buttons", "get_Freezer.png"], //button to instruct a raider to get a freezer beam from the nearest toolstore
+          ["img", "images\\buttons", "get_Pusher.png"], //button to instruct a raider to get a pusher beam from the nearest toolstore
+          ["img", "images\\buttons", "get_Laser.png"], //button to instruct a raider to get a laser beam from the nearest toolstore
+          ["img", "images\\buttons", "get_Sonic_Blaster.png"], //button to instruct a raider to get a sonic blaster from the nearest toolstore
           
           //held tools and skills images
-          ["img", "images", "have drill.png"], //image indicating that a raider is currently carrying a drill in this tool slot
-          ["img", "images", "have shovel.png"], //image indicating that a raider is currently carrying a shovel in this tool slot
-          ["img", "images", "have hammer.png"], //image indicating that a raider is currently carrying a hammer in this tool slot
-          ["img", "images", "have wrench.png"], //image indicating that a raider is currently carrying a wrench in this tool slot
-          ["img", "images", "have freezer.png"], //image indicating that a raider is currently carrying a freezer beam in this tool slot
-          ["img", "images", "have pusher.png"], //image indicating that a raider is currently carrying a pusher beam in this tool slot
-          ["img", "images", "have laser.png"], //image indicating that a raider is currently carrying a laser beam in this tool slot
-          ["img", "images", "have blaster.png"], //image indicating that a raider is currently carrying a sonic blaster in this tool slot
-          ["img", "images", "have am nothing.png"], //image indicating that a raider is not currently carrying a tool or does not have a skill in this slot
-          ["img", "images", "am pilot.png"], //image indicating that a raider is a pilot
-          ["img", "images", "am driver.png"], //image indicating that a raider is a driver
-          ["img", "images", "am explosives expert.png"], //image indicating that a raider is an explosives expert
-          ["img", "images", "am sailor.png"], //image indicating that a raider is a sailor
-          ["img", "images", "am geologist.png"], //image indicating that a raider is a geologist
-          ["img", "images", "am engineer.png"], //image indicating that a raider is an engineer
+          ["img", "images\\skills_and_tools", "have drill.png"], //image indicating that a raider is currently carrying a drill in this tool slot
+          ["img", "images\\skills_and_tools", "have shovel.png"], //image indicating that a raider is currently carrying a shovel in this tool slot
+          ["img", "images\\skills_and_tools", "have hammer.png"], //image indicating that a raider is currently carrying a hammer in this tool slot
+          ["img", "images\\skills_and_tools", "have wrench.png"], //image indicating that a raider is currently carrying a wrench in this tool slot
+          ["img", "images\\skills_and_tools", "have freezer.png"], //image indicating that a raider is currently carrying a freezer beam in this tool slot
+          ["img", "images\\skills_and_tools", "have pusher.png"], //image indicating that a raider is currently carrying a pusher beam in this tool slot
+          ["img", "images\\skills_and_tools", "have laser.png"], //image indicating that a raider is currently carrying a laser beam in this tool slot
+          ["img", "images\\skills_and_tools", "have blaster.png"], //image indicating that a raider is currently carrying a sonic blaster in this tool slot
+          ["img", "images\\skills_and_tools", "have am nothing.png"], //image indicating that a raider is not currently carrying a tool or does not have a skill in this slot
+          ["img", "images\\skills_and_tools", "am pilot.png"], //image indicating that a raider is a pilot
+          ["img", "images\\skills_and_tools", "am driver.png"], //image indicating that a raider is a driver
+          ["img", "images\\skills_and_tools", "am explosives expert.png"], //image indicating that a raider is an explosives expert
+          ["img", "images\\skills_and_tools", "am sailor.png"], //image indicating that a raider is a sailor
+          ["img", "images\\skills_and_tools", "am geologist.png"], //image indicating that a raider is a geologist
+          ["img", "images\\skills_and_tools", "am engineer.png"], //image indicating that a raider is an engineer
 		  
           //building buttons
-          ["img", "images", "ToolStation.png"], //button to select to build tool store from building menu
-          ["img", "images", "SMteleport.png"], //button to select to build teleport pad from building menu
-          ["img", "images", "docks.png"], //button to select to build docks from building menu
-          ["img", "images", "PowerStation.png"], //button to select to build power station from building menu
-          ["img", "images", "barracks.png"], //button to select to build support station from building menu
-          ["img", "images", "Upgrade.png"], //button to select to build upgrade station from building menu
-          ["img", "images", "Geo.png"], //button to select to build geological center from building menu
-          ["img", "images", "Orerefinery.png"], //button to select to build ore refinery from building menu
-          ["img", "images", "Gunstation.png"], //button to select to build mining laser from building menu
-          ["img", "images", "LargeTeleporter.png"], //button to select to build super teleport from building menu
+          ["img", "images\\buttons", "ToolStation.png"], //button to select to build tool store from building menu
+          ["img", "images\\buttons", "SMteleport.png"], //button to select to build teleport pad from building menu
+          ["img", "images\\buttons", "docks.png"], //button to select to build docks from building menu
+          ["img", "images\\buttons", "PowerStation.png"], //button to select to build power station from building menu
+          ["img", "images\\buttons", "barracks.png"], //button to select to build support station from building menu
+          ["img", "images\\buttons", "Upgrade.png"], //button to select to build upgrade station from building menu
+          ["img", "images\\buttons", "Geo.png"], //button to select to build geological center from building menu
+          ["img", "images\\buttons", "Orerefinery.png"], //button to select to build ore refinery from building menu
+          ["img", "images\\buttons", "Gunstation.png"], //button to select to build mining laser from building menu
+          ["img", "images\\buttons", "LargeTeleporter.png"], //button to select to build super teleport from building menu
           
           //effects
-          ["img", "images", "landslide 1 (1).png"], //image that appears during a landslide
+          ["img", "images\\objects", "landslide 1 (1).png"], //image that appears during a landslide
           
           //~sounds~
           ["snd", "sounds", "Crystaldrop"], //drop crystal
