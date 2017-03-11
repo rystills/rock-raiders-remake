@@ -637,6 +637,7 @@ Button.prototype.update = function(selectionType,openMenu) {
 	
 	if (this.additionalRequirement != null) {
 		if (!(this.additionalRequirement.apply(this,this.additionalRequirementArgs))) {
+			console.log("rip");
 			this.clickable = false;
 			this.drawSurface = this.unavailableSurface;
 		}
@@ -706,11 +707,11 @@ Button.prototype.updateText = function(newText,clearFirst) {
 			this.darkenedSurface = createContext(0,0,false); 
 			this.unavailableSurface = createContext(0,0,false);
 		}
-		var drawSurfaces = [this.darkenedSurface,this.normalSurface,this.brightenedSurface]; 
+		var drawSurfaces = [this.unavailableSurface,this.darkenedSurface,this.normalSurface,this.brightenedSurface]; 
 		var baseR = this.textColor[0];
 		var baseG = this.textColor[1];
 		var baseB = this.textColor[2];
-		for (var i = 0; i < 3; ++i) {
+		for (var i = 0; i < drawSurfaces.length; ++i) {
 			
 			drawSurfaces[i].font = "32px " + GameManager.fontName;
 			
@@ -736,8 +737,9 @@ Button.prototype.updateText = function(newText,clearFirst) {
 			drawSurfaces[i].textBaseline="hanging";
 			drawSurfaces[i].font = "32px " + GameManager.fontName;
 			//todo: convert to HSV, adjust brightness, then convert back to RGB, rather than just statically shifting R,G,B channels
-			drawSurfaces[i].fillStyle = (i == 0 ? "rgb(" + Math.round(Math.max(baseR - brightnessShiftPercent*.01*255,0)) + ","+ Math.round(Math.max(baseG - brightnessShiftPercent*.01*255,0)) + ","+ Math.round(Math.max(baseB - brightnessShiftPercent*.01*255,0)) + ")"
-			: ( i == 1 ? "rgb(" + baseR + "," + baseG + "," + baseB + ")" : "rgb(" + Math.round(Math.min(baseR + brightnessShiftPercent*.01*255,255)) + ","+ Math.round(Math.min(baseG + brightnessShiftPercent*.01*255,255)) + ","+ Math.round(Math.min(baseB + brightnessShiftPercent*.01*255,255)) + ")"));
+			drawSurfaces[i].fillStyle = i == 0 ? "rgb(" + Math.round(Math.max(baseR - brightnessShiftPercent*.02*255,0)) + ","+ Math.round(Math.max(baseG - brightnessShiftPercent*.02*255,0)) + ","+ Math.round(Math.max(baseB - brightnessShiftPercent*.02*255,0)) + ")"
+			: (i == 1 ? "rgb(" + Math.round(Math.max(baseR - brightnessShiftPercent*.01*255,0)) + ","+ Math.round(Math.max(baseG - brightnessShiftPercent*.01*255,0)) + ","+ Math.round(Math.max(baseB - brightnessShiftPercent*.01*255,0)) + ")"
+			: ( i == 2 ? "rgb(" + baseR + "," + baseG + "," + baseB + ")" : "rgb(" + Math.round(Math.min(baseR + brightnessShiftPercent*.01*255,255)) + ","+ Math.round(Math.min(baseG + brightnessShiftPercent*.01*255,255)) + ","+ Math.round(Math.min(baseB + brightnessShiftPercent*.01*255,255)) + ")"));
 			drawSurfaces[i].fillText(this.text,0,0);
 			//console.log(drawSurfaces[i].fillStyle);
 		}
@@ -747,6 +749,9 @@ Button.prototype.updateText = function(newText,clearFirst) {
 function Button(x,y,updateDepth,drawDepth,image,layer,text,runMethod,affectedByCamera,renderAutomatically,selectionTypeBound,openMenuBound,optionalArgs,clickable,updateAutomatically,textColor,additionalRequirement, additionalRequirementArgs) { //TODO: MODIFY BUTTON CLASS TO OPERATE LARGELY THE SAME AS THE RYGAME PYTHON EDITION BUTTON CLASS
 	if (updateAutomatically == null) {
 		updateAutomatically = false; //default to false rather than true for now, as current buttons expect this functionality
+	}
+	if (additionalRequirementArgs == null) {
+		additionalRequirementArgs = [];
 	}
 	RygameObject.call(this,x,y,updateDepth,drawDepth,image,layer,affectedByCamera,renderAutomatically,updateAutomatically);
 	this.additionalRequirement = additionalRequirement;

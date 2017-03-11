@@ -844,6 +844,16 @@ function stopMinifig() {
 	}
 }
 
+//level select screen can be scrolled vertically to navigate the various levels
+function checkScrollLevelSelect() {
+	if (GameManager.mousePos.y < scrollDistance) {
+		levelSelectLayer.cameraY -= scrollSpeed;
+	}
+	else if (GameManager.mousePos.y > GameManager.screenHeight - scrollDistance) {
+		levelSelectLayer.cameraY += scrollSpeed;
+	}
+}
+
 function checkScrollScreen() {
 	if (mousePanning) { //can you scroll by hovering the mouse at the corner of the screen?
 		if (GameManager.mousePos.x < scrollDistance) {
@@ -1205,25 +1215,35 @@ function createButtons() {
 	scoreScreenButtons.push(new Button(20,200,0,0,null,scoreScreenLayer,"Return to Main Menu", returnToMainMenu,false,true));
 }
 
-function createMenuButtons() {
-	var yPos = 220;
-	menuButtons.push(new Button(20,yPos,0,0,null,menuLayer,"Levels:",null,false,true,null,null,[],false));
-	yPos += 40;
+function createLevelSelectButtons() {
+	//level select buttons
+}
+
+function createMenuButtons() {	
+	//main menu buttons
+	var xPos = 320;
+	var yPos = 260;
+	menuButtons.push(new Button(xPos,yPos,0,0,null,menuLayer,"Select a Level",goToLevelSelect,false,true,null,null,[],true,false,[20,245,40]));
+	yPos += 80;
 	
-	for (var i = 0; i < GameManager.scriptObjects["levelList.js"].levels.length; ++i) {
-		var score = levelScores[GameManager.scriptObjects["levelList.js"].levels[i]];
-		menuButtons.push(new Button(20,yPos,0,0,null,menuLayer,GameManager.scriptObjects["Info_" + GameManager.scriptObjects["levelList.js"].levels[i] + ".js"].name + (score >= 0 ? " - best score: " + score : ""),resetLevelVars,false,true,null,null,[GameManager.scriptObjects["levelList.js"].levels[i]]));
-		yPos += 40;
-	}
-	
-	yPos = 220;
-	menuButtons.push(new Button(540,yPos,0,0,null,menuLayer,"Options:",null,false,true,null,null,[],false,false,[0,220,245]));
+	menuButtons.push(new Button(xPos,yPos,0,0,null,menuLayer,"Options:",null,false,true,null,null,[],false,false,[0,220,245]));
 	yPos += 40;
-	menuButtons.push(new Button(540,yPos,0,0,null,menuLayer,"Edge Panning" + (mousePanning ?  " ✓" : " X"),toggleEdgePanning,false,true,null,null,[menuButtons.objectList.length],true,false,[0,220,245]));
-	yPos += 40
-	menuButtons.push(new Button(540,yPos,0,0,null,menuLayer,"Debug Mode" + (debug ?  " ✓" : " X"),toggleDebugMode,false,true,null,null,[menuButtons.objectList.length],true,false,[0,220,245]));
-	yPos += 40
-	menuButtons.push(new Button(540,yPos,0,0,null,menuLayer,"Enable Fog" + (maskUntouchedSpaces ?  " ✓" : " X"),toggleFog,false,true,null,null,[menuButtons.objectList.length],true,false,[0,220,245]));
+	menuButtons.push(new Button(xPos,yPos,0,0,null,menuLayer,"Edge Panning" + (mousePanning ?  " ✓" : " X"),toggleEdgePanning,false,true,null,null,[menuButtons.objectList.length],true,false,[0,220,245]));
+	yPos += 40;
+	menuButtons.push(new Button(xPos,yPos,0,0,null,menuLayer,"Debug Mode" + (debug ?  " ✓" : " X"),toggleDebugMode,false,true,null,null,[menuButtons.objectList.length],true,false,[0,220,245]));
+	yPos += 40;
+	menuButtons.push(new Button(xPos,yPos,0,0,null,menuLayer,"Enable Fog" + (maskUntouchedSpaces ?  " ✓" : " X"),toggleFog,false,true,null,null,[menuButtons.objectList.length],true,false,[0,220,245]));
+}
+
+//switch to the level select layer
+function goToLevelSelect() {
+	menuLayer.active = false;
+	levelSelectLayer.active = true;
+}
+
+//function to always disable buttons when applied as an additional requirement
+function grayedOut() {
+	return false;
 }
 
 //toggle the global setting for whether or not the mouse may scroll the screen by pointing at the edges
@@ -1323,15 +1343,18 @@ function initGlobals() {
 	
 	gameLayer = new Layer(0,0,1,1,GameManager.screenWidth,GameManager.screenHeight);
 	menuLayer = new Layer(0,0,1,1,GameManager.screenWidth,GameManager.screenHeight,true);
+	levelSelectLayer = new Layer(0,0,1,1,GameManager.screenWidth,GameManager.screenHeight,true);
 	scoreScreenLayer = new Layer(0,0,1,1,GameManager.screenWidth,GameManager.screenHeight);
 	levelScores = getLevelScores();
 	musicPlayer = new MusicPlayer();
 	buttons = new ObjectGroup();
 	pauseButtons = new ObjectGroup();
 	menuButtons = new ObjectGroup();
+	levelSelectButtons = new ObjectGroup();
 	scoreScreenButtons = new ObjectGroup();
 	createButtons(); //create all in-game UI buttons initially, as there is no reason to load and unload these
 	createMenuButtons(); //create all menu buttons
+	createLevelSelectButtons();
 	GameManager.drawSurface.font = "48px Arial";
 	tasksAutomated = { //update me manually for now, as the UI does not yet have task priority buttons
 			"sweep":true,
@@ -1423,6 +1446,25 @@ function update() {
 		
 		//pre-render; draw menu background
 		GameManager.drawSurface.drawImage(GameManager.images["MenuBGpic.png"],0,0);
+		
+		//inital render; draw all rygame objects
+		GameManager.drawFrame();
+	}
+	
+	else if (levelSelectLayer.active) { //level select update
+		//update music
+		musicPlayer.trackNum = 0;
+		musicPlayer.update();
+		
+		//update input
+		checkScrollLevelSelect();
+		
+		//update objects
+		GameManager.updateObjects();
+		levelSelectButtons.update();
+		
+		//pre-render; draw level select background scrolled according to current scroll value
+		GameManager.drawSurface.drawImage(GameManager.images["Levelpick.png"],0,-levelSelectLayer.cameraY);
 		
 		//inital render; draw all rygame objects
 		GameManager.drawFrame();
