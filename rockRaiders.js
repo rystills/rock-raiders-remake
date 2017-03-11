@@ -1154,16 +1154,16 @@ function createButtons() {
 	//6 pixel boundary between general purpose buttons and selection specific buttons
 	
 	//building menu open buttons
-	buttons.push(new Button(46,40,0,0,"ToolStation.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["tool store"],true,true,null,buildRequirementsMet,["tool store"]));
-	buttons.push(new Button(46,80,0,0,"SMteleport.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["teleport pad"],true,true,null,buildRequirementsMet,["teleport pad"]));
-	buttons.push(new Button(46,120,0,0,"docks.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["docks"],true,true,null,buildRequirementsMet,["docks"]));
-	buttons.push(new Button(46,160,0,0,"PowerStation.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["power station"],true,true,null,buildRequirementsMet,["power station"]));
-	buttons.push(new Button(46,200,0,0,"barracks.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["support station"],true,true,null,buildRequirementsMet,["support station"]));
-	buttons.push(new Button(46,240,0,0,"Upgrade.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["upgrade station"],true,true,null,buildRequirementsMet,["upgrade station"]));
-	buttons.push(new Button(46,280,0,0,"Geo.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["geological center"],true,true,null,buildRequirementsMet,["geological center"]));
-	buttons.push(new Button(46,320,0,0,"Orerefinery.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["ore refinery"],true,true,null,buildRequirementsMet,["ore refinery"]));
-	buttons.push(new Button(46,360,0,0,"Gunstation.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["mining laser"],true,true,null,buildRequirementsMet,["mining laser"]));
-	buttons.push(new Button(46,400,0,0,"LargeTeleporter.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["super teleport"],true,true,null,buildRequirementsMet,["super teleport"]));
+	buttons.push(new Button(46,40,0,0,"make ToolStation.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["tool store"],true,true,null,buildRequirementsMet,["tool store"]));
+	buttons.push(new Button(46,80,0,0,"make SMteleport.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["teleport pad"],true,true,null,buildRequirementsMet,["teleport pad"]));
+	buttons.push(new Button(46,120,0,0,"make docks.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["docks"],true,true,null,buildRequirementsMet,["docks"]));
+	buttons.push(new Button(46,160,0,0,"make PowerStation.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["power station"],true,true,null,buildRequirementsMet,["power station"]));
+	buttons.push(new Button(46,200,0,0,"make barracks.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["support station"],true,true,null,buildRequirementsMet,["support station"]));
+	buttons.push(new Button(46,240,0,0,"make Upgrade.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["upgrade station"],true,true,null,buildRequirementsMet,["upgrade station"]));
+	buttons.push(new Button(46,280,0,0,"make Geo.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["geological center"],true,true,null,buildRequirementsMet,["geological center"]));
+	buttons.push(new Button(46,320,0,0,"make Orerefinery.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["ore refinery"],true,true,null,buildRequirementsMet,["ore refinery"]));
+	buttons.push(new Button(46,360,0,0,"make Gunstation.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["mining laser"],true,true,null,buildRequirementsMet,["mining laser"]));
+	buttons.push(new Button(46,400,0,0,"make LargeTeleporter.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["super teleport"],true,true,null,buildRequirementsMet,["super teleport"]));
 	
 	//raider selected buttons
 	buttons.push(new Button(86,0,0,0,"unload minifig button 1 (1).png",gameLayer,"", unloadMinifig,false,false,["raider"]));

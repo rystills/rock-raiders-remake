@@ -15,6 +15,7 @@ object = {
           ["img", "images\\menus", "MenuBGpic.png"], //main menu background
           
           //level images
+          ["img", "images\\level_select", "Levelpick.png"], //level select menu background
           ["img", "images\\level_select", "Level01.png"], //level 1 image
           ["img", "images\\level_select", "Level02.png"], //level 2 image
           ["img", "images\\level_select", "Level03.png"], //level 3 image
@@ -128,16 +129,16 @@ object = {
           ["img", "images\\skills_and_tools", "am engineer.png"], //image indicating that a raider is an engineer
 		  
           //building buttons
-          ["img", "images\\buttons", "ToolStation.png"], //button to select to build tool store from building menu
-          ["img", "images\\buttons", "SMteleport.png"], //button to select to build teleport pad from building menu
-          ["img", "images\\buttons", "docks.png"], //button to select to build docks from building menu
-          ["img", "images\\buttons", "PowerStation.png"], //button to select to build power station from building menu
-          ["img", "images\\buttons", "barracks.png"], //button to select to build support station from building menu
-          ["img", "images\\buttons", "Upgrade.png"], //button to select to build upgrade station from building menu
-          ["img", "images\\buttons", "Geo.png"], //button to select to build geological center from building menu
-          ["img", "images\\buttons", "Orerefinery.png"], //button to select to build ore refinery from building menu
-          ["img", "images\\buttons", "Gunstation.png"], //button to select to build mining laser from building menu
-          ["img", "images\\buttons", "LargeTeleporter.png"], //button to select to build super teleport from building menu
+          ["img", "images\\buttons", "make ToolStation.png"], //button to select to build tool store from building menu
+          ["img", "images\\buttons", "make SMteleport.png"], //button to select to build teleport pad from building menu
+          ["img", "images\\buttons", "make docks.png"], //button to select to build docks from building menu
+          ["img", "images\\buttons", "make PowerStation.png"], //button to select to build power station from building menu
+          ["img", "images\\buttons", "make barracks.png"], //button to select to build support station from building menu
+          ["img", "images\\buttons", "make Upgrade.png"], //button to select to build upgrade station from building menu
+          ["img", "images\\buttons", "make Geo.png"], //button to select to build geological center from building menu
+          ["img", "images\\buttons", "make Orerefinery.png"], //button to select to build ore refinery from building menu
+          ["img", "images\\buttons", "make Gunstation.png"], //button to select to build mining laser from building menu
+          ["img", "images\\buttons", "make LargeTeleporter.png"], //button to select to build super teleport from building menu
           
           //effects
           ["img", "images\\objects", "landslide 1 (1).png"], //image that appears during a landslide
