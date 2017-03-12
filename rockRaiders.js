@@ -1473,11 +1473,11 @@ function update() {
 		GameManager.updateObjects();
 		levelSelectButtons.update();
 		
-		//pre-render; draw level select background scrolled according to current scroll value
-		GameManager.drawSurface.drawImage(GameManager.images["Levelpick.png"],0,-levelSelectLayer.cameraY);
-		
 		//inital render; draw all rygame objects
 		GameManager.drawFrame();
+		
+		//draw level select imaged scrolled according to current scroll value (in front of buttons to hide overlaid pixels when highlighted or darkened)
+		GameManager.drawSurface.drawImage(GameManager.images["Levelpick.png"],0,-levelSelectLayer.cameraY);
 	}
 	
 	else if (scoreScreenLayer.active) { //score screen update
