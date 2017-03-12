@@ -848,9 +848,15 @@ function stopMinifig() {
 function checkScrollLevelSelect() {
 	if (GameManager.mousePos.y < scrollDistance) {
 		levelSelectLayer.cameraY -= scrollSpeed;
+		if (levelSelectLayer.cameraY < 0) {
+			levelSelectLayer.cameraY = 0;
+		}
 	}
 	else if (GameManager.mousePos.y > GameManager.screenHeight - scrollDistance) {
 		levelSelectLayer.cameraY += scrollSpeed;
+		if (levelSelectLayer.cameraY > (3163 - GameManager.screenHeight)) { //level select image is 3163 pixels tall
+			levelSelectLayer.cameraY = 3163 - GameManager.screenHeight;
+		}
 	}
 }
 
@@ -1334,7 +1340,7 @@ function getValue(name) {
 
 function initGlobals() {
 	tileSize = 128;
-	scrollDistance = 1;
+	scrollDistance = 10;
 	scrollSpeed = 20;
 	maskUntouchedSpaces = getValue("fog") == "true" ? true : false; //if true, this creates the "fog of war" type effect where unrevealed Spaces appear as solid rock (should only be set to false for debugging purposes)
 	mousePanning = getValue("mousePanning") == "true" ? true : false; //can you scroll the screen using the mouse?

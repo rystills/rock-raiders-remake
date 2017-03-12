@@ -16,6 +16,14 @@ object = {
           
           //level images
           ["img", "images\\level_select", "Levelpick.png"], //level select menu background
+          ["img", "images\\level_select", "Tutorial01.png"], //tutorial 1 image
+          ["img", "images\\level_select", "Tutorial02.png"], //tutorial 2 image
+          ["img", "images\\level_select", "Tutorial03.png"], //tutorial 3 image
+          ["img", "images\\level_select", "Tutorial04.png"], //tutorial 4 image
+          ["img", "images\\level_select", "Tutorial05.png"], //tutorial 5 image
+          ["img", "images\\level_select", "Tutorial06.png"], //tutorial 6 image
+          ["img", "images\\level_select", "Tutorial07.png"], //tutorial 7 image
+          ["img", "images\\level_select", "Tutorial08.png"], //tutorial 8 image
           ["img", "images\\level_select", "Level01.png"], //level 1 image
           ["img", "images\\level_select", "Level02.png"], //level 2 image
           ["img", "images\\level_select", "Level03.png"], //level 3 image
