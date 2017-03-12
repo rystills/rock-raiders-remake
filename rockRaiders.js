@@ -1223,6 +1223,10 @@ function createButtons() {
 
 function createLevelSelectButtons() {
 	//level select buttons
+	for (var i = 0; i < 33; ++i) {
+		levelSelectButtons.push(new Button(GameManager.scriptObjects["levelList.js"].levelPositions[i][0],GameManager.scriptObjects["levelList.js"].levelPositions[i][1],0,0,GameManager.scriptObjects["levelList.js"].levelImages[i],levelSelectLayer,"",resetLevelVars,true,true,null,null,[GameManager.scriptObjects["levelList.js"].levels[i]],true,false));
+		levelSelectButtons.objectList[i].visible = false;
+	}
 }
 
 function createMenuButtons() {	
