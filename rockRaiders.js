@@ -354,7 +354,7 @@ function loadLevelData(name) {
 	for (var i = 0; i < GameManager.scriptObjects[predugMapName].level.length; i++) { 
 		for (var r = 0; r < GameManager.scriptObjects[predugMapName].level[i].length; r++) {
 			if (terrain[i][r].isWall) {
-				terrain[i][r].checkWallSupported();
+				terrain[i][r].checkWallSupported(null,true);
 			}
 		}
 	}
@@ -1302,6 +1302,7 @@ function stopAllSounds() {
 
 function resetLevelVars(name) {
 	menuLayer.active = false;
+	levelSelectLayer.active = false;
 	gameLayer.active = true;
 	musicPlayer.changeLevels();
 	collectedResources = {"ore":0,"crystal":0};

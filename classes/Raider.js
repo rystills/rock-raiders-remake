@@ -270,7 +270,8 @@ Raider.prototype.update = function() {
 							if (!this.busy) {
 								this.reservingResource = false;
 								reservedResources[this.currentObjectiveResourceType]--;
-								if (this.currentTask.resourceNeeded(this.currentObjectiveResourceType)) { //although we do reserve a resource from the toolstore as soon as we choose the build task, we do not reserve a spot in the building site until we pick up our resource, so its possible for us to arrive at the toolstore only to find that our resource is no longer needed, but that's better than reserving the resource when the build task is initially chosen and then stopping potentially many other raiders from finishing the build site ahead of this raider
+								//collectedResources[this.currentObjectiveResourceType] might get dropped to 0 by the player via an upgrade, so check here to avoid going into the negatives
+								if (this.currentTask.resourceNeeded(this.currentObjectiveResourceType) && collectedResources[this.currentObjectiveResourceType] >= 1) { //although we do reserve a resource from the toolstore as soon as we choose the build task, we do not reserve a spot in the building site until we pick up our resource, so its possible for us to arrive at the toolstore only to find that our resource is no longer needed, but that's better than reserving the resource when the build task is initially chosen and then stopping potentially many other raiders from finishing the build site ahead of this raider
 									this.currentTask.dedicatedResources[this.currentObjectiveResourceType]++;
 									this.dedicatingResource = true;
 									

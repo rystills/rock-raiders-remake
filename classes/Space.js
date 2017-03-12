@@ -7,16 +7,18 @@ Space.prototype.toString = function() {
 	return "Space [" + this.x + ", " + this.y + "]";
 };
 
-Space.prototype.makeRubble = function(rubbleContainsOre,drilledBy) {
+Space.prototype.makeRubble = function(rubbleContainsOre,drilledBy,silent = false) {
 	if (drilledBy != null) {
 		this.completedBy = drilledBy;
 		drilledBy.completedLastFrame.push(this);
 		
 	}
-	if (!this.rockBreakSound) { //if we are not drillable but were drilled indirectly, we don't have this sound yet, so clone it now
-		this.rockBreakSound = GameManager.sounds["ROKBREK1"].cloneNode();
+	if (!silent) {
+		if (!this.rockBreakSound) { //if we are not drillable but were drilled indirectly, we don't have this sound yet, so clone it now
+			this.rockBreakSound = GameManager.sounds["ROKBREK1"].cloneNode();
+		}
+		this.rockBreakSound.play();
 	}
-	this.rockBreakSound.play();
 	//this.drilledBy = drilledBy;
 	this.setTypeProperties("rubble 1",false,rubbleContainsOre); //setTypeProperties will check the value of rubbleContainsOre for us, so no need to do a type check here, just pipe it in
 	for (var i = this.containedCrystals; i > 0; i--) {
@@ -43,7 +45,7 @@ Space.prototype.makeRubble = function(rubbleContainsOre,drilledBy) {
 	for (var i = 0; i < adjacentSpaces.length; i++) {
 		if (adjacentSpaces[i] != null && adjacentSpaces[i].isWall == true) {
 			//adjacentSpaces[i].drilledBy = this;
-			adjacentSpaces[i].checkWallSupported(drilledBy);
+			adjacentSpaces[i].checkWallSupported(drilledBy,silent);
 		}
 	}
 	//console.log(tasksAvailable.indexOf(this));
@@ -67,7 +69,7 @@ Space.prototype.upgrade = function() {
 	}
 };
 
-Space.prototype.checkWallSupported = function(drilledBy) {
+Space.prototype.checkWallSupported = function(drilledBy, silent = false) {
 	if (!this.isWall) {
 		return;
 	}
@@ -86,7 +88,7 @@ Space.prototype.checkWallSupported = function(drilledBy) {
 	if ((adjacentSpaceIsWall[0] || adjacentSpaceIsWall[1]) && (adjacentSpaceIsWall[2] || adjacentSpaceIsWall[3])) {
 		return;
 	}
-	this.makeRubble(true,drilledBy);
+	this.makeRubble(true,drilledBy, silent);
 };
 Space.prototype.sweep = function() {
 	if (this.rubbleContainsOre == true) {
