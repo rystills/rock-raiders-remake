@@ -202,6 +202,7 @@ object = {
           ["js", "levels", "High_02.js"], //surface map file of second level from original game converted using map converter
           ["js", "levels", "Info_02.js"], //info file for second level
           ["js", "levels", "Dugg_02.js"], //predug file of second level from original game converted using map converter
+		  ["js", "levels", "Fall_02.js"], //fallin file of second level from original game converted using map converter
           ["js", "levels", "02.js"], //OL file of second level from original game converted using map converter
           
           //level 3 files
@@ -211,9 +212,203 @@ object = {
           ["js", "levels", "Info_03.js"], //info file for third level
           ["js", "levels", "Dugg_03.js"], //predug file of third level from original game converted using map converter
           ["js", "levels", "path_03.js"], //path file of third level from original game converted using map converter
-          ["js", "levels", "Fall_02.js"], //fallin file of second level from original game converted using map converter
           ["js", "levels", "Fall_03.js"], //fallin file of third level from original game converted using map converter
           ["js", "levels", "03.js"], //OL file of third level from original game converted using map converter
+		  
+		  //level 4 files
+          ["js", "levels", "Surf_04.js"], //terrain map file of fourth level from original game converted using map converter
+          ["js", "levels", "Cror_04.js"], //cryore map file of fourth level from original game converted using map converter
+          ["js", "levels", "High_04.js"], //surface map file of fourth level from original game converted using map converter
+          ["js", "levels", "Info_04.js"], //info file for fourth level
+          ["js", "levels", "Dugg_04.js"], //predug file of fourth level from original game converted using map converter
+          ["js", "levels", "Fall_04.js"], //fallin file of fourth level from original game converted using map converter
+          ["js", "levels", "04.js"], //OL file of fourth level from original game converted using map converter
+		  
+		  //level 5 files
+          ["js", "levels", "Surf_05.js"], //terrain map file of fifth level from original game converted using map converter
+          ["js", "levels", "Cror_05.js"], //cryore map file of fifth level from original game converted using map converter
+          ["js", "levels", "High_05.js"], //surface map file of fifth level from original game converted using map converter
+          ["js", "levels", "Info_05.js"], //info file for fifth level
+          ["js", "levels", "Dugg_05.js"], //predug file of fifth level from original game converted using map converter
+          ["js", "levels", "Fall_05.js"], //fallin file of fifth level from original game converted using map converter
+          ["js", "levels", "05.js"], //OL file of fifth level from original game converted using map converter
+		  
+		  //level 6 files
+          ["js", "levels", "Surf_06.js"], //terrain map file of sixth level from original game converted using map converter
+          ["js", "levels", "Cror_06.js"], //cryore map file of sixth level from original game converted using map converter
+          ["js", "levels", "High_06.js"], //surface map file of sixth level from original game converted using map converter
+          ["js", "levels", "Info_06.js"], //info file for sixth level
+          ["js", "levels", "Dugg_06.js"], //predug file of sixth level from original game converted using map converter
+          ["js", "levels", "Fall_06.js"], //fallin file of sixth level from original game converted using map converter
+          ["js", "levels", "06.js"], //OL file of sixth level from original game converted using map converter
+		  
+		  //level 7 files
+          ["js", "levels", "Surf_07.js"], //terrain map file of seventh level from original game converted using map converter
+          ["js", "levels", "Cror_07.js"], //cryore map file of seventh level from original game converted using map converter
+          ["js", "levels", "High_07.js"], //surface map file of seventh level from original game converted using map converter
+          ["js", "levels", "Info_07.js"], //info file for seventh level
+          ["js", "levels", "Dugg_07.js"], //predug file of seventh level from original game converted using map converter
+          ["js", "levels", "07.js"], //OL file of seventh level from original game converted using map converter
+		  
+		  //level 8 files
+          ["js", "levels", "Surf_08.js"], //terrain map file of eigth level from original game converted using map converter
+          ["js", "levels", "Cror_08.js"], //cryore map file of eigth level from original game converted using map converter
+          ["js", "levels", "High_08.js"], //surface map file of eigth level from original game converted using map converter
+          ["js", "levels", "Info_08.js"], //info file for eigth level
+          ["js", "levels", "Dugg_08.js"], //predug file of eigth level from original game converted using map converter
+          ["js", "levels", "Fall_08.js"], //fallin file of eigth level from original game converted using map converter
+          ["js", "levels", "08.js"], //OL file of eigth level from original game converted using map converter
+		  
+		  //level 9 files
+          ["js", "levels", "Surf_09.js"], //terrain map file of ninth level from original game converted using map converter
+          ["js", "levels", "Cror_09.js"], //cryore map file of ninth level from original game converted using map converter
+          ["js", "levels", "High_09.js"], //surface map file of ninth level from original game converted using map converter
+          ["js", "levels", "Info_09.js"], //info file for ninth level
+          ["js", "levels", "Dugg_09.js"], //predug file of ninth level from original game converted using map converter
+          ["js", "levels", "path_09.js"], //path file of ninth level from original game converted using map converter
+          ["js", "levels", "Fall_09.js"], //fallin file of ninth level from original game converted using map converter
+          ["js", "levels", "09.js"], //OL file of ninth level from original game converted using map converter
+		  
+		  //level 10 files
+          ["js", "levels", "Surf_10.js"], //terrain map file of tenth level from original game converted using map converter
+          ["js", "levels", "Cror_10.js"], //cryore map file of tenth level from original game converted using map converter
+          ["js", "levels", "High_10.js"], //surface map file of tenth level from original game converted using map converter
+          ["js", "levels", "Info_10.js"], //info file for tenth level
+          ["js", "levels", "Dugg_10.js"], //predug file of tenth level from original game converted using map converter
+          ["js", "levels", "Fall_10.js"], //fallin file of tenth level from original game converted using map converter
+          ["js", "levels", "10.js"], //OL file of tenth level from original game converted using map converter
+		  
+		  //level 11 files
+          ["js", "levels", "Surf_11.js"], //terrain map file of eleventh level from original game converted using map converter
+          ["js", "levels", "Cror_11.js"], //cryore map file of eleventh level from original game converted using map converter
+          ["js", "levels", "High_11.js"], //surface map file of eleventh level from original game converted using map converter
+          ["js", "levels", "Info_11.js"], //info file for eleventh level
+          ["js", "levels", "Dugg_11.js"], //predug file of eleventh level from original game converted using map converter
+          ["js", "levels", "path_11.js"], //path file of eleventh level from original game converted using map converter
+          ["js", "levels", "Fall_11.js"], //fallin file of eleventh level from original game converted using map converter
+          ["js", "levels", "11.js"], //OL file of eleventh level from original game converted using map converter
+		  
+		  //level 12 files
+          ["js", "levels", "Surf_12.js"], //terrain map file of twelfth level from original game converted using map converter
+          ["js", "levels", "Cror_12.js"], //cryore map file of twelfth level from original game converted using map converter
+          ["js", "levels", "High_12.js"], //surface map file of twelfth level from original game converted using map converter
+          ["js", "levels", "Info_12.js"], //info file for twelfth level
+          ["js", "levels", "Dugg_12.js"], //predug file of twelfth level from original game converted using map converter
+          ["js", "levels", "path_12.js"], //path file of twelfth level from original game converted using map converter
+          ["js", "levels", "12.js"], //OL file of twelfth level from original game converted using map converter
+		  
+		  //level 13 files
+          ["js", "levels", "Surf_13.js"], //terrain map file of thirteenth level from original game converted using map converter
+          ["js", "levels", "Cror_13.js"], //cryore map file of thirteenth level from original game converted using map converter
+          ["js", "levels", "High_13.js"], //surface map file of thirteenth level from original game converted using map converter
+          ["js", "levels", "Info_13.js"], //info file for thirteenth level
+          ["js", "levels", "Dugg_13.js"], //predug file of thirteenth level from original game converted using map converter
+          ["js", "levels", "13.js"], //OL file of thirteenth level from original game converted using map converter
+		  
+		  //level 14 files
+          ["js", "levels", "Surf_14.js"], //terrain map file of fourteenth level from original game converted using map converter
+          ["js", "levels", "Cror_14.js"], //cryore map file of fourteenth level from original game converted using map converter
+          ["js", "levels", "High_14.js"], //surface map file of fourteenth level from original game converted using map converter
+          ["js", "levels", "Info_14.js"], //info file for fourteenth level
+          ["js", "levels", "Dugg_14.js"], //predug file of fourteenth level from original game converted using map converter
+          ["js", "levels", "14.js"], //OL file of fourteenth level from original game converted using map converter
+		  
+		  //level 15 files
+          ["js", "levels", "Surf_15.js"], //terrain map file of fifteenth level from original game converted using map converter
+          ["js", "levels", "Cror_15.js"], //cryore map file of fifteenth level from original game converted using map converter
+          ["js", "levels", "High_15.js"], //surface map file of fifteenth level from original game converted using map converter
+          ["js", "levels", "Info_15.js"], //info file for fifteenth level
+          ["js", "levels", "Dugg_15.js"], //predug file of fifteenth level from original game converted using map converter
+          ["js", "levels", "Fall_15.js"], //fallin file of fifteenth level from original game converted using map converter
+          ["js", "levels", "15.js"], //OL file of fifteenth level from original game converted using map converter
+		  
+		  //level 16 files
+          ["js", "levels", "Surf_16.js"], //terrain map file of sixteenth level from original game converted using map converter
+          ["js", "levels", "Cror_16.js"], //cryore map file of sixteenth level from original game converted using map converter
+          ["js", "levels", "High_16.js"], //surface map file of sixteenth level from original game converted using map converter
+          ["js", "levels", "Info_16.js"], //info file for sixteenth level
+          ["js", "levels", "Dugg_16.js"], //predug file of sixteenth level from original game converted using map converter
+          ["js", "levels", "path_16.js"], //path file of sixteenth level from original game converted using map converter
+          ["js", "levels", "16.js"], //OL file of sixteenth level from original game converted using map converter
+		  
+		  //level 17 files
+          ["js", "levels", "Surf_17.js"], //terrain map file of seventeenth level from original game converted using map converter
+          ["js", "levels", "Cror_17.js"], //cryore map file of seventeenth level from original game converted using map converter
+          ["js", "levels", "High_17.js"], //surface map file of seventeenth level from original game converted using map converter
+          ["js", "levels", "Info_17.js"], //info file for seventeenth level
+          ["js", "levels", "Dugg_17.js"], //predug file of seventeenth level from original game converted using map converter
+          ["js", "levels", "path_17.js"], //path file of seventeenth level from original game converted using map converter
+          ["js", "levels", "17.js"], //OL file of seventeenth level from original game converted using map converter
+		  
+		  //level 18 files
+          ["js", "levels", "Surf_18.js"], //terrain map file of eighteenth level from original game converted using map converter
+          ["js", "levels", "Cror_18.js"], //cryore map file of eighteenth level from original game converted using map converter
+          ["js", "levels", "High_18.js"], //surface map file of eighteenth level from original game converted using map converter
+          ["js", "levels", "Info_18.js"], //info file for eighteenth level
+          ["js", "levels", "Dugg_18.js"], //predug file of eighteenth level from original game converted using map converter
+          ["js", "levels", "path_18.js"], //path file of eighteenth level from original game converted using map converter
+          ["js", "levels", "Fall_18.js"], //fallin file of eighteenth level from original game converted using map converter
+          ["js", "levels", "18.js"], //OL file of eighteenth level from original game converted using map converter
+		  
+		  //level 19 files
+          ["js", "levels", "Surf_19.js"], //terrain map file of nineteenth level from original game converted using map converter
+          ["js", "levels", "Cror_19.js"], //cryore map file of nineteenth level from original game converted using map converter
+          ["js", "levels", "High_19.js"], //surface map file of nineteenth level from original game converted using map converter
+          ["js", "levels", "Info_19.js"], //info file for nineteenth level
+          ["js", "levels", "Dugg_19.js"], //predug file of nineteenth level from original game converted using map converter
+          ["js", "levels", "19.js"], //OL file of nineteenth level from original game converted using map converter
+		  
+		  //level 20 files
+          ["js", "levels", "Surf_20.js"], //terrain map file of twentieth level from original game converted using map converter
+          ["js", "levels", "High_20.js"], //surface map file of twentieth level from original game converted using map converter
+          ["js", "levels", "Info_20.js"], //info file for twentieth level
+          ["js", "levels", "Dugg_20.js"], //predug file of twentieth level from original game converted using map converter
+          ["js", "levels", "Fall_20.js"], //fallin file of twentieth level from original game converted using map converter
+          ["js", "levels", "20.js"], //OL file of twentieth level from original game converted using map converter
+		  
+		  //level 21 files
+          ["js", "levels", "Surf_21.js"], //terrain map file of twentyfirst level from original game converted using map converter
+          ["js", "levels", "Cror_21.js"], //cryore map file of twentyfirst level from original game converted using map converter
+          ["js", "levels", "High_21.js"], //surface map file of twentyfirst level from original game converted using map converter
+          ["js", "levels", "Info_21.js"], //info file for twentyfirst level
+          ["js", "levels", "Dugg_21.js"], //predug file of twentyfirst level from original game converted using map converter
+          ["js", "levels", "path_21.js"], //path file of twentyfirst level from original game converted using map converter
+          ["js", "levels", "Fall_21.js"], //fallin file of twentyfirst level from original game converted using map converter
+          ["js", "levels", "21.js"], //OL file of twentyfirst level from original game converted using map converter
+		  
+		  //level 22 files
+          ["js", "levels", "Surf_22.js"], //terrain map file of twentysecond level from original game converted using map converter
+          ["js", "levels", "Cror_22.js"], //cryore map file of twentysecond level from original game converted using map converter
+          ["js", "levels", "High_22.js"], //surface map file of twentysecond level from original game converted using map converter
+          ["js", "levels", "Info_22.js"], //info file for twentysecond level
+          ["js", "levels", "Dugg_22.js"], //predug file of twentysecond level from original game converted using map converter
+          ["js", "levels", "22.js"], //OL file of twentysecond level from original game converted using map converter
+		  
+		  //level 23 files
+          ["js", "levels", "Surf_23.js"], //terrain map file of twentythird level from original game converted using map converter
+          ["js", "levels", "Cror_23.js"], //cryore map file of twentythird level from original game converted using map converter
+          ["js", "levels", "High_23.js"], //surface map file of twentythird level from original game converted using map converter
+          ["js", "levels", "Info_23.js"], //info file for twentythird level
+          ["js", "levels", "Dugg_23.js"], //predug file of twentythird level from original game converted using map converter
+          ["js", "levels", "path_23.js"], //path file of twentythird level from original game converted using map converter
+          ["js", "levels", "23.js"], //OL file of twentythird level from original game converted using map converter
+		  
+		  //level 24 files
+          ["js", "levels", "Surf_24.js"], //terrain map file of twentyfourth level from original game converted using map converter
+          ["js", "levels", "Cror_24.js"], //cryore map file of twentyfourth level from original game converted using map converter
+          ["js", "levels", "High_24.js"], //surface map file of twentyfourth level from original game converted using map converter
+          ["js", "levels", "Info_24.js"], //info file for twentyfourth level
+          ["js", "levels", "Dugg_24.js"], //predug file of twentyfourth level from original game converted using map converter
+          ["js", "levels", "24.js"], //OL file of twentyfourth level from original game converted using map converter
+		  
+		  //level 25 files
+          ["js", "levels", "Surf_25.js"], //terrain map file of twentyfifth level from original game converted using map converter
+          ["js", "levels", "Cror_25.js"], //cryore map file of twentyfifth level from original game converted using map converter
+          ["js", "levels", "High_25.js"], //surface map file of twentyfifth level from original game converted using map converter
+          ["js", "levels", "Info_25.js"], //info file for twentyfifth level
+          ["js", "levels", "Dugg_25.js"], //predug file of twentyfifth level from original game converted using map converter
+          ["js", "levels", "path_25.js"], //path file of twentyfifth level from original game converted using map converter
+          ["js", "levels", "25.js"], //OL file of twentyfifth level from original game converted using map converter
           
           //core
           ["js", "", "rockRaiders.js"] //main game file (put last as this contains the main game loop)

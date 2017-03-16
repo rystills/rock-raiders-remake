@@ -102,7 +102,7 @@ def convertFile(inputFile):
                 if i == 1:
                     levelData.append("object = {")
                 else:
-                    if line == b'\r\n':
+                    if line.strip() == b'' or line.strip().startswith(b';'): #ignore ;'s as these are commented out lines
                         continue
 
                     levelData.append(
