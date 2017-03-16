@@ -889,6 +889,19 @@ function checkScrollScreen() {
 			gameLayer.cameraY += scrollSpeed;
 		}
 	}
+	//keep camera in world bounds
+	if (gameLayer.cameraY < 0) {
+		gameLayer.cameraY = 0;
+	}
+	if (gameLayer.cameraX < 0) {
+		gameLayer.cameraX = 0;
+	}
+	if (terrain.length > 0 && gameLayer.cameraY > tileSize * terrain[0].length - GameManager.screenHeight) {
+		gameLayer.cameraY = tileSize * terrain[0].length - GameManager.screenHeight;
+	}
+	if (terrain.length > 0 && gameLayer.cameraX > tileSize * terrain.length - GameManager.screenWidth) {
+		gameLayer.cameraX = tileSize * terrain.length - GameManager.screenWidth;
+	}
 }
 
 function drawTerrainVars(varNames) {
@@ -1539,9 +1552,7 @@ function update() {
 			checkAccomplishedObjective();
 		}
 			
-		//pre-render; draw solid background
-		GameManager.drawSurface.fillStyle = "rgb(60,45,23)"; //brown background color
-		GameManager.drawSurface.fillRect(0, 0, GameManager.screenWidth, GameManager.screenHeight);
+		//pre-render; nothing to do here now that camera can no longer go out of bounds
 		//inital render; draw all rygame objects
 		GameManager.drawFrame();
 		//post render; draw effects and UI
