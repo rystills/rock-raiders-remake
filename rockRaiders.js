@@ -846,18 +846,29 @@ function stopMinifig() {
 
 //level select screen can be scrolled vertically to navigate the various levels
 function checkScrollLevelSelect() {
-	if (GameManager.mousePos.y < scrollDistance) {
-		levelSelectLayer.cameraY -= scrollSpeed;
-		if (levelSelectLayer.cameraY < 0) {
-			levelSelectLayer.cameraY = 0;
+	if (mousePanning) {
+		if (GameManager.mousePos.y < scrollDistance) {
+			levelSelectLayer.cameraY -= scrollSpeed;
+		}
+		else if (GameManager.mousePos.y > GameManager.screenHeight - scrollDistance) {
+			levelSelectLayer.cameraY += scrollSpeed;
 		}
 	}
-	else if (GameManager.mousePos.y > GameManager.screenHeight - scrollDistance) {
-		levelSelectLayer.cameraY += scrollSpeed;
-		if (levelSelectLayer.cameraY > (3163 - GameManager.screenHeight)) { //level select image is 3163 pixels tall
-			levelSelectLayer.cameraY = 3163 - GameManager.screenHeight;
+	if (keyboardPanning) { //can you scroll using the arrow keys?
+		if (GameManager.keyStates[String.fromCharCode(38)]) {
+			levelSelectLayer.cameraY -= scrollSpeed;
+		}
+		else if (GameManager.keyStates[String.fromCharCode(40)]) {
+			levelSelectLayer.cameraY += scrollSpeed;
 		}
 	}
+	if (levelSelectLayer.cameraY < 0) {
+		levelSelectLayer.cameraY = 0;
+	}
+	else if (levelSelectLayer.cameraY > (3163 - GameManager.screenHeight)) { //level select image is 3163 pixels tall
+		levelSelectLayer.cameraY = 3163 - GameManager.screenHeight;
+	}
+	
 }
 
 function checkScrollScreen() {
