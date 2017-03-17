@@ -75,6 +75,10 @@ Raider.prototype.checkChooseCloserEquivalentResource = function(removeCurrentTas
 };
 
 Raider.prototype.update = function() {
+	//if we are on a space that has no been touched yet, do nothing
+	if (!this.space.touched) {
+		return;
+	}
 	//if we are of taskType "build" make sure our job hasn't been taken by somebody else closer to the building site
 	//note that optionally allowing 'undefined' rather than build here should likely be unnecessary
 	if ((this.getTaskType(this.currentTask) == "build" || this.getTaskType(this.currentTask) == "undefined") && this.reservingResource && (!(this.currentTask.dedicatedResources[this.currentObjectiveResourceType] < this.currentTask.requiredResources[this.currentObjectiveResourceType]))) {
