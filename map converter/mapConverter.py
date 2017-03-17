@@ -104,9 +104,10 @@ def convertFile(inputFile):
                 else:
                     if line.strip() == b'' or line.strip().startswith(b';'): #ignore ;'s as these are commented out lines
                         continue
-
+                    
                     levelData.append(
                         str(line.decode('ascii'))
+                        .replace("-","_") #build tutorial 2 ol file uses -'s in object names. replace these with _'s so JS accepts them
                         .replace(" ", ":")
                         .replace("\t", ":")
                         .lstrip(":")

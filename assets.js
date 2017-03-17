@@ -184,6 +184,71 @@ object = {
           ["js", "levels", "test level 1.js"], //1st test level (deprecated)
           ["js", "levels", "test level 2.js"], //2nd test level (deprecated)          
           
+          //Tutorial level 1 files
+          ["js", "levels", "M01.js"], //terrain map file of first tutorial level from original game converted using map converter
+          ["js", "levels", "Dugg_M01.js"], //predug map file of first tutorial level from original game converted using map converter
+          ["js", "levels", "Cror_M01.js"], //cryore map file of first tutorial level from original game converted using map converter
+          ["js", "levels", "High_M01.js"], //surface map file of first tutorial level from original game converted using map converter
+          ["js", "levels", "Path_M01.js"], //path map file of first tutorial level from original game converted using map converter
+          ["js", "levels", "Surf_M01.js"], //terrain map file of first tutorial level from original game converted using map converter
+          
+          //Tutorial level 2 files
+          ["js", "levels", "D01.js"], //terrain map file of second tutorial level from original game converted using map converter
+          ["js", "levels", "Dugg_D01.js"], //predug map file of second tutorial level from original game converted using map converter
+          ["js", "levels", "Cror_D01.js"], //cryore map file of second tutorial level from original game converted using map converter
+          ["js", "levels", "High_D01.js"], //surface map file of second tutorial level from original game converted using map converter
+          ["js", "levels", "Path_D01.js"], //path map file of second tutorial level from original game converted using map converter
+          ["js", "levels", "Surf_D01.js"], //terrain map file of second tutorial level from original game converted using map converter
+        
+          //Tutorial level 3 files
+          ["js", "levels", "B01.js"], //terrain map file of third tutorial level from original game converted using map converter
+          ["js", "levels", "Dugg_B01.js"], //predug map file of third tutorial level from original game converted using map converter
+          ["js", "levels", "Cror_B01.js"], //cryore map file of third tutorial level from original game converted using map converter
+          ["js", "levels", "High_B01.js"], //surface map file of third tutorial level from original game converted using map converter
+          ["js", "levels", "Path_B01.js"], //path map file of third tutorial level from original game converted using map converter
+          ["js", "levels", "Surf_B01.js"], //terrain map file of third tutorial level from original game converted using map converter
+          
+          //Tutorial level 4 files
+          ["js", "levels", "M02.js"], //terrain map file of fourth tutorial level from original game converted using map converter
+          ["js", "levels", "Dugg_M02.js"], //predug map file of fourth tutorial level from original game converted using map converter
+          ["js", "levels", "Cror_M02.js"], //cryore map file of fourth tutorial level from original game converted using map converter
+          ["js", "levels", "High_M02.js"], //surface map file of fourth tutorial level from original game converted using map converter
+          ["js", "levels", "Path_M02.js"], //path map file of fourth tutorial level from original game converted using map converter
+          ["js", "levels", "Surf_M02.js"], //terrain map file of fourth tutorial level from original game converted using map converter
+         
+          //Tutorial level 5 files
+          ["js", "levels", "D02.js"], //terrain map file of fifth tutorial level from original game converted using map converter
+          ["js", "levels", "Dugg_D02.js"], //predug map file of fifth tutorial level from original game converted using map converter
+          ["js", "levels", "Cror_D02.js"], //cryore map file of fifth tutorial level from original game converted using map converter
+          ["js", "levels", "High_D02.js"], //surface map file of fifth tutorial level from original game converted using map converter
+          ["js", "levels", "Path_D02.js"], //path map file of fifth tutorial level from original game converted using map converter
+          ["js", "levels", "Surf_D02.js"], //terrain map file of fifth tutorial level from original game converted using map converter
+          
+          //Tutorial level 6 files
+          ["js", "levels", "B02.js"], //terrain map file of sixth tutorial level from original game converted using map converter
+          ["js", "levels", "Dugg_B02.js"], //predug map file of sixth tutorial level from original game converted using map converter
+          ["js", "levels", "Cror_B02.js"], //cryore map file of sixth tutorial level from original game converted using map converter
+          ["js", "levels", "High_B02.js"], //surface map file of sixth tutorial level from original game converted using map converter
+          ["js", "levels", "Path_B02.js"], //path map file of sixth tutorial level from original game converted using map converter
+          ["js", "levels", "Surf_B02.js"], //terrain map file of sixth tutorial level from original game converted using map converter
+          
+          //Tutorial level 7 files
+          ["js", "levels", "D03.js"], //terrain map file of seventh tutorial level from original game converted using map converter
+          ["js", "levels", "Dugg_D03.js"], //predug map file of seventh tutorial level from original game converted using map converter
+          ["js", "levels", "Cror_D03.js"], //cryore map file of seventh tutorial level from original game converted using map converter
+          ["js", "levels", "High_D03.js"], //surface map file of seventh tutorial level from original game converted using map converter
+          ["js", "levels", "Path_D03.js"], //path map file of seventh tutorial level from original game converted using map converter
+          ["js", "levels", "Surf_D03.js"], //terrain map file of seventh tutorial level from original game converted using map converter
+          
+          //Tutorial level 8 files
+          ["js", "levels", "DE1.js"], //terrain map file of eigth tutorial level from original game converted using map converter
+          ["js", "levels", "Dugg_DE1.js"], //predug map file of eigth tutorial level from original game converted using map converter
+          ["js", "levels", "Cror_DE1.js"], //cryore map file of eigth tutorial level from original game converted using map converter
+          ["js", "levels", "High_DE1.js"], //surface map file of eigth tutorial level from original game converted using map converter
+          ["js", "levels", "Path_DE1.js"], //path map file of eigth tutorial level from original game converted using map converter
+          ["js", "levels", "Surf_DE1.js"], //terrain map file of eigth tutorial level from original game converted using map converter
+          
+
           //level 1 files
           ["js", "levels", "Surf_01.js"], //terrain map file of first level from original game converted using map converter
           ["js", "levels", "Cror_01.js"], //cryore map file of first level from original game converted using map converter
