@@ -7,6 +7,23 @@ Space.prototype.toString = function() {
 	return "Space [" + this.x + ", " + this.y + "]";
 };
 
+Space.prototype.updateDrillPercent = function(drillPercentIncrease, raider) {
+	this.drillPercent += drillPercentIncrease;
+	if (this.type == "ore seam" || this.type == "energy crystal seam") {
+		for (var i = 20; i <= 80; i += 20) {
+			if (this.drillPercent >= i && this.drillPercent - drillPercentIncrease < i) { //if we go up by a 20% mark, spawn a piece of ore or energy crystal
+				var newOre = new Collectable(raider.space,this.type == "ore seam" ? "ore" : "crystal");
+				collectables.push(newOre);
+				tasksAvailable.push(newOre);
+			}
+		}
+	}
+};
+
+Space.prototype.updateSweepPercent = function(sweepPercentIncrease, raider) {
+	this.sweepPercent += sweepPercentIncrease;
+};
+		
 Space.prototype.makeRubble = function(rubbleContainsOre,drilledBy,silent = false) {
 	if (drilledBy != null) {
 		this.completedBy = drilledBy;
@@ -187,6 +204,7 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 	}
 	this.type = type;
 	this.speedModifier = 1;
+	this.drillSpeedModifier = 1;
 	this.walkable = false;
 	this.drillable = false;
 	this.explodable = false;
@@ -232,6 +250,7 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 		this.image = "ore seam 1 (1).png";
 		this.drillable = true;
 		this.isWall = true;
+		this.drillSpeedModifier = .2;
 	}
 	else if (type == "water") {
 		this.image = "water 1 (1).png";
@@ -240,6 +259,7 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 		this.image = "energy crystal seam 1 (1).png";
 		this.drillable = true;
 		this.isWall = true;
+		this.drillSpeedModifier = .2;
 	}
 	else if (type == "recharge seam") {
 		this.image = "recharge seam 1 (1).png";
@@ -712,5 +732,6 @@ function Space(type,listX,listY,height) {
 	//this.touched = false;
 	this.landSlides = null;
 	this.landSlideSound = null;
+	this.drillSpeedModifier = 1; //how difficult is this wall to drill (for ore and crystal seams, this will be 0.2, as they require 5 'drills')
 	//this.landSlideSound = GameManager.sounds["lanslide"].cloneNode();
 }

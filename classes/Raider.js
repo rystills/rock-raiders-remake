@@ -547,7 +547,7 @@ Raider.prototype.update = function() {
 					}
 				}
 				else if (taskType == "drill") {
-					this.currentTask.drillPercent += this.drillSpeed;
+					this.currentTask.updateDrillPercent(this.drillSpeed * this.currentTask.drillSpeedModifier, this);
 					this.drillSound.play();
 					this.busy = true;
 					if (this.currentTask.drillPercent >= 100) {
@@ -564,7 +564,7 @@ Raider.prototype.update = function() {
 						if (reachedObjective == true) {
 							this.space = this.currentTask;
 						}
-						this.currentTask.sweepPercent += this.sweepSpeed;
+						this.currentTask.updateSweepPercent(this.sweepSpeed, this);
 						this.sweepSound.play();
 						this.busy = true;
 						if (this.currentTask.sweepPercent >= 100) {
