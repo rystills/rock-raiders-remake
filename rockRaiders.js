@@ -896,11 +896,11 @@ function checkScrollScreen() {
 	if (gameLayer.cameraX < 0) {
 		gameLayer.cameraX = 0;
 	}
-	if (terrain.length > 0 && gameLayer.cameraY > tileSize * terrain[0].length - GameManager.screenHeight) {
-		gameLayer.cameraY = tileSize * terrain[0].length - GameManager.screenHeight;
+	if (terrain.length > 0 && gameLayer.cameraY > tileSize * terrain.length - GameManager.screenHeight) {
+		gameLayer.cameraY = tileSize * terrain.length - GameManager.screenHeight;
 	}
-	if (terrain.length > 0 && gameLayer.cameraX > tileSize * terrain.length - GameManager.screenWidth) {
-		gameLayer.cameraX = tileSize * terrain.length - GameManager.screenWidth;
+	if (terrain.length > 0 && gameLayer.cameraX > tileSize * terrain[0].length - GameManager.screenWidth) {
+		gameLayer.cameraX = tileSize * terrain[0].length - GameManager.screenWidth;
 	}
 }
 
@@ -1293,7 +1293,8 @@ function returnToMainMenu() {
 	if (scoreScreenLayer.active) { //update score strings if coming from score layer, as this means we may have updated one of the level scores
 		for (var i = 0; i < GameManager.scriptObjects["levelList.js"].levels.length; ++i) {
 			var score = levelScores[GameManager.scriptObjects["levelList.js"].levels[i]];
-			menuButtons.objectList[i+1].updateText(GameManager.scriptObjects["Info_" + GameManager.scriptObjects["levelList.js"].levels[i] + ".js"].name + (score >= 0 ? " - best score: " + score : ""));
+			//level select buttons are now images, so for now we don't need to show this score anywhere
+			//levelSelectButtons.objectList[i].updateText(GameManager.scriptObjects["Info_" + GameManager.scriptObjects["levelList.js"].levels[i] + ".js"].name + (score >= 0 ? " - best score: " + score : ""));
 		}
 	}
 	menuLayer.active = true;
