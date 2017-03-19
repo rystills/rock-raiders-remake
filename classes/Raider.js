@@ -1,26 +1,32 @@
 makeChild("Raider","RygameObject");
-Raider.prototype.chooseClosestBuilding = function(buildingList) {
-	//return the closest building from the list via pathfinding
+Raider.prototype.chooseClosestBuilding = function(buildingType,resourceTypeNeeded) {
+	destinationSites = [];
+	destinationSite = null;
+	for (var i = 0; i < buildings.length; i++) { //compile all buildings of type buildingType, then find closest one
+		if (buildings[i].type == buildingType && buildings[i].touched == true) { //if its not touched yet it is not pathable so dont choose it (this case should be impossible though because buildings that start out in Fog are not added to the buildings list until they are touched)
+			if (resourceTypeNeeded == null || buildingSites[i].resourceNeeded(resourceTypeNeeded)) { //if we're looking to place a resource, check if the building site needs it
+				destinationSites.push(buildings[i]);
+			}
+		}
+	}
+	//generate list of buildings of type buildingType, then choose the closest one depending on pathfinding
 	var shortestPathLength = -1;
 	var shortestStartDistance = -1;
-	//var shortestPath = null;
 	var nearestBuilding = null;
 	
-	for (var i = 0; i < buildingList.length; ++i) {
-		var currentPath = findClosestStartPath(this,calculatePath(terrain,this.space,typeof buildingList[i].space == "undefined" ? buildingList[i]: buildingList[i].space,true));
+	for (var i = 0; i < destinationSites.length; ++i) {
+		var currentPath = findClosestStartPath(this,calculatePath(terrain,this.space,typeof destinationSites[i].space == "undefined" ? destinationSites[i]: destinationSites[i].space,true));
 		if (currentPath == null || currentPath.length == 0) {
 			continue;
 		}
 		var currentLength = currentPath.length;
 		var currentStartDistance = getDistance(this.centerX,this.centerY,currentPath[currentPath.length-1].centerX(),currentPath[currentPath.length-1].centerY());
 		if (shortestPathLength == -1 || currentLength < shortestPathLength || currentLength == shortestPathLength && currentStartDistance < shortestStartDistance) {
-			//shortestPath = currentPath;
 			shortestPathLength = currentLength;
 			shortestStartDistance = currentStartDistance;
-			nearestBuilding = buildingList[i];
+			nearestBuilding = destinationSites[i];
 		}
 	}
-	//console.log("found building with shortest path. path length: " + shortestPath.length);
 	return nearestBuilding;
 };
 
@@ -118,17 +124,8 @@ Raider.prototype.update = function() {
 			}
 			this.currentObjective = this.currentTask;
 			if (this.getTaskType(this.currentTask) == "build") {
-				destinationSites = [];
-				destinationSite = null;
-				if (buildings.length > 0) {
-					for (var i = 0; i < buildings.length; i++) { //compile all toolstores, then find closest one
-						if (buildings[i].type == "tool store" && buildings[i].touched == true) { //if its not touched yet it is not pathable so dont choose it (this case should be impossible though because buildings that start out in Fog are not added to the buildings list until they are touched)
-							destinationSites.push(buildings[i]);
-						}
-					}
-				}
-				if ((destinationSites.length > 0)) {
-					destinationSite = this.chooseClosestBuilding(destinationSites);
+				destinationSite = this.chooseClosestBuilding("tool store");
+				if (destinationSite != null) {
 					//loop through all potential resourceTypes and see if any of them is needed by the building site and exists in the stash
 					this.currentObjective = destinationSite;
 					var dedicatedResourceTypes = Object.getOwnPropertyNames(this.currentTask.dedicatedResources); //TODO: THIS IS COPIED FROM THE RESOURCENEEDED METHOD, AND SHOULD BE PUT IN ITS OWN SUBMETHOD AS IT IS REPEAT CODE
@@ -394,17 +391,8 @@ Raider.prototype.update = function() {
 							}
 						}
 						if (this.currentTask.grabPercent >= 100) {
-							destinationSites = [];
-							destinationSite = null;
-							if (buildingSites.length > 0) {
-								for (var i = 0; i < buildingSites.length; i++) {
-									if (buildingSites[i].resourceNeeded(this.holding.type)) {
-										destinationSites.push(buildingSites[i]);
-									}
-								}
-							}
-							if (destinationSites.length > 0) {
-								destinationSite = this.chooseClosestBuilding(destinationSites);
+							destinationSite = this.chooseClosestBuilding("building site",this.holding.type);
+							if (destinationSite != null) {
 								this.currentObjective = destinationSite;
 								//adjust dedicated resource number because we have elected to take our resource to this building site rather than to the tool store, but dont update building's list of secured resources until we actually get there and drop off the resource
 								destinationSite.dedicatedResources[this.holding.type]++;
@@ -423,20 +411,12 @@ Raider.prototype.update = function() {
 								}
 							}
 							else {
-								if (buildings.length > 0) {
-									for (var i = 0; i < buildings.length; i++) {
-										if (buildings[i].type == "tool store") {
-											destinationSites.push(buildings[i]);
-										}
-									}
-								}
-								if (destinationSites.length > 0) {
-									destinationSite = this.chooseClosestBuilding(destinationSites);
+								destinationSite = this.chooseClosestBuilding("tool store");
+								if (destinationSite != null) {
 									this.currentObjective = destinationSite;
 								}
 								else {
 									//nowhere to bring the resource, so wait for a place to bring the resource to appear
-									//this.currentObjective = null; //TODO: SEE IF THIS WORKS. SIMPLY SETTING THE OBJECTIVE TO NULL IS A PLACEHOLDER, A MORE PROPER SOLUTION IS NEEDED TO KEEP RAIDERS IDLE BUT LOOKING FOR A NEW PLACE TO BRING THEIR COLLECTABLE EACH UPDATE FRAME
 								}
 							}
 							

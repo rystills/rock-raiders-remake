@@ -746,16 +746,7 @@ function upgradeBuilding() {
 
 //determine the closest path to the closest building of buildingType from raider. return null if no path is found.
 function pathToClosestBuilding(raider, buildingType) {
-	destinationSites = [];
-	destinationSite = null;
-	if (buildings.length > 0) {
-		for (var i = 0; i < buildings.length; ++i) {
-			if (buildings[i].type == buildingType) {
-				destinationSites.push(buildings[i]);
-			}
-		}
-	}
-	var closestBuilding = raider.chooseClosestBuilding(destinationSites);
+	var closestBuilding = raider.chooseClosestBuilding(buildingType);
 	return findClosestStartPath(raider,calculatePath(terrain,raider.space,closestBuilding,true));
 }
 
