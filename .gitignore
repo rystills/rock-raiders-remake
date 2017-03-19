@@ -45,5 +45,6 @@ Temporary Items
 
 *.map
 *.ol
-todo.txt
-pathing bug info.xcf
+
+# ignore local test files
+bugfixing

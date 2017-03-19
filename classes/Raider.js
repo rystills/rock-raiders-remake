@@ -89,10 +89,6 @@ Raider.prototype.update = function() {
 	}
 	this.completedLastFrame = [];
 	if (this.currentTask != null && this.currentTask.completedBy != null) {
-		/*if (this.currentTask.completedBy == this) { //this case is no longer possible, as it would have already been resolved above
-			this.currentTask.completedBy = null;
-		}
-		else {*/
 		taskCopy = null;
 		if (tasksInProgress.objectList.indexOf(this.currentTask) != -1) {
 			taskCopy = this.currentTask;
@@ -100,7 +96,6 @@ Raider.prototype.update = function() {
 		this.clearTask();
 		if (taskCopy != null) {
 			tasksInProgress.push(taskCopy);
-			//}
 		}
 	}
 	if ((selection.indexOf(this) != -1) && (this.currentTask == null)) { //don't start a new task if currently selected unless instructed to
@@ -140,7 +135,6 @@ Raider.prototype.update = function() {
 					var foundResourceType = false;
 					for (var i = 0; i < dedicatedResourceTypes.length; i++) {
 						if (this.currentTask.dedicatedResources[dedicatedResourceTypes[i]] < this.currentTask.requiredResources[dedicatedResourceTypes[i]]) {
-							//console.log("stuck at this point");
 							if (resourceAvailable(dedicatedResourceTypes[i])) {
 								this.currentObjectiveResourceType = dedicatedResourceTypes[i];
 								reservedResources[this.currentObjectiveResourceType]++;
@@ -152,16 +146,13 @@ Raider.prototype.update = function() {
 					}
 					//no resources of required types in buildings
 					if (foundResourceType == false) {
-						//console.log("UNAVAILABLE A");
 						tasksUnavailable.push(this.currentTask); //since there are no resources available of types that this build task needs, we move it to tasksUnavailable
 						this.currentObjective = null; //TODO: THIS IS REPEAT CODE; CLEANUP LOGIC IN SUBMETHOD
 						this.currentTask = null;
 						continue;
-						//console.log("SET CURRENT TASK TO NULL");
 					}
 				}
 				else {
-					//console.log("UNAVAILABLE B");
 					tasksUnavailable.push(this.currentTask);
 					//nowhere to bring the resource, so wait for a place to bring the resource to appear
 					this.currentObjective = null; //TODO: SEE IF THIS WORKS. SIMPLY SETTING THE OBJECTIVE TO NULL IS A PLACEHOLDER, A MORE PROPER SOLUTION IS NEEDED TO KEEP RAIDERS IDLE BUT LOOKING FOR A NEW PLACE TO BRING THEIR COLLECTABLE EACH UPDATE FRAME
@@ -172,9 +163,8 @@ Raider.prototype.update = function() {
 				
 				//TODO; implement this in the findClosest method so we are not removing and then readding the task to the unavailable list
 			}
-			//tasksInProgress.push(this.currentTask); //TODO: CONSIDER IF THE TASK LISTS SHOULD BE ACTIVELY SORTED, AND IF SO, IN WHAT WAY (SEEMS IT WOULD BE DIFFERENT FOR EACH RAIDER DEPENDING ON LOCATION)?
+			//TODO: CONSIDER IF THE TASK LISTS SHOULD BE ACTIVELY SORTED, AND IF SO, IN WHAT WAY (SEEMS IT WOULD BE DIFFERENT FOR EACH RAIDER DEPENDING ON LOCATION)?
 			if (!(typeof this.currentTask.space == "undefined" ? this.currentTask.touched: this.currentTask.space.touched)) {
-				//console.log("UNAVAILABLE C")
 				tasksUnavailable.push(this.currentTask);
 				this.currentTask = null;
 				continue;
@@ -184,7 +174,6 @@ Raider.prototype.update = function() {
 			} //TODO: ENSURE THAT YOU DO NOT MAKE IT POSSIBLE FOR THE TASK TO SIMULTANEOUSLY BE IN TASKSAVAILABLE AND IN TASKSUNAVAILABLE (OR IN ONE OF THE LISTS MULTIPLE TIMES) IN THE FUTURE DUE TO THE FACT THAT THIS TASK CAN BE ASSIGNED TO MULTIPLE RAIDERS AT ONCE
 			this.currentPath = findClosestStartPath(this,calculatePath(terrain,this.space,typeof this.currentObjective.space == "undefined" ? this.currentObjective: this.currentObjective.space,true));
 			if (this.currentPath == null) { //TODO: CHANGE THIS AS CURRENTLY THERE IS NO WAY TO GET THESE TASKS BACK FROM UNAVAILABLE, AND THEY MAY BE UNAVAILABLE TO ONE RAIDER BUT NOT TO ANOTHER ONE
-				//console.log("UNAVAILABLE D");
 				tasksUnavailable.push(this.currentTask); //TODO: THIS IS REPEAT CODE COPIED FROM ABOVE. FIX COMMENTS
 				//nowhere to bring the resource, so wait for a place to bring the resource to appear
 				this.currentObjective = null; //TODO: SEE IF THIS WORKS. SIMPLY SETTING THE OBJECTIVE TO NULL IS A PLACEHOLDER, A MORE PROPER SOLUTION IS NEEDED TO KEEP RAIDERS IDLE BUT LOOKING FOR A NEW PLACE TO BRING THEIR COLLECTABLE EACH UPDATE FRAME
@@ -226,7 +215,6 @@ Raider.prototype.update = function() {
 			var distanceToPoint = getDistance(this.centerX(),this.centerY(),this.currentPath[this.currentPath.length-1].centerX(),this.currentPath[this.currentPath.length-1].centerY()); //TODO: THIS IS INEFFICIENT SINCE WE RECALCULATE THIS DISTANCE IN THE MOVETOWARDSPOINT METHOD! FIND A NICER WAY OF KEEPING TRACK
 			if (this.moveTowardsPoint(this.currentPath[this.currentPath.length-1].centerX(),this.currentPath[this.currentPath.length-1].centerY(),distanceTraveled,true)) {
 				distanceTraveled -= distanceToPoint;
-				//console.log(distanceTraveled);
 				this.space = this.currentPath.pop();
 				if (this.holding == null && (this.currentPath.length > 1 || (this.currentPath[0].walkable == true && this.currentPath[0].contains.objectList.length > 1))) { //if the final space is walkable we still check for closer resources as multiple resources may exist on a single walkable space. if the space is not walkable then there should only be able to be a single task on that space such as to drill that space
 					if (this.checkChooseCloserEquivalentResource()) {
@@ -254,11 +242,6 @@ Raider.prototype.update = function() {
 			if (this.busy || collisionReached || collisionRect(this,this.currentObjective,true)) {
 				if (!this.busy) {
 					if ((taskType == "collect" && this.currentObjective.buildable != true) || taskType == "drill" || taskType == "get tool") {
-						//if (taskType == "collect") {
-							//console.log('TEST POINT REACHED');
-							//this.drawAngle = getAngle(this.x,this.y,this.currentObjective.x,this.currentObjective.y,true); //its possible for ore to suddenly appear right next to or on top of us (such as if we are sweeping) and then we won't be facing it. So make the raider face the ore before picking it up as a precaution
-						//}
-						//console.log(this.space.centerY());
 						if (this.samePosition(this.x,this.y,this.xPrevious,this.yPrevious)) {
 							freezeAngle = true; //if we didnt move yet and are just moving to suddenly get out of a collision that is occurring we want to preserve our angle
 						}
@@ -267,8 +250,6 @@ Raider.prototype.update = function() {
 					}
 				}
 				if (taskType == "build") {
-					//console.log("build task type: " + this.getTaskType(this.currentTask) + " dedicated resources: "+ this.currentTask.dedicatedResources[this.currentObjectiveResourceType] + " required resources: " + this.currentTask.requiredResources[this.currentObjectiveResourceType] + " reserving resource: " + this.reservingResource + " logic is true: " + (this.reservingResource && (!(this.currentTask.dedicatedResources[this.currentObjectiveResourceType] < this.currentTask.requiredResources[this.currentObjectiveResourceType]))));
-					//console.log("building, resource type: " + this.currentObjectiveResourceType);
 					if (this.currentObjective != this.currentTask) {
 						if ((this.busy) || (this.reservingResource)) {
 							if (!this.busy) {
@@ -281,7 +262,6 @@ Raider.prototype.update = function() {
 									
 									if (!this.currentTask.resourceNeeded()) { //TODO: COPIED FROM COLLECT SECTION OF RAIDER UPDATE METHOD; ENSURE THAT THIS CODE SNIPPET IS NEEDED									
 										var newIndex = tasksAvailable.indexOf(this.currentTask);
-										//tasksAvailable.remove(buildingSites[i]);
 										if (newIndex != -1) { //the build task may be in tasksUnavailable if there are not currently any resources available to work with (this code segment is copied from the update section; here in the build section, this clause checking tasksUnavailable may be an impossible case)
 											tasksAvailable.splice(newIndex, 1);
 										}
@@ -298,7 +278,6 @@ Raider.prototype.update = function() {
 									newCollectable.setCenterX(this.centerX());
 									newCollectable.setCenterY(this.centerY());
 									var pointDir = getAngle(newCollectable.centerX(),newCollectable.centerY(),this.currentObjective.centerX(),this.currentObjective.centerY());
-									//pointDir += 180;
 									var currentX = newCollectable.x;
 									var currentY = newCollectable.y;
 									newCollectable.moveDirection(pointDir,3);
@@ -306,12 +285,7 @@ Raider.prototype.update = function() {
 									var oldY = newCollectable.y;
 									newCollectable.x = currentX;
 									newCollectable.y = currentY;
-									newCollectable.moveOutsideCollision(this,oldX,oldY);
-									//var oldX = newCollectable.x;
-									//var oldY = newCollectable.y;
-									//newCollectable.moveTowardsPoint(this.currentObjective.centerX(),this.currentObjective.centerY(),4,true);
-									//newCollectable.moveOutsideCollision(this,oldX,oldY);
-									
+									newCollectable.moveOutsideCollision(this,oldX,oldY);									
 									this.currentObjective = newCollectable;
 									collectables.push(this.currentObjective);
 								}
@@ -328,24 +302,14 @@ Raider.prototype.update = function() {
 									this.completedLastFrame.push(this.currentObjective);
 									this.busy = false;
 									this.holding = this.currentObjective;
-									//console.log("angle: " + this.drawAngle + " other angle: " + this.currentObjective.drawAngle);
-									
 									this.holdingAngleDifference = this.currentObjective.drawAngle - this.drawAngle;
-									
 									this.holding.x -= (this.x-this.xPrevious); //move the newly held object in the reverse direction to cancel out the holding movement since we just picked it up this frame
 									this.holding.y -= (this.y-this.yPrevious);
-									
 									this.holding.space.contains.remove(this.holding);
-									
-									/*else {
-										this.currentObjective = 
-										//this case really shouldn't come up with the way the ai is designed right now, but since the resource we just took from a tool store is not needed at the build site anymore, just put it back in the store
-									}*/
 									this.currentObjective = this.currentTask;
 									this.currentPath = findClosestStartPath(this,calculatePath(terrain,this.space,this.currentObjective,true));
 								}
 							}
-							
 						}
 						else {
 							//there is no resource in the tool store for us to take, so clear the current task
@@ -364,20 +328,8 @@ Raider.prototype.update = function() {
 							if (this.holding.grabPercent <= 0) {
 								this.playDropSound();
 								this.busy = false;
-	//							if (this.holding.type == "ore") {
-	//								//increase resources if we are at a toolstore, but not if we are at a building site
-	//								collectedResources["ore"]++;
-	//							}
-	//							else if (this.holding.type == "crystal") {
-	//								collectedResources["crystal"]++;
-	//							}
 								if (this.currentObjective.type == "building site") {
-									//console.log("before:");
-									//console.log(tasksAvailable);
-									this.currentObjective.updatePlacedResources(this.holding.type);
-									//console.log("after:");
-									//console.log(tasksAvailable);
-									
+									this.currentObjective.updatePlacedResources(this.holding.type);	
 								}
 								else if (this.currentObjective.type == "tool store") { //because this is copied from the "collect" section and we are in the "build" section this condition is possibly unreachable
 									var resourcePreviouslyAvailable = resourceAvailable(this.holding.type);
@@ -397,10 +349,6 @@ Raider.prototype.update = function() {
 								}
 								this.dedicatingResource = false;
 								this.holding.die();
-								//var newIndex = tasksAvailable.indexOf(this.currentTask);
-								//console.log(tasksAvailable);
-								//console.log("INDEX: " + newIndex);
-								//tasksAvailable.splice(newIndex, 1);
 								this.clearTask();
 							}
 						}
@@ -409,11 +357,6 @@ Raider.prototype.update = function() {
 				}
 				
 				if (taskType == "get tool") {
-					//console.log("TEST POINT REACHED!");
-					//if (this.tools.length < this.maxTools) {
-					//	this.tools.push(this.getToolName);
-					//}
-					//else {
 					this.grabToolPercent+=this.grabToolSpeed;
 					if (this.grabToolPercent >= 100) {
 						this.tools.unshift(this.getToolName);
@@ -442,13 +385,11 @@ Raider.prototype.update = function() {
 								this.currentTask.grabPercent = 100;
 								this.currentObjective.completedBy = this;
 								this.completedLastFrame.push(this.currentObjective);
-								//this.busy = false;
 								this.holding = this.currentTask;
 								this.holdingAngleDifference = this.currentTask.drawAngle - this.drawAngle;
 								this.holding.x -= (this.x-this.xPrevious); //move the newly held object in the reverse direction to cancel out the holding movement since we just picked it up this frame
 								this.holding.y -= (this.y-this.yPrevious);
 								this.space = this.currentTask.space; //TODO: THIS IS LARGELY REPEAT CODE FROM EARLIER IN THIS METHOD. PUT THIS STUFF INTO ITS OWN SUB METHOD
-								//this.currentObjective = null;
 								this.holding.space.contains.remove(this.holding);
 							}
 						}
@@ -470,7 +411,6 @@ Raider.prototype.update = function() {
 								this.dedicatingResource = true;
 								if (!destinationSite.resourceNeeded()) {
 									var newIndex = tasksAvailable.indexOf(destinationSite);
-									//tasksAvailable.remove(buildingSites[i]);
 									if (newIndex != -1) { //the build task may be in tasksUnavailable if there are not currently any resources available to work with
 										tasksAvailable.splice(newIndex, 1);
 									}
@@ -556,8 +496,6 @@ Raider.prototype.update = function() {
 					this.busy = true;
 					if (this.currentTask.drillPercent >= 100) {
 						this.currentTask.drillPercent = 100;
-						//this.currentObjective.completedBy = this;
-						//this.completedLastFrame.push(this.currentObjective);
 						this.busy = false;
 						this.currentTask.makeRubble(true,this);
 						this.clearTask();
@@ -576,17 +514,8 @@ Raider.prototype.update = function() {
 							this.currentObjective.completedBy = this;
 							this.completedLastFrame.push(this.currentObjective);
 							this.busy = false;
-							//var taskCopy = this.currentTask; //clear the task before sweeping so that the rubble can add itself back to the task list after being swept if more rubble remains
-							//console.log("before:");
-							//console.log(tasksAvailable);
 							this.currentTask.sweep();
-							this.clearTask();
-							//taskCopy.sweep();
-							//console.log("after:");
-							//console.log(tasksAvailable);
-							//this.currentTask.touched = false; //set it back to false so we can run the search from the newly swept square
-							//touchAllAdjacentSpaces(this.currentTask);
-							
+							this.clearTask();							
 						}
 					}
 				}
@@ -605,9 +534,8 @@ Raider.prototype.update = function() {
 		this.holding.y += (this.y-this.yPrevious);
 		this.holding.rotateAroundPoint(this.centerX(),this.centerY(),this.drawAngle,this.holdingAngleDifference); //TODO: WHEN THE RAIDER FINISHES PICKING UP AN OBJECT THE OBJECT MOVES UP A PIXEL OR TWO ON THE 1ST FRAME. PROBABLY NOT A PROBLEM, BUT STILL CHECK THIS!
 	}
-	
-	//console.log("x: " + this.centerX() + " y: " + this.centerY() + " goalX: " + this.currentObjective.centerX() + " goalY: " + this.currentObjective.centerY() + " angle: " + this.drawAngle);
 };
+
 Raider.prototype.findClosest = function(objectList,remove) {
 	var minIndex = -1;
 	var centerX = this.centerX();
@@ -618,21 +546,18 @@ Raider.prototype.findClosest = function(objectList,remove) {
 		
 		var newDistance = getDistance(centerX,centerY,objectList[i].centerX(),objectList[i].centerY()); //note: please remember that this is linear distance; it is not the true distance calculated via pathfinding, so if the path to the task is very roundabout this value will be inaccurate 
 		var currentPriority = (typeof objectList[i].taskPriority == "undefined" ? 0 : objectList[i].taskPriority);
-		//console.log("current priority: " + currentPriority);
 		if ((toolsRequired[this.getTaskType(objectList[i])] == undefined || this.tools.indexOf(toolsRequired[this.getTaskType(objectList[i])]) != -1) && (currentPriority > priority || (currentPriority == priority && (newDistance < minValue || minValue == -1) && tasksAutomated[this.getTaskType(objectList[i])]))) { //do not care about tasksAutomated if the task has elevated priority
 			minValue = newDistance;
 			minIndex = i;
 			
 			if (currentPriority > priority) {
 				priority = currentPriority;
-				//console.log("priority override");
 			}
 		}
 	}
 	if (minIndex == -1) {
 		return null;
 	}
-	//console.log("task priority: " + priority);
 	if (remove == true) {
 		return objectList.splice(minIndex, 1)[0]; 
 	}
@@ -659,13 +584,9 @@ Raider.prototype.clearTask = function() {
 		this.dedicatingResource = false;
 		var dedicatedResourceLocation = this.currentTask;
 		if (this.holding == null) { //TODO: JUST IMPLEMENTED THIS FIX; VERIFY THAT THIS FUNCTIONS CORRECTLY IN ALL CASES
-			//console.log("CURRENT TASK CLEAR: " + this.currentTask.dedicatedResources["ore"]);
-			//console.log("THIS.CURRENTOBJECTIVERESOURCETYPE: " + this.currentObjectiveResourceType);
 			this.currentTask.dedicatedResources[this.currentObjectiveResourceType]--; //the case inside this if statement should never be true, but is in place in case the dedicating system changes in the future to allow for dedicating before picking up a collectable
 		}
 		else {
-			//console.log("CURRENT OBJECTIVE CLEAR: " + this.currentObjective.dedicatedResources["ore"]);
-			//console.log("THIS.CURRENTOBJECTIVERESOURCETYPE: " + this.currentObjectiveResourceType);
 			this.currentObjective.dedicatedResources[this.holding.type]--;
 			dedicatedResourceLocation = this.currentObjective;
 		}
@@ -677,14 +598,9 @@ Raider.prototype.clearTask = function() {
 			else {
 				tasksUnavailable.objectList.push(dedicatedResourceLocation);
 			}
-		}
-		/*if (tasksAvailable.indexOf(dedicatedResourceLocation) == -1) { //if we were taking the last resource to an objective but cancelled, add the site back to tasksAvailable
-			tasksAvailable.push(dedicatedResourceLocation); //also need to handle case where the objective has to be added back to tasksUnavailable instead of available
-		}*/ 
-		
+		}		
 		//check if the building site to which we dedicated the resource needs to be added back to tasksAvailable or tasksUnavailable
 		
-	
 	}
 	if (this.currentTask != null && this.getTaskType(this.currentTask) != "get tool") {
 		this.currentTask.taskPriority = 0; //reset the task priority since it will otherwise remain high priority in some instances (eg. we just drilled a high priority wall and now the rubble is high priority too as a result)
@@ -705,24 +621,6 @@ Raider.prototype.clearTask = function() {
 Raider.prototype.getTaskType = function(task) {
 	return taskType(task,this);
 };
-
-/*Raider.prototype.closestSpace = function() {
-	var distance = -1;
-	var space = null;
-	var curDistance;
-	var centerx = this.centerX();
-	var centery = this.centerY();
-	for (var i = 0; i < terrain.length; i++) {
-		for (var r = 0; r < terrain[i].length; i++) {
-			curDistance = getDistance(centerx,centery, terrain[i][r].centerX(),terrain[i][r].centerY());
-			if (distance == -1 || curDistance < distance) {
-				distance = curDistance;
-				space = terrain[i][r];
-			}
-		}
-	}
-	return space;
-};*/
 
 Raider.prototype.upgrade = function() {
 	if (this.upgradeLevel < this.maxUpgradeLevel) {
