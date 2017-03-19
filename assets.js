@@ -148,6 +148,12 @@ object = {
           ["img", "images\\buttons", "make Gunstation.png"], //button to select to build mining laser from building menu
           ["img", "images\\buttons", "make LargeTeleporter.png"], //button to select to build super teleport from building menu
           
+          //interface
+          ["img", "images\\overlay", "CrystalSideBar.png"], //right side overlay showing crystal and ore count
+          ["img", "images\\overlay", "CrystalSideBar_Ore.png"], //image representing a single piece of ore on the overlay
+          ["img", "images\\overlay", "NoSmallCrystal.png"], //image representing no energy crystal on the overlay
+          ["img", "images\\overlay", "SmallCrystal.png"], //image representing a single energy crystal on the overlay
+          
           //effects
           ["img", "images\\objects", "landslide 1 (1).png"], //image that appears during a landslide
           

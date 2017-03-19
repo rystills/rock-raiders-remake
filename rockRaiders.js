@@ -941,10 +941,6 @@ function drawBuildingSiteMaterials() {
 }
 
 function drawUI() {
-	GameManager.setFontSize(48);
-	GameManager.drawSurface.fillStyle = "rgb(65, 218, 0)";
-	GameManager.drawSurface.fillText("Ore: " + collectedResources["ore"],600,40);
-	GameManager.drawSurface.fillText("Energy Crystals: " + collectedResources["crystal"],341,100);
 	GameManager.setFontSize(36);
 	GameManager.drawSurface.fillText("Selection Type: " + selectionType + (selectionType == null ? "" : selection.length == 1 ? "" : (" x " + selection.length)),8,592); //to be replaced with classic green selection rectangle	
 	
@@ -954,6 +950,35 @@ function drawUI() {
 			buttons.objectList[i].render(GameManager);
 		}
 	}
+	
+	//draw crystal and ore overlay
+	GameManager.drawSurface.drawImage(GameManager.images["CrystalSideBar.png"],GameManager.screenWidth - 70,0);
+	
+	//draw crystals
+	var curX = GameManager.screenWidth - 20;
+	var curY = 519;
+	for (var i = 0; i < 20; ++i, curY -= 21) {
+		GameManager.drawSurface.drawImage(GameManager.images["NoSmallCrystal.png"],curX, curY);
+		if (collectedResources["crystal"] > i) {
+			GameManager.drawSurface.drawImage(GameManager.images["SmallCrystal.png"],curX, curY);
+		}
+	}
+	
+	//draw ore
+	curX = GameManager.screenWidth - 31;
+	curY = 533;
+	for (var i = 0; i < collectedResources["ore"]; ++i, curY -= 10) {
+		GameManager.drawSurface.drawImage(GameManager.images["CrystalSideBar_Ore.png"], curX, curY);
+		if (curY <= 0) { //don't bother drawing past offscreen
+			break;
+		}
+	}
+	
+	//draw ore and crystal text
+	GameManager.setFontSize(12);
+	GameManager.drawSurface.fillStyle = "rgb(255,255,255)";
+	GameManager.drawSurface.fillText(collectedResources["ore"],GameManager.screenWidth - 60,595);
+	GameManager.drawSurface.fillText(collectedResources["crystal"],GameManager.screenWidth - 28,595);
 }
 
 function drawScoreScreenUI() {

@@ -187,7 +187,7 @@ Raider.prototype.update = function() {
 			return;
 		}
 	} 
-	//note that speedModifier needs to be updated each frame so don't bother storing it as an instance variable (may change this if animations are later implemented based on speed modifier) and occur in a different method
+	//note that speedModifier needs to be updated each frame so don't bother storing it as an instance variable (may change this if animations are later implemented based on speed modifier and occur in a different method)
 	var speedModifier; 
 	var freezeAngle = false;
 	var distanceTraveled = this.speed;
