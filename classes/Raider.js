@@ -80,33 +80,7 @@ Raider.prototype.checkChooseCloserEquivalentResource = function(removeCurrentTas
 	return false;
 };
 
-Raider.prototype.update = function() {
-	//if we are on a space that has no been touched yet, do nothing
-	if (!this.space.touched) {
-		return;
-	}
-	//if we are of taskType "build" make sure our job hasn't been taken by somebody else closer to the building site
-	//note that optionally allowing 'undefined' rather than build here should likely be unnecessary
-	if ((this.getTaskType(this.currentTask) == "build" || this.getTaskType(this.currentTask) == "undefined") && this.reservingResource && (!(this.currentTask.dedicatedResources[this.currentObjectiveResourceType] < this.currentTask.requiredResources[this.currentObjectiveResourceType]))) {
-		this.clearTask();
-	}
-	for (var i = 0; i < this.completedLastFrame.length; i++) {
-		this.completedLastFrame[i].completedBy = null;
-	}
-	this.completedLastFrame = [];
-	if (this.currentTask != null && this.currentTask.completedBy != null) {
-		taskCopy = null;
-		if (tasksInProgress.objectList.indexOf(this.currentTask) != -1) {
-			taskCopy = this.currentTask;
-		}
-		this.clearTask();
-		if (taskCopy != null) {
-			tasksInProgress.push(taskCopy);
-		}
-	}
-	if ((selection.indexOf(this) != -1) && (this.currentTask == null)) { //don't start a new task if currently selected unless instructed to
-		return;
-	}
+Raider.prototype.checkChooseNewTask = function() {
 	var destinationSites = null;
 	while (this.currentTask == null) { //pick a new task
 		if (this.holding != null) {
@@ -187,6 +161,41 @@ Raider.prototype.update = function() {
 			return;
 		}
 	} 
+}
+
+Raider.prototype.update = function() {
+	//if we are on a space that has no been touched yet, do nothing
+	if (!this.space.touched) {
+		return;
+	}
+	//if we are of taskType "build" make sure our job hasn't been taken by somebody else closer to the building site
+	//note that optionally allowing 'undefined' rather than build here should likely be unnecessary
+	if ((this.getTaskType(this.currentTask) == "build" || this.getTaskType(this.currentTask) == "undefined") && this.reservingResource && (!(this.currentTask.dedicatedResources[this.currentObjectiveResourceType] < this.currentTask.requiredResources[this.currentObjectiveResourceType]))) {
+		this.clearTask();
+	}
+	for (var i = 0; i < this.completedLastFrame.length; i++) {
+		this.completedLastFrame[i].completedBy = null;
+	}
+	this.completedLastFrame = [];
+	if (this.currentTask != null && this.currentTask.completedBy != null) {
+		taskCopy = null;
+		if (tasksInProgress.objectList.indexOf(this.currentTask) != -1) {
+			taskCopy = this.currentTask;
+		}
+		this.clearTask();
+		if (taskCopy != null) {
+			tasksInProgress.push(taskCopy);
+		}
+	}
+	if ((selection.indexOf(this) != -1) && (this.currentTask == null)) { //don't start a new task if currently selected unless instructed to
+		return;
+	}
+	
+	this.checkChooseNewTask();
+	if (this.currentTask == null) {
+		return;
+	}
+	
 	//note that speedModifier needs to be updated each frame so don't bother storing it as an instance variable (may change this if animations are later implemented based on speed modifier and occur in a different method)
 	var speedModifier; 
 	var freezeAngle = false;

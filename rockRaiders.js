@@ -622,7 +622,10 @@ function checkAssignSelectionTask() {
 			var assignedAtLeastOnce = false;
 			var taskWasAvailable = false;
 			for (var i = 0; i < selection.length; i++) {	//TODO: allow certain tasks to be performed by raiders even if they are holding something
-			if (selection[i].currentTask == null && selection[i].holding == null) { //raiders are the only valid selection[i] type for now; later on any Space (and maybe collectables as well?) or vehicle, etc.. will be a valid selection[i] as even though these things cannot be assigned tasks they can be added to the high priority task queue as well as create menu buttons
+				if (selection[i].currentTask != null && selection[i].holding == null) { //if current raider is already performing a task and not holding anything, stop him before assigning the new task
+					stopMinifig(selection[i]);
+				}
+				if (selection[i].currentTask == null && selection[i].holding == null) { //raiders are the only valid selection[i] type for now; later on any Space (and maybe collectables as well?) or vehicle, etc.. will be a valid selection[i] as even though these things cannot be assigned tasks they can be added to the high priority task queue as well as create menu buttons
 					
 					//selectedTask.taskPriority = 1;
 					if (toolsRequired[selection[i].getTaskType(selectedTask)] == undefined || selection[i].tools.indexOf(toolsRequired[selection[i].getTaskType(selectedTask)]) != -1) {
@@ -812,25 +815,31 @@ function checkTogglePause() {
 	}
 }
 
-function stopMinifig() {
-	if (selection.length == 0) {
+function stopMinifig(raider) {
+	if (raider == null) {
+		stopGroup = selection;
+	}
+	else {
+		stopGroup = [raider];
+	}
+	if (stopGroup.length == 0) {
 		return;
 	}
-	for (var i = 0; i < selection.length; i++) {
-		if (selection[i].currentTask == null) {
+	for (var i = 0; i < stopGroup.length; i++) {
+		if (stopGroup[i].currentTask == null) {
 			continue;
 		}
-		if (selection[i].holding == null) { //this should cover the "collect" taskType, as well as "build" and any other task type which involves a held object, as we don't want that object to be duplicated
-			tasksAvailable.push(selection[i].currentTask);
+		if (stopGroup[i].holding == null) { //this should cover the "collect" taskType, as well as "build" and any other task type which involves a held object, as we don't want that object to be duplicated
+			tasksAvailable.push(stopGroup[i].currentTask);
 		}
-		if (selection[i].currentTask.grabPercent != null && selection[i].currentTask.grabPercent < 100) { //still undecided as to whether or not this logic statement should be moved inside the above condition (selection[i].holding == null)
-			selection[i].currentTask.grabPercent = 0;
+		if (stopGroup[i].currentTask.grabPercent != null && stopGroup[i].currentTask.grabPercent < 100) { //still undecided as to whether or not this logic statement should be moved inside the above condition (stopGroup[i].holding == null)
+			stopGroup[i].currentTask.grabPercent = 0;
 		}
-		var currentlyHeld = selection[i].holding;
-		selection[i].clearTask(); //modifications made to clearTask should now mean that if any resources were reserved from the resource collection or dedicated to a building site, the dedication numbers have been correctly decremented
-		selection[i].holding = currentlyHeld; //won't have any effect if it was already null
-		if (selection[i].holding != null) {
-			selection[i].holding.grabPercent = 100; //if the raider was in the process of putting down a collectable but was interrupted, reset its grabPercent as it does't make sense for a collectable to be 'partially put down' after the raider is stopped			
+		var currentlyHeld = stopGroup[i].holding;
+		stopGroup[i].clearTask(); //modifications made to clearTask should now mean that if any resources were reserved from the resource collection or dedicated to a building site, the dedication numbers have been correctly decremented
+		stopGroup[i].holding = currentlyHeld; //won't have any effect if it was already null
+		if (stopGroup[i].holding != null) {
+			stopGroup[i].holding.grabPercent = 100; //if the raider was in the process of putting down a collectable but was interrupted, reset its grabPercent as it does't make sense for a collectable to be 'partially put down' after the raider is stopped			
 		}
 	}
 }
