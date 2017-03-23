@@ -237,7 +237,7 @@ Raider.prototype.update = function() {
 			var collisionReached = false;
 			var taskType = this.getTaskType(this.currentTask); //TODO: STORE THIS RATHER THAN REPEATEDLY FINDING IT
 			if (!this.busy) { //TODO: CHANGE ACTIONS TO BE IN A SUBMETHOD SO WE DON'T NEED TO PUT THIS.BUSY ALL OVER THE PLACE
-				if ((!(taskType == "sweep" || taskType == "build" || (taskType == "collect" && this.currentObjective.buildable == true))) && collisionRect(this,this.currentObjective,true)) { //if we have taskType 'sweep' we need to keep moving until reachedObjective is true, so don't neglect to move just because we are colliding with the objective in that case
+				if ((!(taskType == "sweep" || taskType == "walk" || taskType == "build" || (taskType == "collect" && this.currentObjective.buildable == true))) && collisionRect(this,this.currentObjective,true)) { //if we have taskType 'sweep' we need to keep moving until reachedObjective is true, so don't neglect to move just because we are colliding with the objective in that case
 					collisionReached = true;
 				}
 				else {
@@ -683,7 +683,8 @@ function Raider(space) { //TODO: BUG WHERE SOMETIMES RAIDER STARTS IN THE RIGHT 
 	this.drawAngle = 0;
 	this.reservingResource = false; //set to true if a resource has been reserved from the toolstore by this raider in case his trip is cancelled for some reason
 	this.dedicatingResource = false;
-	this.getToolName = null;
+	this.getToolName = null; //name of tool that we are in the process of grabbing
+	this.walkPosOffset = []; //distance of walkPos from walk space
 	this.busy = false; //this means the raider is in the middle of performing a task (ex drilling, picking up an object, etc..) and is NOT walking
 	this.completedLastFrame = []; //if we completed a task we let other raiders know by setting that task's completedBy variable, but we have to make sure to set it back to null on the following frame, regardless of whether or not it is still the currentTask at that time, or if we completed more than one task (see: chain reaction when drilling)
 	this.sweepSound = GameManager.sounds["dig"].cloneNode();

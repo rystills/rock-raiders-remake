@@ -431,6 +431,9 @@ function taskType(task,raider) { //optional raider flag allows us to determine w
 	if (typeof task.buildable != "undefined" && task.buildable == true) {
 		return "build";
 	}
+	if (typeof task.walkable != "undefined" && task.walkable == true) {
+		return "walk";
+	}
 	if (typeof task.space != "undefined") {
 		return "collect";
 	}
@@ -582,8 +585,8 @@ function checkAssignSelectionTask() {
 			for (var r = 0; r < terrain[p].length; r++) {
 				var initialSpace = terrain[p][r];
 				for (var j = 0; j < terrain[p][r].contains.objectList.length + 1; j++) {
-					if (collisionPoint(GameManager.mouseReleasedPosRight.x,GameManager.mouseReleasedPosRight.y,initialSpace,initialSpace.affectedByCamera) && ((tasksAvailable.indexOf(initialSpace) != -1) || (tasksInProgress.objectList.indexOf(initialSpace) != -1))) { //don't do anything if the task is already taken by another raider, we don't want to readd it to the task queue
-						if ((j == 0 && (initialSpace.drillable || initialSpace.sweepable || initialSpace.buildable)) || j > 0) { //could optimize by only continuing if j == 1 and initialSpace.walkable == true but won't for now as unwalkable spaces shouldnt have any items in contains anyway
+					if (collisionPoint(GameManager.mouseReleasedPosRight.x,GameManager.mouseReleasedPosRight.y,initialSpace,initialSpace.affectedByCamera) && ((tasksAvailable.indexOf(initialSpace) != -1) || initialSpace.walkable || (tasksInProgress.objectList.indexOf(initialSpace) != -1))) { //don't do anything if the task is already taken by another raider, we don't want to readd it to the task queue
+						if ((j == 0 && (initialSpace.drillable || initialSpace.sweepable || initialSpace.buildable || initialSpace.walkable)) || j > 0) { //could optimize by only continuing if j == 1 and initialSpace.walkable == true but won't for now as unwalkable spaces shouldnt have any items in contains anyway
 							clickedTasks.push(initialSpace);
 							if (debug) {
 								console.log("TERRAIN OL LENGTH + 1: " + (terrain[p][r].contains.objectList.length + 1));
@@ -617,21 +620,19 @@ function checkAssignSelectionTask() {
 			var index = tasksUnavailable.objectList.indexOf(selectedTask);
 			if (index != -1) {
 				tasksUnavailable.remove(selectedTask); //use remove rather than splicing to update object groupsContained
-			}		
-			
+			}
 			var assignedAtLeastOnce = false;
 			var taskWasAvailable = false;
 			for (var i = 0; i < selection.length; i++) {	//TODO: allow certain tasks to be performed by raiders even if they are holding something
 				if (selection[i].currentTask != null && selection[i].holding == null) { //if current raider is already performing a task and not holding anything, stop him before assigning the new task
 					stopMinifig(selection[i]);
 				}
-				if (selection[i].currentTask == null && selection[i].holding == null) { //raiders are the only valid selection[i] type for now; later on any Space (and maybe collectables as well?) or vehicle, etc.. will be a valid selection[i] as even though these things cannot be assigned tasks they can be added to the high priority task queue as well as create menu buttons
-					
+				if (selection[i].currentTask == null && selection[i].holding == null) { //raiders are the only valid selection type for now; later on any Space (and maybe collectables as well?) or vehicle, etc.. will be a valid selection[i] as even though these things cannot be assigned tasks they can be added to the high priority task queue as well as create menu buttons
 					//selectedTask.taskPriority = 1;
 					if (toolsRequired[selection[i].getTaskType(selectedTask)] == undefined || selection[i].tools.indexOf(toolsRequired[selection[i].getTaskType(selectedTask)]) != -1) {
 						
 						var index = tasksAvailable.indexOf(selectedTask);
-						if (index != -1) { //this check should no longer be necessary
+						if (index != -1) { //this check will be necessary in the event that we choose a task such as walking
 							taskWasAvailable = true;
 							tasksAvailable.splice(index,1);
 						} 
@@ -653,9 +654,15 @@ function checkAssignSelectionTask() {
 							selection[i].currentObjective = null;
 						}
 						
-						//don't add this resource to tasksInProgress if we chose a closer resource instead
-						else if (!foundCloserResource) {
-							assignedAtLeastOnce = true;
+						else {
+							if (!foundCloserResource) { //don't add this resource to tasksInProgress if we chose a closer resource instead
+								assignedAtLeastOnce = true;
+							}
+							if (taskType(selectedTask) == "walk") {
+								//set walkPosOffset to the difference from the selected space top-left corner to the walk position
+								selection[i].walkPosOffset = [GameManager.mouseReleasedPosRight.x - selection[i].currentTask.x + gameLayer.cameraX, GameManager.mouseReleasedPosRight.y - selection[i].currentTask.y + gameLayer.cameraY];
+								console.log(selection[i].walkPosOffset);
+							}
 						}
 					}
 				}
