@@ -637,7 +637,6 @@ Button.prototype.update = function(selectionType,openMenu) {
 	
 	if (this.additionalRequirement != null) {
 		if (!(this.additionalRequirement.apply(this,this.additionalRequirementArgs))) {
-			console.log("rip");
 			this.clickable = false;
 			this.drawSurface = this.unavailableSurface;
 		}

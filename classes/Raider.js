@@ -242,6 +242,10 @@ Raider.prototype.update = function() {
 				}
 				else {
 					reachedObjective = this.moveTowardsPoint(this.currentObjective.centerX(),this.currentObjective.centerY(),distanceTraveled,true);	
+					if (reachedObjective && taskType == "walk") {
+						this.clearTask();
+						break;
+					}
 				}
 			}
 			distanceTraveled = 0; //we are safe setting this to 0 in this case because we don't care how much farther we have to go to get to the objective, since we will stop for at least 1 frame once we reach it to pick it up
