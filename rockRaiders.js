@@ -660,8 +660,11 @@ function checkAssignSelectionTask() {
 							}
 							if (taskType(selectedTask) == "walk") {
 								//set walkPosOffset to the difference from the selected space top-left corner to the walk position
-								selection[i].walkPosOffset = [GameManager.mouseReleasedPosRight.x - selection[i].currentTask.x + gameLayer.cameraX, GameManager.mouseReleasedPosRight.y - selection[i].currentTask.y + gameLayer.cameraY];
-								console.log(selection[i].walkPosOffset);
+								selection[i].walkPosDummy.setCenterX(GameManager.mouseReleasedPosRight.x + gameLayer.cameraX);
+								selection[i].walkPosDummy.setCenterY(GameManager.mouseReleasedPosRight.y + gameLayer.cameraY);
+								selection[i].currentTask = selection[i].walkPosDummy;
+								selection[i].currentObjective = selection[i].walkPosDummy;
+								console.log(selection[i].currentTask.centerX() + ", " + selection[i].currentTask.centerY());
 							}
 						}
 					}
