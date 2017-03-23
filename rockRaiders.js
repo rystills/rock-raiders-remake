@@ -765,30 +765,42 @@ function pathToClosestBuilding(raider, buildingType) {
 
 function upgradeRaider() { //TODO: take the 'find path to toolstore' code from this and getTool, and give it its own method.
 	for (var i = 0; i < selection.length; i++) {
-		if (selection[i].currentObjective == null && selection[i].holding == null && selection[i].upgradeLevel < 3) {
-			var newPath = pathToClosestBuilding(selection[i],"tool store");
-			if (newPath == null) {
-				continue; //no toolstore found or unable to path to any toolstores from this raider
+		if (selection[i].upgradeLevel < 3) {
+			//these checks copied rfom checkAssignSelectionTask
+			if (selection[i].currentTask != null && selection[i].holding == null) { //if current raider is already performing a task and not holding anything, stop him before assigning the new task
+				stopMinifig(selection[i]);
 			}
-			selection[i].currentTask = newPath[0];
-			selection[i].currentPath = newPath;
-			selection[i].currentObjective = selection[i].currentTask;
+			if (selection[i].currentTask == null && selection[i].holding == null) { //raiders are the only valid selection type for now; later on any Space (and maybe collectables as well?) or vehicle, etc.. will be a valid selection[i] as even though these things cannot be assigned tasks they can be added to the high priority task queue as well as create menu buttons
+				var newPath = pathToClosestBuilding(selection[i],"tool store");
+				if (newPath == null) {
+					continue; //no toolstore found or unable to path to any toolstores from this raider
+				}
+				selection[i].currentTask = newPath[0];
+				selection[i].currentPath = newPath;
+				selection[i].currentObjective = selection[i].currentTask;
+			}
 		}
 	}
 }
 
 function getTool(toolName) {
 	for (var i = 0; i < selection.length; i++) {
-		if (selection[i].currentObjective == null && selection[i].holding == null && selection[i].tools.indexOf(toolName) == -1) { //&& selection[i].tools.length < selection[i].maxTools) {
-			var newPath = pathToClosestBuilding(selection[i],"tool store");
-			if (newPath == null) {			
-				continue;
+		if (selection[i].tools.indexOf(toolName) == -1) { //&& selection[i].tools.length < selection[i].maxTools) {
+			//these checks copied rfom checkAssignSelectionTask
+			if (selection[i].currentTask != null && selection[i].holding == null) { //if current raider is already performing a task and not holding anything, stop him before assigning the new task
+				stopMinifig(selection[i]);
 			}
-			selection[i].currentTask = newPath[0];
-			selection[i].currentPath = newPath;
-			selection[i].currentObjective = selection[i].currentTask;
-			selection[i].getToolName = toolName;
-			//TODO: consider setting task priority here, as well as adding getTool task to tasksInProgreess
+			if (selection[i].currentTask == null && selection[i].holding == null) { //raiders are the only valid selection type for now; later on any Space (and maybe collectables as well?) or vehicle, etc.. will be a valid selection[i] as even though these things cannot be assigned tasks they can be added to the high priority task queue as well as create menu buttons
+				var newPath = pathToClosestBuilding(selection[i],"tool store");
+				if (newPath == null) {			
+					continue;
+				}
+				selection[i].currentTask = newPath[0];
+				selection[i].currentPath = newPath;
+				selection[i].currentObjective = selection[i].currentTask;
+				selection[i].getToolName = toolName;
+				//TODO: consider setting task priority here, as well as adding getTool task to tasksInProgreess
+			}
 		}
 	}
 }
