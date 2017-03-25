@@ -393,31 +393,7 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 			}
 			else { //this case should never be possible
 				console.log("WARNING: BUILDING TRIED TO ADD ITSELF TO BUILDINGS LIST, BUT WAS ALREADY THERE");
-			}
-
-			var testTask;
-			for (var k = 0; k < tasksUnavailable.length; k++) { //this chunk of code is copied from Raider update method
-				testTask = tasksUnavailable.objectList[k];
-				if (taskType(testTask) == "build") { //&& testTask.resourceNeeded(this.holding.type)) {
-					//if (testTask.resourceNeeded()) { //TODO: REPLACE THIS LINE WITH A CHECK IF ONE OF THE RESOURCES NEEDED IS CURRENTLY IN THE STASH, AS OTHERWISE ADDING THE BUILD TASK TO TASKSAVAILABLE IS POINTLESS, AS IT WILL BE SENT BACK TO TASKSUNAVAILABLE WHEN A RAIDER TRIES TO TAKE UP THE TASK
-					
-					//the below chunk of code is copied from a different part of Raider update method
-					var dedicatedResourceTypes = Object.getOwnPropertyNames(testTask.dedicatedResources); //TODO: THIS IS COPIED FROM THE RESOURCENEEDED METHOD, AND SHOULD BE PUT IN ITS OWN SUBMETHOD AS IT IS REPEAT CODE
-					for (var i = 0; i < dedicatedResourceTypes.length; i++) {
-						if (testTask.dedicatedResources[dedicatedResourceTypes[i]] < testTask.requiredResources[dedicatedResourceTypes[i]]) {
-							//console.log("stuck at this point");
-							if (resourceAvailable(dedicatedResourceTypes[i])) {					
-								tasksAvailable.push(testTask);
-								tasksUnavailable.remove(tasksUnavailable.objectList[k]); //use remove rather than splicing to update object groupsContained
-								break;
-							}
-						}					
-						
-					}
-					//continue //TODO: DECIDE WHETHER OR NOT IT IS OK FOR US TO POTENTIALLY REENABLE MORE THAN ONE BUILDING SITE WHEN WE MAY ONLY HAVE 1 OF A REQUIRED RESOURCE TYPE
-				}
-			}
-			
+			}			
 		}
 		
 	}
