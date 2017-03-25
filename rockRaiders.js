@@ -973,7 +973,7 @@ function drawBuildingSiteMaterials() {
 
 function drawUI() {
 	GameManager.setFontSize(36);
-	GameManager.drawSurface.fillText("Selection Type: " + selectionType + (selectionType == null ? "" : selection.length == 1 ? "" : (" x " + selection.length)),8,592); //to be replaced with classic green selection rectangle	
+	GameManager.drawSurface.fillText("Selection Type: " + selectionType + (selectionType == null ? "" : (selection.length == 1 ? (selection[0].isBuilding == true ? " lvl " + selection[0].upgradeLevel : "") : (" x " + selection.length))),8,592); //to be replaced with classic green selection rectangle	
 	
 	//don't draw buttons when buildingPlacer is active
 	if (!buildingPlacer.visible) {
