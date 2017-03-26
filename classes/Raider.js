@@ -1,11 +1,12 @@
 makeChild("Raider","RygameObject");
 Raider.prototype.chooseClosestBuilding = function(buildingType,resourceTypeNeeded) {
+	var buildingList = (buildingType == "building site" ? buildingSites : buildings);
 	destinationSites = [];
 	destinationSite = null;
-	for (var i = 0; i < buildings.length; i++) { //compile all buildings of type buildingType, then find closest one
-		if (buildings[i].type == buildingType && buildings[i].touched == true) { //if its not touched yet it is not pathable so dont choose it (this case should be impossible though because buildings that start out in Fog are not added to the buildings list until they are touched)
-			if (resourceTypeNeeded == null || buildingSites[i].resourceNeeded(resourceTypeNeeded)) { //if we're looking to place a resource, check if the building site needs it
-				destinationSites.push(buildings[i]);
+	for (var i = 0; i < buildingList.length; i++) { //compile all buildings of type buildingType, then find closest one
+		if (buildingList[i].type == buildingType && buildingList[i].touched == true) { //if its not touched yet it is not pathable so dont choose it (this case should be impossible though because buildings that start out in Fog are not added to the buildings list until they are touched)
+			if (resourceTypeNeeded == null || buildingList[i].resourceNeeded(resourceTypeNeeded)) { //if we're looking to place a resource, check if the building site needs it
+				destinationSites.push(buildingList[i]);
 			}
 		}
 	}
@@ -465,6 +466,9 @@ Raider.prototype.update = function() {
 								if (newPath != null) {
 									this.currentPath = newPath;
 									this.busy = false;
+									if (this.currentObjective.type == "building site") {
+										this.currentTask = this.currentObjective;
+									}
 								}
 								else {
 									this.currentObjective = this.currentTask;
