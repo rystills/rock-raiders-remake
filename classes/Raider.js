@@ -114,6 +114,7 @@ Raider.prototype.canPerformTask = function(task,ignoreContents) {
 		return false;
 		
 	}
+	
 	//if the input task is a task that cannot be automated, return false
 	if (!tasksAutomated[taskType(task)]) {
 		return false;
@@ -150,7 +151,7 @@ Raider.prototype.checkSetTask = function(i,mustBeHighPriority,calculatedPath) {
 		return false;
 	}
 	//TODO: raiders will select the first high priority task this way, rather than the nearest one. Should be fixed when implementing automatic task priority order.
-	if (tasksAvailable[i].taskPriority == 1 || (!mustBeHighPriority)) {
+	if (tasksAvailable[i].taskPriority == 1 || (mustBeHighPriority != true)) {
 		var newPath = calculatedPath; //if we already calculated a path, don't bother calculating it again
 		if (newPath == null) {
 			newPath = findClosestStartPath(this,calculatePath(terrain,this.space,typeof tasksAvailable[i].space == "undefined" ? tasksAvailable[i]: tasksAvailable[i].space,true));
@@ -204,7 +205,22 @@ Raider.prototype.checkChooseNewTask = function() {
 		var newTaskPath = findClosestStartPath(this,calculatePath(terrain,this.space,null,true,this));
 		if (newTaskPath != null) {
 			//we found a path to a valid task; determine what task type the destination is and assign it along with the path
-			this.checkSetTask(tasksAvailable.indexOf(newTaskPath[0]),false,newTaskPath); //paths are reversed, so the 0th index should be the end
+			if (!this.checkSetTask(tasksAvailable.indexOf(newTaskPath[0]),false,newTaskPath)) { //paths are reversed, so the 0th index should be the end
+				//if we were unable to set the task, that means the pathfinding task search must have been pointing to one of the space's contains instead
+				if (newTaskPath[0].contains != null) {
+					//if it is indeed a space, check each of its contains to see if one of them is a valid path
+					for (var i = 0; i < newTaskPath[0].contains.objectList.length; ++i) {	
+						var newIndex = tasksAvailable.indexOf(newTaskPath[0].contains.objectList[i]);
+						//make sure this task is available before proceeding
+						if (newIndex != -1) {
+							//if we are able to set the task to this contains, we can return early
+							if (this.checkSetTask(tasksAvailable.indexOf(newTaskPath[0].contains.objectList[i]),false,newTaskPath)) {
+								return;
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 }

@@ -514,7 +514,7 @@ function checkUpdateSelectionType() {
 		GameManager.refreshObject(tileSelectedGraphic);
 	}
 	if (selection[0] instanceof Collectable) {
-		tileSelectedGraphic.drawDepth = 5; //put tile selection graphic in fromt of collectable
+		tileSelectedGraphic.drawDepth = 5; //put tile selection graphic in front of collectable
 		GameManager.refreshObject(tileSelectedGraphic);
 	}
 }
