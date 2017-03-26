@@ -107,7 +107,7 @@ Raider.prototype.canPerformTask = function(task,ignoreContents) {
 				var newIndex = tasksAvailable.indexOf(task.contains.objectList[i]);
 				//make sure this task is available before proceeding
 				if (newIndex != -1) {
-					return canPerformTask(task.contains.objectList[i],true);
+					return this.canPerformTask(task.contains.objectList[i],true);
 				}
 			}
 		}
@@ -236,8 +236,9 @@ Raider.prototype.update = function() {
 	if ((selection.indexOf(this) != -1) && (this.currentTask == null)) { //don't start a new task if currently selected unless instructed to
 		return;
 	}
-	
-	this.checkChooseNewTask();
+	if (this.currentTask == null) {
+		this.checkChooseNewTask();
+	}
 	if (this.currentTask == null) {
 		return;
 	}

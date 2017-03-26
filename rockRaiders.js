@@ -504,6 +504,10 @@ function checkUpdateSelectionType() {
 	}
 	if (selection[0] instanceof Space) {
 		selectionType = selection[0].touched == true ? selection[0].type : "Hidden";
+		//tileSelectedGraphic.drawDepth = 5000; //put tile selection graphic between space and collectable (can't do this without engine change, as this variable is used once on object creation to determine render order)
+	}
+	if (selection[0] instanceof Collectable) {
+		//tileSelectedGraphic.drawDepth = 5; //put tile selection graphic in fromt of collectable
 	}
 }
 
