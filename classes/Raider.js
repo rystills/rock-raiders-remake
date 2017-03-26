@@ -84,9 +84,11 @@ Raider.prototype.checkChooseCloserEquivalentResource = function(removeCurrentTas
 };
 
 //set current task, objective, and path, and remove from tasksAvailable
-Raider.prototype.setTask = function(taskIndex, path, initialObjective = null) {
+Raider.prototype.setTask = function(taskIndex, path, initialObjective, keepTask) {
 	this.currentTask = tasksAvailable[taskIndex];
-	tasksAvailable.splice(taskIndex,1);
+	if (!keepTask) {
+		tasksAvailable.splice(taskIndex,1);	
+	}
 	if (initialObjective != null) {
 		this.currentObjective = initialObjective;
 		this.currentPath = findClosestStartPath(this,calculatePath(terrain,this.space,typeof initialObjective.space == "undefined" ? initialObjective: initialObjective.space,true));
@@ -175,7 +177,7 @@ Raider.prototype.checkSetTask = function(i,mustBeHighPriority,calculatedPath) {
 					this.currentObjectiveResourceType = dedicatedResourceTypes[r];
 					reservedResources[this.currentObjectiveResourceType]++;
 					this.reservingResource = true;
-					this.setTask(i,newPath,destinationSite);
+					this.setTask(i,newPath,destinationSite,true);
 					return true;
 				}
 			}

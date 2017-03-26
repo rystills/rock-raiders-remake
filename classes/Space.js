@@ -500,6 +500,11 @@ Space.prototype.updatePlacedResources = function(resourceType) {
 	}
 	if (this.allResourcesPlaced()) {
 		//console.log("all resources placed");
+		//remove this from the list of available tasks once it is finished being built
+		var taskIndex = tasksAvailable.indexOf(this);
+		if (taskIndex != -1) {
+			tasksAvailable.splice(taskIndex,1);
+		}
 		this.setTypeProperties(this.buildingSiteType);
 		
 		var index = buildingSites.indexOf(this);
