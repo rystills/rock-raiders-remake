@@ -431,6 +431,13 @@ GameManagerInternal.prototype.removeObject = function(object) { //TODO still nee
 	this.renderOrderedCompleteObjectList.splice(this.renderOrderedCompleteObjectList.indexOf(object),1); 
 	this.updateOrderedCompleteObjectList.splice(this.updateOrderedCompleteObjectList.indexOf(object),1); 	
 };
+
+//remove and re-insert object in order to update render and update depth
+GameManagerInternal.prototype.refreshObject = function(object) {
+	this.removeObject(object);
+	this.addObject(object);
+};
+
 GameManagerInternal.prototype.addLayer = function(layer) {
 	this.completeLayerList.splice(binarySearch(this.completeLayerList,layer,"drawDepth"),0,layer); 
 };
