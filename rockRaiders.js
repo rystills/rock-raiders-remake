@@ -72,69 +72,39 @@ function adjacentSpace(terrain,x,y,dir) {
 }
 
 function touchAllAdjacentSpaces(initialSpace) {
-	if (initialSpace.touched) {
-		var index = tasksUnavailable.objectList.indexOf(initialSpace); //if the task or its contains are in tasksUnavailable, move them back into tasksAvailable now that they've been rediscovered
-		if (index != -1) {
-			tasksUnavailable.remove(initialSpace); //use remove rather than splicing to update object groupsContained
-			tasksAvailable.push(initialSpace); //we know its a valid task if its in tasksUnavailable, so no need to check
-		}
-		for (var i = 0; i < initialSpace.contains.objectList.length; i++) {
-			//add each member of contains to tasksavailable if it is currently in tasksUnavailable
-			var index = tasksUnavailable.objectList.indexOf(initialSpace.contains.objectList[i]);
-			if (index != -1) {
-				tasksUnavailable.remove(initialSpace.contains.objectList[i]); //use remove rather than splicing to update object groupsContained
-				tasksAvailable.push(initialSpace.contains.objectList[i]);
+	if (!initialSpace.touched) {
+		if (initialSpace.isBuilding == false && (!(initialSpace.walkable || initialSpace.type == "water" || initialSpace.type == "lava"))) {
+			if (initialSpace.drillable || initialSpace.explodable) {
+				//initialSpace.touched = true;
+				tasksAvailable.push(initialSpace);
 			}
+			initialSpace.updateTouched(initialSpace.drillable || initialSpace.explodable || (initialSpace.isBuilding == true)); //the buildings.indexOf section of this or statement should no longer be a possible case
+			return; //TODO: the above statement has outgrown itself; revise appropriately
 		}
-		return;
-	}
-	if (initialSpace.isBuilding == false && (!(initialSpace.walkable || initialSpace.type == "water" || initialSpace.type == "lava"))) {
-		if (initialSpace.drillable || initialSpace.explodable) {
-			//initialSpace.touched = true;
-			var index = tasksUnavailable.objectList.indexOf(initialSpace);
-			if (index != -1) {
-				tasksUnavailable.remove(initialSpace); //use remove rather than splicing to update object groupsContained
-			}
+		//initialSpace.touched = true;
+		initialSpace.updateTouched(true); //need a method for changing touched so that previously unknown spaces that are really ground pieces know to change sprites
+		if (initialSpace.sweepable) {
 			tasksAvailable.push(initialSpace);
 		}
-		initialSpace.updateTouched(initialSpace.drillable || initialSpace.explodable || (initialSpace.isBuilding == true)); //the buildings.indexOf section of this or statement should no longer be a possible case
-		return; //TODO: the above statement has outgrown itself; revise appropriately
-	}
-	//initialSpace.touched = true;
-	initialSpace.updateTouched(true); //need a method for changing touched so that previously unknown spaces that are really ground pieces know to change sprites
-	if (initialSpace.sweepable) {
-		var index = tasksUnavailable.objectList.indexOf(initialSpace);
-		if (index != -1) {
-			tasksUnavailable.remove(initialSpace); //use remove rather than splicing to update object groupsContained
+		if (initialSpace.buildable && initialSpace.resourceNeeded()) { //didnt say else in case a space may be allowed to be both buildable and sweepable at the same time
+			tasksAvailable.push(initialSpace);
 		}
-		tasksAvailable.push(initialSpace);
-	}
-	if (initialSpace.buildable && initialSpace.resourceNeeded()) { //didnt say else in case a space may be allowed to be both buildable and sweepable at the same time
-		var index = tasksUnavailable.objectList.indexOf(initialSpace);
-		if (index != -1) {
-			tasksUnavailable.remove(initialSpace); //use remove rather than splicing to update object groupsContained
+		//if (tasksAutomated["collect"] == true) {
+		for (var i = 0; i < initialSpace.contains.objectList.length; i++) {
+			//add each member of contains to tasksavailable
+			tasksAvailable.push(initialSpace.contains.objectList[i]);
 		}
-		tasksAvailable.push(initialSpace);
-	}
-	//if (tasksAutomated["collect"] == true) {
-	for (var i = 0; i < initialSpace.contains.objectList.length; i++) {
-		//add each member of contains to tasksavailable
-		var index = tasksUnavailable.objectList.indexOf(initialSpace.contains.objectList[i]);
-		if (index != -1) {
-			tasksUnavailable.remove(initialSpace.contains.objectList[i]); //use remove rather than splicing to update object groupsContained
-		}
-		tasksAvailable.push(initialSpace.contains.objectList[i]);
-	}
-	//}
-	
-	var adjacentSpaces = [];
-	adjacentSpaces.push(adjacentSpace(terrain,initialSpace.listX,initialSpace.listY,"up"));
-	adjacentSpaces.push(adjacentSpace(terrain,initialSpace.listX,initialSpace.listY,"down"));
-	adjacentSpaces.push(adjacentSpace(terrain,initialSpace.listX,initialSpace.listY,"left"));
-	adjacentSpaces.push(adjacentSpace(terrain,initialSpace.listX,initialSpace.listY,"right"));
-	for (var i = 0; i < adjacentSpaces.length; i++) {
-		if (adjacentSpaces[i] != null) {
-			touchAllAdjacentSpaces(adjacentSpaces[i]);
+		//}
+		
+		var adjacentSpaces = [];
+		adjacentSpaces.push(adjacentSpace(terrain,initialSpace.listX,initialSpace.listY,"up"));
+		adjacentSpaces.push(adjacentSpace(terrain,initialSpace.listX,initialSpace.listY,"down"));
+		adjacentSpaces.push(adjacentSpace(terrain,initialSpace.listX,initialSpace.listY,"left"));
+		adjacentSpaces.push(adjacentSpace(terrain,initialSpace.listX,initialSpace.listY,"right"));
+		for (var i = 0; i < adjacentSpaces.length; i++) {
+			if (adjacentSpaces[i] != null) {
+				touchAllAdjacentSpaces(adjacentSpaces[i]);
+			}
 		}
 	}
 }
@@ -164,18 +134,20 @@ function findClosestStartPath(startObject,paths) {
 	return paths[closestIndex];
 }
 
-function calculatePath(terrain,startSpace,goalSpace,returnAllSolutions) { 
+function calculatePath(terrain,startSpace,goalSpace,returnAllSolutions,raider) { 
 	/*find shortest path from startSpace to a space satisfying desiredProperty (note: path goes from end to start, not from start to end)*/
 	//if startSpace meets the desired property, return it without doing any further calculations
-	if (startSpace == goalSpace) {
+	if (startSpace == goalSpace || (goalSpace == null && raider.canPerformTask(startSpace))) {
 		if (!returnAllSolutions) {
-			return [goalSpace];
+			return [startSpace];
 		}
-		return [[goalSpace]];
+		return [[startSpace]];
 	}
 	
 	//initialize starting variables
-	goalSpace.parents = [];
+	if (goalSpace != null) {
+		goalSpace.parents = [];	
+	}
 	
 	startSpace.startDistance = 0;
 	startSpace.parents = [];
@@ -205,7 +177,8 @@ function calculatePath(terrain,startSpace,goalSpace,returnAllSolutions) {
 			
 			//check this here so that the algorithm is a little bit faster, but also so that paths to non-walkable terrain pieces (such as for drilling) will work
 			//if the newSpace is a goal, find a path back to startSpace (or all equal paths if returnAllSolutions is True)
-			if (newSpace == goalSpace) {
+			if (newSpace == goalSpace || (goalSpace == null && raider.canPerformTask(newSpace))) {
+				goalSpace = newSpace;
 				newSpace.parents = [currentSpace]; //start the path with currentSpace and work our way back
 				pathsFound = [[newSpace]];
 				
@@ -401,19 +374,25 @@ function loadLevelData(name) {
 	    	var headingDir = Math.round(olObject.heading); //don't do an int conversion here as we need this to be exactly one of 4 values
 	    	if (headingDir == 0) {
 	    		powerPathSpace = adjacentSpace(terrain,currentSpace.listX,currentSpace.listY,"up");
+		    	currentSpace.headingAngle = Math.PI;//use an angle variable separate from drawAngle so that the object does not draw a rotated image when in the fog
 	    	}
 	    	else if (headingDir == 90) {
 	    		powerPathSpace = adjacentSpace(terrain,currentSpace.listX,currentSpace.listY,"right");
+		    	currentSpace.headingAngle = -.5*Math.PI;//use an angle variable separate from drawAngle so that the object does not draw a rotated image when in the fog
 	    	}
 	    	else if (headingDir == 180) {
 	    		powerPathSpace = adjacentSpace(terrain,currentSpace.listX,currentSpace.listY,"down");
+		    	currentSpace.headingAngle = 0;//use an angle variable separate from drawAngle so that the object does not draw a rotated image when in the fog
 	    	}
 	    	else if (headingDir == 270) {
 	    		powerPathSpace = adjacentSpace(terrain,currentSpace.listX,currentSpace.listY,"left");
+		    	currentSpace.headingAngle = .5*Math.PI;//use an angle variable separate from drawAngle so that the object does not draw a rotated image when in the fog
+	    	}
+	    	if (currentSpace.touched) { //set drawAngle to headingAngle now if this space isn't in the fog to start
+	    		currentSpace.drawAngle = currentSpace.headingAngle;
 	    	}
 	    	currentSpace.powerPathSpace = powerPathSpace;
 	    	currentSpace.powerPathSpace.setTypeProperties("power path");
-	    	currentSpace.headingAngle = (headingDir-180)/180*Math.PI; //use an angle variable separate from drawAngle so that the object does not draw a rotated image when in the fog
 	    }
 	}
 }
@@ -531,6 +510,12 @@ function checkUpdateSelectionType() {
 	}
 	if (selection[0] instanceof Space) {
 		selectionType = selection[0].touched == true ? selection[0].type : "Hidden";
+		tileSelectedGraphic.drawDepth = 5000; //put tile selection graphic between space and collectable
+		GameManager.refreshObject(tileSelectedGraphic);
+	}
+	if (selection[0] instanceof Collectable) {
+		tileSelectedGraphic.drawDepth = 5; //put tile selection graphic in front of collectable
+		GameManager.refreshObject(tileSelectedGraphic);
 	}
 }
 
@@ -616,11 +601,6 @@ function checkAssignSelectionTask() {
 				console.log("IN PROGESS?: " + inProgress + " CLICKED TASKS LENGTH: " + clickedTasks.length);
 			}
 			var selectedTask = clickedTasks[lowestDrawDepthId];
-			
-			var index = tasksUnavailable.objectList.indexOf(selectedTask);
-			if (index != -1) {
-				tasksUnavailable.remove(selectedTask); //use remove rather than splicing to update object groupsContained
-			}
 			var assignedAtLeastOnce = false;
 			var taskWasAvailable = false;
 			for (var i = 0; i < selection.length; i++) {	//TODO: allow certain tasks to be performed by raiders even if they are holding something
@@ -1394,7 +1374,6 @@ function resetLevelVars(name) {
 	buildings = []; //similar to terrain[], just holds spaces which are buildings so that they can be easily located by raiders.
 	buildingSites = []; //used by raider ai pathfinding in a similar manner to buildings[]
 	tasksAvailable = [];//.concat(collectables.objectList); 
-	tasksUnavailable = new ObjectGroup(); //don't need to removeAll as this simply holds Space or Collectable instances
 	tasksInProgress = new ObjectGroup();
 	raiders.removeAll(true);
 	collectables.removeAll(true);
@@ -1444,6 +1423,7 @@ function initGlobals() {
 			"collect":true,
 			"drill":false,
 			"build":true,
+			"walk":true
 	};
 	toolsRequired = { //dict of task type to required tool
 			"sweep":"shovel",

@@ -1,11 +1,12 @@
 makeChild("Raider","RygameObject");
 Raider.prototype.chooseClosestBuilding = function(buildingType,resourceTypeNeeded) {
+	var buildingList = (buildingType == "building site" ? buildingSites : buildings);
 	destinationSites = [];
 	destinationSite = null;
-	for (var i = 0; i < buildings.length; i++) { //compile all buildings of type buildingType, then find closest one
-		if (buildings[i].type == buildingType && buildings[i].touched == true) { //if its not touched yet it is not pathable so dont choose it (this case should be impossible though because buildings that start out in Fog are not added to the buildings list until they are touched)
-			if (resourceTypeNeeded == null || buildingSites[i].resourceNeeded(resourceTypeNeeded)) { //if we're looking to place a resource, check if the building site needs it
-				destinationSites.push(buildings[i]);
+	for (var i = 0; i < buildingList.length; i++) { //compile all buildings of type buildingType, then find closest one
+		if (buildingList[i].type == buildingType && buildingList[i].touched == true) { //if its not touched yet it is not pathable so dont choose it (this case should be impossible though because buildings that start out in Fog are not added to the buildings list until they are touched)
+			if (resourceTypeNeeded == null || buildingList[i].resourceNeeded(resourceTypeNeeded)) { //if we're looking to place a resource, check if the building site needs it
+				destinationSites.push(buildingList[i]);
 			}
 		}
 	}
@@ -49,11 +50,14 @@ Raider.prototype.checkChooseCloserEquivalentResource = function(removeCurrentTas
 			if (this.getTaskType(curCheckSpace.contains.objectList[i]) == currentTaskType) {
 				var newIndex = tasksAvailable.indexOf(curCheckSpace.contains.objectList[i]); //look for resources on the next space, not the current space
 				if (newIndex != -1) { //TODO: CONSIDER WHETHER OR NOT RAIDERS SHOULD BE ALLOWED TO 'STEAL' EACH OTHERS' ACTIVE TASKS
-					var distance = getDistance(centerX,centerY,curCheckSpace.contains.objectList[i].centerX(),curCheckSpace.contains.objectList[i].centerY());
-					if (closestObject == null || distance < closestDistance) {
-						closestDistance = distance;
-						closestObject = curCheckSpace.contains.objectList[i];
-						closestIndex = newIndex;
+					//only consider this resource if its the same type as our current task resource
+					if (curCheckSpace.contains.objectList[i].type == this.currentTask.type) {
+						var distance = getDistance(centerX,centerY,curCheckSpace.contains.objectList[i].centerX(),curCheckSpace.contains.objectList[i].centerY());
+						if (closestObject == null || distance < closestDistance) {
+							closestDistance = distance;
+							closestObject = curCheckSpace.contains.objectList[i];
+							closestIndex = newIndex;
+						}
 					}
 				}
 			}
@@ -80,87 +84,150 @@ Raider.prototype.checkChooseCloserEquivalentResource = function(removeCurrentTas
 	return false;
 };
 
-Raider.prototype.checkChooseNewTask = function() {
-	var destinationSites = null;
-	while (this.currentTask == null) { //pick a new task
-		if (this.holding != null) {
-			this.currentTask = this.holding;
-			this.currentObjective = this.currentTask;
-			this.currentPath = [this.space];
-			this.busy = true;
-			break;
-		}
-		if (tasksAvailable.length != 0) {
-			//pick the task closest to me (based on linear distance, rather than pathfinding, for speed)
-			this.currentTask = this.findClosest(tasksAvailable,true); 
-			if (this.currentTask == null) {
-				return;
+//set current task, objective, and path, and remove from tasksAvailable
+Raider.prototype.setTask = function(taskIndex, path, initialObjective, keepTask) {
+	this.currentTask = tasksAvailable[taskIndex];
+	if (!keepTask) {
+		tasksAvailable.splice(taskIndex,1);	
+	}
+	if (initialObjective != null) {
+		this.currentObjective = initialObjective;
+		this.currentPath = findClosestStartPath(this,calculatePath(terrain,this.space,typeof initialObjective.space == "undefined" ? initialObjective: initialObjective.space,true));
+	}
+	else {
+		this.currentObjective = this.currentTask;
+		this.currentPath = path;
+	}
+}
+
+//determine whether or not the space or one of its contents is a task and the raider can perform it
+Raider.prototype.canPerformTask = function(task,ignoreContents) {
+	//if the input task is not a valid task and none of its contents (if it is a space) are a task, return false
+	if (tasksAvailable.indexOf(task) == -1) {
+		//check if the task is a space and any of its contents are a task before returning false
+		if ((!ignoreContents) && task.contains != null) {
+			for (var i = 0; i < task.contains.objectList.length; ++i) {	
+				var newIndex = tasksAvailable.indexOf(task.contains.objectList[i]);
+				//make sure this task is available before proceeding
+				if (newIndex != -1) {
+					return this.canPerformTask(task.contains.objectList[i],true);
+				}
 			}
-			this.currentObjective = this.currentTask;
-			if (this.getTaskType(this.currentTask) == "build") {
-				destinationSite = this.chooseClosestBuilding("tool store");
-				if (destinationSite != null) {
-					//loop through all potential resourceTypes and see if any of them is needed by the building site and exists in the stash
-					this.currentObjective = destinationSite;
-					var dedicatedResourceTypes = Object.getOwnPropertyNames(this.currentTask.dedicatedResources); //TODO: THIS IS COPIED FROM THE RESOURCENEEDED METHOD, AND SHOULD BE PUT IN ITS OWN SUBMETHOD AS IT IS REPEAT CODE
-					var foundResourceType = false;
-					for (var i = 0; i < dedicatedResourceTypes.length; i++) {
-						if (this.currentTask.dedicatedResources[dedicatedResourceTypes[i]] < this.currentTask.requiredResources[dedicatedResourceTypes[i]]) {
-							if (resourceAvailable(dedicatedResourceTypes[i])) {
-								this.currentObjectiveResourceType = dedicatedResourceTypes[i];
-								reservedResources[this.currentObjectiveResourceType]++;
-								this.reservingResource = true;
-								foundResourceType = true;
-								break;
+		}
+		return false;
+		
+	}
+	
+	//if the input task is a task that cannot be automated, return false
+	if (!tasksAutomated[taskType(task)]) {
+		return false;
+	}
+	//if the input task requires a tool that we don't have, return false
+	if (toolsRequired[taskType(task)] != undefined && this.tools.indexOf(toolsRequired[taskType(task)]) == -1)  {
+		return false;
+	}
+	//if the input task is a building site and we don't have a tool store that we can path to or don't have any of the required resources, return false
+	if (taskType(task) == "build") {
+		destinationSite = this.chooseClosestBuilding("tool store");
+		//if there's no path to a tool store to get a resource with which to build, move on to the next high priority task
+		if (destinationSite == null) {
+			return false;
+		}
+		//if there is no resource in the tool store that is needed by the building site, return false
+		var dedicatedResourceTypes = Object.getOwnPropertyNames(task.dedicatedResources);
+		for (var i = 0; i < dedicatedResourceTypes.length; i++) {
+			//a resource that we have in the tool store is required by this site
+			if (task.resourceNeeded(dedicatedResourceTypes[i]) && resourceAvailable(dedicatedResourceTypes[i])) {
+				return true;
+			}
+		}
+		//no resource in the tool store is required by this site
+		return false;
+	}
+	return true;
+}
+
+//attempt to set task index i, if it passes the checks
+Raider.prototype.checkSetTask = function(i,mustBeHighPriority,calculatedPath) {
+	//TODO: raiders will select the first high priority task this way, rather than the nearest one. Should be fixed when implementing automatic task priority order.
+	//if this task index is invalid, return now
+	if (i == -1) {
+		return false;
+	}
+	
+	//skip any tasks that cannot be performed automatically, unless they are high priority
+	if (tasksAvailable[i].taskPriority == 1 || (tasksAutomated[taskType(tasksAvailable[i])] && (mustBeHighPriority != true))) {
+		var newPath = calculatedPath; //if we already calculated a path, don't bother calculating it again
+		if (newPath == null) {
+			newPath = findClosestStartPath(this,calculatePath(terrain,this.space,typeof tasksAvailable[i].space == "undefined" ? tasksAvailable[i]: tasksAvailable[i].space,true));
+		}
+		//if there's no path to the task, move on to the next high priority task
+		if (newPath == null) {
+			return false;
+		}
+		//for building sites, we have to check for a pathable tool store and resources, otherwise we can't do anything
+		if (taskType(tasksAvailable[i]) == "build") {
+			destinationSite = this.chooseClosestBuilding("tool store");
+			//if there's no path to a tool store to get a resource with which to build, move on to the next high priority task
+			if (destinationSite == null) {
+				return false;
+			}
+			//if there is no resource in the tool store that is needed by the building site, move on to the next high priorty task
+			var dedicatedResourceTypes = Object.getOwnPropertyNames(tasksAvailable[i].dedicatedResources);
+			for (var r = 0; r < dedicatedResourceTypes.length; r++) {
+				//resource found! this will be our new task
+				if (tasksAvailable[i].resourceNeeded(dedicatedResourceTypes[r]) && resourceAvailable(dedicatedResourceTypes[r])) {
+					this.currentObjectiveResourceType = dedicatedResourceTypes[r];
+					reservedResources[this.currentObjectiveResourceType]++;
+					this.reservingResource = true;
+					this.setTask(i,newPath,destinationSite,true);
+					return true;
+				}
+			}
+		}
+		//this task is not a building site, check for required tools
+		else {
+			//check if the task requires a tool and we have it
+			if (toolsRequired[taskType(tasksAvailable[i])] == undefined || this.tools.indexOf(toolsRequired[taskType(tasksAvailable[i])]) != -1)  {
+				this.setTask(i,newPath);
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+//check for a path to any high priority tasks. if none can be pathed to, sweep out until all reachable spaces are exhausted or a completable task is found
+Raider.prototype.checkChooseNewTask = function() {
+	//search for a high priority task first
+	for (var i = 0; i < tasksAvailable.length; ++i) {
+		if (this.checkSetTask(i,true)) {
+			return;
+		}
+	}
+	//no high priority task found, do a breadth first search to find the nearest available task, if at least one exists
+	if (tasksAvailable.length > 0) {
+		var newTaskPath = findClosestStartPath(this,calculatePath(terrain,this.space,null,true,this));
+		if (newTaskPath != null) {
+			//we found a path to a valid task; determine what task type the destination is and assign it along with the path
+			if (!this.checkSetTask(tasksAvailable.indexOf(newTaskPath[0]),false,newTaskPath)) { //paths are reversed, so the 0th index should be the end
+				//if we were unable to set the task, that means the pathfinding task search must have been pointing to one of the space's contains instead
+				if (newTaskPath[0].contains != null) {
+					//if it is indeed a space, check each of its contains to see if one of them is a valid path
+					for (var i = 0; i < newTaskPath[0].contains.objectList.length; ++i) {	
+						var newIndex = tasksAvailable.indexOf(newTaskPath[0].contains.objectList[i]);
+						//make sure this task is available before proceeding
+						if (newIndex != -1) {
+							//if we are able to set the task to this contains, we can return early
+							if (this.checkSetTask(tasksAvailable.indexOf(newTaskPath[0].contains.objectList[i]),false,newTaskPath)) {
+								return;
 							}
 						}
 					}
-					//no resources of required types in buildings
-					if (foundResourceType == false) {
-						tasksUnavailable.push(this.currentTask); //since there are no resources available of types that this build task needs, we move it to tasksUnavailable
-						this.currentObjective = null; //TODO: THIS IS REPEAT CODE; CLEANUP LOGIC IN SUBMETHOD
-						this.currentTask = null;
-						continue;
-					}
 				}
-				else {
-					tasksUnavailable.push(this.currentTask);
-					//nowhere to bring the resource, so wait for a place to bring the resource to appear
-					this.currentObjective = null; //TODO: SEE IF THIS WORKS. SIMPLY SETTING THE OBJECTIVE TO NULL IS A PLACEHOLDER, A MORE PROPER SOLUTION IS NEEDED TO KEEP RAIDERS IDLE BUT LOOKING FOR A NEW PLACE TO BRING THEIR COLLECTABLE EACH UPDATE FRAME
-					this.currentTask = null; //TODO: FIGURE OUT WHAT TO DO IN THE EVENT THAT THERE ARE NO VALID BUILDING SITES OR THERE ARE NO RESOURCES SINCE FOR NOW THE TASK IS JUST LEFT IN THE AVAILABLE LIST AND SLOWS DOWN NEW TASK SELECTION FOR ALL RAIDERS
-					continue;
-					
-				}
-				
-				//TODO; implement this in the findClosest method so we are not removing and then readding the task to the unavailable list
 			}
-			//TODO: CONSIDER IF THE TASK LISTS SHOULD BE ACTIVELY SORTED, AND IF SO, IN WHAT WAY (SEEMS IT WOULD BE DIFFERENT FOR EACH RAIDER DEPENDING ON LOCATION)?
-			if (!(typeof this.currentTask.space == "undefined" ? this.currentTask.touched: this.currentTask.space.touched)) {
-				tasksUnavailable.push(this.currentTask);
-				this.currentTask = null;
-				continue;
-			}
-			if (this.getTaskType(this.currentTask) == "build") {
-				tasksAvailable.push(this.currentTask); //there is no limit to how many raiders may be on a build task at once (currently unlike other task types) so add it back into the available list if we chose it and did not put it in the unavailable list already. this can be optimized by not removing it from the available list in the first place
-			} //TODO: ENSURE THAT YOU DO NOT MAKE IT POSSIBLE FOR THE TASK TO SIMULTANEOUSLY BE IN TASKSAVAILABLE AND IN TASKSUNAVAILABLE (OR IN ONE OF THE LISTS MULTIPLE TIMES) IN THE FUTURE DUE TO THE FACT THAT THIS TASK CAN BE ASSIGNED TO MULTIPLE RAIDERS AT ONCE
-			this.currentPath = findClosestStartPath(this,calculatePath(terrain,this.space,typeof this.currentObjective.space == "undefined" ? this.currentObjective: this.currentObjective.space,true));
-			if (this.currentPath == null) { //TODO: CHANGE THIS AS CURRENTLY THERE IS NO WAY TO GET THESE TASKS BACK FROM UNAVAILABLE, AND THEY MAY BE UNAVAILABLE TO ONE RAIDER BUT NOT TO ANOTHER ONE
-				tasksUnavailable.push(this.currentTask); //TODO: THIS IS REPEAT CODE COPIED FROM ABOVE. FIX COMMENTS
-				//nowhere to bring the resource, so wait for a place to bring the resource to appear
-				this.currentObjective = null; //TODO: SEE IF THIS WORKS. SIMPLY SETTING THE OBJECTIVE TO NULL IS A PLACEHOLDER, A MORE PROPER SOLUTION IS NEEDED TO KEEP RAIDERS IDLE BUT LOOKING FOR A NEW PLACE TO BRING THEIR COLLECTABLE EACH UPDATE FRAME
-				this.currentTask = null; //TODO: FIGURE OUT WHAT TO DO IN THE EVENT THAT THERE ARE NO VALID BUILDING SITES OR THERE ARE NO RESOURCES SINCE FOR NOW THE TASK IS JUST LEFT IN THE AVAILABLE LIST AND SLOWS DOWN NEW TASK SELECTION FOR ALL RAIDERS
-				continue;
-			}
-			tasksInProgress.push(this.currentTask);
-			if (this.getTaskType(this.currentTask) == "collect") {
-				this.checkChooseCloserEquivalentResource();
-			}
-			
 		}
-		else {
-			return;
-		}
-	} 
+	}
 }
 
 Raider.prototype.update = function() {
@@ -190,8 +257,9 @@ Raider.prototype.update = function() {
 	if ((selection.indexOf(this) != -1) && (this.currentTask == null)) { //don't start a new task if currently selected unless instructed to
 		return;
 	}
-	
-	this.checkChooseNewTask();
+	if (this.currentTask == null) {
+		this.checkChooseNewTask();
+	}
 	if (this.currentTask == null) {
 		return;
 	}
@@ -268,21 +336,7 @@ Raider.prototype.update = function() {
 								//collectedResources[this.currentObjectiveResourceType] might get dropped to 0 by the player via an upgrade, so check here to avoid going into the negatives
 								if (this.currentTask.resourceNeeded(this.currentObjectiveResourceType) && collectedResources[this.currentObjectiveResourceType] >= 1) { //although we do reserve a resource from the toolstore as soon as we choose the build task, we do not reserve a spot in the building site until we pick up our resource, so its possible for us to arrive at the toolstore only to find that our resource is no longer needed, but that's better than reserving the resource when the build task is initially chosen and then stopping potentially many other raiders from finishing the build site ahead of this raider
 									this.currentTask.dedicatedResources[this.currentObjectiveResourceType]++;
-									this.dedicatingResource = true;
-									
-									if (!this.currentTask.resourceNeeded()) { //TODO: COPIED FROM COLLECT SECTION OF RAIDER UPDATE METHOD; ENSURE THAT THIS CODE SNIPPET IS NEEDED									
-										var newIndex = tasksAvailable.indexOf(this.currentTask);
-										if (newIndex != -1) { //the build task may be in tasksUnavailable if there are not currently any resources available to work with (this code segment is copied from the update section; here in the build section, this clause checking tasksUnavailable may be an impossible case)
-											tasksAvailable.splice(newIndex, 1);
-										}
-										else {
-											newIndex = tasksUnavailable.objectList.indexOf(this.currentTask);
-											if (newIndex != -1) { //this is just an extra precaution; this case should never be false
-												tasksUnavailable.remove(this.currentTask); //use remove rather than splicing to update object groupsContained
-											}
-										}
-									}
-									
+									this.dedicatingResource = true;									
 									collectedResources[this.currentObjectiveResourceType]--;
 									var newCollectable = new Collectable(this.currentObjective,this.currentObjectiveResourceType);
 									newCollectable.setCenterX(this.centerX());
@@ -324,7 +378,6 @@ Raider.prototype.update = function() {
 						else {
 							//there is no resource in the tool store for us to take, so clear the current task
 							//TODO: this should now be an unreachable case due to the addition of reserving resources from the collectedResources dict; verify this and delete this case
-							tasksUnavailable.push(this.currentTask); 
 							this.clearTask();
 						}
 					}
@@ -342,20 +395,7 @@ Raider.prototype.update = function() {
 									this.currentObjective.updatePlacedResources(this.holding.type);	
 								}
 								else if (this.currentObjective.type == "tool store") { //because this is copied from the "collect" section and we are in the "build" section this condition is possibly unreachable
-									var resourcePreviouslyAvailable = resourceAvailable(this.holding.type);
 									collectedResources[this.holding.type]++;
-									if (resourcePreviouslyAvailable == false) {
-										//if no resources of the held type were previous available, check for any building sites that could be reenabled
-										var testTask;
-										for (var k = 0; k < tasksUnavailable.length; k++) {
-											testTask = tasksUnavailable.objectList[k];
-											if (this.getTaskType(testTask) == "build" && testTask.resourceNeeded(this.holding.type)) {
-												tasksAvailable.push(testTask);
-												tasksUnavailable.remove(tasksUnavailable.objectList[k]); //use remove rather than splicing to update object groupsContained
-												//continue //TODO: DECIDE WHETHER OR NOT IT IS OK FOR US TO POTENTIALLY REENABLE MORE THAN ONE BUILDING SITE WHEN WE MAY ONLY HAVE 1 OF A REQUIRED RESOURCE TYPE
-											}
-										}
-									}
 								}
 								this.dedicatingResource = false;
 								this.holding.die();
@@ -410,18 +450,6 @@ Raider.prototype.update = function() {
 								//adjust dedicated resource number because we have elected to take our resource to this building site rather than to the tool store, but dont update building's list of secured resources until we actually get there and drop off the resource
 								destinationSite.dedicatedResources[this.holding.type]++;
 								this.dedicatingResource = true;
-								if (!destinationSite.resourceNeeded()) {
-									var newIndex = tasksAvailable.indexOf(destinationSite);
-									if (newIndex != -1) { //the build task may be in tasksUnavailable if there are not currently any resources available to work with
-										tasksAvailable.splice(newIndex, 1);
-									}
-									else {
-										newIndex = tasksUnavailable.objectList.indexOf(destinationSite);
-										if (newIndex != -1) { //this is just an extra precaution; this case should never be false
-											tasksUnavailable.remove(destinationSite); //use remove rather than splicing to update object groupsContained
-										}
-									}
-								}
 							}
 							else {
 								destinationSite = this.chooseClosestBuilding("tool store");
@@ -438,6 +466,9 @@ Raider.prototype.update = function() {
 								if (newPath != null) {
 									this.currentPath = newPath;
 									this.busy = false;
+									if (this.currentObjective.type == "building site") {
+										this.currentTask = this.currentObjective;
+									}
 								}
 								else {
 									this.currentObjective = this.currentTask;
@@ -460,20 +491,7 @@ Raider.prototype.update = function() {
 									this.currentObjective.updatePlacedResources(this.holding.type);
 								}
 								else if (this.currentObjective.type == "tool store") {
-									var resourcePreviouslyAvailable = resourceAvailable(this.holding.type);
 									collectedResources[this.holding.type]++;
-									if (resourcePreviouslyAvailable == false) {
-										//if no resources of the held type were previous available, check for any building sites that could be reenabled
-										var testTask;
-										for (var k = 0; k < tasksUnavailable.length; k++) {
-											testTask = tasksUnavailable.objectList[k];
-											if (this.getTaskType(testTask) == "build" && testTask.resourceNeeded(this.holding.type)) {
-												tasksAvailable.push(testTask);
-												tasksUnavailable.remove(tasksUnavailable.objectList[k]); //use remove rather than splicing to update object groupsContained
-												//continue //TODO: DECIDE WHETHER OR NOT IT IS OK FOR US TO POTENTIALLY REENABLE MORE THAN ONE BUILDING SITE WHEN WE MAY ONLY HAVE 1 OF A REQUIRED RESOURCE TYPE
-											}
-										}
-									}
 								}
 								this.dedicatingResource = false;
 								this.holding.die();
@@ -582,18 +600,7 @@ Raider.prototype.clearTask = function() {
 		else {
 			this.currentObjective.dedicatedResources[this.holding.type]--;
 			dedicatedResourceLocation = this.currentObjective;
-		}
-		if (tasksAvailable.indexOf(dedicatedResourceLocation) == -1 && tasksUnavailable.objectList.indexOf(dedicatedResourceLocation) == -1) { //TODO: UNTESTED; CHECK THAT THIS BLOCK WORKS CORRECTLY
-			//if the resource location is not in either task list, that means our resource was one of the only ones still required, so only check for our resource which has been cancelled 
-			if (resourceAvailable(this.holding.type)) {
-				tasksAvailable.push(dedicatedResourceLocation);
-			}
-			else {
-				tasksUnavailable.objectList.push(dedicatedResourceLocation);
-			}
 		}		
-		//check if the building site to which we dedicated the resource needs to be added back to tasksAvailable or tasksUnavailable
-		
 	}
 	if (this.currentTask != null && this.getTaskType(this.currentTask) != "get tool") {
 		this.currentTask.taskPriority = 0; //reset the task priority since it will otherwise remain high priority in some instances (eg. we just drilled a high priority wall and now the rubble is high priority too as a result)
