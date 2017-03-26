@@ -145,7 +145,9 @@ function calculatePath(terrain,startSpace,goalSpace,returnAllSolutions,raider) {
 	}
 	
 	//initialize starting variables
-	goalSpace.parents = [];
+	if (goalSpace != null) {
+		goalSpace.parents = [];	
+	}
 	
 	startSpace.startDistance = 0;
 	startSpace.parents = [];
