@@ -80,6 +80,68 @@ Raider.prototype.checkChooseCloserEquivalentResource = function(removeCurrentTas
 	return false;
 };
 
+//set current task, objective, and path, and remove from tasksAvailable
+Raider.prototype.setTask = function(taskIndex, path, initialObjective = null) {
+	this.currentTask = tasksAvailable[taskIndex];
+	tasksAvailable.splice(taskIndex,1);
+	if (initialObjective != null) {
+		this.currentObjective = initialObjective;
+		this.currentPath = findClosestStartPath(this,calculatePath(terrain,this.space,typeof initialObjective.space == "undefined" ? initialObjective: initialObjective.space,true));
+	}
+	else {
+		this.currentObjective = this.currentTask;
+		this.currentPath = path;
+	}
+}
+
+//check for a path to any high priority tasks. if none can be pathed to, sweep out until all reachable spaces are exhausted or a completable task is found
+Raider.prototype.checkChooseNewTask = function() {
+	//search for a high priority task first
+	for (var i = 0; i < tasksAvailable.length; ++i) {
+		//skip any tasks that cannot be performed automatically (though these should most likely not be high priority regardless) 
+		if (!tasksAutomated[getTaskType(objectList[i])]) {
+			continue;
+		}
+		if (tasksAvailable[i].taskPriority == 1) {
+			var newPath = findClosestStartPath(this,calculatePath(terrain,this.space,typeof tasksAvailable[i].space == "undefined" ? tasksAvailable[i]: tasksAvailable[i].space,true));
+			//if there's no path to the task, move on to the next high priority task
+			if (newPath == null) {
+				continue;
+			}
+			//for building sites, we have to check for a pathable tool store and resources, otherwise we can't do anything
+			if (getTaskType(tasksAvailable[i]) == "build") {
+				destinationSite = this.chooseClosestBuilding("tool store");
+				//if there's no path to a tool store to get a resource with which to build, move on to the next high priority task
+				if (destinationSite == null) {
+					continue;
+				}
+				//if there is no resource in the tool store that is needed by the building site, move on to the next high priorty task
+				var dedicatedResourceTypes = Object.getOwnPropertyNames(tasksAvailable[i].dedicatedResources); //TODO: THIS IS COPIED FROM THE RESOURCENEEDED METHOD, AND SHOULD BE PUT IN ITS OWN SUBMETHOD AS IT IS REPEAT CODE
+				for (var i = 0; i < dedicatedResourceTypes.length; i++) {
+					//resource found! this will be our new task
+					if (this.currentTask.resourceNeeded(dedicatedResourceTypes[i]) && resourceAvailable(dedicatedResourceTypes[i])) {
+						this.currentObjectiveResourceType = dedicatedResourceTypes[i];
+						reservedResources[this.currentObjectiveResourceType]++;
+						this.reservingResource = true;
+						return setTask(i,newPath,destinationSite);
+					}
+				}
+			}
+			//this task is not a building site, check for required tools
+			else {
+				//check if the task requires a tool and we have it
+				if (toolsRequired[getTaskType(tasksAvailable[i])] == undefined || this.tools.indexOf(toolsRequired[this.getTaskType(tasksAvailable[i])]) != -1)  {
+					return setTask(i,newPath);
+				}
+			}
+		}
+	}
+	//no high priority task found, do a breadth first search to find the nearest available task, if at least one exists
+	if (tasksAvailable.length > 0) {
+		
+	}
+}
+
 Raider.prototype.checkChooseNewTask = function() {
 	var destinationSites = null;
 	while (this.currentTask == null) { //pick a new task

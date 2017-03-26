@@ -1408,6 +1408,7 @@ function initGlobals() {
 			"collect":true,
 			"drill":false,
 			"build":true,
+			"walk":true
 	};
 	toolsRequired = { //dict of task type to required tool
 			"sweep":"shovel",
