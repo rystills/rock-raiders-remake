@@ -149,6 +149,11 @@ Raider.prototype.canPerformTask = function(task,ignoreContents) {
 //attempt to set task index i, if it passes the checks
 Raider.prototype.checkSetTask = function(i,mustBeHighPriority,calculatedPath) {
 	//TODO: raiders will select the first high priority task this way, rather than the nearest one. Should be fixed when implementing automatic task priority order.
+	//if this task index is invalid, return now
+	if (i == -1) {
+		return false;
+	}
+	
 	//skip any tasks that cannot be performed automatically, unless they are high priority
 	if (tasksAvailable[i].taskPriority == 1 || (tasksAutomated[taskType(tasksAvailable[i])] && (mustBeHighPriority != true))) {
 		var newPath = calculatedPath; //if we already calculated a path, don't bother calculating it again
