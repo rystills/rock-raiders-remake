@@ -374,19 +374,25 @@ function loadLevelData(name) {
 	    	var headingDir = Math.round(olObject.heading); //don't do an int conversion here as we need this to be exactly one of 4 values
 	    	if (headingDir == 0) {
 	    		powerPathSpace = adjacentSpace(terrain,currentSpace.listX,currentSpace.listY,"up");
+		    	currentSpace.headingAngle = Math.PI;//use an angle variable separate from drawAngle so that the object does not draw a rotated image when in the fog
 	    	}
 	    	else if (headingDir == 90) {
 	    		powerPathSpace = adjacentSpace(terrain,currentSpace.listX,currentSpace.listY,"right");
+		    	currentSpace.headingAngle = -.5*Math.PI;//use an angle variable separate from drawAngle so that the object does not draw a rotated image when in the fog
 	    	}
 	    	else if (headingDir == 180) {
 	    		powerPathSpace = adjacentSpace(terrain,currentSpace.listX,currentSpace.listY,"down");
+		    	currentSpace.headingAngle = 0;//use an angle variable separate from drawAngle so that the object does not draw a rotated image when in the fog
 	    	}
 	    	else if (headingDir == 270) {
 	    		powerPathSpace = adjacentSpace(terrain,currentSpace.listX,currentSpace.listY,"left");
+		    	currentSpace.headingAngle = .5*Math.PI;//use an angle variable separate from drawAngle so that the object does not draw a rotated image when in the fog
+	    	}
+	    	if (currentSpace.touched) { //set drawAngle to headingAngle now if this space isn't in the fog to start
+	    		currentSpace.drawAngle = currentSpace.headingAngle;
 	    	}
 	    	currentSpace.powerPathSpace = powerPathSpace;
 	    	currentSpace.powerPathSpace.setTypeProperties("power path");
-	    	currentSpace.headingAngle = (headingDir-180)/180*Math.PI; //use an angle variable separate from drawAngle so that the object does not draw a rotated image when in the fog
 	    }
 	}
 }
