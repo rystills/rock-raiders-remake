@@ -134,14 +134,14 @@ function findClosestStartPath(startObject,paths) {
 	return paths[closestIndex];
 }
 
-function calculatePath(terrain,startSpace,goalSpace,returnAllSolutions) { 
+function calculatePath(terrain,startSpace,goalSpace,returnAllSolutions,raider) { 
 	/*find shortest path from startSpace to a space satisfying desiredProperty (note: path goes from end to start, not from start to end)*/
 	//if startSpace meets the desired property, return it without doing any further calculations
-	if (startSpace == goalSpace) {
+	if (startSpace == goalSpace || (goalSpace == null && raider.canPerformTask(startSpace))) {
 		if (!returnAllSolutions) {
-			return [goalSpace];
+			return [startSpace];
 		}
-		return [[goalSpace]];
+		return [[startSpace]];
 	}
 	
 	//initialize starting variables
@@ -175,7 +175,8 @@ function calculatePath(terrain,startSpace,goalSpace,returnAllSolutions) {
 			
 			//check this here so that the algorithm is a little bit faster, but also so that paths to non-walkable terrain pieces (such as for drilling) will work
 			//if the newSpace is a goal, find a path back to startSpace (or all equal paths if returnAllSolutions is True)
-			if (newSpace == goalSpace) {
+			if (newSpace == goalSpace || (goalSpace == null && raider.canPerformTask(newSpace))) {
+				goalSpace = newSpace;
 				newSpace.parents = [currentSpace]; //start the path with currentSpace and work our way back
 				pathsFound = [[newSpace]];
 				
