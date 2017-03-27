@@ -944,10 +944,13 @@ function drawRaiderTasks() {
 
 function drawBuildingSiteMaterials() {
 	GameManager.setFontSize(24);
-	GameManager.drawSurface.fillStyle = "rgb(165, 100, 255)";
 	for (var i = 0; i < buildingSites.length; i++) {
-		//GameManager.drawText("Ore: " + buildingSites[i].placedResources["ore"] + "/" + buildingSites[i].requiredResources["ore"],buildingSites[i].centerX()-buildingSites[i].drawLayer.cameraX,buildingSites[i].y-buildingSites[i].drawLayer.cameraY,true);
-		GameManager.drawText(buildingSites[i].placedResources["ore"] + "/" + buildingSites[i].requiredResources["ore"] + ", " + buildingSites[i].placedResources["crystal"] + "/" + buildingSites[i].requiredResources["crystal"],buildingSites[i].centerX()-buildingSites[i].drawLayer.cameraX,buildingSites[i].y-buildingSites[i].drawLayer.cameraY,true);
+		GameManager.drawSurface.fillStyle = "rgb(0, 0, 255)";
+		GameManager.drawText("Ore: " + buildingSites[i].placedResources["ore"] + "/" + buildingSites[i].requiredResources["ore"],
+				buildingSites[i].centerX()-buildingSites[i].drawLayer.cameraX,buildingSites[i].y-buildingSites[i].drawLayer.cameraY+40,true);
+		GameManager.drawSurface.fillStyle = "rgb(0, 255, 0)";
+		GameManager.drawText("Crystal: " + buildingSites[i].placedResources["crystal"] + "/" + buildingSites[i].requiredResources["crystal"],
+				buildingSites[i].centerX()-buildingSites[i].drawLayer.cameraX,buildingSites[i].y-buildingSites[i].drawLayer.cameraY+64,true);
 	}
 }
 
@@ -1602,8 +1605,8 @@ function update() {
 			highlightRaiderPaths();
 			drawSelectedRects();
 			drawTerrainVars(["listX"]);
-			drawBuildingSiteMaterials();	
 		}
+		drawBuildingSiteMaterials();
 		drawRaiderTasks();
 		drawUI(); //draw UI last to ensure that it is in front of everything else
 		drawAwaitingStartInstructions();
