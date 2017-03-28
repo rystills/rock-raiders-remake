@@ -132,9 +132,6 @@ Raider.prototype.canPerformTask = function(task,ignoreContents) {
 	}
 	//if the input task is a building site and we don't have a tool store that we can path to or don't have any of the required resources, return false
 	if (taskType(task) == "build") {
-		if (this.holding != null && task.resourceNeeded(this.holding.type)) {
-			return true;
-		}
 		destinationSite = this.chooseClosestBuilding("tool store");
 		//if there's no path to a tool store to get a resource with which to build, move on to the next high priority task
 		if (destinationSite == null) {
@@ -174,16 +171,6 @@ Raider.prototype.checkSetTask = function(i,mustBeHighPriority,calculatedPath) {
 		}
 		//for building sites, we have to check for a pathable tool store and resources, otherwise we can't do anything
 		if (taskType(tasksAvailable[i]) == "build") {
-			if (this.holding != null) {
-				if (tasksAvailable[i].resourceNeeded(this.holding.type)) {
-					tasksAvailable[i].dedicatedResources[this.currentObjectiveResourceType]++;
-					this.dedicatingResource = true;
-					this.setTask(i,newPath,null,true);
-					return true;
-				}
-				return false;
-				
-			}
 			destinationSite = this.chooseClosestBuilding("tool store");
 			//if there's no path to a tool store to get a resource with which to build, move on to the next high priority task
 			if (destinationSite == null) {
@@ -247,6 +234,42 @@ Raider.prototype.checkChooseNewTask = function() {
 	}
 }
 
+//find a building site or toolstore to bring the currently held resource to
+Raider.prototype.attemptSelectResourceLocation = function() {
+	destinationSite = this.chooseClosestBuilding("building site",this.holding.type);
+	if (destinationSite != null) {
+		this.currentObjective = destinationSite;
+		this.currentTask = this.holding;
+		//adjust dedicated resource number because we have elected to take our resource to this building site rather than to the tool store, but dont update building's list of secured resources until we actually get there and drop off the resource
+		destinationSite.dedicatedResources[this.holding.type]++;
+		this.dedicatingResource = true;
+	}
+	else {
+		destinationSite = this.chooseClosestBuilding("tool store");
+		if (destinationSite != null) {
+			this.currentObjective = destinationSite;
+			this.currentTask = this.holding;
+		}
+		else {
+			//nowhere to bring the resource, so wait for a place to bring the resource to appear
+		}
+	}
+	
+	if (this.currentObjective != this.currentTask) {
+		var newPath = findClosestStartPath(this,calculatePath(terrain,this.space,this.currentObjective,true));
+		if (newPath != null) {
+			this.currentPath = newPath;
+			this.busy = false;
+			if (this.currentObjective.type == "building site") {
+				this.currentTask = this.currentObjective;
+			}
+		}
+		else {
+			this.currentObjective = this.currentTask;
+		}
+	}
+}
+
 Raider.prototype.update = function() {
 	//if we are on a space that has no been touched yet, do nothing
 	if (!this.space.touched) {
@@ -274,9 +297,20 @@ Raider.prototype.update = function() {
 	if ((selection.indexOf(this) != -1) && (this.currentTask == null)) { //don't start a new task if currently selected unless instructed to
 		return;
 	}
+	
+	//attempt to choose a new task, if we are currently free
 	if (this.currentTask == null) {
-		this.checkChooseNewTask();
+		if (this.holding != null) {
+			//if we are holding something, check for a building site. if there are none pathable, check for a toolstore
+			this.attemptSelectResourceLocation();
+		}
+		else {
+			//not holding anything; attempt to choose a new task
+			this.checkChooseNewTask();
+		}
 	}
+	
+	//if we were unable to choose a new task, nothing left to do
 	if (this.currentTask == null) {
 		return;
 	}
@@ -466,36 +500,7 @@ Raider.prototype.update = function() {
 							}
 						}
 						if (this.currentTask.grabPercent >= 100) {
-							destinationSite = this.chooseClosestBuilding("building site",this.holding.type);
-							if (destinationSite != null) {
-								this.currentObjective = destinationSite;
-								//adjust dedicated resource number because we have elected to take our resource to this building site rather than to the tool store, but dont update building's list of secured resources until we actually get there and drop off the resource
-								destinationSite.dedicatedResources[this.holding.type]++;
-								this.dedicatingResource = true;
-							}
-							else {
-								destinationSite = this.chooseClosestBuilding("tool store");
-								if (destinationSite != null) {
-									this.currentObjective = destinationSite;
-								}
-								else {
-									//nowhere to bring the resource, so wait for a place to bring the resource to appear
-								}
-							}
-							
-							if (this.currentObjective != this.currentTask) {
-								var newPath = findClosestStartPath(this,calculatePath(terrain,this.space,this.currentObjective,true));
-								if (newPath != null) {
-									this.currentPath = newPath;
-									this.busy = false;
-									if (this.currentObjective.type == "building site") {
-										this.currentTask = this.currentObjective;
-									}
-								}
-								else {
-									this.currentObjective = this.currentTask;
-								}
-							}
+							this.attemptSelectResourceLocation();
 						}
 						
 					}
