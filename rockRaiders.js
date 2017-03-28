@@ -612,6 +612,10 @@ function checkAssignSelectionTask() {
 						selectedTaskType = "walk";
 					}
 				}
+				//treat any other commands as walk commands if the raider does not have the necessary tool
+				else if (toolsRequired[selectedTaskType] != undefined && selection[i].tools.indexOf(toolsRequired[selectedTaskType]) == -1) {
+					selectedTaskType = "walk";
+				}
 				if (selection[i].currentTask != null && (selection[i].holding == null || selectedTaskType == "build" || selectedTaskType == "walk")) { //if current raider is already performing a task and not holding anything, stop him before assigning the new task
 					stopMinifig(selection[i]);
 				}
