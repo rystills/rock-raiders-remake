@@ -315,7 +315,12 @@ Raider.prototype.update = function() {
 				else {
 					reachedObjective = this.moveTowardsPoint(this.currentObjective.centerX(),this.currentObjective.centerY(),distanceTraveled,true);	
 					if (reachedObjective && taskType == "walk") {
+						//make sure we don't drop what we're holding
+						var heldObject = this.holding;
 						this.clearTask();
+						if (heldObject != null) {
+							this.holding = heldObject;
+						}
 						break;
 					}
 				}
