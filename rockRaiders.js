@@ -612,10 +612,10 @@ function checkAssignSelectionTask() {
 						selectedTaskType = "walk";
 					}
 				}
-				if (selection[i].currentTask != null && selection[i].holding == null) { //if current raider is already performing a task and not holding anything, stop him before assigning the new task
+				if (selection[i].currentTask != null && (selection[i].holding == null || selectedTaskType == "build" || selectedTaskType == "walk")) { //if current raider is already performing a task and not holding anything, stop him before assigning the new task
 					stopMinifig(selection[i]);
 				}
-				if (selection[i].currentTask == null && selection[i].holding == null) { //raiders are the only valid selection type for now; later on any Space (and maybe collectables as well?) or vehicle, etc.. will be a valid selection[i] as even though these things cannot be assigned tasks they can be added to the high priority task queue as well as create menu buttons
+				if (selection[i].currentTask == null && (selection[i].holding == null || selectedTaskType == "build" || selectedTaskType == "walk")) { //raiders are the only valid selection type for now; later on any Space (and maybe collectables as well?) or vehicle, etc.. will be a valid selection[i] as even though these things cannot be assigned tasks they can be added to the high priority task queue as well as create menu buttons
 					//selectedTask.taskPriority = 1;
 					if (toolsRequired[selectedTaskType] == undefined || selection[i].tools.indexOf(toolsRequired[selectedTaskType]) != -1) {
 						var index = tasksAvailable.indexOf(selectedTask);
@@ -654,7 +654,7 @@ function checkAssignSelectionTask() {
 								console.log(selection[i].currentTask.centerX() + ", " + selection[i].currentTask.centerY());
 							}
 							else if (selectedTaskType == "build") {
-								selectedTask.dedicatedResources[this.holding.type]++;
+								selectedTask.dedicatedResources[selection[i].holding.type]++;
 								this.dedicatingResource = true;								
 							}
 						}
