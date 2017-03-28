@@ -132,6 +132,9 @@ Raider.prototype.canPerformTask = function(task,ignoreContents) {
 	}
 	//if the input task is a building site and we don't have a tool store that we can path to or don't have any of the required resources, return false
 	if (taskType(task) == "build") {
+		if (this.holding != null && task.resourceNeeded(this.holding.type)) {
+			return true;
+		}
 		destinationSite = this.chooseClosestBuilding("tool store");
 		//if there's no path to a tool store to get a resource with which to build, move on to the next high priority task
 		if (destinationSite == null) {
@@ -171,6 +174,16 @@ Raider.prototype.checkSetTask = function(i,mustBeHighPriority,calculatedPath) {
 		}
 		//for building sites, we have to check for a pathable tool store and resources, otherwise we can't do anything
 		if (taskType(tasksAvailable[i]) == "build") {
+			if (this.holding != null) {
+				if (tasksAvailable[i].resourceNeeded(this.holding.type)) {
+					tasksAvailable[i].dedicatedResources[this.currentObjectiveResourceType]++;
+					this.dedicatingResource = true;
+					this.setTask(i,newPath,null,true);
+					return true;
+				}
+				return false;
+				
+			}
 			destinationSite = this.chooseClosestBuilding("tool store");
 			//if there's no path to a tool store to get a resource with which to build, move on to the next high priority task
 			if (destinationSite == null) {
