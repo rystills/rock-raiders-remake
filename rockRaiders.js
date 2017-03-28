@@ -603,21 +603,28 @@ function checkAssignSelectionTask() {
 			var selectedTask = clickedTasks[lowestDrawDepthId];
 			var assignedAtLeastOnce = false;
 			var taskWasAvailable = false;
+			var baseSelectedTask = taskType(selectedTask);
 			for (var i = 0; i < selection.length; i++) {	//TODO: allow certain tasks to be performed by raiders even if they are holding something
+				selectedTaskType = baseSelectedTask;
+				//treat build commands as walk unless the raider is holding something that the building site needs
+				if (selectedTaskType == "build") {
+					if (selection[i].holding == null || !selectedTask.resourceNeeded(selection[i].holding.type)) {
+						selectedTaskType = "walk";
+					}
+				}
 				if (selection[i].currentTask != null && selection[i].holding == null) { //if current raider is already performing a task and not holding anything, stop him before assigning the new task
 					stopMinifig(selection[i]);
 				}
 				if (selection[i].currentTask == null && selection[i].holding == null) { //raiders are the only valid selection type for now; later on any Space (and maybe collectables as well?) or vehicle, etc.. will be a valid selection[i] as even though these things cannot be assigned tasks they can be added to the high priority task queue as well as create menu buttons
 					//selectedTask.taskPriority = 1;
-					if (toolsRequired[selection[i].getTaskType(selectedTask)] == undefined || selection[i].tools.indexOf(toolsRequired[selection[i].getTaskType(selectedTask)]) != -1) {
-						
+					if (toolsRequired[selectedTaskType] == undefined || selection[i].tools.indexOf(toolsRequired[selectedTaskType]) != -1) {
 						var index = tasksAvailable.indexOf(selectedTask);
 						if (index != -1) { //this check will be necessary in the event that we choose a task such as walking
 							taskWasAvailable = true;
 							tasksAvailable.splice(index,1);
 						} 
 						else {
-							if (taskType(selectedTask) == "collect") {
+							if (selectedTaskType == "collect") {
 								break;
 							}
 						}
@@ -638,13 +645,17 @@ function checkAssignSelectionTask() {
 							if (!foundCloserResource) { //don't add this resource to tasksInProgress if we chose a closer resource instead
 								assignedAtLeastOnce = true;
 							}
-							if (taskType(selectedTask) == "walk") {
+							if (selectedTaskType == "walk") {
 								//set walkPosOffset to the difference from the selected space top-left corner to the walk position
 								selection[i].walkPosDummy.setCenterX(GameManager.mouseReleasedPosRight.x + gameLayer.cameraX);
 								selection[i].walkPosDummy.setCenterY(GameManager.mouseReleasedPosRight.y + gameLayer.cameraY);
 								selection[i].currentTask = selection[i].walkPosDummy;
 								selection[i].currentObjective = selection[i].walkPosDummy;
 								console.log(selection[i].currentTask.centerX() + ", " + selection[i].currentTask.centerY());
+							}
+							else if (selectedTaskType == "build") {
+								selectedTask.dedicatedResources[this.holding.type]++;
+								this.dedicatingResource = true;								
 							}
 						}
 					}
