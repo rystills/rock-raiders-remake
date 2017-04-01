@@ -865,6 +865,7 @@ RygameObject.prototype.changeImage = function(imageName,clearRect) { //TODO: add
 	this.drawSurface.drawImage(this.image,0,0);
 };
 
+//move the current object towards position x,y a distance of speed, optionally using origin = this.center. return true if we reached the destination
 RygameObject.prototype.moveTowardsPoint = function(x,y,speed,center) {
 	if (center == null) {
 		center = false;
@@ -890,8 +891,8 @@ RygameObject.prototype.moveTowardsPoint = function(x,y,speed,center) {
 		this.y -= this.rect.height / 2;
 	}
 	return false;
-	
 };
+
 RygameObject.prototype.moveDirection = function(angleDegrees,amount) {  //TODO: VERIFY THAT THIS METHOD WORKS CORRECTLY
 	this.x += amount * Math.cos(angleDegrees * Math.PI / 180);
     this.y += amount * Math.sin(angleDegrees * Math.PI / 180);

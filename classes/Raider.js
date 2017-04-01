@@ -314,14 +314,38 @@ Raider.prototype.update = function() {
 	if (this.currentTask == null) {
 		return;
 	}
-	
+	this.workOnCurrentTask();
+};
+
+//move on the current path and update distanceTraveled. Also check for a closer available resource of the current type if we move onto a new space.
+Raider.prototype.moveOnPath = function() {
+	var distanceToPoint = getDistance(this.centerX(),this.centerY(),this.currentPath[this.currentPath.length-1].centerX(),this.currentPath[this.currentPath.length-1].centerY());
+	if (this.moveTowardsPoint(this.currentPath[this.currentPath.length-1].centerX(),this.currentPath[this.currentPath.length-1].centerY(),this.distanceTraveled,true)) {
+		this.distanceTraveled -= distanceToPoint;
+		this.space = this.currentPath.pop();
+		//if the final space is walkable we still check for closer resources as multiple resources may exist on a single walkable space. if the space is not walkable then there should only be able to be a single task on that space such as to drill that space
+		if (this.holding == null && (this.currentPath.length > 1 || (this.currentPath[0].walkable == true && this.currentPath[0].contains.objectList.length > 1))) {
+			if (this.checkChooseCloserEquivalentResource()) {
+				this.choseCloserResource = true;
+			}
+		}
+	}
+	else {
+		this.distanceTraveled = 0;
+	}
+}
+
+//continue working on the current task (this means pathing towards the objective, or performing some kind of action)
+Raider.prototype.workOnCurrentTask = function() {
 	//note that speedModifier needs to be updated each frame so don't bother storing it as an instance variable (may change this if animations are later implemented based on speed modifier and occur in a different method)
 	var speedModifier; 
 	var freezeAngle = false;
-	var distanceTraveled = this.speed;
+	this.distanceTraveled = this.speed;
+	this.choseCloserResource = false;
 	
-	//if currentPath is null, there is no way to get to the current task
-	while (distanceTraveled > 0) {
+	//main loop: if we only move part of our maximum movement for a frame, this simply repeats
+	while (this.distanceTraveled > 0) {
+		//if currentPath is null, there is no way to get to the current task
 		if (this.currentPath == null) {
 			console.log("No path found to current task! am I stuck?");
 			break;
@@ -332,23 +356,15 @@ Raider.prototype.update = function() {
 				speedModifier = this.currentPath[this.currentPath.length-1].speedModifier; //we are only on the next space
 			}
 			else {
-				speedModifier = Math.min(this.space.speedModifier,this.currentPath[this.currentPath.length-1].speedModifier); //we are on both spaces
+				speedModifier = Math.min(this.space.speedModifier,this.currentPath[this.currentPath.length-1].speedModifier); //we are on both spaces; choose slowest speed
 			}
 		}
-		distanceTraveled *= speedModifier;
-		if (this.currentPath.length > 1) { //if there's currently a path we always move on the path
-			var distanceToPoint = getDistance(this.centerX(),this.centerY(),this.currentPath[this.currentPath.length-1].centerX(),this.currentPath[this.currentPath.length-1].centerY()); //TODO: THIS IS INEFFICIENT SINCE WE RECALCULATE THIS DISTANCE IN THE MOVETOWARDSPOINT METHOD! FIND A NICER WAY OF KEEPING TRACK
-			if (this.moveTowardsPoint(this.currentPath[this.currentPath.length-1].centerX(),this.currentPath[this.currentPath.length-1].centerY(),distanceTraveled,true)) {
-				distanceTraveled -= distanceToPoint;
-				this.space = this.currentPath.pop();
-				if (this.holding == null && (this.currentPath.length > 1 || (this.currentPath[0].walkable == true && this.currentPath[0].contains.objectList.length > 1))) { //if the final space is walkable we still check for closer resources as multiple resources may exist on a single walkable space. if the space is not walkable then there should only be able to be a single task on that space such as to drill that space
-					if (this.checkChooseCloserEquivalentResource()) {
-						break;
-					}
-				}
-			}
-			else {
-				distanceTraveled = 0;
+		this.distanceTraveled *= speedModifier;
+		//if there's currently a path, move towards the next position, and potentially choose a closer equivalent resource as the current task
+		if (this.currentPath.length > 1) { 
+			this.moveOnPath();
+			if (this.choseCloserResource) {
+				break;
 			}
 		}
 		else { //if we have reached the end of the path or have no path move directly towards the current objective
@@ -360,7 +376,7 @@ Raider.prototype.update = function() {
 					collisionReached = true;
 				}
 				else {
-					reachedObjective = this.moveTowardsPoint(this.currentObjective.centerX(),this.currentObjective.centerY(),distanceTraveled,true);	
+					reachedObjective = this.moveTowardsPoint(this.currentObjective.centerX(),this.currentObjective.centerY(),this.distanceTraveled,true);	
 					if (reachedObjective && taskType == "walk") {
 						//make sure we don't drop what we're holding
 						var heldObject = this.holding;
@@ -372,7 +388,7 @@ Raider.prototype.update = function() {
 					}
 				}
 			}
-			distanceTraveled = 0; //we are safe setting this to 0 in this case because we don't care how much farther we have to go to get to the objective, since we will stop for at least 1 frame once we reach it to pick it up
+			this.distanceTraveled = 0; //we are safe setting this to 0 in this case because we don't care how much farther we have to go to get to the objective, since we will stop for at least 1 frame once we reach it to pick it up
 			if (this.busy || collisionReached || collisionRect(this,this.currentObjective,true)) {
 				if (!this.busy) {
 					if ((taskType == "collect" && this.currentObjective.buildable != true) || taskType == "drill" || taskType == "get tool") {
@@ -560,7 +576,7 @@ Raider.prototype.update = function() {
 			}
 			
 		}
-		distanceTraveled /= speedModifier;
+		this.distanceTraveled /= speedModifier;
 	}
 	
 	if ((!freezeAngle) & (!this.samePosition(this.x,this.y,this.xPrevious,this.yPrevious))) {
@@ -573,7 +589,7 @@ Raider.prototype.update = function() {
 		this.holding.rotateAroundPoint(this.centerX(),this.centerY(),this.drawAngle,this.holdingAngleDifference); //TODO: WHEN THE RAIDER FINISHES PICKING UP AN OBJECT THE OBJECT MOVES UP A PIXEL OR TWO ON THE 1ST FRAME. PROBABLY NOT A PROBLEM, BUT STILL CHECK THIS!
 	}
 };
-
+	
 //stop all sounds by pausing them and resetting their currentTime to 0
 Raider.prototype.stopSounds = function() {
 	this.sweepSound.pause();

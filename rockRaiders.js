@@ -683,9 +683,13 @@ function unloadMinifig() {
 		if ( selection[i].holding == null) {
 			continue;
 		}
+		//create a new collectable of the same type, and place it on the ground. then, delete the currently held collectable.
 		var newCollectable = new Collectable(getNearestSpace(terrain,selection[i]),selection[i].holding.type);
 		collectables.push(newCollectable);
 		tasksAvailable.push(newCollectable);
+		newCollectable.setCenterX(selection[i].holding.centerX());
+		newCollectable.setCenterY(selection[i].holding.centerY());
+		newCollectable.drawAngle = selection[i].holding.drawAngle;
 		selection[i].holding.die();
 		selection[i].clearTask(); //modifications made to clearTask should now mean that if any resources were reserved from the resource collection or dedicated to a building site, the dedication numbers have been correctly decremented
 	}
