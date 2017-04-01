@@ -413,6 +413,9 @@ function taskType(task,raider) { //optional raider flag allows us to determine w
 	if (typeof task.walkable != "undefined" && task.walkable == true) {
 		return "walk";
 	}
+	if (typeof task.reinforcable != "undefined" && task.reinforcable == true) {
+		return "reinforce";
+	}
 	if (typeof task.space != "undefined") {
 		return "collect";
 	}
@@ -951,12 +954,12 @@ function drawTerrainVars(varNames) {
 }
 
 function drawRaiderTasks() {
-	GameManager.setFontSize(36);
+	GameManager.setFontSize(24);
 	GameManager.drawSurface.fillStyle = "rgb(200, 220, 255)";
 	for (var i = 0; i < raiders.objectList.length; i++) {
 		curTask = raiders.objectList[i].getTaskType(raiders.objectList[i].currentTask);
 		if (debug || curTask != null) { //only display the current task if it is not null or if debug mode is enabled
-			GameManager.drawText(curTask,raiders.objectList[i].centerX()-raiders.objectList[i].drawLayer.cameraX,raiders.objectList[i].y-raiders.objectList[i].drawLayer.cameraY,true);	
+			GameManager.drawText(curTask,raiders.objectList[i].centerX()-raiders.objectList[i].drawLayer.cameraX,raiders.objectList[i].y-raiders.objectList[i].drawLayer.cameraY - 13,true);	
 		}
 	}
 }
@@ -1023,16 +1026,19 @@ function drawScoreScreenUI() {
 
 //draw held tools and skills for each raider
 function drawRaiderInfo() {
+	if (selectionType != "raider") {
+		return;
+	}
 	//draw held items
 	var heldWidth = GameManager.images["have am nothing.png"].width;
 	var heldHeight = GameManager.images["have am nothing.png"].height;
-	for (var i = 0; i < raiders.objectList.length; ++i) {
-		var maxTools = 2 + raiders.objectList[i].upgradeLevel;
+	for (var i = 0; i < selection.length; ++i) {
+		var maxTools = 2 + selection[i].upgradeLevel;
 		for (var j = 0; j < maxTools; ++j) {
-			var curImageName = raiders.objectList[i].tools.length > j ? "have " + raiders.objectList[i].tools[j] + ".png" : "have am nothing.png";
+			var curImageName = selection[i].tools.length > j ? "have " + selection[i].tools[j] + ".png" : "have am nothing.png";
 			GameManager.drawSurface.drawImage(GameManager.images[curImageName], 
-					raiders.objectList[i].centerX() - (heldWidth*maxTools)/2 + (heldWidth * j) - raiders.objectList[i].drawLayer.cameraX,
-					raiders.objectList[i].y - 28 - heldHeight - raiders.objectList[i].drawLayer.cameraY);
+					selection[i].centerX() - (heldWidth*maxTools)/2 + (heldWidth * j) - selection[i].drawLayer.cameraX,
+					selection[i].y - 28 - heldHeight - selection[i].drawLayer.cameraY);
 		}
 	}
 	
@@ -1040,12 +1046,12 @@ function drawRaiderInfo() {
 	var maxSkills = 6;
 	var skills = [["amDriver","am driver.png"],["amEngineer","am engineer.png"],["amGeologist","am geologist.png"],["amPilot","am pilot.png"],
 		["amSailor","am sailor.png"],["amExplosivesExpert","am explosives expert.png"]];
-	for (var i = 0; i < raiders.objectList.length; ++i) {
+	for (var i = 0; i < selection.length; ++i) {
 		for (var j = 0; j < 6; ++j) {
-			var curImageName = raiders.objectList[i][skills[j][0]] ? skills[j][1] : "have am nothing.png";
+			var curImageName = selection[i][skills[j][0]] ? skills[j][1] : "have am nothing.png";
 			GameManager.drawSurface.drawImage(GameManager.images[curImageName], 
-					raiders.objectList[i].centerX() - (heldWidth*maxSkills)/2 + (heldWidth * j) - raiders.objectList[i].drawLayer.cameraX,
-					raiders.objectList[i].y - 28 - raiders.objectList[i].drawLayer.cameraY);
+					selection[i].centerX() - (heldWidth*maxSkills)/2 + (heldWidth * j) - selection[i].drawLayer.cameraX,
+					selection[i].y - 28 - selection[i].drawLayer.cameraY);
 		}
 	}
 }
@@ -1444,6 +1450,7 @@ function initGlobals() {
 			"sweep":true,
 			"collect":true,
 			"drill":false,
+			"reinforce":false,
 			"build":true,
 			"walk":true
 	};

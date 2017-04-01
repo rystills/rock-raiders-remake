@@ -660,6 +660,7 @@ Raider.prototype.playDropSound = function() {
 	}
 };
 
+//custom die: stop sounds and kill children before calling base class die
 Raider.prototype.die = function() {
 	this.stopSounds();
 	this.healthBar.die();

@@ -131,6 +131,14 @@ Space.prototype.sweep = function() {
 	this.adjustHeightAlpha(); //reset height-based alpha after sweeping, as it will be reset after calling setTyleProperties
 };
 
+//custom die: kill children before calling base class die
+Space.prototype.die = function() {
+	if (this.reinforceDummy != null) {
+		this.reinforceDummy.die();
+	}
+	return RygameObject.prototype.die.call(this);
+};
+
 Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContainsOre,requiredResources,dedicatedResources,placedResources,drawAngle) {
 	if (drawAngle != null) {
 		this.drawAngle = drawAngle;
@@ -702,17 +710,13 @@ function Space(type,listX,listY,height) {
 	this.curLandSlideWait = 0;
 	this.contains = new ObjectGroup(); //objects which currently reside on the space. can be infinite (ex. collectables)
 	this.completedBy = null;
+	this.reinforceDummy = new RygameObject(0,0,-99999,0,null,this.drawLayer,true,false,true); //dummy used to identify reinforce tasks
+	this.reinforceDummy.reinforcable = true; //workaround so the engine treats this dummy as a reinforcable space when determining what type of task it is
 	//this.height = 0;
 	this.headingAngle = 0; //temporary angle variable used to store correct drawAngle when space has not yet been touched (is still in the fog)
 	this.rockBreakSound = (this.drillable ? GameManager.sounds["ROKBREK1"].cloneNode() : null);
-	//this.rockBreakSound = GameManager.sounds["ROKBREK1"].cloneNode();
 	//this.drilledBy = null;
-	/*if (maskUntouchedSpaces == false) { //need this check since the first time setTypeProperties is called it cannot change the image as the RygameObject constructor has not yet been called
-		this.setTypeProperties(this.type);
-	}*/
-	//this.touched = false;
 	this.landSlides = null;
 	this.landSlideSound = null;
 	this.drillSpeedModifier = 1; //how difficult is this wall to drill (for ore and crystal seams, this will be 0.2, as they require 5 'drills')
-	//this.landSlideSound = GameManager.sounds["lanslide"].cloneNode();
 }
