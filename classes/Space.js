@@ -26,8 +26,7 @@ Space.prototype.updateSweepPercent = function(sweepPercentIncrease, raider) {
 		
 Space.prototype.makeRubble = function(rubbleContainsOre,drilledBy,silent = false) {
 	if (drilledBy != null) {
-		this.completedBy = drilledBy;
-		drilledBy.completedLastFrame.push(this);
+		drilledBy.tasksToClear.push(this);
 		
 	}
 	if (!silent) {

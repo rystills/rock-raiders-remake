@@ -283,6 +283,20 @@ Raider.prototype.attemptSelectResourceLocation = function() {
 	}
 }
 
+//clear task for all raiders working on the just completed task, or tasks that were affected by a chain reaction
+Raider.prototype.updateCompletedBy = function() {
+	this.tasksToClear.push(this.currentTask);
+	for (var i = 0; i < raiders.objectList.length; ++i) {
+		if (raiders.objectList[i] == this) {
+			continue;
+		}
+		if (this.tasksToClear.indexOf(raiders.objectList[i].currentTask) != -1) {
+			raiders.objectList[i].clearTask();
+		}
+	}
+	this.tasksToClear = [];
+}
+
 Raider.prototype.update = function() {
 	//if we are on a space that has no been touched yet, do nothing
 	if (!this.space.touched) {
@@ -292,20 +306,6 @@ Raider.prototype.update = function() {
 	//note that optionally allowing 'undefined' rather than build here should likely be unnecessary
 	if ((this.getTaskType(this.currentTask) == "build" || this.getTaskType(this.currentTask) == "undefined") && this.reservingResource && (!(this.currentTask.dedicatedResources[this.currentObjectiveResourceType] < this.currentTask.requiredResources[this.currentObjectiveResourceType]))) {
 		this.clearTask();
-	}
-	for (var i = 0; i < this.completedLastFrame.length; i++) {
-		this.completedLastFrame[i].completedBy = null;
-	}
-	this.completedLastFrame = [];
-	if (this.currentTask != null && this.currentTask.completedBy != null) {
-		taskCopy = null;
-		if (tasksInProgress.objectList.indexOf(this.currentTask) != -1) {
-			taskCopy = this.currentTask;
-		}
-		this.clearTask();
-		if (taskCopy != null) {
-			tasksInProgress.push(taskCopy);
-		}
 	}
 	if ((selection.indexOf(this) != -1) && (this.currentTask == null)) { //don't start a new task if currently selected unless instructed to
 		return;
@@ -447,8 +447,7 @@ Raider.prototype.workOnCurrentTask = function() {
 								this.busy = true;
 								if (this.currentObjective.grabPercent >= 100) {
 									this.currentObjective.grabPercent = 100;
-									this.currentObjective.completedBy = this;
-									this.completedLastFrame.push(this.currentObjective);
+									this.updateCompletedBy();
 									this.busy = false;
 									this.holding = this.currentObjective;
 									this.holdingAngleDifference = this.currentObjective.drawAngle - this.drawAngle;
@@ -518,8 +517,7 @@ Raider.prototype.workOnCurrentTask = function() {
 							this.busy = true;
 							if (this.currentTask.grabPercent >= 100) {
 								this.currentTask.grabPercent = 100;
-								this.currentObjective.completedBy = this;
-								this.completedLastFrame.push(this.currentObjective);
+								this.updateCompletedBy();
 								this.holding = this.currentTask;
 								this.holdingAngleDifference = this.currentTask.drawAngle - this.drawAngle;
 								this.holding.x -= (this.x-this.xPrevious); //move the newly held object in the reverse direction to cancel out the holding movement since we just picked it up this frame
@@ -563,6 +561,7 @@ Raider.prototype.workOnCurrentTask = function() {
 					this.busy = true;
 					if (this.currentTask.drillPercent >= 100) {
 						this.currentTask.drillPercent = 100;
+						this.updateCompletedBy();
 						this.busy = false;
 						this.currentTask.makeRubble(true,this);
 						this.clearTask();
@@ -574,6 +573,7 @@ Raider.prototype.workOnCurrentTask = function() {
 					this.busy = true;
 					if (this.currentTask.reinforcePercent >= 100) {
 						this.currentTask.reinforcePercent = 100;
+						this.updateCompletedBy();
 						this.busy = false;
 						this.currentTask.reinforce();
 						this.clearTask();
@@ -589,8 +589,7 @@ Raider.prototype.workOnCurrentTask = function() {
 						this.busy = true;
 						if (this.currentTask.sweepPercent >= 100) {
 							this.currentTask.sweepPercent = 100;
-							this.currentObjective.completedBy = this;
-							this.completedLastFrame.push(this.currentObjective);
+							this.updateCompletedBy();
 							this.busy = false;
 							this.currentTask.sweep();
 							this.clearTask();							
@@ -738,7 +737,6 @@ function Raider(space) { //TODO: BUG WHERE SOMETIMES RAIDER STARTS IN THE RIGHT 
 	this.walkPosDummy = new RygameObject(0,0,-99999,0,null,this.drawLayer,true,false,true); //dummy storing the walkPos
 	this.walkPosDummy.walkable = true; //workaround so the engine treats this dummy as a walkable space when determining what type of task it is
 	this.busy = false; //this means the raider is in the middle of performing a task (ex drilling, picking up an object, etc..) and is NOT walking
-	this.completedLastFrame = []; //if we completed a task we let other raiders know by setting that task's completedBy variable, but we have to make sure to set it back to null on the following frame, regardless of whether or not it is still the currentTask at that time, or if we completed more than one task (see: chain reaction when drilling)
 	this.sweepSound = GameManager.sounds["dig"].cloneNode();
 	this.sweepSound.loop = true;
 	this.drillSound = GameManager.sounds["drtdrillc"].cloneNode();
@@ -749,4 +747,5 @@ function Raider(space) { //TODO: BUG WHERE SOMETIMES RAIDER STARTS IN THE RIGHT 
 	this.maxHp = 100;
 	this.hp = this.maxHp;
 	this.healthBar = new HealthBar(this);
+	this.tasksToClear = []; //list of tasks affected by this raider's most recent task clear (eg. chain reactions when drilling)
 }
