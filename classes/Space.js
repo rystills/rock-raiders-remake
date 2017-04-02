@@ -68,6 +68,9 @@ Space.prototype.makeRubble = function(rubbleContainsOre,drilledBy,silent = false
 	//console.log(tasksAvailable.indexOf(this));
 	touchAllAdjacentSpaces(this);
 	//this.drilledBy = null;
+	if (this.reinforceDummy != null) {
+		this.reinforceDummy.die();
+	}
 };
 
 Space.prototype.getAdjacentSpaces = function() {
