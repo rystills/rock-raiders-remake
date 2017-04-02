@@ -714,6 +714,18 @@ function reinforceWall() {
 	if (selection.length == 0) {
 		return;
 	}
+	for (var i = 0; i < selection.length; i++) {
+		//don't do anything if the space is already reinforced
+		if (selection[i].reinforced) {
+			continue;
+		}
+		//add the reinforce dummy to tasksAvailable if its not already there
+		var curIndex = tasksAvailable.indexOf(selection[i].reinforceDummy);
+		if (curIndex == -1) {
+			tasksAvailable.push(selection[i].reinforceDummy);
+		}
+		selection[i].reinforceDummy.taskPriority = 1;
+	}
 }
 
 function drillWall() {
@@ -1456,7 +1468,8 @@ function initGlobals() {
 	};
 	toolsRequired = { //dict of task type to required tool
 			"sweep":"shovel",
-			"drill":"drill"
+			"drill":"drill",
+			"reinforce":"hammer"
 	};
 	buildingPlacer = new BuildingPlacer();
 	selectionRectObject = new RygameObject(0,0,0,0,null,gameLayer);

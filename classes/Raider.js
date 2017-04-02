@@ -114,28 +114,41 @@ Raider.prototype.canPerformTaskContains = function(task, ignoreContents) {
 	}
 }
 
+//determine whether or not any of the space's dummies can be performed
+Raider.prototype.canPerformTaskDummies = function(task, ignoreContents) {
+	if (ignoreContents || task.reinforceDummy == null) {
+		return false;
+	}
+	var newIndex = tasksAvailable.indexOf(task.reinforceDummy);
+	//make sure this task is available before proceeding
+	if (newIndex != -1) {
+		return this.canPerformTask(task.reinforceDummy,true);
+	}
+}
+
 //determine whether or not the space or one of its contents is a task and the raider can perform it
 Raider.prototype.canPerformTask = function(task,ignoreContents) {
+	//ignoreContents ensures that this function does not try to recurse endlessly when checking children or dummy objects
 	//if the input task is not a valid task and none of its contents (if it is a space) are a task, return false
 	if (tasksAvailable.indexOf(task) == -1) {
 		//check if the task is a space and any of its contents are a task before returning false
-		return this.canPerformTaskContains(task,ignoreContents);		
+		return this.canPerformTaskContains(task,ignoreContents) || this.canPerformTaskDummies(task,ignoreContents);		
 	}
 	
 	//if the input task is a task that cannot be automated, return false
 	if (!tasksAutomated[taskType(task)]) {
-		return this.canPerformTaskContains(task,ignoreContents);
+		return this.canPerformTaskContains(task,ignoreContents) || this.canPerformTaskDummies(task,ignoreContents);
 	}
 	//if the input task requires a tool that we don't have, return false
 	if (toolsRequired[taskType(task)] != undefined && this.tools.indexOf(toolsRequired[taskType(task)]) == -1)  {
-		return this.canPerformTaskContains(task,ignoreContents);
+		return this.canPerformTaskContains(task,ignoreContents) || this.canPerformTaskDummies(task,ignoreContents);	
 	}
 	//if the input task is a building site and we don't have a tool store that we can path to or don't have any of the required resources, return false
 	if (taskType(task) == "build") {
 		destinationSite = this.chooseClosestBuilding("tool store");
 		//if there's no path to a tool store to get a resource with which to build, move on to the next high priority task
 		if (destinationSite == null) {
-			return this.canPerformTaskContains(task,ignoreContents);
+			return this.canPerformTaskContains(task,ignoreContents)|| this.canPerformTaskDummies(task,ignoreContents);
 		}
 		//if there is no resource in the tool store that is needed by the building site, return false
 		var dedicatedResourceTypes = Object.getOwnPropertyNames(task.dedicatedResources);

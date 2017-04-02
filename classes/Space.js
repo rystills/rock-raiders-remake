@@ -710,8 +710,15 @@ function Space(type,listX,listY,height) {
 	this.curLandSlideWait = 0;
 	this.contains = new ObjectGroup(); //objects which currently reside on the space. can be infinite (ex. collectables)
 	this.completedBy = null;
-	this.reinforceDummy = new RygameObject(0,0,-99999,0,null,this.drawLayer,true,false,true); //dummy used to identify reinforce tasks
-	this.reinforceDummy.reinforcable = true; //workaround so the engine treats this dummy as a reinforcable space when determining what type of task it is
+	this.reinforced = false;
+	this.reinforceDummy = this.isWall ? new RygameObject(0,0,-99999,0,null,this.drawLayer,true,false,true) : null; //dummy used to identify reinforce tasks
+	if (this.reinforceDummy != null) {
+		this.reinforceDummy.reinforcable = true; //workaround so the engine treats this dummy as a reinforcable space when determining what type of task it is
+		this.reinforceDummy.rect = this.rect; //share a rect for collisions
+		this.reinforceDummy.space = this; //used for pathfinding
+		this.reinforceDummy.setCenterX(this.centerX());
+		this.reinforceDummy.setCenterY(this.centerY());
+	}
 	//this.height = 0;
 	this.headingAngle = 0; //temporary angle variable used to store correct drawAngle when space has not yet been touched (is still in the fog)
 	this.rockBreakSound = (this.drillable ? GameManager.sounds["ROKBREK1"].cloneNode() : null);
