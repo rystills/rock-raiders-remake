@@ -71,7 +71,8 @@ object = {
           ["img", "images\\spaces", "rubble 3 (1).png"], //rubble swept 2 times. 2 sweeps required to clear fully
           ["img", "images\\spaces", "rubble 4 (1).png"], //rubble swept 3 times. 1 sweep required to clear fully
           ["img", "images\\spaces", "building site 1 (1).png"], //building site
-          ["img", "images\\spaces", "SlimySlugHole.jpg"], //hole out of which slimy slugs can emerge
+          ["img", "images\\spaces", "SlimySlugHole.png"], //hole out of which slimy slugs can emerge
+          ["img", "images\\spaces", "reinforcement 1 (1).png"], //reinforcement overlay for reinforced walls
           
           //buildings
           ["img", "images\\buildings", "teleport pad 1 (1).png"], //teleport pad

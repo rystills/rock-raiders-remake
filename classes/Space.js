@@ -574,13 +574,12 @@ Space.prototype.update = function() {
 			}
 			else {
 				//the constant 10000 will give us on average .36 land-slides per second if landSlideFrequency = 1, and 2.88 land-slides per second if landSlideFrequency = 8 
-				if (Math.random() < (this.landSlideFrequency/10000)) {
+				if (this.reinforced == false && Math.random() < (this.landSlideFrequency/10000)) {
 					this.activateLandSlide();
 				}
 			}
 		}
-	}
-	
+	}	
 };
 
 spaceTypes = {
@@ -711,13 +710,23 @@ function Space(type,listX,listY,height) {
 	this.contains = new ObjectGroup(); //objects which currently reside on the space. can be infinite (ex. collectables)
 	this.completedBy = null;
 	this.reinforced = false;
-	this.reinforceDummy = this.isWall ? new RygameObject(0,0,-99999,0,null,this.drawLayer,true,false,true) : null; //dummy used to identify reinforce tasks
+	this.reinforceDummy = this.isWall ? new RygameObject(0,0,-99999,0,"reinforcement 1 (1).png",this.drawLayer,true,false,true) : null; //dummy used to identify reinforce tasks
 	if (this.reinforceDummy != null) {
 		this.reinforceDummy.reinforcable = true; //workaround so the engine treats this dummy as a reinforcable space when determining what type of task it is
 		this.reinforceDummy.rect = this.rect; //share a rect for collisions
 		this.reinforceDummy.space = this; //used for pathfinding
 		this.reinforceDummy.setCenterX(this.centerX());
 		this.reinforceDummy.setCenterY(this.centerY());
+		this.reinforceDummy.reinforcePercent = 0;
+		this.reinforceDummy.reinforceSpeedModifier = 1;
+		this.reinforceDummy.updateReinforcePercent = function(reinforcePercentIncrease, raider) {
+			this.reinforcePercent += reinforcePercentIncrease;
+		};
+		this.reinforceDummy.reinforce = function() {
+			this.visible = true;
+			this.renderAutomatically = true;
+			this.space.reinforced = true;
+		}
 	}
 	//this.height = 0;
 	this.headingAngle = 0; //temporary angle variable used to store correct drawAngle when space has not yet been touched (is still in the fog)

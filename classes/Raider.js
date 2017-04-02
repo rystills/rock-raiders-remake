@@ -404,7 +404,7 @@ Raider.prototype.workOnCurrentTask = function() {
 			this.distanceTraveled = 0; //we are safe setting this to 0 in this case because we don't care how much farther we have to go to get to the objective, since we will stop for at least 1 frame once we reach it to pick it up
 			if (this.busy || collisionReached || collisionRect(this,this.currentObjective,true)) {
 				if (!this.busy) {
-					if ((taskType == "collect" && this.currentObjective.buildable != true) || taskType == "drill" || taskType == "get tool") {
+					if ((taskType == "collect" && this.currentObjective.buildable != true) || taskType == "drill" || taskType == "reinforce" || taskType == "get tool") {
 						if (this.samePosition(this.x,this.y,this.xPrevious,this.yPrevious)) {
 							freezeAngle = true; //if we didnt move yet and are just moving to suddenly get out of a collision that is occurring we want to preserve our angle
 						}
@@ -568,6 +568,17 @@ Raider.prototype.workOnCurrentTask = function() {
 						this.clearTask();
 					}
 				}
+				else if (taskType == "reinforce") {
+					this.currentTask.updateReinforcePercent(this.reinforceSpeed * this.currentTask.reinforceSpeedModifier, this);
+					console.log(this.currentTask.reinforcePercent);
+					this.busy = true;
+					if (this.currentTask.reinforcePercent >= 100) {
+						this.currentTask.reinforcePercent = 100;
+						this.busy = false;
+						this.currentTask.reinforce();
+						this.clearTask();
+					}
+				}
 				else if (taskType == "sweep") {
 					if (this.busy == true || reachedObjective == true) {
 						if (reachedObjective == true) {
@@ -698,7 +709,7 @@ function Raider(space) { //TODO: BUG WHERE SOMETIMES RAIDER STARTS IN THE RIGHT 
 	this.speed = 5;
 	this.drillSpeed = .4; //TODO: have to modify this eventually to be a list since drill speeds should be different for each drillable wall type
 	this.sweepSpeed = 2;
-	this.reinforceSpeed = 1;
+	this.reinforceSpeed = 3;
 	this.grabSpeed = 5; 
 	this.upgradeSpeed = .1;
 	this.grabToolSpeed = 20;
