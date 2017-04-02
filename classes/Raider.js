@@ -285,12 +285,12 @@ Raider.prototype.attemptSelectResourceLocation = function() {
 
 //clear task for all raiders working on the just completed task, or tasks that were affected by a chain reaction
 Raider.prototype.updateCompletedBy = function() {
-	this.tasksToClear.push(this.currentTask);
+	this.tasksToClear.push(this.currentObjective);
 	for (var i = 0; i < raiders.objectList.length; ++i) {
 		if (raiders.objectList[i] == this) {
 			continue;
 		}
-		if (this.tasksToClear.indexOf(raiders.objectList[i].currentTask) != -1) {
+		if (this.tasksToClear.indexOf(raiders.objectList[i].currentObjective) != -1) {
 			raiders.objectList[i].clearTask();
 		}
 	}
@@ -447,13 +447,14 @@ Raider.prototype.workOnCurrentTask = function() {
 								this.busy = true;
 								if (this.currentObjective.grabPercent >= 100) {
 									this.currentObjective.grabPercent = 100;
-									this.updateCompletedBy();
+									
 									this.busy = false;
 									this.holding = this.currentObjective;
 									this.holdingAngleDifference = this.currentObjective.drawAngle - this.drawAngle;
 									this.holding.x -= (this.x-this.xPrevious); //move the newly held object in the reverse direction to cancel out the holding movement since we just picked it up this frame
 									this.holding.y -= (this.y-this.yPrevious);
 									this.holding.space.contains.remove(this.holding);
+									this.updateCompletedBy();
 									this.currentObjective = this.currentTask;
 									this.currentPath = findClosestStartPath(this,calculatePath(terrain,this.space,this.currentObjective,true));
 								}
@@ -517,11 +518,11 @@ Raider.prototype.workOnCurrentTask = function() {
 							this.busy = true;
 							if (this.currentTask.grabPercent >= 100) {
 								this.currentTask.grabPercent = 100;
-								this.updateCompletedBy();
 								this.holding = this.currentTask;
 								this.holdingAngleDifference = this.currentTask.drawAngle - this.drawAngle;
 								this.holding.x -= (this.x-this.xPrevious); //move the newly held object in the reverse direction to cancel out the holding movement since we just picked it up this frame
 								this.holding.y -= (this.y-this.yPrevious);
+								this.updateCompletedBy();
 								this.space = this.currentTask.space; //TODO: THIS IS LARGELY REPEAT CODE FROM EARLIER IN THIS METHOD. PUT THIS STUFF INTO ITS OWN SUB METHOD
 								this.holding.space.contains.remove(this.holding);
 							}
@@ -561,9 +562,9 @@ Raider.prototype.workOnCurrentTask = function() {
 					this.busy = true;
 					if (this.currentTask.drillPercent >= 100) {
 						this.currentTask.drillPercent = 100;
-						this.updateCompletedBy();
 						this.busy = false;
 						this.currentTask.makeRubble(true,this);
+						this.updateCompletedBy();
 						this.clearTask();
 					}
 				}
@@ -573,9 +574,9 @@ Raider.prototype.workOnCurrentTask = function() {
 					this.busy = true;
 					if (this.currentTask.reinforcePercent >= 100) {
 						this.currentTask.reinforcePercent = 100;
-						this.updateCompletedBy();
 						this.busy = false;
 						this.currentTask.reinforce();
+						this.updateCompletedBy();
 						this.clearTask();
 					}
 				}
@@ -589,9 +590,9 @@ Raider.prototype.workOnCurrentTask = function() {
 						this.busy = true;
 						if (this.currentTask.sweepPercent >= 100) {
 							this.currentTask.sweepPercent = 100;
-							this.updateCompletedBy();
 							this.busy = false;
 							this.currentTask.sweep();
+							this.updateCompletedBy();
 							this.clearTask();							
 						}
 					}

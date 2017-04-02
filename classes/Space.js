@@ -27,7 +27,6 @@ Space.prototype.updateSweepPercent = function(sweepPercentIncrease, raider) {
 Space.prototype.makeRubble = function(rubbleContainsOre,drilledBy,silent = false) {
 	if (drilledBy != null) {
 		drilledBy.tasksToClear.push(this);
-		
 	}
 	if (!silent) {
 		if (!this.rockBreakSound) { //if we are not drillable but were drilled indirectly, we don't have this sound yet, so clone it now
