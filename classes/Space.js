@@ -532,9 +532,11 @@ Space.prototype.activateLandSlide = function() {
 	for (var i = 0; i < adjacentSpaces.length; ++i) { //make sure at least one of the directly adjacent spaces is a valid wall
 		if (adjacentSpaces[i].type == "dirt" || adjacentSpaces[i].type == "loose rock" || adjacentSpaces[i].type == "hard rock" || adjacentSpaces[i].type == "ore seam" || adjacentSpaces[i].type == "energy crystal seam") {
 			//TODO: allow land-slides to re-fill partially swept rubble spaces as well (but don't reset rubbleContainsOre)
-			borderingValidWall = true;
-			console.log("bordering wall type: " + adjacentSpaces[i].type);
-			break;
+			if (adjacentSpaces[i].reinforced == false) {
+				borderingValidWall = true;
+				console.log("bordering wall type: " + adjacentSpaces[i].type);
+				break;
+			}
 		}
 	}
 	if (borderingValidWall) {
@@ -575,7 +577,7 @@ Space.prototype.update = function() {
 			}
 			else {
 				//the constant 10000 will give us on average .36 land-slides per second if landSlideFrequency = 1, and 2.88 land-slides per second if landSlideFrequency = 8 
-				if (this.reinforced == false && Math.random() < (this.landSlideFrequency/10000)) {
+				if (Math.random() < (this.landSlideFrequency/10000)) {
 					this.activateLandSlide();
 				}
 			}
