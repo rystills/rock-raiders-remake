@@ -729,6 +729,14 @@ function Space(type,listX,listY,height) {
 			this.space.reinforced = true;
 		}
 	}
+	this.dynamiteDummy = this.isWall ? new RygameObject(0,0,-99999,0,null,this.drawLayer,true,false,true) : null; //dummy used to identify dynamite tasks
+	if (this.dynamiteDummy != null) {
+		this.dynamiteDummy.dynamitable = true; //workaround so the engine treats this dummy as a space that can be blown up when determining what type of task it is
+		this.dynamiteDummy.rect = this.rect; //share a rect for collisions
+		this.dynamiteDummy.space = this; //used for pathfinding
+		this.dynamiteDummy.setCenterX(this.centerX());
+		this.dynamiteDummy.setCenterY(this.centerY());
+	}
 	//this.height = 0;
 	this.headingAngle = 0; //temporary angle variable used to store correct drawAngle when space has not yet been touched (is still in the fog)
 	this.rockBreakSound = (this.drillable ? GameManager.sounds["ROKBREK1"].cloneNode() : null);

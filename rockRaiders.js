@@ -416,6 +416,9 @@ function taskType(task,raider) { //optional raider flag allows us to determine w
 	if (typeof task.reinforcable != "undefined" && task.reinforcable == true) {
 		return "reinforce";
 	}
+	if (typeof task.reinforcable != "undefined" && task.dynamitable == true) {
+		return "dynamite";
+	}
 	if (typeof task.space != "undefined") {
 		return "collect";
 	}
@@ -725,6 +728,20 @@ function reinforceWall() {
 			tasksAvailable.push(selection[i].reinforceDummy);
 		}
 		selection[i].reinforceDummy.taskPriority = 1;
+	}
+}
+
+function dynamiteWall() {
+	if (selection.length == 0) {
+		return;
+	}
+	for (var i = 0; i < selection.length; i++) {
+		//add the dynamite dummy to tasksAvailable if its not already there
+		var curIndex = tasksAvailable.indexOf(selection[i].dynamiteDummy);
+		if (curIndex == -1) {
+			tasksAvailable.push(selection[i].dynamiteDummy);
+		}
+		selection[i].dynamiteDummy.taskPriority = 1;
 	}
 }
 
@@ -1294,6 +1311,9 @@ function createButtons() {
 	//drillable wall selected buttons
 	buttons.push(new Button(126,0,0,0,"drill wall button 1 (1).png",gameLayer,"", drillWall,false,false,["dirt", "loose rock", "ore seam", "energy crystal seam"]));
 	
+	//dynamitable wall selected buttons
+	buttons.push(new Button(166,0,0,0,"dynamite 1 (1).png",gameLayer,"", dynamiteWall,false,false,["dirt", "loose rock", "hard rock", "ore seam", "energy crystal seam"]));
+	
 	//re-inforcable wall selected
 	buttons.push(new Button(86,0,0,0,"Reinforce.png",gameLayer,"", reinforceWall,false,false,["dirt", "loose rock", "hard rock", "ore seam", "energy crystal seam"]));
 
@@ -1464,7 +1484,8 @@ function initGlobals() {
 			"drill":false,
 			"reinforce":false,
 			"build":true,
-			"walk":true
+			"walk":true,
+			"dynamite":false
 	};
 	toolsRequired = { //dict of task type to required tool
 			"sweep":"shovel",

@@ -108,6 +108,7 @@ object = {
           ["img", "images\\buttons", "stop minifig button 1 (1).png"], //stop minifig button (stops any performed task)
           ["img", "images\\buttons", "upgrade button 1 (1).png"], //button to upgrade a raider or building
           ["img", "images\\buttons", "open building menu button 1 (1).png"], //button to open up the building menu
+          ["img", "images\\buttons", "dynamite 1 (1).png"], //button to instruct a raider to blow up a wall using dynamite
           
           //grab item buttons
           ["img", "images\\buttons", "getTool.png"], //button to open the 'get tool' raider submenu
