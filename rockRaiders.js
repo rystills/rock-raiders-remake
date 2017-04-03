@@ -416,7 +416,7 @@ function taskType(task,raider) { //optional raider flag allows us to determine w
 	if (typeof task.reinforcable != "undefined" && task.reinforcable == true) {
 		return "reinforce";
 	}
-	if (typeof task.reinforcable != "undefined" && task.dynamitable == true) {
+	if (typeof task.dynamitable != "undefined" && task.dynamitable == true) {
 		return "dynamite";
 	}
 	if (typeof task.space != "undefined") {
@@ -713,6 +713,7 @@ function grabItem() {
 	}
 }
 
+//set a wall to be reinforced
 function reinforceWall() {
 	if (selection.length == 0) {
 		return;
@@ -731,6 +732,7 @@ function reinforceWall() {
 	}
 }
 
+//set the currently selected space to be blown up with dynamite
 function dynamiteWall() {
 	if (selection.length == 0) {
 		return;
@@ -745,6 +747,7 @@ function dynamiteWall() {
 	}
 }
 
+//set the currently selected space to be drilled
 function drillWall() {
 	if (selection.length == 0) {
 		return;
@@ -757,6 +760,7 @@ function drillWall() {
 	}
 }
 
+//set the currently selected space to be cleared of rubble
 function clearRubble() {
 	if (selection.length == 0) {
 		return;
@@ -769,6 +773,7 @@ function clearRubble() {
 	}
 }
 
+//set the currently selected space to be built into a power path
 function buildPowerPath() {
 	if (selection.length == 0) {
 		return;
@@ -782,6 +787,7 @@ function buildPowerPath() {
 	}
 }
 
+//attempt to upgrade the selected building
 function upgradeBuilding() {
 	for (var i = 0; i < selection.length; ++i) {
 		selection[i].upgrade();

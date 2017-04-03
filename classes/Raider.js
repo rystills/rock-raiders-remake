@@ -202,6 +202,21 @@ Raider.prototype.checkSetTask = function(i,mustBeHighPriority,calculatedPath) {
 				}
 			}
 		}
+		//for walls to be blown up with dynamite, check for a pathable tool store (same as build)
+		else if (taskType(tasksAvailable[i]) == "dynamite") {
+			//make sure we can handle explosives
+			if (!this.amExplosivesExpert) {
+				return false;
+			}
+			destinationSite = this.chooseClosestBuilding("tool store");
+			//if there's no path to a tool store to get a resource with which to build, move on to the next high priority task
+			if (destinationSite == null) {
+				return false;
+			}
+			this.currentObjectiveResourceType = "dynamite";
+			this.setTask(i,newPath,destinationSite,false);
+			return true;
+		}
 		//this task is not a building site, check for required tools
 		else {
 			//check if the task requires a tool and we have it
@@ -330,6 +345,21 @@ Raider.prototype.update = function() {
 	this.workOnCurrentTask();
 };
 
+//move the input object to our hands
+Raider.prototype.moveObjectToHands = function(moveObject) {
+	moveObject.setCenterX(this.centerX());
+	moveObject.setCenterY(this.centerY());
+	var pointDir = getAngle(moveObject.centerX(),moveObject.centerY(),this.currentObjective.centerX(),this.currentObjective.centerY());
+	var currentX = moveObject.x;
+	var currentY = moveObject.y;
+	moveObject.moveDirection(pointDir,3);
+	var oldX = moveObject.x;
+	var oldY = moveObject.y;
+	moveObject.x = currentX;
+	moveObject.y = currentY;
+	moveObject.moveOutsideCollision(this,oldX,oldY);		
+}
+
 //move on the current path and update distanceTraveled. Also check for a closer available resource of the current type if we move onto a new space.
 Raider.prototype.moveOnPath = function() {
 	var distanceToPoint = getDistance(this.centerX(),this.centerY(),this.currentPath[this.currentPath.length-1].centerX(),this.currentPath[this.currentPath.length-1].centerY());
@@ -424,17 +454,7 @@ Raider.prototype.workOnCurrentTask = function() {
 									this.dedicatingResource = true;									
 									collectedResources[this.currentObjectiveResourceType]--;
 									var newCollectable = new Collectable(this.currentObjective,this.currentObjectiveResourceType);
-									newCollectable.setCenterX(this.centerX());
-									newCollectable.setCenterY(this.centerY());
-									var pointDir = getAngle(newCollectable.centerX(),newCollectable.centerY(),this.currentObjective.centerX(),this.currentObjective.centerY());
-									var currentX = newCollectable.x;
-									var currentY = newCollectable.y;
-									newCollectable.moveDirection(pointDir,3);
-									var oldX = newCollectable.x;
-									var oldY = newCollectable.y;
-									newCollectable.x = currentX;
-									newCollectable.y = currentY;
-									newCollectable.moveOutsideCollision(this,oldX,oldY);									
+									this.moveObjectToHands(newCollectable);							
 									this.currentObjective = newCollectable;
 									collectables.push(this.currentObjective);
 								}

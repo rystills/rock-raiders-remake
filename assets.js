@@ -54,6 +54,9 @@ object = {
           ["img", "images\\objects", "ore 1 (1).png"], //ore
           ["img", "images\\objects", "energy crystal 1 (1).png"], //energy crystal
           
+          //other holdable objects
+          ["img", "images\\objects", "dynamite 1 (1).png"], //dynamite
+          
           //spaces
           ["img", "images\\spaces", "ground 1 (1).png"], //ground
           ["img", "images\\spaces", "power path 1 (1).png"], //power path
