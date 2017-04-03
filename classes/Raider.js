@@ -213,6 +213,7 @@ Raider.prototype.checkSetTask = function(i,mustBeHighPriority,calculatedPath) {
 			if (destinationSite == null) {
 				return false;
 			}
+			this.reservingResource = true;
 			this.currentObjectiveResourceType = "dynamite";
 			this.setTask(i,newPath,destinationSite,false);
 			return true;
@@ -442,7 +443,62 @@ Raider.prototype.workOnCurrentTask = function() {
 						
 					}
 				}
-				if (taskType == "build") {
+				if (taskType == "dynamite") {
+					if (this.currentObjective != this.currentTask) {
+						if ((this.busy) || (this.reservingResource)) {
+							if (!this.busy) {
+								this.reservingResource = false;
+								var newDynamite = new Dynamite(this.currentObjective);
+								this.moveObjectToHands(newDynamite);							
+								this.currentObjective = newDynamite;
+								collectables.push(this.currentObjective);
+							}
+							if (this.currentTask != null) {
+								this.currentObjective.grabPercent += this.grabSpeed;
+								this.busy = true;
+								if (this.currentObjective.grabPercent >= 100) {
+									this.currentObjective.grabPercent = 100;
+									this.busy = false;
+									this.holding = this.currentObjective;
+									this.holdingAngleDifference = this.currentObjective.drawAngle - this.drawAngle;
+									this.holding.x -= (this.x-this.xPrevious); //move the newly held object in the reverse direction to cancel out the holding movement since we just picked it up this frame
+									this.holding.y -= (this.y-this.yPrevious);
+									this.holding.space.contains.remove(this.holding);
+									this.updateCompletedBy();
+									this.currentObjective = this.currentTask;
+									console.log(this.currentObjective);
+									this.currentPath = findClosestStartPath(this,calculatePath(terrain,this.space,this.currentObjective.space,true));
+								}
+							}
+						}
+					}
+					//current objective == current task, meaning we have picked up the resource
+					else { //TODO: THIS IS ALL REPEAT CODE COPIED FROM THE "COLLECT" CASE; YOU NEED TO BREAK THIS CODE DOWN INTO SMALLER METHODS AND UTILIZE THEM!
+						if (this.busy == true || reachedObjective == true) {
+							if (reachedObjective == true) {
+								this.space = this.currentTask;
+							}
+							this.holding.grabPercent -= this.dropSpeed; //no need to have a separate variable for this, grabPercent works nicely
+							this.busy = true;
+							if (this.holding.grabPercent <= 0) {
+								this.playDropSound();
+								this.busy = false;
+								if (this.currentObjective.type == "building site") {
+									this.currentObjective.updatePlacedResources(this.holding.type);	
+								}
+								else if (this.currentObjective.type == "tool store") { //because this is copied from the "collect" section and we are in the "build" section this condition is possibly unreachable
+									collectedResources[this.holding.type]++;
+								}
+								this.dedicatingResource = false;
+								this.holding.die();
+								this.clearTask();
+							}
+						}
+						//don't think terrain should be object groups instead of lists because spaces should never be being destroyed, but should still keep this under consideration
+					}
+				}
+				
+				else if (taskType == "build") {
 					if (this.currentObjective != this.currentTask) {
 						if ((this.busy) || (this.reservingResource)) {
 							if (!this.busy) {
@@ -480,12 +536,8 @@ Raider.prototype.workOnCurrentTask = function() {
 								}
 							}
 						}
-						else {
-							//there is no resource in the tool store for us to take, so clear the current task
-							//TODO: this should now be an unreachable case due to the addition of reserving resources from the collectedResources dict; verify this and delete this case
-							this.clearTask();
-						}
 					}
+					//current objective == current task, meaning we have picked up the resource
 					else { //TODO: THIS IS ALL REPEAT CODE COPIED FROM THE "COLLECT" CASE; YOU NEED TO BREAK THIS CODE DOWN INTO SMALLER METHODS AND UTILIZE THEM!
 						if (this.busy == true || reachedObjective == true) {
 							if (reachedObjective == true) {
@@ -648,7 +700,9 @@ Raider.prototype.clearTask = function() {
 	
 	if (this.reservingResource == true) {
 		this.reservingResource = false;
-		reservedResources[this.currentObjectiveResourceType]--;
+		if (this.currentObjectiveResourceType != "dynamite") {
+			reservedResources[this.currentObjectiveResourceType]--;
+		}
 	}
 	if (this.dedicatingResource == true) {
 		this.dedicatingResource = false;
