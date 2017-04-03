@@ -16,6 +16,9 @@ BuildingPlacer.prototype.update = function() {
 			this.children[i].updatePosition();
 		}
 		var currentSpace = this.getCurrentSpace();
+		if (currentSpace == null) {
+			return;
+		}
 		var positionValid = this.positionValid(currentSpace);
 		var childPositionsValid = true;
 		for (var i = 0; i < this.children.length; ++i) {
@@ -186,8 +189,13 @@ BuildingPlacer.prototype.placeBuilding = function(space) {
 };
 
 BuildingPlacer.prototype.getCurrentSpace = function() {
-	//remember that the grid is actually (y,x) rather than (x,y)
-	return terrain[Math.floor((this.y + gameLayer.cameraY)/tileSize)][Math.floor((this.x + gameLayer.cameraX)/tileSize)];
+	var yCoord = Math.floor((this.y + gameLayer.cameraY)/tileSize);
+	var xCoord = Math.floor((this.x + gameLayer.cameraX)/tileSize);
+	//check bounds before attempting to access terrain Space
+	if (Math.min(yCoord,xCoord) < 0 || yCoord >= terrain.length || terrain.length == 0 || xCoord >= terrain[yCoord].length) {
+		return null;
+	}
+	return terrain[yCoord][xCoord];
 };
 
 function BuildingPlacer(buildingType,isHelper,xOffset,yOffset) {
