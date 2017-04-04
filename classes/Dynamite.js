@@ -42,6 +42,7 @@ Dynamite.prototype.detonate = function() {
 function Dynamite(space) {
 	this.grabPercent = 0;
 	this.image = "dynamite 1 (1).png";
+	this.type = "dynamite";
 	RygameObject.call(this,0,0,10,10,this.image,gameLayer);
 	this.space = space;
 	this.igniteTimer = 200;
