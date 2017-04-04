@@ -60,6 +60,7 @@ object = {
           //spaces
           ["img", "images\\spaces", "ground 1 (1).png"], //ground
           ["img", "images\\spaces", "building power path 1 (1).png"], //power path that is part of a building
+          ["img", "images\\spaces", "power path building site 1 (1).png"], //building site for a lone (non-building) power path
           ["img", "images\\spaces", "power path 1 (1).png"], //power path created by the player (not part of a building)
           ["img", "images\\spaces", "lava 1 (1).png"], //lava
           ["img", "images\\spaces", "water 1 (1).png"], //water

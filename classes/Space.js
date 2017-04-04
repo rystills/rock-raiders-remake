@@ -408,7 +408,8 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 	}
 	
 	else if (type == "building site") {
-		this.image = "building site 1 (1).png";
+		this.image = (this.buildingSiteType == "power path" ? "power path building site 1 (1).png" : "building site 1 (1).png");
+		console.log(this.type);
 		if (this.touched == true) {
 			var index = buildingSites.indexOf(this);
 			if (index == -1) {
