@@ -478,7 +478,7 @@ Raider.prototype.workOnCurrentTask = function() {
 							this.busy = true;
 							if (this.holding.grabPercent <= 0) {
 								this.busy = false;
-								this.holding.ignite();
+								this.holding.ignite(this.currentObjective.space);
 								this.clearTask();
 							}
 						}
