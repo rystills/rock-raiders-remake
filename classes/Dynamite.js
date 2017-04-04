@@ -1,4 +1,7 @@
 makeChild("Dynamite","RygameObject");
+Dynamite.prototype.ignite = function() {
+	console.log("boom");
+}
 function Dynamite(space) {
 	this.grabPercent = 0;
 	this.image = "dynamite 1 (1).png";

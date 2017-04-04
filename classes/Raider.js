@@ -466,7 +466,6 @@ Raider.prototype.workOnCurrentTask = function() {
 									this.holding.space.contains.remove(this.holding);
 									this.updateCompletedBy();
 									this.currentObjective = this.currentTask;
-									console.log(this.currentObjective);
 									this.currentPath = findClosestStartPath(this,calculatePath(terrain,this.space,this.currentObjective.space,true));
 								}
 							}
@@ -474,23 +473,12 @@ Raider.prototype.workOnCurrentTask = function() {
 					}
 					//current objective == current task, meaning we have picked up the resource
 					else { //TODO: THIS IS ALL REPEAT CODE COPIED FROM THE "COLLECT" CASE; YOU NEED TO BREAK THIS CODE DOWN INTO SMALLER METHODS AND UTILIZE THEM!
-						if (this.busy == true || reachedObjective == true) {
-							if (reachedObjective == true) {
-								this.space = this.currentTask;
-							}
+						if (this.busy == true || collisionReached == true) {
 							this.holding.grabPercent -= this.dropSpeed; //no need to have a separate variable for this, grabPercent works nicely
 							this.busy = true;
 							if (this.holding.grabPercent <= 0) {
-								this.playDropSound();
 								this.busy = false;
-								if (this.currentObjective.type == "building site") {
-									this.currentObjective.updatePlacedResources(this.holding.type);	
-								}
-								else if (this.currentObjective.type == "tool store") { //because this is copied from the "collect" section and we are in the "build" section this condition is possibly unreachable
-									collectedResources[this.holding.type]++;
-								}
-								this.dedicatingResource = false;
-								this.holding.die();
+								this.holding.ignite();
 								this.clearTask();
 							}
 						}
