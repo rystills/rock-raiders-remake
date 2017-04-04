@@ -1,12 +1,16 @@
 makeChild("Space","RygameObject");
+
+//turn this space into a ground tile
 Space.prototype.makeFloor = function() {
 	this.setTypeProperties("ground",this.image == "ground 1 (1).png");
 };
 
+//custom toString: indicate Space class and X,Y coords
 Space.prototype.toString = function() {
 	return "Space [" + this.x + ", " + this.y + "]";
 };
 
+//increase this space's drill percent. if the space is a seam, create the respective collectable type after each 20% drilling mark
 Space.prototype.updateDrillPercent = function(drillPercentIncrease, raider) {
 	this.drillPercent += drillPercentIncrease;
 	if (this.type == "ore seam" || this.type == "energy crystal seam") {
@@ -20,10 +24,12 @@ Space.prototype.updateDrillPercent = function(drillPercentIncrease, raider) {
 	}
 };
 
+//increase this space's sweep percent.
 Space.prototype.updateSweepPercent = function(sweepPercentIncrease, raider) {
 	this.sweepPercent += sweepPercentIncrease;
 };
-		
+
+//turn this space into rubble 1 (largest rubble level)
 Space.prototype.makeRubble = function(rubbleContainsOre,drilledBy,silent = false) {
 	if (drilledBy != null) {
 		drilledBy.tasksToClear.push(this);
@@ -71,6 +77,7 @@ Space.prototype.makeRubble = function(rubbleContainsOre,drilledBy,silent = false
 	}
 };
 
+//get the list of adjacent spaces (left, righgt, up, down)
 Space.prototype.getAdjacentSpaces = function() {
 	var adjacentSpaces = [];
 	adjacentSpaces.push(adjacentSpace(terrain,this.listX,this.listY,"up"));
@@ -80,6 +87,7 @@ Space.prototype.getAdjacentSpaces = function() {
 	return adjacentSpaces;
 };
 
+//increase this Space's level, if it is a building
 Space.prototype.upgrade = function() {
 	if (this.upgradeLevel < 2 && collectedResources["ore"] >= 5) {
 		this.upgradeLevel += 1;
@@ -87,6 +95,7 @@ Space.prototype.upgrade = function() {
 	}
 };
 
+//determine whether or not this wall is supported by surrounding walls. If not, activate makeRubble and propagate out
 Space.prototype.checkWallSupported = function(drilledBy, silent = false) {
 	if (!this.isWall) {
 		return;
@@ -108,6 +117,8 @@ Space.prototype.checkWallSupported = function(drilledBy, silent = false) {
 	}
 	this.makeRubble(true,drilledBy, silent);
 };
+
+//reduce level of rubble, and generate a piece of ore at space center if rubble contains ore
 Space.prototype.sweep = function() {
 	if (this.rubbleContainsOre == true) {
 		var newOre = new Collectable(this,"ore");
@@ -140,6 +151,7 @@ Space.prototype.die = function() {
 	return RygameObject.prototype.die.call(this);
 };
 
+//set all type-specifif properties of the current space (called on init, and when changing space type)
 Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContainsOre,requiredResources,dedicatedResources,placedResources,drawAngle) {
 	if (drawAngle != null) {
 		this.drawAngle = drawAngle;
@@ -432,6 +444,8 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 		this.updatePlacedResources(); //if building site requires no resources or started with all required resources, build immediately
 	}
 };
+
+//set touched to true or false, depending on the context. when not touched, image and type are concealed 
 Space.prototype.updateTouched = function(touched) { //if this space has not yet been revealed then we want it to appear as solid rock, but we leave this.image alone to keep track of its actual image. this might be cheating intended engine use a little bit but thats ok
 	this.touched = touched;
 	
@@ -451,12 +465,14 @@ Space.prototype.updateTouched = function(touched) { //if this space has not yet 
 		//we never actually modified this.image so we should just be able to use it
 		this.setTypeProperties(this.type);
 		
-		//set brightness / darkness based on height, as long as its not a wall
-		if (!this.isWall) {
+		//set brightness / darkness based on height regardless of space type, as long as it has been touched
+		if (this.touched) {
 			this.adjustHeightAlpha();
 		}
 	}
 };
+
+//brighten or darken space based on its height (brigher = higher)
 Space.prototype.adjustHeightAlpha = function() {
 	var heightAlphaChange = .02;
 	this.drawSurface.beginPath();
@@ -475,6 +491,8 @@ Space.prototype.adjustHeightAlpha = function() {
 	this.drawSurface.stroke();
 	this.drawSurface.globalAlpha = 1;
 };
+
+//check whether or not this building site has all of the resources it needs placed
 Space.prototype.allResourcesPlaced = function() {
 	var placedResourceTypes = Object.getOwnPropertyNames(this.placedResources);
 	for (var i = 0; i < placedResourceTypes.length; i++) {
@@ -484,6 +502,8 @@ Space.prototype.allResourcesPlaced = function() {
 	}
 	return true;
 };
+
+//check if there are any required resources of a certain type that have not yet been dedicated (or any resource type, if none is specified)
 Space.prototype.resourceNeeded = function(resourceType) {
 	if (resourceType != null) {
 		if (this.dedicatedResources[resourceType] < this.requiredResources[resourceType]) {
@@ -504,6 +524,8 @@ Space.prototype.resourceNeeded = function(resourceType) {
 	}
 	return false;
 };
+
+//add placed resource of input type, if one is specified. Then, check if this building site is finished.
 Space.prototype.updatePlacedResources = function(resourceType) {
 	if (resourceType) {
 		this.placedResources[resourceType]++;
@@ -525,6 +547,7 @@ Space.prototype.updatePlacedResources = function(resourceType) {
 	}
 };
 
+//attempt to trigger a landslide at this space, which will go through if we are bordering a valid non-reinforced non-solid wall
 Space.prototype.activateLandSlide = function() {
 	console.log("land slide activated. this.type: " + this.type);
 	this.curLandSlideWait = this.minLandSlideWait;
@@ -559,14 +582,18 @@ Space.prototype.activateLandSlide = function() {
 	}
 };
 
+//modify this space's land slide frequency (if not 0, create a landSlide object group if it does not already exist)
 Space.prototype.setLandSlideFrequency = function(frequency) {
 	if (frequency != 0) {
 		this.landSlideFrequency = frequency;
-		this.landSlides = new ObjectGroup();
-		this.landSlideSound = GameManager.sounds["lanslide"].cloneNode();
+		if (this.landSlides == null) {
+			this.landSlides = new ObjectGroup();
+			this.landSlideSound = GameManager.sounds["lanslide"].cloneNode();
+		}
 	}
 }
 
+//update this space, which will roll the dice for a landslide if the space is touched
 Space.prototype.update = function() {
 	if (!this.touched) { //spaces which have not yet been discovered should not trigger land-slides, erode nearby Spaces, etc..
 		return;
@@ -586,6 +613,7 @@ Space.prototype.update = function() {
 	}	
 };
 
+//enum of space types
 spaceTypes = {
 		1:"solid rock", 
 		2:"hard rock",
@@ -641,6 +669,8 @@ spaceTypes = {
 		'-111.2':"building site"
 		};
 
+
+//space constructor: init space type, set type properties, create necessary dummies, sounds, etc..
 function Space(type,listX,listY,height) {
 	//convert basic types from the numbers used in the level files to easily readable strings
 	this.height = height;
