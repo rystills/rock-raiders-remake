@@ -73,7 +73,7 @@ BuildingPlacer.prototype.start = function(type,keepDir) {
 	}
 	                                  
 	if (type == "tool store" || type == "teleport pad" || type == "docks" || type == "support station") {
-		this.children.push(new BuildingPlacer("power path",true,BuildingPlacer.dirOffsets[this.dir][0][0],BuildingPlacer.dirOffsets[this.dir][0][1]));
+		this.children.push(new BuildingPlacer("building power path",true,BuildingPlacer.dirOffsets[this.dir][0][0],BuildingPlacer.dirOffsets[this.dir][0][1]));
 	}
 	else if (type == "power station") {
 		this.children.push(new BuildingPlacer("power station topRight",true,BuildingPlacer.dirOffsets[this.dir][0][0],BuildingPlacer.dirOffsets[this.dir][0][1]));
@@ -81,7 +81,7 @@ BuildingPlacer.prototype.start = function(type,keepDir) {
 	}
 	else if (type == "ore refinery") {
 		this.children.push(new BuildingPlacer("ore refinery right",true,BuildingPlacer.dirOffsets[this.dir][0][0],BuildingPlacer.dirOffsets[this.dir][0][1]));
-		this.children.push(new BuildingPlacer("power path",true,BuildingPlacer.dirOffsets[this.dir][2][0],BuildingPlacer.dirOffsets[this.dir][2][1]));
+		this.children.push(new BuildingPlacer("building power path",true,BuildingPlacer.dirOffsets[this.dir][2][0],BuildingPlacer.dirOffsets[this.dir][2][1]));
 	}
 	else if (type == "geological center") {
 		this.children.push(new BuildingPlacer("geological center right",true,BuildingPlacer.dirOffsets[this.dir][0][0],BuildingPlacer.dirOffsets[this.dir][0][1]));
@@ -94,8 +94,8 @@ BuildingPlacer.prototype.start = function(type,keepDir) {
 	}
 	else if (type == "super teleport") {
 		this.children.push(new BuildingPlacer("super teleport topRight",true,BuildingPlacer.dirOffsets[this.dir][0][0],BuildingPlacer.dirOffsets[this.dir][0][1]));
-		this.children.push(new BuildingPlacer("power path",true,BuildingPlacer.dirOffsets[this.dir][1][0],BuildingPlacer.dirOffsets[this.dir][1][1]));
-		this.children.push(new BuildingPlacer("power path",true,-1*BuildingPlacer.dirOffsets[this.dir][0][1],BuildingPlacer.dirOffsets[this.dir][0][0]));
+		this.children.push(new BuildingPlacer("building power path",true,BuildingPlacer.dirOffsets[this.dir][1][0],BuildingPlacer.dirOffsets[this.dir][1][1]));
+		this.children.push(new BuildingPlacer("building power path",true,-1*BuildingPlacer.dirOffsets[this.dir][0][1],BuildingPlacer.dirOffsets[this.dir][0][0]));
 	}
 	for (var i = 0; i < this.children.length; ++i) {
 		this.children[i].start();
@@ -121,7 +121,7 @@ BuildingPlacer.prototype.positionValid = function(space) {
 		return false;
 	}
 	//power paths are allowed to be colliding with other objects, as long as they are still being placed on a ground tile
-	if (this.buildingType == "power path" || this.buildingType == "power station powerPath") {
+	if (this.buildingType == "power path" || this.buildingType == "building power path" || this.buildingType == "power station powerPath") {
 		return true;
 	}
 	//do not allow placement on a space on which any raiders are currently colliding
@@ -172,7 +172,7 @@ BuildingPlacer.prototype.updatePosition = function() {
 };
 
 BuildingPlacer.prototype.placeBuilding = function(space) {
-	if (this.buildingType == "power path" || this.buildingType == "power station powerPath") {
+	if (this.buildingType == "power path" || this.buildingType == "building power path" || this.buildingType == "power station powerPath") {
 		space.setTypeProperties(this.buildingType,null,null,null,null,null,(this.dir*90 - 90 + (this.dir % 2 == 1 ? 180 : 0)) * (Math.PI / 180));
 	}
 	else {
@@ -215,7 +215,7 @@ function BuildingPlacer(buildingType,isHelper,xOffset,yOffset) {
 	this.invalidSurface = this.drawSurface;
 	this.validSurface = createContext(tileSize,tileSize,false);
 	this.validSurface.globalAlpha=.25;
-	this.validSurface.fillStyle = (buildingType == "power path" || buildingType == "power station powerPath" ? "rgb(200,255,0)" : "rgb(0,255,0)"); //color power paths yellowish
+	this.validSurface.fillStyle = (buildingType == "power path" || buildingType == "building power path" || buildingType == "power station powerPath" ? "rgb(200,255,0)" : "rgb(0,255,0)"); //color power paths yellowish
 	this.validSurface.fillRect(0,0,this.drawSurface.canvas.width,this.drawSurface.canvas.height); //green semi-transparent overlay
 	
 	this.visible = false;

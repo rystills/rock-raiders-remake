@@ -233,8 +233,8 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 		this.image = "SlimySlugHole.jpg";
 		this.walkable = true;
 	}
-	else if (type == "power path" || type == "power station powerPath") {
-		this.image = (type == "power station powerPath" ? "power station powerPath 1 (1).png" : "power path 1 (1).png");
+	else if (type == "power path" || type == "building power path" || type == "power station powerPath") {
+		this.image = (type == "power station powerPath" ? "power station powerPath 1 (1).png" : type == "building power path" ? "building power path 1 (1).png" : "power path 1 (1).png");
 		this.walkable = true;
 		this.speedModifier = 1.5;
 	}
@@ -588,7 +588,8 @@ Space.prototype.update = function() {
 spaceTypes = {
 		1:"solid rock", 
 		2:"hard rock",
-		'-1':"power path",
+		'-1':"building power path",
+		'-1.2':"power path",
 		0:"ground",
 		30:"slug hole",
 		40:"slug hole",
@@ -645,7 +646,10 @@ function Space(type,listX,listY,height) {
 	this.buildingSiteType = null;
 	this.type = spaceTypes[type]; //this way you can input the string type directly if you're creating a space manually, rather than having to use the level file numbers and converting here
 	if (type == -101) {
-		this.buildingSiteType = "power path"; //TODO: SET 'RUBBLECONTAINSORE' VARIABLE IN THE SAME WAY AND REMOVE IT FROM THE SETTYPEPROPERTIES METHOD HEADER (or make rubbleContainsOre a local int in the Space class so that it only gets set when needed rather than getting modified in the setTypeProperties method)
+		this.buildingSiteType = "building power path"; //TODO: SET 'RUBBLECONTAINSORE' VARIABLE IN THE SAME WAY AND REMOVE IT FROM THE SETTYPEPROPERTIES METHOD HEADER (or make rubbleContainsOre a local int in the Space class so that it only gets set when needed rather than getting modified in the setTypeProperties method)
+	}
+	else if (type == "-101.2") {
+		this.buildingSiteType = "power path";
 	}
 	else if (type == -102) {
 		this.buildingSiteType = "tool store"; 

@@ -392,7 +392,7 @@ function loadLevelData(name) {
 	    		currentSpace.drawAngle = currentSpace.headingAngle;
 	    	}
 	    	currentSpace.powerPathSpace = powerPathSpace;
-	    	currentSpace.powerPathSpace.setTypeProperties("power path");
+	    	currentSpace.powerPathSpace.setTypeProperties("building power path");
 	    }
 	}
 }
