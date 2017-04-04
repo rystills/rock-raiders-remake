@@ -1326,10 +1326,10 @@ function createButtons() {
 	buttons.push(new Button(86,0,0,0,"grab item button 1 (1).png",gameLayer,"", grabItem,false,false,["ore","crystal"]));
 
 	//drillable wall selected buttons
-	buttons.push(new Button(126,0,0,0,"drill wall button 1 (1).png",gameLayer,"", drillWall,false,false,["dirt", "loose rock", "ore seam", "energy crystal seam"]));
+	buttons.push(new Button(166,0,0,0,"drill wall button 1 (1).png",gameLayer,"", drillWall,false,false,["dirt", "loose rock", "ore seam", "energy crystal seam"]));
 	
 	//dynamitable wall selected buttons
-	buttons.push(new Button(166,0,0,0,"use dynamite 1 (1).png",gameLayer,"", dynamiteWall,false,false,["dirt", "loose rock", "hard rock", "ore seam", "energy crystal seam"]));
+	buttons.push(new Button(126,0,0,0,"use dynamite 1 (1).png",gameLayer,"", dynamiteWall,false,false,["dirt", "loose rock", "hard rock", "ore seam", "energy crystal seam"]));
 	
 	//re-inforcable wall selected
 	buttons.push(new Button(86,0,0,0,"Reinforce.png",gameLayer,"", reinforceWall,false,false,["dirt", "loose rock", "hard rock", "ore seam", "energy crystal seam"]));
