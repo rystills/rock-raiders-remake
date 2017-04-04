@@ -1,4 +1,6 @@
 makeChild("Raider","RygameObject");
+
+//select the closest building of buildingType. Optionally, only select buildings that hit the resourceTypeNeeded flag
 Raider.prototype.chooseClosestBuilding = function(buildingType,resourceTypeNeeded) {
 	var buildingList = (buildingType == "building site" ? buildingSites : buildings);
 	destinationSites = [];
@@ -31,6 +33,7 @@ Raider.prototype.chooseClosestBuilding = function(buildingType,resourceTypeNeede
 	return nearestBuilding;
 };
 
+//check whether or not there is a closer resource of the same type on this path. If there is, modify the active task to point to that resource instead.
 Raider.prototype.checkChooseCloserEquivalentResource = function(removeCurrentTask) { //check if a closer equivalent resource is present; return true if switched tasks
 	var currentTaskType = this.getTaskType(this.currentTask); //TODO: consider using this function when getting resources from the toolstore as well
 	if (!(currentTaskType == "collect" && this.holding == null)) {
@@ -313,6 +316,7 @@ Raider.prototype.updateCompletedBy = function() {
 	this.tasksToClear = [];
 }
 
+//update this Raider instance. Checks for a new task if none is currently active, otherwise updates the current task, moving on a path or performing an action. 
 Raider.prototype.update = function() {
 	//if we are on a space that has no been touched yet, do nothing
 	if (!this.space.touched) {
@@ -346,7 +350,7 @@ Raider.prototype.update = function() {
 	this.workOnCurrentTask();
 };
 
-//move the input object to our hands
+//move the input object to our hands with a 1 pixel level of precision
 Raider.prototype.moveObjectToHands = function(moveObject) {
 	moveObject.setCenterX(this.centerX());
 	moveObject.setCenterY(this.centerY());
@@ -719,10 +723,13 @@ Raider.prototype.clearTask = function() {
 	
 	this.space = getNearestSpace(terrain,this);
 };
+
+//determine the current task type (calls taskType in rockRaiders JS file, passing the current raider in for more context-based data to determine the task type)
 Raider.prototype.getTaskType = function(task) {
 	return taskType(task,this);
 };
 
+//upgrade this raider, increasing its upgradeLevel by 1 as long as it has not reached the max upgrade level
 Raider.prototype.upgrade = function() {
 	if (this.upgradeLevel < this.maxUpgradeLevel) {
 		this.upgradeLevel += 1;
@@ -730,6 +737,7 @@ Raider.prototype.upgrade = function() {
 	}
 };
 
+//check whether or not the position at x1,y1 is equivalent to the position at x2,y2
 Raider.prototype.samePosition = function(x1,y1,x2,y2) {
 	return (x1 == x2 && y1 == y2);
 	/*var decimalAccuracy = 4; //lets try to avoid poor logic which leads to the below code becoming necessary if possible
@@ -737,6 +745,7 @@ Raider.prototype.samePosition = function(x1,y1,x2,y2) {
 		(parseFloat(y2).toFixed(decimalAccuracy) == parseFloat(y1).toFixed(decimalAccuracy));*/
 };
 
+//play a sound when dropping a resource (sound depends on whether the resource is ore or crystal)
 Raider.prototype.playDropSound = function() {
 	if (this.holding.type == "ore") {
 		this.dropOreSound.play();
@@ -753,6 +762,7 @@ Raider.prototype.die = function() {
 	return RygameObject.prototype.die.call(this);
 };
 
+//hurt this raider based on damageAmount. if hp reaches 0, die.
 Raider.prototype.hurt = function(damageAmount) {
 	this.hp -= damageAmount;
 	if (this.hp <= 0) {
@@ -763,6 +773,7 @@ Raider.prototype.hurt = function(damageAmount) {
 	}
 };
 
+//Raider constructor. init all properties, sounds, dummies, etc..
 function Raider(space) { //TODO: BUG WHERE SOMETIMES RAIDER STARTS IN THE RIGHT WALL AT THE VERY BEGINNING. CHECK IF THIS HAS BEEN FIXED
 	RygameObject.call(this,0,0,1,1,"raider 1 (1).png",gameLayer);
 	this.space = space;
