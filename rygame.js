@@ -922,6 +922,10 @@ RygameObject.prototype.addGroupContained = function(group) {
 	this.groupsContained.push(group);
 };
 RygameObject.prototype.die = function() { 
+	//don't do anything if already dead
+	if (this.dead) {
+		return;
+	}
 	while (this.groupsContained.length > 0) {
 		this.groupsContained[0].remove(this);
 	}

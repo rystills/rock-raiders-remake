@@ -43,7 +43,7 @@ Space.prototype.checkRemoveDummyTasks = function() {
 
 //turn this space into rubble 1 (largest rubble level)
 Space.prototype.makeRubble = function(rubbleContainsOre,drilledBy,silent = false) {
-	//kill dummies to stop any active tasks, since these can no longer be performed
+	//kill dummies to stop any active tasks, since these can no longer be performed (if already dead, nothing will happen)
 	this.reinforceDummy.die();
 	this.dynamiteDummy.die();
 	this.checkRemoveDummyTasks();
