@@ -322,6 +322,10 @@ Raider.prototype.update = function() {
 	if (!this.space.touched) {
 		return;
 	}
+	//stop task immediately if the current objective is dead (eg. dynamite or reinforce dummy post-drilling)
+	if (this.currentObjective != null && this.currentObjective.dead) {
+		this.clearTask();
+	}
 	//if we are of taskType "build" make sure our job hasn't been taken by somebody else closer to the building site
 	//note that optionally allowing 'undefined' rather than build here should likely be unnecessary
 	if ((this.getTaskType(this.currentTask) == "build" || this.getTaskType(this.currentTask) == "undefined") && this.reservingResource && (!(this.currentTask.dedicatedResources[this.currentObjectiveResourceType] < this.currentTask.requiredResources[this.currentObjectiveResourceType]))) {

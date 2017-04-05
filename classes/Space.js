@@ -29,8 +29,24 @@ Space.prototype.updateSweepPercent = function(sweepPercentIncrease, raider) {
 	this.sweepPercent += sweepPercentIncrease;
 };
 
+//remove any dummies from tasksAvailable, if present. 
+Space.prototype.checkRemoveDummyTasks = function() {
+	var index = tasksAvailable.indexOf(this.dynamiteDummy);
+	if (index != -1) {
+		tasksAvailable.splice(index,1);
+	}
+	index = tasksAvailable.indexOf(this.reinforceDummy);
+	if (index != -1) {
+		tasksAvailable.splice(index,1);
+	}
+}
+
 //turn this space into rubble 1 (largest rubble level)
 Space.prototype.makeRubble = function(rubbleContainsOre,drilledBy,silent = false) {
+	//kill dummies to stop any active tasks, since these can no longer be performed
+	this.reinforceDummy.die();
+	this.dynamiteDummy.die();
+	this.checkRemoveDummyTasks();
 	if (drilledBy != null) {
 		drilledBy.tasksToClear.push(this);
 	}
