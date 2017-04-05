@@ -1032,6 +1032,10 @@ function drawRaiderTasks() {
 function drawDynamiteTimers() {
 	for (var i = 0; i < collectables.objectList.length; ++i) {
 		if (collectables.objectList[i].type == "dynamite" && collectables.objectList[i].ignited) {
+			//don't draw anything if the dynamite has exploded, and is just an effect
+			if (collectables.objectList[i].igniteTimer == 0) {
+				continue;
+			}
 			GameManager.setFontSize(24);
 			GameManager.drawSurface.fillStyle = "rgb(255, 0, 0)";
 			GameManager.drawSurface.fillText(Math.floor((collectables.objectList[i].igniteTimer-1)/GameManager.fps + 1),collectables.objectList[i].x-collectables.objectList[i].drawLayer.cameraX,collectables.objectList[i].centerY()-collectables.objectList[i].drawLayer.cameraY - 20); //to be replaced with classic green selection rectangle	

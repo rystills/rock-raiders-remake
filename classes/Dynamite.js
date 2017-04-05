@@ -21,9 +21,22 @@ Dynamite.prototype.updateCompletedBy = function() {
 
 Dynamite.prototype.update = function() {
 	if (this.ignited) {
+		//if our effect timer is set, that means we have already detonated
+		if (this.effectTimer > 0) {
+			this.effectTimer -= 1;
+			//update effect transparency to create a fade-out
+			this.drawSurface.clearRect(0,0,this.image.width,this.image.height);
+			this.drawSurface.globalAlpha = this.effectTimer/30;
+			this.drawSurface.drawImage(this.image,0,0);
+			if (this.effectTimer == 0) {
+				this.die();
+			}
+			return;
+		}
+		//we have not detonated yet, so tick down our ignite timer
 		this.igniteTimer -= 1;
 		if (this.igniteTimer == 0) {
-			this.detonate()
+			this.detonate();
 		}
 	}
 }
@@ -35,8 +48,16 @@ Dynamite.prototype.detonate = function() {
 		this.tasksToClear.push(this.target);
 		this.target.makeRubble(true,this);
 		this.updateCompletedBy();
+		var centX = this.centerX();
+		var centY = this.centerY();
+		this.image = GameManager.images["dynamite explosion 1 (1).png"];
+		this.drawSurface = createContext(this.image.width,this.image.height,false); 
+		this.drawSurface.drawImage(this.image,0,0);
+		this.rect = new Rect(this.drawSurface.canvas.width,this.drawSurface.canvas.height);
+		this.setCenterX(centX);
+		this.setCenterY(centY);
+		this.effectTimer = 30;
 	}
-	this.die();
 }
 
 function Dynamite(space) {
@@ -46,6 +67,7 @@ function Dynamite(space) {
 	RygameObject.call(this,0,0,10,10,this.image,gameLayer);
 	this.space = space;
 	this.igniteTimer = 200;
+	this.effectTimer = 0;
 	this.space.contains.push(this); //TODO: DECIDE IF ROCK RAIDERS SHOULD ALSO BE INCLUDED IN CONTAINS, SINCE THEY WILL BE BOUNCING AROUND SPACES A LOT ANYWAY
 	this.target = null;
 	this.setCenterX(this.space.centerX());

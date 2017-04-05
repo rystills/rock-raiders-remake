@@ -57,6 +57,10 @@ object = {
           //other holdable objects
           ["img", "images\\objects", "dynamite 1 (1).png"], //dynamite
           
+          //effects
+          ["img", "images\\effects", "dynamite explosion 1 (1).png"], //explosion created by a dynamite blast
+          
+          
           //spaces
           ["img", "images\\spaces", "ground 1 (1).png"], //ground
           ["img", "images\\spaces", "building power path 1 (1).png"], //power path that is part of a building
