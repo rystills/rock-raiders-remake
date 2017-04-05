@@ -140,7 +140,6 @@ Space.prototype.sweep = function() {
 	else if (this.type == "rubble 4") {
 		this.setTypeProperties("ground");
 	}
-	this.adjustHeightAlpha(); //reset height-based alpha after sweeping, as it will be reset after calling setTyleProperties
 };
 
 //custom die: kill children before calling base class die
@@ -443,6 +442,7 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 	if (type == "building site") {
 		this.updatePlacedResources(); //if building site requires no resources or started with all required resources, build immediately
 	}
+	this.adjustHeightAlpha();
 };
 
 //set touched to true or false, depending on the context. when not touched, image and type are concealed 
@@ -464,16 +464,14 @@ Space.prototype.updateTouched = function(touched) { //if this space has not yet 
 	else {
 		//we never actually modified this.image so we should just be able to use it
 		this.setTypeProperties(this.type);
-		
-		//set brightness / darkness based on height regardless of space type, as long as it has been touched
-		if (this.touched) {
-			this.adjustHeightAlpha();
-		}
 	}
 };
 
 //brighten or darken space based on its height (brigher = higher)
 Space.prototype.adjustHeightAlpha = function() {
+	if (this.drawSurface == null) {
+		return;
+	}
 	var heightAlphaChange = .02;
 	this.drawSurface.beginPath();
 	if (this.height > 10) {
@@ -568,7 +566,6 @@ Space.prototype.activateLandSlide = function() {
 			//only change tile type if you are a ground or rubble tile
 			console.log(this.type);
 			this.setTypeProperties("rubble 1",false,false);
-			this.adjustHeightAlpha();
 			if (tasksAvailable.indexOf(this) == -1) {
 				tasksAvailable.push(this);
 			}
@@ -735,6 +732,7 @@ function Space(type,listX,listY,height) {
 	}*/
 	this.setTypeProperties(this.type,true);
 	RygameObject.call(this,listY*tileSize,listX*tileSize,100000,100000,this.image,gameLayer);	
+	this.adjustHeightAlpha(); //call this now since the first time we setTypeProperties we don't have a drawSurface yet to alpha adjust
 	this.updateTouched(false);
 	this.listX = listX;
 	this.listY = listY;
