@@ -2,6 +2,7 @@
 //for now images are being awaitingStart in by the rygame file as hardcoded urls, but this will be changed to the imageloader class which hopefully will be researched at the same time as the javascript dynamic loader so we don't have to define all of our classes in the html, that would't be very fun
 GameManager.initializeRygame(0);
 
+//print terrain out in a 2d array format
 function printTerrain(terrain) {
 	var str;
 	for (var i = 0; i < terrain.length; i++) {
@@ -14,6 +15,7 @@ function printTerrain(terrain) {
 	}
 }
 
+//print out all spaces in input path
 function printPath(path) {
 	var pathString = "[";
 	for (var i = 0; i < path.length; i++) {
@@ -24,6 +26,7 @@ function printPath(path) {
 	console.log(pathString);
 }
 
+//find the space in terrain closest to input object
 function getNearestSpace(terrain,object) {
 	var closestDistance = -1;
 	var closestObject = null;
@@ -41,6 +44,7 @@ function getNearestSpace(terrain,object) {
 	return closestObject;
 }
 
+//get the adjacent space to terrain indices x,y in direction dir. If no direction specified, get all 4 adjacent spaces.
 function adjacentSpace(terrain,x,y,dir) {
 	if (dir == "up") {
 		if (x > 0) {
@@ -71,6 +75,7 @@ function adjacentSpace(terrain,x,y,dir) {
 	}
 }
 
+//propagate touched for all adjacent spaces from input initial space
 function touchAllAdjacentSpaces(initialSpace) {
 	if (!initialSpace.touched) {
 		if (initialSpace.isBuilding == false && (!(initialSpace.walkable || initialSpace.type == "water" || initialSpace.type == "lava"))) {
@@ -109,6 +114,7 @@ function touchAllAdjacentSpaces(initialSpace) {
 	}
 }
 
+//determine which path is closest to the start object's current position from list of input paths
 function findClosestStartPath(startObject,paths) {
 	//console.log(paths);
 	if (paths == null) {
@@ -134,6 +140,8 @@ function findClosestStartPath(startObject,paths) {
 	return paths[closestIndex];
 }
 
+//calculate the shortest path in terrain from start space to goal space, or all shortest paths if returnAllSolutions flag is ticked. 
+//If goalSpace is null, instead searches for a task that input raider can perform.
 function calculatePath(terrain,startSpace,goalSpace,returnAllSolutions,raider) { 
 	/*find shortest path from startSpace to a space satisfying desiredProperty (note: path goes from end to start, not from start to end)*/
 	//if startSpace meets the desired property, return it without doing any further calculations
@@ -236,9 +244,9 @@ function calculatePath(terrain,startSpace,goalSpace,returnAllSolutions,raider) {
 		return null;
 	}
 	return solutions; 
-	
 }
 
+//determine whether or not there is a resource available and not resource of the input resource type
 function resourceAvailable(resourceType) {
 	if (collectedResources[resourceType] - reservedResources[resourceType] > 0) {
 		return true;
@@ -246,6 +254,7 @@ function resourceAvailable(resourceType) {
 	return false;
 }
 
+//deprecated: populate a test level with some specifically placed objects
 function populateTestLevel() {
 	if (terrainMapName == "test level 1.js" || terrainMapName == "test level 2.js") { //create some test objects if we have loaded in one of the test levels (deprecated)
 		collectables.push(new Collectable(terrain[3][4],"ore"));
@@ -255,6 +264,7 @@ function populateTestLevel() {
 	}
 }
 
+//deprecated: populate a test level with some specifically placed raiders and objects
 function populateTestCollision() {
 	var testRaider = new Raider(terrain[0][0]);
 	var testOre = new Collectable(terrain[0][0],"ore");
@@ -266,6 +276,7 @@ function populateTestCollision() {
 	console.log("COLLISION TEST: " + collisionRect(testRaider,testOre,false));
 }
 
+//load in level data for level of input name, reading from all supported map file types.
 function loadLevelData(name) {
 	levelName = name;
 	terrainMapName = "Surf_" + levelName + ".js";
@@ -397,6 +408,7 @@ function loadLevelData(name) {
 	}
 }
 
+//determine the type of the input task. If optional raider flag is input, gives additional context for determining task type.
 function taskType(task,raider) { //optional raider flag allows us to determine what the raider is doing from additional task related variables
 	if (typeof task == "undefined" || task == null) {
 		return null;
@@ -427,6 +439,7 @@ function taskType(task,raider) { //optional raider flag allows us to determine w
 	}
 }
 
+//create a new raider, if there is at least one touched toolStore to teleport him to.
 function createRaider() {
 	var toolStore = null;
 	for (var i = 0; i < buildings.length; i++) {
@@ -442,12 +455,14 @@ function createRaider() {
 	
 }
 
+//cancel current selection, setting selection to empty list and selectionType to null, and closing any open menus
 function cancelSelection() {
 	selection = [];
 	selectionType = null;
 	openMenu = "";
 }
 
+//attempt to update current selection in response to a left-click
 function checkUpdateClickSelection() {
 	if (GameManager.mouseReleasedLeft) { //ignore mouse clicks if they landed on a part of the UI
 		var raiderSelected = null; //don't bother polling for more than one raider click since they are guaranteed to have the same drawDepth, meaning choosing one is arbitrary - might as well go with the first one found
@@ -501,6 +516,7 @@ function checkUpdateClickSelection() {
 	}
 }
 
+//update selectionType based on current selection, setting it to null if selection is empty
 function checkUpdateSelectionType() {
 	if (selection.length == 0) {
 		return;
@@ -525,6 +541,7 @@ function checkUpdateSelectionType() {
 	}
 }
 
+//attempt to update current ctrl box selection. If ctrl is released, select all raiders within the box.
 function checkUpdateCtrlSelection() {
 	if (GameManager.keyStates[String.fromCharCode(17)] == true) { //if ctrl key is currently pressed
 		if (selectionRectCoords.x1 == null) {
@@ -568,6 +585,7 @@ function checkUpdateCtrlSelection() {
 	}
 }
 
+//attempt to assign a task to the current selection upon releasing right mouse button.
 function checkAssignSelectionTask() {
 	if (GameManager.mouseReleasedRight && selection.length != 0 && selectionType == "raider") {
 		 //TODO: THIS IS A BIG CHUNK OF REPEAT CODE FROM THE LEFTCLICK TASK DETECTION, THIS DESERVES ITS OWN METHOD FOR SURE
@@ -681,6 +699,7 @@ function checkAssignSelectionTask() {
 	}
 }
 
+//release any help objects from all raiders in selection.
 function unloadMinifig() {
 	if (selection.length == 0) {
 		return;
@@ -701,6 +720,7 @@ function unloadMinifig() {
 	}
 }
 
+//if selection is a collectable that is an available task, boost its task priority so that the next available raider will come to get it
 function grabItem() {
 	if (selection.length == 0) {
 		return;
@@ -800,6 +820,7 @@ function pathToClosestBuilding(raider, buildingType) {
 	return findClosestStartPath(raider,calculatePath(terrain,raider.space,closestBuilding,true));
 }
 
+//set the active task for all raiders in current selection to move to the nearest tool store and start performing an upgrade
 function upgradeRaider() { //TODO: take the 'find path to toolstore' code from this and getTool, and give it its own method.
 	for (var i = 0; i < selection.length; i++) {
 		if (selection[i].upgradeLevel < 3) {
@@ -820,6 +841,7 @@ function upgradeRaider() { //TODO: take the 'find path to toolstore' code from t
 	}
 }
 
+//assign all raiders in selection to path to the nearest tool store and get the specified tool type, if they are not currently holding it
 function getTool(toolName) {
 	for (var i = 0; i < selection.length; i++) {
 		if (selection[i].tools.indexOf(toolName) == -1) { //&& selection[i].tools.length < selection[i].maxTools) {
@@ -842,10 +864,12 @@ function getTool(toolName) {
 	}
 }
 
+//toggle paused flag
 function pauseGame() {
 	paused = !paused;
 }
 
+//update levelName to input name, and load level via resetLevelVars method
 function changeLevels(levelName) {
 	if (levelName == null) {
 		levelName = "03";
@@ -853,6 +877,7 @@ function changeLevels(levelName) {
 	resetLevelVars(levelName);
 }
 
+//check if the pause key (currently p) is pressed, and if so, toggle the paused flag
 function checkTogglePause() {
 	if (GameManager.keyStates[String.fromCharCode(80)]) {
 		holdingPKey = true;
@@ -874,6 +899,7 @@ function checkTogglePause() {
 	}
 }
 
+//stop all selected raiders, regardless of their current task type
 function stopMinifig(raider) {
 	if (raider == null) {
 		stopGroup = selection;
@@ -930,6 +956,7 @@ function checkScrollLevelSelect() {
 	
 }
 
+//check whether the screen should scroll due to mouse position or arrow key input
 function checkScrollScreen() {
 	if (mousePanning) { //can you scroll by hovering the mouse at the corner of the screen?
 		if (GameManager.mousePos.x < scrollDistance) {
@@ -974,6 +1001,7 @@ function checkScrollScreen() {
 	}
 }
 
+//debug function: draw object properties above each Space in terrain
 function drawTerrainVars(varNames) {
 	GameManager.drawSurface.fillStyle = "rgb(255, 0, 0)";
 	GameManager.setFontSize(24);
@@ -988,6 +1016,7 @@ function drawTerrainVars(varNames) {
 	}
 }
 
+//draw current task above each raider's head
 function drawRaiderTasks() {
 	GameManager.setFontSize(24);
 	GameManager.drawSurface.fillStyle = "rgb(200, 220, 255)";
@@ -999,6 +1028,7 @@ function drawRaiderTasks() {
 	}
 }
 
+//draw ingite timer above each active dynamite instance
 function drawDynamiteTimers() {
 	for (var i = 0; i < collectables.objectList.length; ++i) {
 		if (collectables.objectList[i].type == "dynamite" && collectables.objectList[i].ignited) {
@@ -1010,6 +1040,7 @@ function drawDynamiteTimers() {
 	}
 }
 
+//draw required materials (ore and energy crystals) above each building site
 function drawBuildingSiteMaterials() {
 	GameManager.setFontSize(24);
 	for (var i = 0; i < buildingSites.length; i++) {
@@ -1022,6 +1053,7 @@ function drawBuildingSiteMaterials() {
 	}
 }
 
+//draw all UI components
 function drawUI() {
 	GameManager.setFontSize(36);
 	GameManager.drawSurface.fillText("Selection Type: " + selectionType + (selectionType == null ? "" : (selection.length == 1 ? (selection[0].isBuilding == true ? " lvl " + selection[0].upgradeLevel : "") : (" x " + selection.length))),8,592); //to be replaced with classic green selection rectangle	
@@ -1063,6 +1095,7 @@ function drawUI() {
 	GameManager.drawSurface.fillText(collectedResources["crystal"],GameManager.screenWidth - 28,595);
 }
 
+//draw ore and energy crystal count during the score screen
 function drawScoreScreenUI() {
 	GameManager.setFontSize(48);
 	GameManager.drawSurface.fillStyle = "rgb(65, 218, 0)";
@@ -1102,6 +1135,7 @@ function drawRaiderInfo() {
 	}
 }
 
+//draw active ctrl selection box
 function drawSelectionBox() {
 	if (selectionRectCoords.x1 != null) {
 		GameManager.drawSurface.strokeStyle = "rgb(0,255,0)";
@@ -1116,6 +1150,7 @@ function drawSelectionBox() {
 	}
 }
 
+//draw smallest bounding square around each raider
 function drawSelectedSquares() {
 	GameManager.drawSurface.strokeStyle = "rgb(0,255,0)";
 	GameManager.drawSurface.fillStyle = "rgb(0,255,0)";
@@ -1133,6 +1168,7 @@ function drawSelectedSquares() {
 	}
 }
 
+//draw smallest rotated bounding rect around each raider
 function drawSelectedRects() {
 	if (selectionType == "raider") {
 		GameManager.drawSurface.lineWidth = 2;
@@ -1154,6 +1190,7 @@ function drawSelectedRects() {
 	}
 }
 
+//draw all raider task paths
 function highlightRaiderPaths() {
 	var path;
 	for (var r = 0; r < raiders.objectList.length; ++r) {
@@ -1171,6 +1208,7 @@ function highlightRaiderPaths() {
 	}
 }
 
+//darken screen by input percentage (currently used during pause and level start)
 function dimScreen(dimPercentage) { //darken screen by dimPercentage
 	var prevGlobalAlpha = GameManager.drawSurface.globalAlpha;
 	GameManager.drawSurface.globalAlpha=dimPercentage;
@@ -1180,6 +1218,7 @@ function dimScreen(dimPercentage) { //darken screen by dimPercentage
 	
 }
 
+//draw instructions while awaiting player start after loading level
 function drawAwaitingStartInstructions() { //draw game start instructions if awaitingStart
 	if (awaitingStart) { //draw game start instructions if awaitingStart
 		dimScreen(.4);
@@ -1190,6 +1229,7 @@ function drawAwaitingStartInstructions() { //draw game start instructions if awa
 	}
 }
 
+//draw pause screen instructions
 function drawPauseInstructions() {
 	if (paused) {
 		dimScreen(.4);
@@ -1203,6 +1243,7 @@ function drawPauseInstructions() {
 	}
 }
 
+//return whether or not the mouse is currently hovering over an active GUI object
 function mouseOverGUI() {
 	for (var i = 0; i < buttons.objectList.length; i++) {
 		if (buttons.objectList[i].visible && collisionPoint(GameManager.mousePos.x,GameManager.mousePos.y,buttons.objectList[i],buttons.objectList[i].affectedByCamera)) { //use mouseDownOnButton rather than releasedThisFrame because button activates on mouse release, whereas task selection here activates on mouse press
@@ -1212,6 +1253,7 @@ function mouseOverGUI() {
 	return false;
 }
 
+//toggle building menu open or closed
 function openBuildingMenu() {
 	if (openMenu == "building") {
 		openMenu = "";
@@ -1222,6 +1264,7 @@ function openBuildingMenu() {
 	}
 }
 
+//toggle tool menu open or closed
 function openToolMenu() {
 	if (selectionType == "raider") {
 		if (openMenu == "tool") {
@@ -1233,6 +1276,7 @@ function openToolMenu() {
 	}
 }
 
+//return the building requirements for input building type (that is, what buildings are required before the input buildingType can be constructed)
 function buildRequirementsMet(buildingType) {
 	buildingRequirements = []
 	if (buildingType == "teleport pad") {
@@ -1278,6 +1322,7 @@ function buildRequirementsMet(buildingType) {
 	return true;
 }
 
+//enable the buildingPlacer object
 function startBuildingPlacer(buildingType) {
 	if (buildRequirementsMet(buildingType)) { //buttons now take care of this check, but it can't hurt to check it one more time here
 		buildingPlacer.start(buildingType);
@@ -1286,6 +1331,7 @@ function startBuildingPlacer(buildingType) {
 	}
 }
 
+//create all in-game buttons
 function createButtons() {
 	//base level buttons
 	buttons.push(new Button(0,0,0,0,"teleport raider button 1 (1).png",gameLayer,"", createRaider,false,false));
@@ -1349,6 +1395,7 @@ function createButtons() {
 	scoreScreenButtons.push(new Button(20,200,0,0,null,scoreScreenLayer,"Return to Main Menu", returnToMainMenu,false,true));
 }
 
+//create all level select screen buttons
 function createLevelSelectButtons() {
 	//level select buttons
 	for (var i = 0; i < 33; ++i) {
@@ -1357,6 +1404,7 @@ function createLevelSelectButtons() {
 	}
 }
 
+//create all menu screen buttons
 function createMenuButtons() {	
 	//main menu buttons
 	var xPos = 320;
@@ -1384,25 +1432,28 @@ function grayedOut() {
 	return false;
 }
 
-//toggle the global setting for whether or not the mouse may scroll the screen by pointing at the edges
+//toggle the global setting for whether or not the mouse may scroll the screen by pointing at the edges (both the variable and the HTML5 local var)
 function toggleEdgePanning(buttonIndex) {
 	mousePanning = !mousePanning;
 	setValue("mousePanning", mousePanning);
 	menuButtons.objectList[buttonIndex].updateText("Edge Panning" + (mousePanning ?  " ✓" : " X"));
 }
 
+//toggle debug mode variable and HTML5 local var on or off
 function toggleDebugMode(buttonIndex) {
 	debug = !debug;
 	setValue("debug", debug);
 	menuButtons.objectList[buttonIndex].updateText("Debug Mode" + (debug ?  " ✓" : " X"));
 }
 
+//toggle fog variable and HTML5 local var on or off
 function toggleFog(buttonIndex) {
 	maskUntouchedSpaces = !maskUntouchedSpaces;
 	setValue("fog",maskUntouchedSpaces);
 	menuButtons.objectList[buttonIndex].updateText("Enable Fog" + (maskUntouchedSpaces ?  " ✓" : " X"));
 }
 
+//switch layers to the main menu, stopping all sounds and toggling all game-variables off
 function returnToMainMenu() {
 	//toggle game and menu layers and swap music tracks, as well as update level score strings if coming from score screen
 	if (scoreScreenLayer.active) { //update score strings if coming from score layer, as this means we may have updated one of the level scores
@@ -1421,6 +1472,7 @@ function returnToMainMenu() {
 	tileSelectedGraphic.visible = false;
 }
 
+//stop all currently playing raider sounds
 function stopAllSounds() {
 	//stop all currently playing sounds
 	//stop all raider sounds
@@ -1429,6 +1481,7 @@ function stopAllSounds() {
 	}
 }
 
+//reset all non-constant game variables for the start of a new level
 function resetLevelVars(name) {
 	menuLayer.active = false;
 	levelSelectLayer.active = false;
@@ -1463,14 +1516,17 @@ function resetLevelVars(name) {
 	loadLevelData(name);
 }
 
+//set HTNL5 local storage variable value
 function setValue(name, value) {
     localStorage.setItem(name,value);
 }
 
+//get HTML5 local storage variable value
 function getValue(name) {
 	return localStorage.getItem(name);
 }
 
+//initialize global game-related constants
 function initGlobals() {
 	tileSize = 128;
 	scrollDistance = 10;
@@ -1522,6 +1578,7 @@ function initGlobals() {
 	dynamiteInstances = new ObjectGroup();
 }
 
+//get HTML5 local storage value for each level highschore, if present
 function getLevelScores() {
 	levelScores = {};
 	levelScores["01"] = getValue("01") == null ? -1 : getValue("01");
@@ -1530,8 +1587,8 @@ function getLevelScores() {
 	return levelScores;
 }
 
+//check if current level objective has been accomplished
 function checkAccomplishedObjective() {
-	//check if current level objective has been accomplished
 	objective = GameManager.scriptObjects["Info_" + levelName + ".js"].objective;
 	if (objective[0] == "collect") {
 		won = (collectedResources[objective[1][0]] >= parseInt(objective[1][1]));
@@ -1542,21 +1599,21 @@ function checkAccomplishedObjective() {
 	}
 }
 
+//determine level score from 0-100 based off off several factors, including ore and crystals collected, oxygen remaining, and time taken
 function calculateLevelScore() {
-	//determine level score from 0-100 based off off several factors, including ore and crystals collected, oxygen remaining, and time taken
 	return Math.round(100 * Math.min(1,(collectedResources["ore"] / 30) * .5 + (collectedResources["crystal"] / 5) * .5));
 }
 
+//update level dict and cookie to reflect the player's higest score
 function setLevelScore(score) {
-	//update level dict and cookie to reflect the player's higest score
 	if (levelScores[levelName] < score) {
 		levelScores[levelName] = score;
 		setValue(levelName,score);
 	}
 }
 
+//switch to scoreScreenLayer 
 function showScoreScreen() {
-	//switch to scoreScreenLayer 
 	gameLayer.active = false;
 	scoreScreenLayer.active = true;
 	musicPlayer.changeLevels();
@@ -1566,8 +1623,8 @@ function showScoreScreen() {
 	scoreScreenButtons.objectList[0].updateText(scoreScreenButtons.objectList[0].text.split(":")[0] + ": " + lastLevelScore);
 }
 
+//disallow main menus from being open while the user has an active selection (submenues are allowed)
 function checkCloseMenu() {
-	//disallow main menus from being open while the user has an active selection (submenues are allowed)
 	if (selection.length != 0) {
 		if (openMenu == "building") {
 			openMenu = "";	
@@ -1575,6 +1632,7 @@ function checkCloseMenu() {
 	}
 }
 
+//main update loop: update the current layer and any non-automatic objects
 function update() {
 	if (GameManager.drawSurface == null) { //check if canvas has been updated by the html page
 		GameManager.drawSurface = document.getElementById('canvas').getContext('2d');
