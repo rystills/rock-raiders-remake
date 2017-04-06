@@ -26,6 +26,40 @@ function printPath(path) {
 	console.log(pathString);
 }
 
+//update position of all sound effects for all RygameObjects based on cameraDistance
+function updateObjectSoundPositions() {
+	for (var i = 0; i < GameManager.renderOrderedCompleteObjectList.length; ++i) {
+		updateSoundPositions(GameManager.renderOrderedCompleteObjectList[i]);
+	}
+}
+
+//update volume of all sound effects based on linear distance from camera
+function updateSoundPositions(obj) {
+	if (typeof obj.soundList != "undefined" && obj.soundList.length > 0) {
+		var camDis = cameraDistance(obj);
+		var vol = 1 - camDis / 1200;
+		if (vol < 0) {
+			vol = 0;
+		}
+		for (var i = 0; i < obj.soundList.length; ++i) {
+			obj.soundList[i].volume = vol;
+		}
+	}
+	
+}
+
+//get linear distance of obj center from camera
+function cameraDistance(obj) {
+	var xDis,yDis;
+	var x = obj.centerX();
+	var y = obj.centerY();
+	var camX = gameLayer.cameraX + GameManager.screenWidth / 2;
+	var camY = gameLayer.cameraY + GameManager.screenHeight / 2;
+	xDis = Math.abs(camX - x);
+	yDis = Math.abs(camY - y);
+	return Math.sqrt(xDis*xDis + yDis*yDis);
+}
+
 //find the space in terrain closest to input object
 function getNearestSpace(terrain,object) {
 	var closestDistance = -1;
@@ -1720,6 +1754,9 @@ function update() {
 				}
 				//update objects
 				GameManager.updateObjects();
+				
+				//update object sound volumes based on distance from camera
+				updateObjectSoundPositions();
 				
 				//don't update buttons when buildingPlacer is active
 				if (!buildingPlacer.visible) {

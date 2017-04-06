@@ -322,6 +322,7 @@ Raider.prototype.update = function() {
 	if (!this.space.touched) {
 		return;
 	}
+	
 	//stop task immediately if the current objective is dead (eg. dynamite or reinforce dummy post-drilling)
 	if (this.currentObjective != null && this.currentObjective.dead) {
 		this.clearTask();
@@ -822,6 +823,7 @@ function Raider(space) { //TODO: BUG WHERE SOMETIMES RAIDER STARTS IN THE RIGHT 
 	this.dropOreSound = GameManager.sounds["Rockdrop"].cloneNode();
 	this.dropCrystalSound = GameManager.sounds["Crystaldrop"].cloneNode();
 	this.hurtSound = GameManager.sounds["hurt1"].cloneNode();
+	this.soundList = [this.sweepSound,this.drillSound,this.dropOreSound,this.dropCrystalSound,this.hurtSound];
 	this.maxHp = 100;
 	this.hp = this.maxHp;
 	this.healthBar = new HealthBar(this);

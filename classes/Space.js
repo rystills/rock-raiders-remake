@@ -53,6 +53,7 @@ Space.prototype.makeRubble = function(rubbleContainsOre,drilledBy,silent = false
 	if (!silent) {
 		if (!this.rockBreakSound) { //if we are not drillable but were drilled indirectly, we don't have this sound yet, so clone it now
 			this.rockBreakSound = GameManager.sounds["ROKBREK1"].cloneNode();
+			this.soundList.push(this.rockBreakSound);
 		}
 		this.rockBreakSound.play();
 	}
@@ -602,6 +603,7 @@ Space.prototype.setLandSlideFrequency = function(frequency) {
 		if (this.landSlides == null) {
 			this.landSlides = new ObjectGroup();
 			this.landSlideSound = GameManager.sounds["lanslide"].cloneNode();
+			this.soundList.push(this.landSlideSound);
 		}
 	}
 }
@@ -794,5 +796,9 @@ function Space(type,listX,listY,height) {
 	//this.drilledBy = null;
 	this.landSlides = null;
 	this.landSlideSound = null;
+	this.soundList = [];
+	if (this.rockBreakSound != null) {
+		this.soundList.push(this.rockBreakSound);
+	}
 	this.drillSpeedModifier = 1; //how difficult is this wall to drill (for ore and crystal seams, this will be 0.2, as they require 5 'drills')
 }

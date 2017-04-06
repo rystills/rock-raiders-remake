@@ -1,6 +1,5 @@
 makeChild("HealthBar","RygameObject");
 HealthBar.prototype.update = function() {
-	console.log("raider X: " + this.raider.centerX() + ", raider Y: " + this.raider.centerY());
 	this.setCenterX(this.raider.centerX());
 	this.y = this.raider.y - 12;
 	if (this.prevHp != this.raider.hp) {
