@@ -37,6 +37,7 @@ function updateObjectSoundPositions() {
 function updateSoundPositions(obj) {
 	if (typeof obj.soundList != "undefined" && obj.soundList.length > 0) {
 		var camDis = cameraDistance(obj);
+		//linear fade with distance, with a max sound distance of 1200 pixels
 		var vol = 1 - camDis / 1200;
 		if (vol < 0) {
 			vol = 0;

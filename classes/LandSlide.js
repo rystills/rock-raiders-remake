@@ -16,6 +16,7 @@ LandSlide.prototype.update = function() {
 		this.die();
 	}
 };
+
 function LandSlide(space) {
 	this.image = "landslide 1 (1).png";
 	RygameObject.call(this,0,0,10,10,this.image,gameLayer);
