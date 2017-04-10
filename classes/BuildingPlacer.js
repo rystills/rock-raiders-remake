@@ -177,6 +177,10 @@ BuildingPlacer.prototype.placeBuilding = function(space) {
 	}
 	else {
 		space.buildingSiteType = this.buildingType;
+		space.childSpaces = []
+		for (var i = 0; i < this.children.length; ++i) {
+			space.childSpaces.push(this.children[i].getCurrentSpace());
+		}
 		space.setTypeProperties("building site",null,null,null,null,null,(this.dir*90 - 90 + (this.dir % 2 == 1 ? 180 : 0)) * (Math.PI / 180),this.parentBuilder == null ? null : this.parentBuilder.getCurrentSpace());
 	}
 	

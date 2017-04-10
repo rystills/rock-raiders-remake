@@ -169,6 +169,7 @@ Space.prototype.die = function() {
 
 //set all type-specifif properties of the current space (called on init, and when changing space type)
 Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContainsOre,requiredResources,dedicatedResources,placedResources,drawAngle,parentSpace) {
+	this.waitingToCompleteConstruction = false;
 	if (drawAngle != null) {
 		this.drawAngle = drawAngle;
 	}
@@ -555,15 +556,41 @@ Space.prototype.updatePlacedResources = function(resourceType) {
 		if (taskIndex != -1) {
 			tasksAvailable.splice(taskIndex,1);
 		}
-		this.setTypeProperties(this.buildingSiteType);
-		
 		var index = buildingSites.indexOf(this);
 		if (index != -1) { //this check should never evaluate to false, but we do it regardless as a safety precaution
 			buildingSites.splice(index,1);
-			//buildings.push(this); //added to buildings in setTypeProperties, so no need to add it here
-		} 
+		}
+		if (nonPrimarySpaceTypes.indexOf(this.buildingSiteType) != -1 && !this.parentSpace.isBuilding) {
+			this.waitingToCompleteConstruction = true;
+		}
+		else if (this.childrenIncomplete()) {
+			this.waitingToCompleteConstruction = true;
+		}
+		else {
+			this.completeConstruction();
+		}
 	}
 };
+
+//are we a building site and are any of our child spaces not yet finished
+Space.prototype.childrenIncomplete = function() {
+	for (var i = 0; i < this.childSpaces.length; ++i) {
+		if (powerPathSpaceTypes.indexOf(this.childSpaces[i].type) != -1) {
+			continue;
+		} 
+		
+		if (!this.childSpaces[i].allResourcesPlaced()) {
+			return true;
+		}
+	}
+	return false;
+}
+
+//call setTypeProperties on building site type, once we are finished with construction
+Space.prototype.completeConstruction = function() {
+	this.setTypeProperties(this.buildingSiteType);
+	
+}
 
 //attempt to trigger a landslide at this space, which will go through if we are bordering a valid non-reinforced non-solid wall
 Space.prototype.activateLandSlide = function() {
@@ -615,6 +642,18 @@ Space.prototype.setLandSlideFrequency = function(frequency) {
 Space.prototype.update = function() {
 	if (!this.touched) { //spaces which have not yet been discovered should not trigger land-slides, erode nearby Spaces, etc..
 		return;
+	}
+	if (this.waitingToCompleteConstruction) {
+		if (this.childSpaces.length > 0) {
+			if (!this.childrenIncomplete()) {
+				this.waitingToCompleteConstruction = false;
+				this.completeConstruction();
+			}
+		}
+		else if (this.parentSpace.isBuilding) {
+			this.waitingToCompleteConstruction = false;
+			this.completeConstruction();
+		}
 	}
 	if (this.walkable) { //land-slides may only occur on walkable tiles
 		if (this.landSlideFrequency > 0) {
@@ -692,6 +731,7 @@ spaceTypes = {
 function Space(type,listX,listY,height,parentSpace) {
 	//convert basic types from the numbers used in the level files to easily readable strings
 	this.height = height;
+	this.childSpaces = [];
 	this.buildingSiteType = null;
 	this.type = spaceTypes[type]; //this way you can input the string type directly if you're creating a space manually, rather than having to use the level file numbers and converting here
 	if (type == -101) {
