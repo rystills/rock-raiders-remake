@@ -118,7 +118,7 @@ function touchAllAdjacentSpaces(initialSpace) {
 				//initialSpace.touched = true;
 				tasksAvailable.push(initialSpace);
 			}
-			initialSpace.updateTouched(initialSpace.drillable || initialSpace.explodable || (initialSpace.isBuilding == true)); //the buildings.indexOf section of this or statement should no longer be a possible case
+			initialSpace.updateTouched(initialSpace.drillable || initialSpace.explodable || initialSpace.type == "solid rock" || (initialSpace.isBuilding == true)); //the buildings.indexOf section of this or statement should no longer be a possible case
 			return; //TODO: the above statement has outgrown itself; revise appropriately
 		}
 		//initialSpace.touched = true;
