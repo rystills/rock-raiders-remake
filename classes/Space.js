@@ -267,6 +267,9 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 	}
 	else if (type == "power path" || type == "building power path" || type == "power station powerPath") {
 		this.image = (type == "power station powerPath" ? "power station powerPath 1 (1).png" : type == "building power path" ? "building power path 1 (1).png" : "power path 1 (1).png");
+		if (type == "power station powerPath") {
+			this.image = "building power path 1 (1).png";
+		}
 		this.walkable = true;
 		this.speedModifier = 1.5;
 	}
@@ -575,10 +578,12 @@ Space.prototype.updatePlacedResources = function(resourceType) {
 //are we a building site and are any of our child spaces not yet finished
 Space.prototype.childrenIncomplete = function() {
 	for (var i = 0; i < this.childSpaces.length; ++i) {
+		//power paths auto-complete upon initiating build, and don't require any resources, so skip them
 		if (powerPathSpaceTypes.indexOf(this.childSpaces[i].type) != -1) {
 			continue;
 		} 
 		
+		//if one of our children still needs some resources placed, we are not yet finished
 		if (!this.childSpaces[i].allResourcesPlaced()) {
 			return true;
 		}
@@ -653,6 +658,12 @@ Space.prototype.update = function() {
 		else if (this.parentSpace.isBuilding) {
 			this.waitingToCompleteConstruction = false;
 			this.completeConstruction();
+		}
+	}
+	if (this.type == "power station powerPath" && this.image != "power station powerPath 1 (1).png") {
+		if (this.parentSpace.isBuilding) {
+			this.image = "power station powerPath 1 (1).png";
+			this.changeImage(this.image);
 		}
 	}
 	if (this.walkable) { //land-slides may only occur on walkable tiles
