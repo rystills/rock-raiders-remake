@@ -574,6 +574,13 @@ function checkUpdateSelectionType() {
 		tileSelectedGraphic.drawDepth = 5; //put tile selection graphic in front of collectable
 		GameManager.refreshObject(tileSelectedGraphic);
 	}
+	
+	//manually update non-primary building pieces to point to main building Space
+	if (selection[0] instanceof Space) {
+		if (nonPrimarySpaceTypes.indexOf(selection[0].type) != -1) {
+			selection[0] = selection[0].parentSpace;
+		}
+	}
 }
 
 //attempt to update current ctrl box selection. If ctrl is released, select all raiders within the box.
@@ -1095,7 +1102,11 @@ function drawBuildingSiteMaterials() {
 //draw all UI components
 function drawUI() {
 	GameManager.setFontSize(36);
-	GameManager.drawSurface.fillText("Selection Type: " + selectionType + (selectionType == null ? "" : (selection.length == 1 ? (selection[0].isBuilding == true ? " lvl " + selection[0].upgradeLevel : "") : (" x " + selection.length))),8,592); //to be replaced with classic green selection rectangle	
+	var selectionString = selectionType;
+	if (selectionString == "power station powerPath" || selectionString == "building power path") {
+		selectionString = "power path";
+	}
+	GameManager.drawSurface.fillText("Selection Type: " + selectionString + (selectionType == null ? "" : (selection.length == 1 ? (selection[0].isBuilding == true ? " lvl " + selection[0].upgradeLevel : "") : (" x " + selection.length))),8,592); //to be replaced with classic green selection rectangle	
 	
 	//don't draw buttons when buildingPlacer is active
 	if (!buildingPlacer.visible) {
@@ -1604,6 +1615,8 @@ function initGlobals() {
 			"drill":"drill",
 			"reinforce":"hammer"
 	};
+	nonPrimarySpaceTypes = ["power station topRight","geological center right","upgrade station right", 
+		"ore refinery right", "mining laser right", "super teleport topRight"];
 	buildingPlacer = new BuildingPlacer();
 	selectionRectObject = new RygameObject(0,0,0,0,null,gameLayer);
 	tileSelectedGraphic = new TileSelectedGraphic();
@@ -1750,8 +1763,8 @@ function update() {
 						checkUpdateClickSelection();
 						checkAssignSelectionTask();
 					}
-					checkUpdateSelectionType();
 					checkUpdateCtrlSelection();
+					checkUpdateSelectionType();
 				}
 				//update objects
 				GameManager.updateObjects();

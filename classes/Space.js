@@ -168,9 +168,12 @@ Space.prototype.die = function() {
 };
 
 //set all type-specifif properties of the current space (called on init, and when changing space type)
-Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContainsOre,requiredResources,dedicatedResources,placedResources,drawAngle) {
+Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContainsOre,requiredResources,dedicatedResources,placedResources,drawAngle,parentSpace) {
 	if (drawAngle != null) {
 		this.drawAngle = drawAngle;
+	}
+	if (parentSpace != null) {
+		this.parentSpace = parentSpace;
 	}
 	if ((rubbleContainsOre != true) && (this.rubbleContainsOre != true)) { //certain variables, such as rubbleContainsOre, should stay true even when this method is called multiple times
 		rubbleContainsOre = false;
@@ -686,7 +689,7 @@ spaceTypes = {
 
 
 //space constructor: init space type, set type properties, create necessary dummies, sounds, etc..
-function Space(type,listX,listY,height) {
+function Space(type,listX,listY,height,parentSpace) {
 	//convert basic types from the numbers used in the level files to easily readable strings
 	this.height = height;
 	this.buildingSiteType = null;
@@ -748,7 +751,8 @@ function Space(type,listX,listY,height) {
 	/*else { //TODO: DELETE THIS CASE ONCE ALL TERRAIN TYPES FROM THE ORIGINAL GAME HAVE A CORRESPONDING TYPE VALUE HERE
 		this.type = "power path";
 	}*/
-	this.setTypeProperties(this.type,true);
+	this.setTypeProperties(this.type,true,null,null,null,null,null,parentSpace);
+
 	RygameObject.call(this,listY*tileSize,listX*tileSize,100000,100000,this.image,gameLayer);	
 	this.adjustHeightAlpha(); //call this now since the first time we setTypeProperties we don't have a drawSurface yet to alpha adjust
 	this.updateTouched(false);

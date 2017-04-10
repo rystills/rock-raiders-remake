@@ -76,24 +76,24 @@ BuildingPlacer.prototype.start = function(type,keepDir) {
 		this.children.push(new BuildingPlacer("building power path",true,BuildingPlacer.dirOffsets[this.dir][0][0],BuildingPlacer.dirOffsets[this.dir][0][1]));
 	}
 	else if (type == "power station") {
-		this.children.push(new BuildingPlacer("power station topRight",true,BuildingPlacer.dirOffsets[this.dir][0][0],BuildingPlacer.dirOffsets[this.dir][0][1]));
-		this.children.push(new BuildingPlacer("power station powerPath",true,BuildingPlacer.dirOffsets[this.dir][1][0],BuildingPlacer.dirOffsets[this.dir][1][1]));
+		this.children.push(new BuildingPlacer("power station topRight",true,BuildingPlacer.dirOffsets[this.dir][0][0],BuildingPlacer.dirOffsets[this.dir][0][1],this));
+		this.children.push(new BuildingPlacer("power station powerPath",true,BuildingPlacer.dirOffsets[this.dir][1][0],BuildingPlacer.dirOffsets[this.dir][1][1],this));
 	}
 	else if (type == "ore refinery") {
-		this.children.push(new BuildingPlacer("ore refinery right",true,BuildingPlacer.dirOffsets[this.dir][0][0],BuildingPlacer.dirOffsets[this.dir][0][1]));
+		this.children.push(new BuildingPlacer("ore refinery right",true,BuildingPlacer.dirOffsets[this.dir][0][0],BuildingPlacer.dirOffsets[this.dir][0][1],this));
 		this.children.push(new BuildingPlacer("building power path",true,BuildingPlacer.dirOffsets[this.dir][2][0],BuildingPlacer.dirOffsets[this.dir][2][1]));
 	}
 	else if (type == "geological center") {
-		this.children.push(new BuildingPlacer("geological center right",true,BuildingPlacer.dirOffsets[this.dir][0][0],BuildingPlacer.dirOffsets[this.dir][0][1]));
+		this.children.push(new BuildingPlacer("geological center right",true,BuildingPlacer.dirOffsets[this.dir][0][0],BuildingPlacer.dirOffsets[this.dir][0][1],this));
 	}
 	else if (type == "mining laser") {
-		this.children.push(new BuildingPlacer("mining laser right",true,BuildingPlacer.dirOffsets[this.dir][0][0],BuildingPlacer.dirOffsets[this.dir][0][1]));
+		this.children.push(new BuildingPlacer("mining laser right",true,BuildingPlacer.dirOffsets[this.dir][0][0],BuildingPlacer.dirOffsets[this.dir][0][1],this));
 	}
 	else if (type == "upgrade station") {
-		this.children.push(new BuildingPlacer("upgrade station right",true,BuildingPlacer.dirOffsets[this.dir][0][0],BuildingPlacer.dirOffsets[this.dir][0][1]));
+		this.children.push(new BuildingPlacer("upgrade station right",true,BuildingPlacer.dirOffsets[this.dir][0][0],BuildingPlacer.dirOffsets[this.dir][0][1],this));
 	}
 	else if (type == "super teleport") {
-		this.children.push(new BuildingPlacer("super teleport topRight",true,BuildingPlacer.dirOffsets[this.dir][0][0],BuildingPlacer.dirOffsets[this.dir][0][1]));
+		this.children.push(new BuildingPlacer("super teleport topRight",true,BuildingPlacer.dirOffsets[this.dir][0][0],BuildingPlacer.dirOffsets[this.dir][0][1],this));
 		this.children.push(new BuildingPlacer("building power path",true,BuildingPlacer.dirOffsets[this.dir][1][0],BuildingPlacer.dirOffsets[this.dir][1][1]));
 		this.children.push(new BuildingPlacer("building power path",true,-1*BuildingPlacer.dirOffsets[this.dir][0][1],BuildingPlacer.dirOffsets[this.dir][0][0]));
 	}
@@ -173,11 +173,11 @@ BuildingPlacer.prototype.updatePosition = function() {
 
 BuildingPlacer.prototype.placeBuilding = function(space) {
 	if (this.buildingType == "power path" || this.buildingType == "building power path" || this.buildingType == "power station powerPath") {
-		space.setTypeProperties(this.buildingType,null,null,null,null,null,(this.dir*90 - 90 + (this.dir % 2 == 1 ? 180 : 0)) * (Math.PI / 180));
+		space.setTypeProperties(this.buildingType,null,null,null,null,null,(this.dir*90 - 90 + (this.dir % 2 == 1 ? 180 : 0)) * (Math.PI / 180),this.parentBuilder == null ? null : this.parentBuilder.getCurrentSpace());
 	}
 	else {
 		space.buildingSiteType = this.buildingType;
-		space.setTypeProperties("building site",null,null,null,null,null,(this.dir*90 - 90 + (this.dir % 2 == 1 ? 180 : 0)) * (Math.PI / 180));
+		space.setTypeProperties("building site",null,null,null,null,null,(this.dir*90 - 90 + (this.dir % 2 == 1 ? 180 : 0)) * (Math.PI / 180),this.parentBuilder == null ? null : this.parentBuilder.getCurrentSpace());
 	}
 	
 	for (var i = 0; i < this.children.length; ++i) {
@@ -198,13 +198,14 @@ BuildingPlacer.prototype.getCurrentSpace = function() {
 	return terrain[yCoord][xCoord];
 };
 
-function BuildingPlacer(buildingType,isHelper,xOffset,yOffset) {
+function BuildingPlacer(buildingType,isHelper,xOffset,yOffset,parentBuilder) {
 	if (xOffset == null) {
 		xOffset = 0;
 	}
 	if (yOffset == null) {
 		yOffset = 0;
 	}
+	this.parentBuilder = parentBuilder;
 	RygameObject.call(this,0,0,1000000,10000,null,gameLayer,false); //update after Space, and draw in front of space
 	this.buildingType = buildingType;
 	
