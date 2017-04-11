@@ -60,6 +60,21 @@ object = {
           //effects
           ["img", "images\\effects", "dynamite explosion 1 (1).png"], //explosion created by a dynamite blast
           
+          //small vehicles
+          ["img", "images\\vehicles", "make hoverboard.png"], //make hoverscout button
+          ["img", "images\\vehicles", "make SmallCat.png"], //make rapid rider button
+          ["img", "images\\vehicles", "make SmallDigger.png"], //make small digger button
+          ["img", "images\\vehicles", "make SmallHeli.png"], //make tunnel scout button
+          ["img", "images\\vehicles", "make SmallMWP.png"], //make small mobile laser cutter button
+          ["img", "images\\vehicles", "make SmallTruck.png"], //make small transport truck button
+          
+          //large vehicles
+          ["img", "images\\vehicles", "make Bulldozer.png"], //make loader dozer button
+          ["img", "images\\vehicles", "make LargeCatamaran.png"], //make cargo carrier button
+          ["img", "images\\vehicles", "make largeDigger.png"], //make large digger button
+          ["img", "images\\vehicles", "make LargeMWP.png"], //make large mobile laser cutter button
+          ["img", "images\\vehicles", "make WalkerDigger.png"], //make granite grinder button
+
           
           //spaces
           ["img", "images\\spaces", "ground 1 (1).png"], //ground
@@ -117,6 +132,8 @@ object = {
           ["img", "images\\buttons", "stop minifig button 1 (1).png"], //stop minifig button (stops any performed task)
           ["img", "images\\buttons", "upgrade button 1 (1).png"], //button to upgrade a raider or building
           ["img", "images\\buttons", "open building menu button 1 (1).png"], //button to open up the building menu
+          ["img", "images\\buttons", "open large vehicle menu button 1 (1).png"], //button to open up the large vehicle menu
+          ["img", "images\\buttons", "open small vehicle menu button 1 (1).png"], //button to open up the small vehicle menu
           ["img", "images\\buttons", "use dynamite 1 (1).png"], //button to instruct a raider to blow up a wall using dynamite
           
           //grab item buttons

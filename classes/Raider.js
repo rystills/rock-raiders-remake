@@ -826,6 +826,7 @@ function Raider(space) { //TODO: BUG WHERE SOMETIMES RAIDER STARTS IN THE RIGHT 
 	this.soundList = [this.sweepSound,this.drillSound,this.dropOreSound,this.dropCrystalSound,this.hurtSound];
 	this.maxHp = 100;
 	this.hp = this.maxHp;
+	this.vehicle = null;
 	this.healthBar = new HealthBar(this);
 	this.tasksToClear = []; //list of tasks affected by this raider's most recent task clear (eg. chain reactions when drilling)
 }
