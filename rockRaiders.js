@@ -1314,6 +1314,17 @@ function openBuildingMenu() {
 	}
 }
 
+//toggle vehicle menu open or closed
+function openVehicleMenu() {
+	if (openMenu == "vehicle") {
+		openMenu = "";
+	}
+	else {
+		cancelSelection(); //this clears selection and sets openMenu to ""
+		openMenu = "vehicle";	
+	}
+}
+
 //toggle tool menu open or closed
 function openToolMenu() {
 	if (selectionType == "raider") {
@@ -1329,6 +1340,7 @@ function openToolMenu() {
 //return the building requirements for input building type (that is, what buildings are required before the input buildingType can be constructed)
 function buildRequirementsMet(buildingType) {
 	buildingRequirements = []
+	//buildings
 	if (buildingType == "teleport pad") {
 		buildingRequirements = ["tool store"];
 	}
@@ -1355,6 +1367,11 @@ function buildRequirementsMet(buildingType) {
 	}
 	else if (buildingType == "super teleport") {
 		buildingRequirements = ["tool store", "teleport pad", "power station", "support station"];
+	}
+	
+	//vehicles
+	else if (buildingType == "hover scout") {
+		buildingRequirements = ["tool store"];
 	}
 	
 	for (var i = 0; i < buildingRequirements.length; ++i) {
@@ -1386,6 +1403,7 @@ function createButtons() {
 	//base level buttons
 	buttons.push(new Button(0,0,0,0,"teleport raider button 1 (1).png",gameLayer,"", createRaider,false,false));
 	buttons.push(new Button(0,40,0,0,"open building menu button 1 (1).png",gameLayer,"", openBuildingMenu,false,false));
+	buttons.push(new Button(0,80,0,0,"open small vehicle menu button 1 (1).png",gameLayer,"", openVehicleMenu,false,false));
 	
 	buttons.push(new Button(46,0,0,0,"cancel selection button 1 (1).png",gameLayer,"", cancelSelection,false,false,[])); //if selectionTypeBound is an empty list, the button will be visible for all selections except when selection == null
 	//6 pixel boundary between general purpose buttons and selection specific buttons
@@ -1402,6 +1420,9 @@ function createButtons() {
 	buttons.push(new Button(46,360,0,0,"make Gunstation.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["mining laser"],true,true,null,buildRequirementsMet,["mining laser"]));
 	buttons.push(new Button(46,400,0,0,"make LargeTeleporter.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["super teleport"],true,true,null,buildRequirementsMet,["super teleport"]));
 	
+	//vehicle menu open buttons
+	buttons.push(new Button(46,40,0,0,"make hoverboard.png",gameLayer,"", startBuildingPlacer,false,false,null,["vehicle"],["hover scout"],true,true,null,buildRequirementsMet,["hover scout"]));
+
 	//raider selected buttons
 	buttons.push(new Button(86,0,0,0,"unload minifig button 1 (1).png",gameLayer,"", unloadMinifig,false,false,["raider"]));
 	buttons.push(new Button(126,0,0,0,"stop minifig button 1 (1).png",gameLayer,"", stopMinifig,false,false,["raider"]));

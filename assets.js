@@ -74,7 +74,6 @@ object = {
           ["img", "images\\vehicles", "make largeDigger.png"], //make large digger button
           ["img", "images\\vehicles", "make LargeMWP.png"], //make large mobile laser cutter button
           ["img", "images\\vehicles", "make WalkerDigger.png"], //make granite grinder button
-
           
           //spaces
           ["img", "images\\spaces", "ground 1 (1).png"], //ground
