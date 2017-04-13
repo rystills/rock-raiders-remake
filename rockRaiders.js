@@ -514,6 +514,7 @@ function cancelSelection() {
 //attempt to update current selection in response to a left-click
 function checkUpdateClickSelection() {
 	if (GameManager.mouseReleasedLeft) { //ignore mouse clicks if they landed on a part of the UI
+		//check if raider clicked
 		var raiderSelected = null; //don't bother polling for more than one raider click since they are guaranteed to have the same drawDepth, meaning choosing one is arbitrary - might as well go with the first one found
 		for (var i = 0; i < raiders.objectList.length; i++) {
 			if (collisionPoint(GameManager.mouseReleasedPosLeft.x,GameManager.mouseReleasedPosLeft.y,raiders.objectList[i],raiders.objectList[i].affectedByCamera)) {
@@ -525,35 +526,51 @@ function checkUpdateClickSelection() {
 			selection = [raiderSelected];
 			selectionType = "raider";
 		}
-		else {	
-			var itemSelected = null; 
-			for (var i = 0; i < collectables.objectList.length; i++) {
-				if (collisionPoint(GameManager.mouseReleasedPosLeft.x,GameManager.mouseReleasedPosLeft.y,collectables.objectList[i],collectables.objectList[i].affectedByCamera)) {
-					itemSelected = collectables.objectList[i];
+		else {
+			//check if vehicle clicked
+			var vehicleSelected = null;
+			for (var i = 0; i < vehicles.objectList.length; i++) {
+				if (collisionPoint(GameManager.mouseReleasedPosLeft.x,GameManager.mouseReleasedPosLeft.y,vehicles.objectList[i],vehicles.objectList[i].affectedByCamera)) {
+					vehicleSelected = vehicles.objectList[i];
 					break;
 				}
 			}
-			if (itemSelected != null) {
-				selection = [itemSelected];
-				selectionType = itemSelected.type;
+			if (vehicleSelected != null) {
+				selection = [vehicleSelected];
+				selectionType = "vehicle";
 			}
-			
-			else {
-				var spaceSelected = null;
-				for (var i = 0; i < terrain.length; i++) {
-					for (var r = 0; r < terrain[i].length; r++) {
-						if (collisionPoint(GameManager.mouseReleasedPosLeft.x,GameManager.mouseReleasedPosLeft.y,terrain[i][r],terrain[i][r].affectedByCamera)) {
-							spaceSelected = terrain[i][r];
+			else {	
+				//check if collectable clicked
+				var itemSelected = null; 
+				for (var i = 0; i < collectables.objectList.length; i++) {
+					if (collisionPoint(GameManager.mouseReleasedPosLeft.x,GameManager.mouseReleasedPosLeft.y,collectables.objectList[i],collectables.objectList[i].affectedByCamera)) {
+						itemSelected = collectables.objectList[i];
+						break;
+					}
+				}
+				if (itemSelected != null) {
+					selection = [itemSelected];
+					selectionType = itemSelected.type;
+				}
+				
+				else {
+					//check if space clicked
+					var spaceSelected = null;
+					for (var i = 0; i < terrain.length; i++) {
+						for (var r = 0; r < terrain[i].length; r++) {
+							if (collisionPoint(GameManager.mouseReleasedPosLeft.x,GameManager.mouseReleasedPosLeft.y,terrain[i][r],terrain[i][r].affectedByCamera)) {
+								spaceSelected = terrain[i][r];
+								break;
+							}
+						}
+						if (spaceSelected != null) {
 							break;
 						}
 					}
 					if (spaceSelected != null) {
-						break;
+						selection = [spaceSelected];
+						selectionType = spaceSelected.touched == true ? spaceSelected.type : "Hidden";
 					}
-				}
-				if (spaceSelected != null) {
-					selection = [spaceSelected];
-					selectionType = spaceSelected.touched == true ? spaceSelected.type : "Hidden";
 				}
 			}
 		}
@@ -584,7 +601,7 @@ function checkUpdateSelectionType() {
 		tileSelectedGraphic.drawDepth = 5000; //put tile selection graphic between space and collectable
 		GameManager.refreshObject(tileSelectedGraphic);
 	}
-	if (selection[0] instanceof Collectable) {
+	if (selection[0] instanceof Collectable || selection[0] instanceof Vehicle) {
 		tileSelectedGraphic.drawDepth = 5; //put tile selection graphic in front of collectable
 		GameManager.refreshObject(tileSelectedGraphic);
 	}
@@ -1718,7 +1735,7 @@ function showScoreScreen() {
 //disallow main menus from being open while the user has an active selection (submenues are allowed)
 function checkCloseMenu() {
 	if (selection.length != 0) {
-		if (openMenu == "building") {
+		if (openMenu == "building" || openMenu == "vehicle") {
 			openMenu = "";	
 		}
 	}
