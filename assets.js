@@ -54,13 +54,16 @@ object = {
           ["img", "images\\objects", "ore 1 (1).png"], //ore
           ["img", "images\\objects", "energy crystal 1 (1).png"], //energy crystal
           
+          //vehicle images
+          ["img", "images\\vehicles", "hover scout 1 (1).png"], //hover scout
+          
           //other holdable objects
           ["img", "images\\objects", "dynamite 1 (1).png"], //dynamite
           
           //effects
           ["img", "images\\effects", "dynamite explosion 1 (1).png"], //explosion created by a dynamite blast
           
-          //small vehicles
+          //small vehicle buttons
           ["img", "images\\vehicles", "make hoverboard.png"], //make hoverscout button
           ["img", "images\\vehicles", "make SmallCat.png"], //make rapid rider button
           ["img", "images\\vehicles", "make SmallDigger.png"], //make small digger button
@@ -68,7 +71,7 @@ object = {
           ["img", "images\\vehicles", "make SmallMWP.png"], //make small mobile laser cutter button
           ["img", "images\\vehicles", "make SmallTruck.png"], //make small transport truck button
           
-          //large vehicles
+          //large vehicle buttons
           ["img", "images\\vehicles", "make Bulldozer.png"], //make loader dozer button
           ["img", "images\\vehicles", "make LargeCatamaran.png"], //make cargo carrier button
           ["img", "images\\vehicles", "make largeDigger.png"], //make large digger button
@@ -209,6 +212,11 @@ object = {
           ["js", "classes", "TileSelectedGraphic.js"], //simple class which shows the tile highlight graphic depending on selection
           ["js", "classes", "Task.js"], //Task class
           ["js", "classes", "MusicPlayer.js"], //Music Manager class
+          
+          //vehicles
+          ["js", "classes\\vehicles", "Vehicle.js"], //Vehicle base class
+          ["js", "classes\\vehicles", "HoverScout.js"], //hover scout class
+          ["js", "classes\\vehicles", "SmallDigger.js"], //small digger class
           
           //level data list files
           ["js", "levels", "levelList.js"], //list of names of playable levels, to be used by the main menu for level selection

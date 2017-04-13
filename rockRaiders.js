@@ -474,7 +474,7 @@ function taskType(task,raider) { //optional raider flag allows us to determine w
 	}
 }
 
-//create a new raider, if there is at least one touched toolStore to teleport him to.
+//create a new raider, if there is at least one touched toolStore to teleport him to
 function createRaider() {
 	var toolStore = null;
 	for (var i = 0; i < buildings.length; i++) {
@@ -487,7 +487,21 @@ function createRaider() {
 		return;
 	}
 	raiders.push(new Raider(toolStore.powerPathSpace));
-	
+}
+
+//create a new vehicle of input type, if there is at least one touched toolStore to teleport it to
+function createVehicle(vehicleType) {
+	var toolStore = null;
+	for (var i = 0; i < buildings.length; i++) {
+		if (buildings[i].type == "tool store") {
+			toolStore = buildings[i];
+			break;
+		}
+	}
+	if (toolStore == null) {
+		return;
+	}
+	vehicles.push(new HoverScout(toolStore.powerPathSpace));
 }
 
 //cancel current selection, setting selection to empty list and selectionType to null, and closing any open menus
@@ -1421,7 +1435,7 @@ function createButtons() {
 	buttons.push(new Button(46,400,0,0,"make LargeTeleporter.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["super teleport"],true,true,null,buildRequirementsMet,["super teleport"]));
 	
 	//vehicle menu open buttons
-	buttons.push(new Button(46,40,0,0,"make hoverboard.png",gameLayer,"", startBuildingPlacer,false,false,null,["vehicle"],["hover scout"],true,true,null,buildRequirementsMet,["hover scout"]));
+	buttons.push(new Button(46,40,0,0,"make hoverboard.png",gameLayer,"", createVehicle,false,false,null,["vehicle"],["hover scout"],true,true,null,buildRequirementsMet,["hover scout"]));
 
 	//raider selected buttons
 	buttons.push(new Button(86,0,0,0,"unload minifig button 1 (1).png",gameLayer,"", unloadMinifig,false,false,["raider"]));
@@ -1577,6 +1591,7 @@ function resetLevelVars(name) {
 	tasksAvailable = [];//.concat(collectables.objectList); 
 	tasksInProgress = new ObjectGroup();
 	raiders.removeAll(true);
+	vehicles.removeAll(true);
 	collectables.removeAll(true);
 	selectionRectPointList = [];
 	selectionRectCoordList = [];
@@ -1650,6 +1665,7 @@ function initGlobals() {
 	buildings = [];
 	buildingSites = [];
 	raiders = new ObjectGroup();
+	vehicles = new ObjectGroup();
 	collectables = new ObjectGroup();
 	dynamiteInstances = new ObjectGroup();
 }
