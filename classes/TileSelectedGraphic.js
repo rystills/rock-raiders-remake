@@ -3,11 +3,14 @@ makeChild("TileSelectedGraphic","RygameObject");
 TileSelectedGraphic.prototype.update = function() {
 	if (selection.length != 0 && selectionType != "raider") {
 		this.visible = true;
-		this.x = selection[0].x; //todo: support multi-selection here rather than just the first selected object
-		this.y = selection[0].y;
-		if (selection[0].drawSurface.canvas.width != this.drawSurface.canvas.width || selection[0].drawSurface.canvas.height != this.drawSurface.canvas.height) {
-			this.resizeDrawSurface(selection[0].drawSurface.canvas.width, selection[0].drawSurface.canvas.height);
+		if (selection[0].drawSurface.canvas.width != this.drawSurface.canvas.width && selection[0].drawSurface.canvas.height != this.drawSurface.canvas.height) {
+			var maxDim = Math.max(selection[0].drawSurface.canvas.width, selection[0].drawSurface.canvas.height);
+			this.resizeDrawSurface(maxDim,maxDim);
+			this.rect.width = maxDim;
+			this.rect.height = maxDim;
 		}
+		this.setCenterX(selection[0].centerX()); //todo: support multi-selection here rather than just the first selected object
+		this.setCenterY(selection[0].centerY());
 	}
 	else {
 		this.visible = false;
@@ -36,5 +39,7 @@ function TileSelectedGraphic() {
 	RygameObject.call(this,0,0,500000,5000,null,gameLayer); //depth between Space and BuildingPlacer
 	
 	this.drawSurface = createContext(tileSize,tileSize,false);
+	this.rect.width = tileSize;
+	this.rect.height = tileSize;
 	this.redrawSelectedGraphic()
 }
