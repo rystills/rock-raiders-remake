@@ -452,6 +452,17 @@ Raider.prototype.workOnCurrentTask = function() {
 						
 					}
 				}
+				
+				if (taskType == "vehicle") {
+					this.vehicle = this.currentObjective;
+					this.setCenterX(this.vehicle.centerX());
+					this.setCenterY(this.vehicle.centerY());
+					this.drawAngle = this.vehicle.drawAngle;
+					freezeAngle = true;
+					this.clearTask();
+					console.log(this.vehicle);
+				}
+				
 				if (taskType == "dynamite") {
 					if (this.currentObjective != this.currentTask) {
 						if ((this.busy) || (this.reservingResource)) {
@@ -680,6 +691,12 @@ Raider.prototype.workOnCurrentTask = function() {
 		this.holding.x += (this.x-this.xPrevious);
 		this.holding.y += (this.y-this.yPrevious);
 		this.holding.rotateAroundPoint(this.centerX(),this.centerY(),this.drawAngle,this.holdingAngleDifference); //TODO: WHEN THE RAIDER FINISHES PICKING UP AN OBJECT THE OBJECT MOVES UP A PIXEL OR TWO ON THE 1ST FRAME. PROBABLY NOT A PROBLEM, BUT STILL CHECK THIS!
+	}
+	
+	if (this.vehicle != null) {
+		this.vehicle.setCenterX(this.centerX());
+		this.vehicle.setCenterY(this.centerY());
+		this.vehicle.drawAngle = this.drawAngle;
 	}
 };
 	

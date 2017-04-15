@@ -1685,7 +1685,8 @@ function initGlobals() {
 			"reinforce":false,
 			"build":true,
 			"walk":true,
-			"dynamite":false
+			"dynamite":false,
+			"vehicle":false
 	};
 	toolsRequired = { //dict of task type to required tool
 			"sweep":"shovel",
