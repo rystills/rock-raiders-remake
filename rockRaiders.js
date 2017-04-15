@@ -1137,7 +1137,9 @@ function drawUI() {
 	if (powerPathSpaceTypes.indexOf(selectionString) != -1) {
 		selectionString = "power path";
 	}
-	GameManager.drawSurface.fillText("Selection Type: " + selectionString + (selectionType == null ? "" : (selection.length == 1 ? (selection[0].isBuilding == true ? " lvl " + selection[0].upgradeLevel : "") : (" x " + selection.length))),8,592); //to be replaced with classic green selection rectangle	
+	if (selectionType != null) {
+		GameManager.drawSurface.fillText("Selection Type: " + selectionString + (selection.length == 1 ? (selection[0].isBuilding == true ? " lvl " + selection[0].upgradeLevel : "") : (" x " + selection.length)),8,592); //to be replaced with classic green selection rectangle	
+	}
 	
 	//don't draw buttons when buildingPlacer is active
 	if (!buildingPlacer.visible) {
@@ -1671,7 +1673,7 @@ function initGlobals() {
 	nonPrimarySpaceTypes = ["power station topRight","geological center right","upgrade station right", 
 		"ore refinery right", "mining laser right", "super teleport topRight"];
 	
-	powerPathSpaceTypes = ["power path", "building power path", "power station powerPath"];
+	powerPathSpaceTypes = ["power path", "building power path", "power station powerPath", "mining laser right", "upgrade station right"];
 	
 	buildingPlacer = new BuildingPlacer();
 	selectionRectObject = new RygameObject(0,0,0,0,null,gameLayer);

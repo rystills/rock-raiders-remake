@@ -172,7 +172,7 @@ BuildingPlacer.prototype.updatePosition = function() {
 };
 
 BuildingPlacer.prototype.placeBuilding = function(space) {
-	if (this.buildingType == "power path" || this.buildingType == "building power path" || this.buildingType == "power station powerPath") {
+	if (powerPathSpaceTypes.indexOf(this.buildingType) != -1) {
 		space.setTypeProperties(this.buildingType,null,null,null,null,null,(this.dir*90 - 90 + (this.dir % 2 == 1 ? 180 : 0)) * (Math.PI / 180),this.parentBuilder == null ? null : this.parentBuilder.getCurrentSpace());
 	}
 	else {
