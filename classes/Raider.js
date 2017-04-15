@@ -104,7 +104,7 @@ Raider.prototype.setTask = function(taskIndex, path, initialObjective, keepTask)
 }
 
 //determine whether or not any of the space's contents can be performed
-Raider.prototype.canPerformTaskContains = function(task, ignoreContents) {
+Raider.prototype.canPerformTaskContains = function(task, ignoreAutomation, ignoreContents) {
 	if (ignoreContents || task.contains == null) {
 		return false;
 	}
@@ -112,46 +112,65 @@ Raider.prototype.canPerformTaskContains = function(task, ignoreContents) {
 		var newIndex = tasksAvailable.indexOf(task.contains.objectList[i]);
 		//make sure this task is available before proceeding
 		if (newIndex != -1) {
-			return this.canPerformTask(task.contains.objectList[i],true);
+			return this.canPerformTask(task.contains.objectList[i],false,true);
 		}
 	}
 }
 
 //determine whether or not any of the space's dummies can be performed
-Raider.prototype.canPerformTaskDummies = function(task, ignoreContents) {
+Raider.prototype.canPerformTaskDummies = function(task, ignoreAutomation, ignoreContents) {
 	if (ignoreContents || task.reinforceDummy == null) {
 		return false;
 	}
 	var newIndex = tasksAvailable.indexOf(task.reinforceDummy);
 	//make sure this task is available before proceeding
 	if (newIndex != -1) {
-		return this.canPerformTask(task.reinforceDummy,true);
+		return this.canPerformTask(task.reinforceDummy,false,true);
 	}
 }
 
+//check if we have the tool needed for this task, or if our vehicle has the tool needed
+Raider.prototype.haveTool = function(inTaskType) {
+	return ((toolsRequired[inTaskType] == undefined || this.tools.indexOf(toolsRequired[inTaskType]) != -1) ||
+			(this.vehicle != null && (inTaskType == "drill" ? this.vehicle.canDrill : (inTaskType == "sweep" && this.vehicle.canSweep))));
+}
+
 //determine whether or not the space or one of its contents is a task and the raider can perform it
-Raider.prototype.canPerformTask = function(task,ignoreContents) {
+Raider.prototype.canPerformTask = function(task,ignoreAutomation,ignoreContents) {
 	//ignoreContents ensures that this function does not try to recurse endlessly when checking children or dummy objects
-	//if the input task is not a valid task and none of its contents (if it is a space) are a task, return false
-	if (tasksAvailable.indexOf(task) == -1) {
-		//check if the task is a space and any of its contents are a task before returning false
-		return this.canPerformTaskContains(task,ignoreContents) || this.canPerformTaskDummies(task,ignoreContents);		
+	if (!ignoreAutomation) {
+		//if the input task is not a valid task and none of its contents (if it is a space) are a task, return false
+		if (tasksAvailable.indexOf(task) == -1) {
+			//check if the task is a space and any of its contents are a task before returning false
+			return this.canPerformTaskContains(task,ignoreAutomation,ignoreContents) || this.canPerformTaskDummies(task,ignoreAutomation,ignoreContents);		
+		}
+		
+		//if the input task is a task that cannot be automated, return false
+		if (!tasksAutomated[taskType(task)]) {
+			return this.canPerformTaskContains(task,ignoreAutomation,ignoreContents) || this.canPerformTaskDummies(task,ignoreAutomation, ignoreContents);
+		}
 	}
 	
-	//if the input task is a task that cannot be automated, return false
-	if (!tasksAutomated[taskType(task)]) {
-		return this.canPerformTaskContains(task,ignoreContents) || this.canPerformTaskDummies(task,ignoreContents);
-	}
 	//if the input task requires a tool that we don't have, return false
-	if (toolsRequired[taskType(task)] != undefined && this.tools.indexOf(toolsRequired[taskType(task)]) == -1)  {
-		return this.canPerformTaskContains(task,ignoreContents) || this.canPerformTaskDummies(task,ignoreContents);	
+	if (!this.haveTool(taskType(task))) {
+		return this.canPerformTaskContains(task,ignoreAutomation,ignoreContents) || this.canPerformTaskDummies(task,ignoreAutomation,ignoreContents);	
 	}
+	//if the task is of type 'drill' and we are in a vehicle, make sure the vehicle has a drill
+	if (taskType(task) == "drill" && !(this.vehicle == null || this.vehicle.canDrill)) {
+		return this.canPerformTaskContains(task,ignoreAutomation,ignoreContents) || this.canPerformTaskDummies(task,ignoreAutomation,ignoreContents);	
+	}
+	
+	//if the task is of type 'sweep' and we are in a vehicle, make sure the vehicle has a shovel
+	if (taskType(task) == "sweep" && !(this.vehicle == null || this.vehicle.canSweep)) {
+		return this.canPerformTaskContains(task,ignoreAutomation,ignoreContents) || this.canPerformTaskDummies(task,ignoreAutomation,ignoreContents);	
+	}
+	
 	//if the input task is a building site and we don't have a tool store that we can path to or don't have any of the required resources, return false
 	if (taskType(task) == "build") {
 		destinationSite = this.chooseClosestBuilding("tool store");
 		//if there's no path to a tool store to get a resource with which to build, move on to the next high priority task
 		if (destinationSite == null) {
-			return this.canPerformTaskContains(task,ignoreContents)|| this.canPerformTaskDummies(task,ignoreContents);
+			return this.canPerformTaskContains(task,ignoreAutomation,ignoreContents)|| this.canPerformTaskDummies(task,ignoreAutomation,ignoreContents);
 		}
 		//if there is no resource in the tool store that is needed by the building site, return false
 		var dedicatedResourceTypes = Object.getOwnPropertyNames(task.dedicatedResources);
@@ -224,7 +243,7 @@ Raider.prototype.checkSetTask = function(i,mustBeHighPriority,calculatedPath) {
 		//this task is not a building site, check for required tools
 		else {
 			//check if the task requires a tool and we have it
-			if (toolsRequired[taskType(tasksAvailable[i])] == undefined || this.tools.indexOf(toolsRequired[taskType(tasksAvailable[i])]) != -1)  {
+			if (this.haveTool(taskType(tasksAvailable[i]))) {
 				this.setTask(i,newPath);
 				return true;
 			}
@@ -413,7 +432,7 @@ Raider.prototype.workOnCurrentTask = function() {
 			}
 		}
 		if (this.vehicle != null) {
-			speedModifier *= this.vehicle.speedModifier;
+			speedModifier = this.vehicle.speedModifier;
 		}
 		this.distanceTraveled *= speedModifier;
 		//if there's currently a path, move towards the next position, and potentially choose a closer equivalent resource as the current task

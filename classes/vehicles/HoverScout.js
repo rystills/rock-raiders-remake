@@ -7,4 +7,6 @@ function HoverScout(space, driver) {
 	this.drillSpeedModifier = 2;
 	this.hardRockDrillSpeed = .1;
 	this.type = "hover scout";
+	this.canDrill = false;
+	this.canSweep = false;
 }

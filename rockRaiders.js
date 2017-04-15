@@ -731,53 +731,55 @@ function checkAssignSelectionTask() {
 					}
 				}
 				//treat any other commands as walk commands if the raider does not have the necessary tool
-				else if (toolsRequired[selectedTaskType] != undefined && selection[i].tools.indexOf(toolsRequired[selectedTaskType]) == -1) {
+				else if (!selection[i].haveTool(selectedTaskType)) {
 					selectedTaskType = "walk";
 				}
-				if (selection[i].currentTask != null && (selection[i].holding == null || selectedTaskType == "build" || selectedTaskType == "walk")) { //if current raider is already performing a task and not holding anything, stop him before assigning the new task
-					stopMinifig(selection[i]);
-				}
-				if (selection[i].currentTask == null && (selection[i].holding == null || selectedTaskType == "build" || selectedTaskType == "walk")) { //raiders are the only valid selection type for now; later on any Space (and maybe collectables as well?) or vehicle, etc.. will be a valid selection[i] as even though these things cannot be assigned tasks they can be added to the high priority task queue as well as create menu buttons
-					//selectedTask.taskPriority = 1;
-					if (toolsRequired[selectedTaskType] == undefined || selection[i].tools.indexOf(toolsRequired[selectedTaskType]) != -1) {
-						var index = tasksAvailable.indexOf(selectedTask);
-						if (index != -1) { //this check will be necessary in the event that we choose a task such as walking
-							taskWasAvailable = true;
-							tasksAvailable.splice(index,1);
-						} 
-						else {
-							if (selectedTaskType == "collect") {
-								break;
+				if (selection[i].canPerformTask(selectedTask,true)) {
+					if (selection[i].currentTask != null && (selection[i].holding == null || selectedTaskType == "build" || selectedTaskType == "walk")) { //if current raider is already performing a task and not holding anything, stop him before assigning the new task
+						stopMinifig(selection[i]);
+					}
+					if (selection[i].currentTask == null && (selection[i].holding == null || selectedTaskType == "build" || selectedTaskType == "walk")) { //raiders are the only valid selection type for now; later on any Space (and maybe collectables as well?) or vehicle, etc.. will be a valid selection[i] as even though these things cannot be assigned tasks they can be added to the high priority task queue as well as create menu buttons
+						//selectedTask.taskPriority = 1;
+						if (selection[i].haveTool(selectedTaskType)) {
+							var index = tasksAvailable.indexOf(selectedTask);
+							if (index != -1) { //this check will be necessary in the event that we choose a task such as walking
+								taskWasAvailable = true;
+								tasksAvailable.splice(index,1);
+							} 
+							else {
+								if (selectedTaskType == "collect") {
+									break;
+								}
 							}
-						}
-						selection[i].currentTask = selectedTask;
-						selection[i].currentObjective = selectedTask;
-						
-						//TODO: cleanup the code at the top of the Raider class which deals with choosing a task, stick it in a method, and reuse it here for simplicity
-						selection[i].currentPath = findClosestStartPath(selection[i],calculatePath(terrain,selection[i].space,typeof selectedTask.space == "undefined" ? selectedTask: selectedTask.space,true));
-						var foundCloserResource = selection[i].checkChooseCloserEquivalentResource(false);
-						
-						//don't assign the task if a valid path to the task cannot be found for the raider
-						if (selection[i].currentPath == null) {
-							selection[i].currentTask = null;
-							selection[i].currentObjective = null;
-						}
-						
-						else {
-							if (!foundCloserResource) { //don't add this resource to tasksInProgress if we chose a closer resource instead
-								assignedAtLeastOnce = true;
+							selection[i].currentTask = selectedTask;
+							selection[i].currentObjective = selectedTask;
+							
+							//TODO: cleanup the code at the top of the Raider class which deals with choosing a task, stick it in a method, and reuse it here for simplicity
+							selection[i].currentPath = findClosestStartPath(selection[i],calculatePath(terrain,selection[i].space,typeof selectedTask.space == "undefined" ? selectedTask: selectedTask.space,true));
+							var foundCloserResource = selection[i].checkChooseCloserEquivalentResource(false);
+							
+							//don't assign the task if a valid path to the task cannot be found for the raider
+							if (selection[i].currentPath == null) {
+								selection[i].currentTask = null;
+								selection[i].currentObjective = null;
 							}
-							if (selectedTaskType == "walk") {
-								//set walkPosOffset to the difference from the selected space top-left corner to the walk position
-								selection[i].walkPosDummy.setCenterX(GameManager.mouseReleasedPosRight.x + gameLayer.cameraX);
-								selection[i].walkPosDummy.setCenterY(GameManager.mouseReleasedPosRight.y + gameLayer.cameraY);
-								selection[i].currentTask = selection[i].walkPosDummy;
-								selection[i].currentObjective = selection[i].walkPosDummy;
-								console.log(selection[i].currentTask.centerX() + ", " + selection[i].currentTask.centerY());
-							}
-							else if (selectedTaskType == "build") {
-								selectedTask.dedicatedResources[selection[i].holding.type]++;
-								this.dedicatingResource = true;								
+							
+							else {
+								if (!foundCloserResource) { //don't add this resource to tasksInProgress if we chose a closer resource instead
+									assignedAtLeastOnce = true;
+								}
+								if (selectedTaskType == "walk") {
+									//set walkPosOffset to the difference from the selected space top-left corner to the walk position
+									selection[i].walkPosDummy.setCenterX(GameManager.mouseReleasedPosRight.x + gameLayer.cameraX);
+									selection[i].walkPosDummy.setCenterY(GameManager.mouseReleasedPosRight.y + gameLayer.cameraY);
+									selection[i].currentTask = selection[i].walkPosDummy;
+									selection[i].currentObjective = selection[i].walkPosDummy;
+									console.log(selection[i].currentTask.centerX() + ", " + selection[i].currentTask.centerY());
+								}
+								else if (selectedTaskType == "build") {
+									selectedTask.dedicatedResources[selection[i].holding.type]++;
+									this.dedicatingResource = true;								
+								}
 							}
 						}
 					}
