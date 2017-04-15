@@ -782,7 +782,8 @@ function unloadMinifig() {
 			continue;
 		}
 		//create a new collectable of the same type, and place it on the ground. then, delete the currently held collectable.
-		var newCollectable = new Collectable(getNearestSpace(terrain,selection[i]),selection[i].holding.type);
+		var newCollectable = (selection[i].holding.type == "dynamite" ? new Dynamite(getNearestSpace(terrain,selection[i])) :
+			new Collectable(getNearestSpace(terrain,selection[i]),selection[i].holding.type));
 		collectables.push(newCollectable);
 		tasksAvailable.push(newCollectable);
 		newCollectable.setCenterX(selection[i].holding.centerX());

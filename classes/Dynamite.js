@@ -1,4 +1,4 @@
-makeChild("Dynamite","RygameObject");
+makeChild("Dynamite","Collectable");
 Dynamite.prototype.ignite = function(targetSpace) {
 	this.target = targetSpace;
 	this.ignited = true;
