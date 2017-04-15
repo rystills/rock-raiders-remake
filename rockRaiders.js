@@ -466,9 +466,14 @@ function taskType(task,raider) { //optional raider flag allows us to determine w
 	if (typeof task.dynamitable != "undefined" && task.dynamitable == true) {
 		return "dynamite";
 	}
-	if (typeof task.space != "undefined") {
+	if (typeof task.space != "undefined" && task instanceof Collectable) {
 		return "collect";
 	}
+	
+	if (typeof task.space != "undefined" && task instanceof Vehicle) {
+		return "vehicle";
+	}
+	
 	if (typeof task.isBuilding != "undefined" && task.isBuilding == true && task.type == "tool store") {
 		return (raider != null && raider.getToolName != null) ? "get tool" : "upgrade";
 	}
@@ -501,7 +506,10 @@ function createVehicle(vehicleType) {
 	if (toolStore == null) {
 		return;
 	}
-	vehicles.push(new HoverScout(toolStore.powerPathSpace));
+	
+	var newVehicle = new HoverScout(toolStore.powerPathSpace)
+	vehicles.push(newVehicle);
+	tasksAvailable.push(newVehicle);
 }
 
 //cancel current selection, setting selection to empty list and selectionType to null, and closing any open menus
@@ -663,23 +671,36 @@ function checkAssignSelectionTask() {
 	if (GameManager.mouseReleasedRight && selection.length != 0 && selectionType == "raider") {
 		 //TODO: THIS IS A BIG CHUNK OF REPEAT CODE FROM THE LEFTCLICK TASK DETECTION, THIS DESERVES ITS OWN METHOD FOR SURE
 		var clickedTasks = [];
-		for (var p = 0; p < terrain.length; p++) {
-			for (var r = 0; r < terrain[p].length; r++) {
-				var initialSpace = terrain[p][r];
-				for (var j = 0; j < terrain[p][r].contains.objectList.length + 1; j++) {
-					if (collisionPoint(GameManager.mouseReleasedPosRight.x,GameManager.mouseReleasedPosRight.y,initialSpace,initialSpace.affectedByCamera) && ((tasksAvailable.indexOf(initialSpace) != -1) || initialSpace.walkable || (tasksInProgress.objectList.indexOf(initialSpace) != -1))) { //don't do anything if the task is already taken by another raider, we don't want to readd it to the task queue
-						if ((j == 0 && (initialSpace.drillable || initialSpace.sweepable || initialSpace.buildable || initialSpace.walkable)) || j > 0) { //could optimize by only continuing if j == 1 and initialSpace.walkable == true but won't for now as unwalkable spaces shouldnt have any items in contains anyway
-							clickedTasks.push(initialSpace);
-							if (debug) {
-								console.log("TERRAIN OL LENGTH + 1: " + (terrain[p][r].contains.objectList.length + 1));
+		//first check if we clicked a vehicle that is neither being driver already nor has a raider en route
+		for (var i = 0; i < vehicles.objectList.length; ++i) {
+			if (collisionPoint(GameManager.mouseReleasedPosRight.x,GameManager.mouseReleasedPosRight.y,vehicles.objectList[i],vehicles.objectList[i].affectedByCamera) 
+					&& ((tasksAvailable.indexOf(vehicles.objectList[i]) != -1) && tasksInProgress.objectList.indexOf(vehicles.objectList[i]) == -1)) { 
+				clickedTasks.push(vehicles.objectList[i]);
+			}
+		}
+		
+		//if no vehicles clicked, check spaces and their contains
+		if (clickedTasks.length == 0) {
+			for (var p = 0; p < terrain.length; p++) {
+				for (var r = 0; r < terrain[p].length; r++) {
+					var initialSpace = terrain[p][r];
+					for (var j = 0; j < terrain[p][r].contains.objectList.length + 1; j++) {
+						if (collisionPoint(GameManager.mouseReleasedPosRight.x,GameManager.mouseReleasedPosRight.y,initialSpace,initialSpace.affectedByCamera) && 
+								((tasksAvailable.indexOf(initialSpace) != -1) || initialSpace.walkable || (tasksInProgress.objectList.indexOf(initialSpace) != -1))) { //don't do anything if the task is already taken by another raider, we don't want to readd it to the task queue
+							if ((j == 0 && (initialSpace.drillable || initialSpace.sweepable || initialSpace.buildable || initialSpace.walkable)) || j > 0) { //could optimize by only continuing if j == 1 and initialSpace.walkable == true but won't for now as unwalkable spaces shouldnt have any items in contains anyway
+								clickedTasks.push(initialSpace);
+								if (debug) {
+									console.log("TERRAIN OL LENGTH + 1: " + (terrain[p][r].contains.objectList.length + 1));
+								}
 							}
 						}
+						//could optimize by breaking if theres no collision on the square itself rather than checking contains as well, but won't for now as if a contains is on the edge of a space this will cause it to become unclickable except when clicking on the space as well
+						initialSpace = terrain[p][r].contains.objectList[j]; //TODO: RENAME INITIALSPACE NOW THAT IT IS USED FOR COLLECTABLES TOO
 					}
-					//could optimize by breaking if theres no collision on the square itself rather than checking contains as well, but won't for now as if a contains is on the edge of a space this will cause it to become unclickable except when clicking on the space as well
-					initialSpace = terrain[p][r].contains.objectList[j]; //TODO: RENAME INITIALSPACE NOW THAT IT IS USED FOR COLLECTABLES TOO
 				}
 			}
 		}
+		
 		if (clickedTasks.length > 0) {
 			var lowestDrawDepthValue = clickedTasks[0].drawDepth;
 			var lowestDrawDepthId = 0;
