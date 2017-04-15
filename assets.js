@@ -56,6 +56,7 @@ object = {
           
           //vehicle images
           ["img", "images\\vehicles", "hover scout 1 (1).png"], //hover scout
+          ["img", "images\\vehicles", "small digger 1 (1).png"], //small digger
           
           //other holdable objects
           ["img", "images\\objects", "dynamite 1 (1).png"], //dynamite
@@ -137,6 +138,7 @@ object = {
           ["img", "images\\buttons", "open large vehicle menu button 1 (1).png"], //button to open up the large vehicle menu
           ["img", "images\\buttons", "open small vehicle menu button 1 (1).png"], //button to open up the small vehicle menu
           ["img", "images\\buttons", "use dynamite 1 (1).png"], //button to instruct a raider to blow up a wall using dynamite
+          ["img", "images\\buttons", "exit vehicle 1 (1).png"], //button to instruct a raider to exit the current vehicle
           
           //grab item buttons
           ["img", "images\\buttons", "getTool.png"], //button to open the 'get tool' raider submenu

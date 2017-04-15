@@ -135,6 +135,14 @@ Raider.prototype.haveTool = function(inTaskType) {
 			(this.vehicle != null && (inTaskType == "drill" ? this.vehicle.canDrill : (inTaskType == "sweep" && this.vehicle.canSweep))));
 }
 
+//exit vehicle, if in one
+Raider.prototype.exitVehicle = function() {
+	if (this.vehicle != null) {
+		tasksAvailable.push(this.vehicle);
+		this.vehicle = null;
+	}
+}
+
 //determine whether or not the space or one of its contents is a task and the raider can perform it
 Raider.prototype.canPerformTask = function(task,ignoreAutomation,ignoreContents) {
 	//ignoreContents ensures that this function does not try to recurse endlessly when checking children or dummy objects

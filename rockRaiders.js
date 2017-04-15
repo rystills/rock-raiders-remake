@@ -507,7 +507,7 @@ function createVehicle(vehicleType) {
 		return;
 	}
 	
-	var newVehicle = new HoverScout(toolStore.powerPathSpace)
+	var newVehicle = (vehicleType == "hover scout" ? new HoverScout(toolStore.powerPathSpace) : new SmallDigger(toolStore.powerPathSpace));
 	vehicles.push(newVehicle);
 	tasksAvailable.push(newVehicle);
 }
@@ -774,7 +774,6 @@ function checkAssignSelectionTask() {
 									selection[i].walkPosDummy.setCenterY(GameManager.mouseReleasedPosRight.y + gameLayer.cameraY);
 									selection[i].currentTask = selection[i].walkPosDummy;
 									selection[i].currentObjective = selection[i].walkPosDummy;
-									console.log(selection[i].currentTask.centerX() + ", " + selection[i].currentTask.centerY());
 								}
 								else if (selectedTaskType == "build") {
 									selectedTask.dedicatedResources[selection[i].holding.type]++;
@@ -1382,6 +1381,15 @@ function openVehicleMenu() {
 	}
 }
 
+//exit current vehicle, if in one
+function exitVehicle() {
+	if (selectionType == "raider") {
+		for (var i = 0; i < selection.length; ++i) {
+			selection[i].exitVehicle();
+		}
+	}
+}
+
 //toggle tool menu open or closed
 function openToolMenu() {
 	if (selectionType == "raider") {
@@ -1479,12 +1487,14 @@ function createButtons() {
 	
 	//vehicle menu open buttons
 	buttons.push(new Button(46,40,0,0,"make hoverboard.png",gameLayer,"", createVehicle,false,false,null,["vehicle"],["hover scout"],true,true,null,buildRequirementsMet,["hover scout"]));
+	buttons.push(new Button(46,80,0,0,"make SmallDigger.png",gameLayer,"", createVehicle,false,false,null,["vehicle"],["small digger"],true,true,null,buildRequirementsMet,["small digger"]));
 
 	//raider selected buttons
 	buttons.push(new Button(86,0,0,0,"unload minifig button 1 (1).png",gameLayer,"", unloadMinifig,false,false,["raider"]));
 	buttons.push(new Button(126,0,0,0,"stop minifig button 1 (1).png",gameLayer,"", stopMinifig,false,false,["raider"]));
 	buttons.push(new Button(166,0,0,0,"upgrade button 1 (1).png",gameLayer,"", upgradeRaider,false,false,["raider"]));
 	buttons.push(new Button(206,0,0,0,"getTool.png",gameLayer,"", openToolMenu,false,false,["raider"]));
+	buttons.push(new Button(246,0,0,0,"exit vehicle 1 (1).png",gameLayer,"", exitVehicle,false,false,["raider"]));
 	
 	//get tool buttons
 	buttons.push(new Button(206,40,0,0,"get_Drill.png",gameLayer,"", getTool,false,false,["raider"],["tool"],["drill"]));
