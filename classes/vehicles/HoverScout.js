@@ -6,4 +6,5 @@ function HoverScout(space, driver) {
 	this.capacity = 3;
 	this.drillSpeed = 4;
 	this.hardRockDrillSpeed = .1;
+	this.type = "hover scout";
 }

@@ -19,4 +19,5 @@ function Vehicle(image, space, driver,maxHp) {
 	this.canDrill = true;
 	this.canFly = false;
 	this.canSwim = false;
+	this.type = "vehicle";
 }

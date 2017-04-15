@@ -537,7 +537,7 @@ function checkUpdateClickSelection() {
 			}
 			if (vehicleSelected != null) {
 				selection = [vehicleSelected];
-				selectionType = "vehicle";
+				selectionType = selection[0].type;
 			}
 			else {	
 				//check if collectable clicked
