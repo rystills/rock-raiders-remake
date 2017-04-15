@@ -412,6 +412,9 @@ Raider.prototype.workOnCurrentTask = function() {
 				speedModifier = Math.min(this.space.speedModifier,this.currentPath[this.currentPath.length-1].speedModifier); //we are on both spaces; choose slowest speed
 			}
 		}
+		if (this.vehicle != null) {
+			speedModifier *= this.vehicle.speedModifier;
+		}
 		this.distanceTraveled *= speedModifier;
 		//if there's currently a path, move towards the next position, and potentially choose a closer equivalent resource as the current task
 		if (this.currentPath.length > 1) { 
@@ -637,7 +640,7 @@ Raider.prototype.workOnCurrentTask = function() {
 					}
 				}
 				else if (taskType == "drill") {
-					this.currentTask.updateDrillPercent(this.drillSpeed * this.currentTask.drillSpeedModifier, this);
+					this.currentTask.updateDrillPercent(this.drillSpeed * this.currentTask.drillSpeedModifier * (this.vehicle == null ? 1 : this.vehicle.drillSpeedModifier), this);
 					this.drillSound.play();
 					this.busy = true;
 					if (this.currentTask.drillPercent >= 100) {
@@ -665,7 +668,7 @@ Raider.prototype.workOnCurrentTask = function() {
 						if (reachedObjective == true) {
 							this.space = this.currentTask;
 						}
-						this.currentTask.updateSweepPercent(this.sweepSpeed, this);
+						this.currentTask.updateSweepPercent(this.sweepSpeed *  (this.vehicle == null ? 1 : this.vehicle.sweepSpeedModifier), this);
 						this.sweepSound.play();
 						this.busy = true;
 						if (this.currentTask.sweepPercent >= 100) {
