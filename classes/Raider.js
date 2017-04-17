@@ -758,6 +758,7 @@ Raider.prototype.workOnCurrentTask = function() {
 		this.vehicle.setCenterX(this.centerX());
 		this.vehicle.setCenterY(this.centerY());
 		this.vehicle.drawAngle = this.drawAngle;
+		this.vehicle.space = this.space;
 	}
 };
 	
