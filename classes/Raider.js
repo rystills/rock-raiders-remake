@@ -159,6 +159,11 @@ Raider.prototype.canPerformTask = function(task,ignoreAutomation,ignoreContents)
 		}
 	}
 	
+	//if theinput task is a vehicle, make sure we aren't already in one
+	if (taskType(task) == "vehicle" && this.vehicle != null) {
+		return this.canPerformTaskContains(task,ignoreAutomation,ignoreContents) || this.canPerformTaskDummies(task,ignoreAutomation,ignoreContents);	
+	}
+	
 	//if the input task requires a tool that we don't have, return false
 	if (!this.haveTool(taskType(task))) {
 		return this.canPerformTaskContains(task,ignoreAutomation,ignoreContents) || this.canPerformTaskDummies(task,ignoreAutomation,ignoreContents);	
