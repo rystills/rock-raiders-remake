@@ -146,6 +146,10 @@ Raider.prototype.exitVehicle = function() {
 //determine whether or not the space or one of its contents is a task and the raider can perform it
 Raider.prototype.canPerformTask = function(task,ignoreAutomation,ignoreContents) {
 	//ignoreContents ensures that this function does not try to recurse endlessly when checking children or dummy objects
+	//make sure the fact that we are in a vehicle won't stop us
+	if (this.vehicleInhibitsTask(taskType(task))) {
+		return false;
+	}
 	if (!ignoreAutomation) {
 		//if the input task is not a valid task and none of its contents (if it is a space) are a task, return false
 		if (tasksAvailable.indexOf(task) == -1) {
@@ -199,7 +203,25 @@ Raider.prototype.canPerformTask = function(task,ignoreAutomation,ignoreContents)
 	return true;
 }
 
-//attempt to set task index i, if it passes the checks
+//check whether or not  we are in a vehicle and that vehicle will stop us from performing this task type
+Raider.prototype.vehicleInhibitsTask = function(taskType) {
+	if (this.vehicle == null) {
+		return false;
+	}
+	if (taskType == "walk" || taskType == "collect" || taskType == "build") {
+		return false;
+	}
+	if (taskType == "sweep") {
+		return !this.vehicle.canSweep;
+	}
+	if (taskType == "drill") {
+		return !this.vehicle.canDrill;
+	}
+	return true;
+}
+
+//attempt to set task index i, if it passes the checks 
+//TODO: somewhat redundant with canPerformTask. Consider reducing equivalent logic
 Raider.prototype.checkSetTask = function(i,mustBeHighPriority,calculatedPath) {
 	//TODO: raiders will select the first high priority task this way, rather than the nearest one. Should be fixed when implementing automatic task priority order.
 	//if this task index is invalid, return now
@@ -215,6 +237,10 @@ Raider.prototype.checkSetTask = function(i,mustBeHighPriority,calculatedPath) {
 		}
 		//if there's no path to the task, move on to the next high priority task
 		if (newPath == null) {
+			return false;
+		}
+		//make sure the fact that we are in a vehicle won't stop us
+		if (this.vehicleInhibitsTask(taskType(tasksAvailable[i]))) {
 			return false;
 		}
 		//for building sites, we have to check for a pathable tool store and resources, otherwise we can't do anything

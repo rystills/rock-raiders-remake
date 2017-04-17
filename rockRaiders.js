@@ -928,6 +928,9 @@ function pathToClosestBuilding(raider, buildingType) {
 //set the active task for all raiders in current selection to move to the nearest tool store and start performing an upgrade
 function upgradeRaider() { //TODO: take the 'find path to toolstore' code from this and getTool, and give it its own method.
 	for (var i = 0; i < selection.length; i++) {
+		if (selection[i].vehicleInhibitsTask("get tool")) {
+			continue;
+		}
 		if (selection[i].upgradeLevel < 3) {
 			//these checks copied rfom checkAssignSelectionTask
 			if (selection[i].currentTask != null && selection[i].holding == null) { //if current raider is already performing a task and not holding anything, stop him before assigning the new task
@@ -949,6 +952,9 @@ function upgradeRaider() { //TODO: take the 'find path to toolstore' code from t
 //assign all raiders in selection to path to the nearest tool store and get the specified tool type, if they are not currently holding it
 function getTool(toolName) {
 	for (var i = 0; i < selection.length; i++) {
+		if (selection[i].vehicleInhibitsTask("get tool")) {
+			continue;
+		}
 		if (selection[i].tools.indexOf(toolName) == -1) { //&& selection[i].tools.length < selection[i].maxTools) {
 			//these checks copied rfom checkAssignSelectionTask
 			if (selection[i].currentTask != null && selection[i].holding == null) { //if current raider is already performing a task and not holding anything, stop him before assigning the new task
