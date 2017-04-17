@@ -612,12 +612,20 @@ function checkUpdateSelectionType() {
 	if (selection[0] instanceof Collectable || selection[0] instanceof Vehicle) {
 		tileSelectedGraphic.drawDepth = 5; //put tile selection graphic in front of collectable
 		GameManager.refreshObject(tileSelectedGraphic);
+		//manually update vehicle selection to raider riding it, if it has a driver
+		for (var i = 0; i < raiders.objectList.length; ++i) {
+			if (raiders.objectList[i].vehicle == selection[0]) {
+				selection[0] = raiders.objectList[i];
+				selectionType = "raider";
+			}
+		}
 	}
 	
 	//manually update non-primary building pieces to point to main building Space
 	if (selection[0] instanceof Space) {
 		if (nonPrimarySpaceTypes.indexOf(selection[0].type) != -1) {
 			selection[0] = selection[0].parentSpace;
+			selectionType = selection[0].type;
 		}
 	}
 }
@@ -747,6 +755,7 @@ function checkAssignSelectionTask() {
 								tasksAvailable.splice(index,1);
 							} 
 							else {
+								//these task types can only be assigned to a single raider from a selection group
 								if (selectedTaskType == "collect" || selectedTaskType == "vehicle") {
 									break;
 								}
