@@ -747,7 +747,7 @@ function checkAssignSelectionTask() {
 								tasksAvailable.splice(index,1);
 							} 
 							else {
-								if (selectedTaskType == "collect") {
+								if (selectedTaskType == "collect" || selectedTaskType == "vehicle") {
 									break;
 								}
 							}
@@ -1436,7 +1436,10 @@ function buildRequirementsMet(buildingType) {
 	
 	//vehicles
 	else if (buildingType == "hover scout") {
-		buildingRequirements = ["tool store"];
+		buildingRequirements = [];
+	}
+	else if (buildingType == "small digger") {
+		buildingRequirements = [];
 	}
 	
 	for (var i = 0; i < buildingRequirements.length; ++i) {
