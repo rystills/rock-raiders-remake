@@ -43,6 +43,16 @@ Space.prototype.checkRemoveDummyTasks = function() {
 
 //turn this space into rubble 1 (largest rubble level)
 Space.prototype.makeRubble = function(rubbleContainsOre,drilledBy,silent = false) {
+	//if we are a seam, generate all of the remaining ore/crystals now
+	if (this.type == "ore seam" || this.type == "energy crystal seam") {
+		for (var i = 20; i <= 80; i += 20) {
+			if (this.drillPercent < i) { //if we didnt drill this far yet, release another collectable
+				var newOre = new Collectable(this,this.type == "ore seam" ? "ore" : "crystal");
+				collectables.push(newOre);
+				tasksAvailable.push(newOre);
+			}
+		}
+	}
 	//kill dummies to stop any active tasks, since these can no longer be performed (if already dead, nothing will happen)
 	this.reinforceDummy.die();
 	this.dynamiteDummy.die();
