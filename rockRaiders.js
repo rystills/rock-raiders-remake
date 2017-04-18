@@ -136,6 +136,7 @@ function touchAllAdjacentSpaces(initialSpace) {
 		}
 		//}
 		
+		
 		var adjacentSpaces = [];
 		adjacentSpaces.push(adjacentSpace(terrain,initialSpace.listX,initialSpace.listY,"up"));
 		adjacentSpaces.push(adjacentSpace(terrain,initialSpace.listX,initialSpace.listY,"down"));
@@ -326,11 +327,13 @@ function loadLevelData(name) {
 	for (var i = 0; i < GameManager.scriptObjects[terrainMapName].level.length; i++) { 
 		terrain.push([]);
 		for (var r = 0; r < GameManager.scriptObjects[terrainMapName].level[i].length; r++) {
-			
+
 			if (GameManager.scriptObjects[pathMapName] && GameManager.scriptObjects[pathMapName].level[i][r] == 1) { //give the path map the highest priority, if it exists
+				//rubble 1 Space id = 100
 				terrain[i].push(new Space(100,i,r,GameManager.scriptObjects[surfaceMapName].level[i][r]));	
 			}
 			else if (GameManager.scriptObjects[pathMapName] && GameManager.scriptObjects[pathMapName].level[i][r] == 2) {
+				//building power path Space id = -1
 				terrain[i].push(new Space(-1,i,r,GameManager.scriptObjects[surfaceMapName].level[i][r]));	
 			}
 			else {
@@ -416,6 +419,8 @@ function loadLevelData(name) {
 	    else if (olObject.type == "Toolstation") {
 	    	var currentSpace = terrain[parseInt(olObject.yPos,10)][parseInt(olObject.xPos,10)];
 	    	currentSpace.setTypeProperties("tool store");
+	    	//check if this space was in a wall, but should now be touched
+	    	checkRevealSpace(currentSpace);
 	    	var powerPathSpace = null;
 	    	var headingDir = Math.round(olObject.heading); //don't do an int conversion here as we need this to be exactly one of 4 values
 	    	if (headingDir == 0) {
@@ -438,8 +443,26 @@ function loadLevelData(name) {
 	    		currentSpace.drawAngle = currentSpace.headingAngle;
 	    	}
 	    	currentSpace.powerPathSpace = powerPathSpace;
+	    	//check if this space was in a wall, but should now be touched
+	    	checkRevealSpace(currentSpace.powerPathSpace);
 	    	currentSpace.powerPathSpace.setTypeProperties("building power path");
 	    }
+	}
+}
+
+//check if this space is surrounded on any side by a touched space; if so, touch this space 
+//this function should only be used when overriding spaces in OL portion of level load procedure
+function checkRevealSpace(initialSpace) {
+	var adjacentSpaces = [];
+	adjacentSpaces.push(adjacentSpace(terrain,initialSpace.listX,initialSpace.listY,"up"));
+	adjacentSpaces.push(adjacentSpace(terrain,initialSpace.listX,initialSpace.listY,"down"));
+	adjacentSpaces.push(adjacentSpace(terrain,initialSpace.listX,initialSpace.listY,"left"));
+	adjacentSpaces.push(adjacentSpace(terrain,initialSpace.listX,initialSpace.listY,"right"));
+	for (var i = 0; i < adjacentSpaces.length; ++i) {
+		if (adjacentSpaces[i].touched) {
+			touchAllAdjacentSpaces(initialSpace);
+			return;
+		}
 	}
 }
 
@@ -1176,7 +1199,7 @@ function drawUI() {
 		selectionString = "power path";
 	}
 	if (selectionType != null) {
-		GameManager.drawSurface.fillText("Selection Type: " + selectionString + (selection.length == 1 ? (selection[0].isBuilding == true ? " lvl " + selection[0].upgradeLevel : "") : (" x " + selection.length)),8,592); //to be replaced with classic green selection rectangle	
+		GameManager.drawSurface.fillText("Selection Type: " + selectionString + (selection.length == 1 ? (selection[0].isBuilding == true && selection[0].touched == true ? " lvl " + selection[0].upgradeLevel : "") : (" x " + selection.length)),8,592); //to be replaced with classic green selection rectangle	
 	}
 	
 	//don't draw buttons when buildingPlacer is active
