@@ -765,7 +765,8 @@ function checkAssignSelectionTask() {
 				else if (!selection[i].haveTool(selectedTaskType)) {
 					selectedTaskType = "walk";
 				}
-				if (selection[i].canPerformTask(selectedTask,true)) {
+				//if we changed the taskType to 'walk' override this canPerformTask check since raiders can always walk
+				if (selection[i].canPerformTask(selectedTask,true) || selectedTaskType == "walk") {
 					if (selection[i].currentTask != null && (selection[i].holding == null || selectedTaskType == "build" || selectedTaskType == "walk")) { //if current raider is already performing a task and not holding anything, stop him before assigning the new task
 						stopMinifig(selection[i]);
 					}
