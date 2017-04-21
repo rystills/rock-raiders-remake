@@ -252,6 +252,7 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 	this.drillSpeedModifier = 1;
 	this.walkable = false;
 	this.drillable = false;
+	this.drillHardable = false;
 	this.explodable = false;
 	this.sweepable = false;
 	this.buildable = false;
@@ -286,6 +287,7 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 		this.image = "hard rock 1 (1).png";
 		this.isWall = true;
 		this.explodable = true;
+		this.drillHardable = true;
 	}
 	else if (type == "dirt") {
 		this.image = "dirt 1 (1).png";
@@ -463,6 +465,10 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 		this.dedicatedResources = dedicatedResources;
 		this.requiredResources = requiredResources;
 		this.placedResources = placedResources;
+	}
+	if (this.drillable) {
+		this.explodable = true;
+		this.drillHardable = true;
 	}
 	if ((maskUntouchedSpaces == false || this.touched == true) && doNotChangeImage != true) { //need the check for drawSurface as the first time this method is run the RygameObject constructor has not yet been called
 		this.changeImage(this.image);

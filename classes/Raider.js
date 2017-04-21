@@ -132,7 +132,8 @@ Raider.prototype.canPerformTaskDummies = function(task, ignoreAutomation, ignore
 //check if we have the tool needed for this task, or if our vehicle has the tool needed
 Raider.prototype.haveTool = function(inTaskType) {
 	return ((toolsRequired[inTaskType] == undefined || this.tools.indexOf(toolsRequired[inTaskType]) != -1) ||
-			(this.vehicle != null && (inTaskType == "drill" ? this.vehicle.canDrill : (inTaskType == "sweep" && this.vehicle.canSweep))));
+			(this.vehicle != null && (inTaskType == "drill" ? this.vehicle.canDrill : (inTaskType == "sweep" ? this.vehicle.canSweep : (
+					inTaskType == "drill hard" && this.vehicle.canDrillHard)))));
 }
 
 //exit vehicle, if in one

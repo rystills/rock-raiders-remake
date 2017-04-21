@@ -18,6 +18,7 @@ function Vehicle(image, space, driver,maxHp) {
 	this.sweepSpeedModifier = 2;
 	this.hardRockDrillSpeed = 1;
 	this.canDrill = true;
+	this.canDrillHard = true;
 	this.canSweep = true;
 	this.canFly = false;
 	this.canSwim = false;

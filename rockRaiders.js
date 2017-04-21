@@ -114,7 +114,7 @@ function adjacentSpace(terrain,x,y,dir) {
 function touchAllAdjacentSpaces(initialSpace) {
 	if (!initialSpace.touched) {
 		if (initialSpace.isBuilding == false && (!(initialSpace.walkable || initialSpace.type == "water" || initialSpace.type == "lava"))) {
-			if (initialSpace.drillable || initialSpace.explodable) {
+			if (initialSpace.drillable || initialSpace.drillHardable || initialSpace.explodable) {
 				//initialSpace.touched = true;
 				tasksAvailable.push(initialSpace);
 			}
@@ -474,6 +474,9 @@ function taskType(task,raider) { //optional raider flag allows us to determine w
 	if (typeof task.drillable != "undefined" && task.drillable == true) {
 		return "drill";
 	}
+	if (typeof task.drillHardable != "undefined" && task.drillHardable == true) {
+		return "drill hard";
+	}
 	if (typeof task.sweepable != "undefined" && task.sweepable == true) {
 		return "sweep";
 	}
@@ -827,7 +830,7 @@ function checkAssignSelectionTask() {
 	}
 }
 
-//release any help objects from all raiders in selection.
+//release any held objects from all raiders in selection
 function unloadMinifig() {
 	if (selection.length == 0) {
 		return;
@@ -1736,6 +1739,7 @@ function initGlobals() {
 			"sweep":true,
 			"collect":true,
 			"drill":false,
+			"drill hard":false,
 			"reinforce":false,
 			"build":true,
 			"walk":true,
@@ -1745,6 +1749,7 @@ function initGlobals() {
 	toolsRequired = { //dict of task type to required tool
 			"sweep":"shovel",
 			"drill":"drill",
+			"drill hard":"big drill",
 			"reinforce":"hammer"
 	};
 	nonPrimarySpaceTypes = ["power station topRight","geological center right","upgrade station right", 
