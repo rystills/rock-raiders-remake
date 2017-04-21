@@ -721,7 +721,7 @@ function checkAssignSelectionTask() {
 					for (var j = 0; j < terrain[p][r].contains.objectList.length + 1; j++) {
 						if (collisionPoint(GameManager.mouseReleasedPosRight.x,GameManager.mouseReleasedPosRight.y,initialSpace,initialSpace.affectedByCamera) && 
 								((tasksAvailable.indexOf(initialSpace) != -1) || initialSpace.walkable || (tasksInProgress.objectList.indexOf(initialSpace) != -1))) { //don't do anything if the task is already taken by another raider, we don't want to readd it to the task queue
-							if ((j == 0 && (initialSpace.drillable || initialSpace.sweepable || initialSpace.buildable || initialSpace.walkable)) || j > 0) { //could optimize by only continuing if j == 1 and initialSpace.walkable == true but won't for now as unwalkable spaces shouldnt have any items in contains anyway
+							if ((j == 0 && (initialSpace.drillable || initialSpace.drillHardable || initialSpace.sweepable || initialSpace.buildable || initialSpace.walkable)) || j > 0) { //could optimize by only continuing if j == 1 and initialSpace.walkable == true but won't for now as unwalkable spaces shouldnt have any items in contains anyway
 								clickedTasks.push(initialSpace);
 								if (debug) {
 									console.log("TERRAIN OL LENGTH + 1: " + (terrain[p][r].contains.objectList.length + 1));
@@ -768,6 +768,12 @@ function checkAssignSelectionTask() {
 				else if (!selection[i].haveTool(selectedTaskType)) {
 					selectedTaskType = "walk";
 				}
+				
+				//ignore a 'walk' command if the objective is not walkable
+				if (selectedTaskType == "walk" && (!selectedTask.walkable)) {
+					continue;
+				}
+				
 				//if we changed the taskType to 'walk' override this canPerformTask check since raiders can always walk
 				if (selection[i].canPerformTask(selectedTask,true) || selectedTaskType == "walk") {
 					if (selection[i].currentTask != null && (selection[i].holding == null || selectedTaskType == "build" || selectedTaskType == "walk")) { //if current raider is already performing a task and not holding anything, stop him before assigning the new task
@@ -1555,7 +1561,7 @@ function createButtons() {
 	buttons.push(new Button(86,0,0,0,"grab item button 1 (1).png",gameLayer,"", grabItem,false,false,["ore","crystal"]));
 
 	//drillable wall selected buttons
-	buttons.push(new Button(166,0,0,0,"drill wall button 1 (1).png",gameLayer,"", drillWall,false,false,["dirt", "loose rock", "ore seam", "energy crystal seam"]));
+	buttons.push(new Button(166,0,0,0,"drill wall button 1 (1).png",gameLayer,"", drillWall,false,false,["dirt", "loose rock", "ore seam", "energy crystal seam", "hard rock"]));
 	
 	//dynamitable wall selected buttons
 	buttons.push(new Button(126,0,0,0,"use dynamite 1 (1).png",gameLayer,"", dynamiteWall,false,false,["dirt", "loose rock", "hard rock", "ore seam", "energy crystal seam"]));

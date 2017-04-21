@@ -178,6 +178,11 @@ Raider.prototype.canPerformTask = function(task,ignoreAutomation,ignoreContents)
 		return this.canPerformTaskContains(task,ignoreAutomation,ignoreContents) || this.canPerformTaskDummies(task,ignoreAutomation,ignoreContents);	
 	}
 	
+	//if the task is of type 'drill hard' and we are in a vehicle, make sure the vehicle has a drill
+	if (taskType(task) == "drill hard" && !(this.vehicle == null || this.vehicle.canDrillHard)) {
+		return this.canPerformTaskContains(task,ignoreAutomation,ignoreContents) || this.canPerformTaskDummies(task,ignoreAutomation,ignoreContents);	
+	}
+	
 	//if the task is of type 'sweep' and we are in a vehicle, make sure the vehicle has a shovel
 	if (taskType(task) == "sweep" && !(this.vehicle == null || this.vehicle.canSweep)) {
 		return this.canPerformTaskContains(task,ignoreAutomation,ignoreContents) || this.canPerformTaskDummies(task,ignoreAutomation,ignoreContents);	
@@ -217,6 +222,9 @@ Raider.prototype.vehicleInhibitsTask = function(taskType) {
 	}
 	if (taskType == "drill") {
 		return !this.vehicle.canDrill;
+	}
+	if (taskType == "drill hard") {
+		return !this.vehicle.canDrillHard;
 	}
 	return true;
 }
