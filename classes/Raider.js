@@ -514,7 +514,7 @@ Raider.prototype.workOnCurrentTask = function() {
 			this.distanceTraveled = 0; //we are safe setting this to 0 in this case because we don't care how much farther we have to go to get to the objective, since we will stop for at least 1 frame once we reach it to pick it up
 			if (this.busy || collisionReached || collisionRect(this,this.currentObjective,true)) {
 				if (!this.busy) {
-					if ((taskType == "collect" && this.currentObjective.buildable != true) || taskType == "drill" || taskType == "reinforce" || taskType == "get tool") {
+					if ((taskType == "collect" && this.currentObjective.buildable != true) || taskType == "drill"  || taskType == "drill hard" || taskType == "reinforce" || taskType == "get tool") {
 						if (this.samePosition(this.x,this.y,this.xPrevious,this.yPrevious)) {
 							freezeAngle = true; //if we didnt move yet and are just moving to suddenly get out of a collision that is occurring we want to preserve our angle
 						}
@@ -706,8 +706,8 @@ Raider.prototype.workOnCurrentTask = function() {
 						//don't think terrain should be object groups instead of lists because spaces should never be being destroyed, but should still keep this under consideration
 					}
 				}
-				else if (taskType == "drill") {
-					this.currentTask.updateDrillPercent(this.drillSpeed * this.currentTask.drillSpeedModifier * (this.vehicle == null ? 1 : this.vehicle.drillSpeedModifier), this);
+				else if (taskType == "drill" || taskType == "drill hard") {
+					this.currentTask.updateDrillPercent(this.drillSpeed * this.currentTask.drillSpeedModifier * (this.vehicle == null ? 1 : (taskType == "drill" ? this.vehicle.drillSpeedModifier : this.vehicle.drillHardSpeedModifier)), this);
 					this.drillSound.play();
 					this.busy = true;
 					if (this.currentTask.drillPercent >= 100) {
