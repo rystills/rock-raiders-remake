@@ -548,13 +548,7 @@ Raider.prototype.workOnCurrentTask = function() {
 								this.busy = true;
 								if (this.currentObjective.grabPercent >= 100) {
 									this.currentObjective.grabPercent = 100;
-									this.busy = false;
-									this.holding = this.currentObjective;
-									this.holdingAngleDifference = this.currentObjective.drawAngle - this.drawAngle;
-									this.holding.x -= (this.x-this.xPrevious); //move the newly held object in the reverse direction to cancel out the holding movement since we just picked it up this frame
-									this.holding.y -= (this.y-this.yPrevious);
-									this.holding.space.contains.remove(this.holding);
-									this.updateCompletedBy();
+									this.setHolding(this.currentObjective);
 									this.currentObjective = this.currentTask;
 									this.currentPath = findClosestStartPath(this,calculatePath(terrain,this.space,this.currentObjective.space,true));
 								}
@@ -567,7 +561,6 @@ Raider.prototype.workOnCurrentTask = function() {
 							this.holding.grabPercent -= this.dropSpeed; //no need to have a separate variable for this, grabPercent works nicely
 							this.busy = true;
 							if (this.holding.grabPercent <= 0) {
-								this.busy = false;
 								this.holding.ignite(this.currentObjective.space);
 								this.clearTask();
 							}
@@ -601,14 +594,7 @@ Raider.prototype.workOnCurrentTask = function() {
 								this.busy = true;
 								if (this.currentObjective.grabPercent >= 100) {
 									this.currentObjective.grabPercent = 100;
-									
-									this.busy = false;
-									this.holding = this.currentObjective;
-									this.holdingAngleDifference = this.currentObjective.drawAngle - this.drawAngle;
-									this.holding.x -= (this.x-this.xPrevious); //move the newly held object in the reverse direction to cancel out the holding movement since we just picked it up this frame
-									this.holding.y -= (this.y-this.yPrevious);
-									this.holding.space.contains.remove(this.holding);
-									this.updateCompletedBy();
+									this.setHolding(this.currentObjective);
 									this.currentObjective = this.currentTask;
 									this.currentPath = findClosestStartPath(this,calculatePath(terrain,this.space,this.currentObjective,true));
 								}
@@ -625,7 +611,6 @@ Raider.prototype.workOnCurrentTask = function() {
 							this.busy = true;
 							if (this.holding.grabPercent <= 0) {
 								this.playDropSound();
-								this.busy = false;
 								if (this.currentObjective.type == "building site") {
 									this.currentObjective.updatePlacedResources(this.holding.type);	
 								}
@@ -668,13 +653,8 @@ Raider.prototype.workOnCurrentTask = function() {
 							this.busy = true;
 							if (this.currentTask.grabPercent >= 100) {
 								this.currentTask.grabPercent = 100;
-								this.holding = this.currentTask;
-								this.holdingAngleDifference = this.currentTask.drawAngle - this.drawAngle;
-								this.holding.x -= (this.x-this.xPrevious); //move the newly held object in the reverse direction to cancel out the holding movement since we just picked it up this frame
-								this.holding.y -= (this.y-this.yPrevious);
-								this.updateCompletedBy();
-								this.space = this.currentTask.space; //TODO: THIS IS LARGELY REPEAT CODE FROM EARLIER IN THIS METHOD. PUT THIS STUFF INTO ITS OWN SUB METHOD
-								this.holding.space.contains.remove(this.holding);
+								this.setHolding(this.currentTask);
+								this.space = this.currentTask.space;
 							}
 						}
 						if (this.currentTask.grabPercent >= 100) {
@@ -691,7 +671,6 @@ Raider.prototype.workOnCurrentTask = function() {
 							this.busy = true;
 							if (this.currentTask.grabPercent <= 0) {
 								this.playDropSound();
-								this.busy = false;
 								if (this.currentObjective.type == "building site") {
 									this.currentObjective.updatePlacedResources(this.holding.type);
 								}
@@ -712,7 +691,6 @@ Raider.prototype.workOnCurrentTask = function() {
 					this.busy = true;
 					if (this.currentTask.drillPercent >= 100) {
 						this.currentTask.drillPercent = 100;
-						this.busy = false;
 						this.currentTask.makeRubble(true,this);
 						this.updateCompletedBy();
 						this.clearTask();
@@ -724,7 +702,6 @@ Raider.prototype.workOnCurrentTask = function() {
 					this.busy = true;
 					if (this.currentTask.reinforcePercent >= 100) {
 						this.currentTask.reinforcePercent = 100;
-						this.busy = false;
 						this.currentTask.reinforce();
 						this.updateCompletedBy();
 						this.clearTask();
@@ -740,7 +717,6 @@ Raider.prototype.workOnCurrentTask = function() {
 						this.busy = true;
 						if (this.currentTask.sweepPercent >= 100) {
 							this.currentTask.sweepPercent = 100;
-							this.busy = false;
 							this.currentTask.sweep();
 							this.updateCompletedBy();
 							this.clearTask();							
@@ -770,6 +746,17 @@ Raider.prototype.workOnCurrentTask = function() {
 		this.vehicle.space = this.space;
 	}
 };
+
+//update held object to input task
+Raider.prototype.setHolding = function(task) {
+	this.busy = false;
+	this.holding = task;
+	this.holdingAngleDifference = this.holding.drawAngle - this.drawAngle;
+	this.holding.x -= (this.x-this.xPrevious); //move the newly held object in the reverse direction to cancel out the holding movement since we just picked it up this frame
+	this.holding.y -= (this.y-this.yPrevious);
+	this.updateCompletedBy();
+	this.holding.space.contains.remove(this.holding);
+}
 	
 //stop all sounds by pausing them and resetting their currentTime to 0
 Raider.prototype.stopSounds = function() {
