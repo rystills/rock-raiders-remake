@@ -533,7 +533,8 @@ function createVehicle(vehicleType) {
 		return;
 	}
 	
-	var newVehicle = (vehicleType == "hover scout" ? new HoverScout(toolStore.powerPathSpace) : new SmallDigger(toolStore.powerPathSpace));
+	var newVehicle = (vehicleType == "hover scout" ? new HoverScout(toolStore.powerPathSpace) : 
+		(vehicleType == "small digger" ? new SmallDigger(toolStore.powerPathSpace) : new SmallTransportTruck(toolStore.powerPathSpace)));
 	vehicles.push(newVehicle);
 	tasksAvailable.push(newVehicle);
 }
@@ -1539,7 +1540,8 @@ function createButtons() {
 	//vehicle menu open buttons
 	buttons.push(new Button(46,40,0,0,"make hoverboard.png",gameLayer,"", createVehicle,false,false,null,["vehicle"],["hover scout"],true,true,null,buildRequirementsMet,["hover scout"]));
 	buttons.push(new Button(46,80,0,0,"make SmallDigger.png",gameLayer,"", createVehicle,false,false,null,["vehicle"],["small digger"],true,true,null,buildRequirementsMet,["small digger"]));
-
+	buttons.push(new Button(46,120,0,0,"make SmallTruck.png",gameLayer,"", createVehicle,false,false,null,["vehicle"],["small transport truck"],true,true,null,buildRequirementsMet,["small transport truck"]));
+	
 	//raider selected buttons
 	buttons.push(new Button(86,0,0,0,"unload minifig button 1 (1).png",gameLayer,"", unloadMinifig,false,false,["raider"]));
 	buttons.push(new Button(126,0,0,0,"stop minifig button 1 (1).png",gameLayer,"", stopMinifig,false,false,["raider"]));

@@ -57,6 +57,7 @@ object = {
           //vehicle images
           ["img", "images\\vehicles", "hover scout 1 (1).png"], //hover scout
           ["img", "images\\vehicles", "small digger 1 (1).png"], //small digger
+          ["img", "images\\vehicles", "small transport truck 1 (1).png"], //small transport truck
           
           //other holdable objects
           ["img", "images\\objects", "dynamite 1 (1).png"], //dynamite
@@ -219,6 +220,7 @@ object = {
           ["js", "classes\\vehicles", "Vehicle.js"], //Vehicle base class
           ["js", "classes\\vehicles", "HoverScout.js"], //hover scout class
           ["js", "classes\\vehicles", "SmallDigger.js"], //small digger class
+          ["js", "classes\\vehicles", "SmallTransportTruck.js"], //small transport truck class
           
           //level data list files
           ["js", "levels", "levelList.js"], //list of names of playable levels, to be used by the main menu for level selection
