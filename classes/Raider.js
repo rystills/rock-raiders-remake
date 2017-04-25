@@ -153,7 +153,7 @@ Raider.prototype.canPerformTask = function(task,ignoreAutomation,ignoreContents)
 	//ignoreContents ensures that this function does not try to recurse endlessly when checking children or dummy objects
 	//make sure the fact that we are in a vehicle won't stop us
 	if (this.vehicleInhibitsTask(taskType(task))) {
-		return false;
+		return this.canPerformTaskContains(task,ignoreAutomation,ignoreContents) || this.canPerformTaskDummies(task,ignoreAutomation,ignoreContents);		
 	}
 	if (!ignoreAutomation) {
 		//if the input task is not a valid task and none of its contents (if it is a space) are a task, return false
@@ -168,7 +168,7 @@ Raider.prototype.canPerformTask = function(task,ignoreAutomation,ignoreContents)
 		}
 	}
 	
-	//if theinput task is a vehicle, make sure we aren't already in one
+	//if the input task is a vehicle, make sure we aren't already in one
 	if (taskType(task) == "vehicle" && this.vehicle != null) {
 		return this.canPerformTaskContains(task,ignoreAutomation,ignoreContents) || this.canPerformTaskDummies(task,ignoreAutomation,ignoreContents);	
 	}
@@ -181,7 +181,6 @@ Raider.prototype.canPerformTask = function(task,ignoreAutomation,ignoreContents)
 	if (taskType(task) == "drill" && !(this.vehicle == null || this.vehicle.canDrill)) {
 		return this.canPerformTaskContains(task,ignoreAutomation,ignoreContents) || this.canPerformTaskDummies(task,ignoreAutomation,ignoreContents);	
 	}
-	
 	//if the task is of type 'drill hard' and we are in a vehicle, make sure the vehicle has a drill
 	if (taskType(task) == "drill hard" && !(this.vehicle == null || this.vehicle.canDrillHard)) {
 		return this.canPerformTaskContains(task,ignoreAutomation,ignoreContents) || this.canPerformTaskDummies(task,ignoreAutomation,ignoreContents);	
@@ -208,7 +207,7 @@ Raider.prototype.canPerformTask = function(task,ignoreAutomation,ignoreContents)
 			}
 		}
 		//no resource in the tool store is required by this site
-		return false;
+		return this.canPerformTaskContains(task,ignoreAutomation,ignoreContents) || this.canPerformTaskDummies(task,ignoreAutomation,ignoreContents);		
 	}
 	return true;
 }
@@ -218,6 +217,7 @@ Raider.prototype.vehicleInhibitsTask = function(taskType) {
 	if (this.vehicle == null) {
 		return false;
 	}
+	//for now, all vehicles can collect and build
 	if (taskType == "walk" || taskType == "collect" || taskType == "build") {
 		return false;
 	}
