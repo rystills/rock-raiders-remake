@@ -808,8 +808,12 @@ function checkAssignSelectionTask() {
 							}
 							
 							else {
-								if (!foundCloserResource) { //don't add this resource to tasksInProgress if we chose a closer resource instead
-									assignedAtLeastOnce = true;
+								//don't add this resource to tasksInProgress if we chose a closer resource instead
+								if (!foundCloserResource) {
+									//don't remove the task from tasksAvailable if we decided to walk due to lack of necessary tools
+									if (selectedTaskType != "walk") {
+										assignedAtLeastOnce = true;
+									}
 								}
 								if (selectedTaskType == "walk") {
 									//set walkPosOffset to the difference from the selected space top-left corner to the walk position
