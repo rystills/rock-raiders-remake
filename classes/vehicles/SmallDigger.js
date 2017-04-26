@@ -8,5 +8,6 @@ function SmallDigger(space, driver) {
 	this.drillHardSpeedModifier = .1;
 	this.type = "small digger";
 	this.canDrill = true;
+	this.canDrillHard = true;
 	this.canSweep = false;
 }

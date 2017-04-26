@@ -641,7 +641,7 @@ function checkUpdateSelectionType() {
 		GameManager.refreshObject(tileSelectedGraphic);
 		//manually update vehicle selection to raider riding it, if it has a driver
 		for (var i = 0; i < raiders.objectList.length; ++i) {
-			if (raiders.objectList[i].vehicle == selection[0]) {
+			if (raiders.objectList[i].vehicle == selection[0] || raiders.objectList[i].holding == selection[0]) {
 				selection[0] = raiders.objectList[i];
 				selectionType = "raider";
 			}

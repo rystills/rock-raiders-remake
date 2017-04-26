@@ -8,5 +8,6 @@ function SmallTransportTruck(space, driver) {
 	this.drillHardSpeedModifier = .1;
 	this.type = "small transport truck";
 	this.canDrill = false;
+	this.canDrillHard = false;
 	this.canSweep = false;
 }
