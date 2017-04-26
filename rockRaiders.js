@@ -1064,7 +1064,10 @@ function stopMinifig(raider) {
 			continue;
 		}
 		if (stopGroup[i].holding == null) { //this should cover the "collect" taskType, as well as "build" and any other task type which involves a held object, as we don't want that object to be duplicated
-			tasksAvailable.push(stopGroup[i].currentTask);
+			//don't add walk dummies to tasksAvailable
+			if (stopGroup[i].currentTask != stopGroup[i].walkPosDummy) {
+				tasksAvailable.push(stopGroup[i].currentTask);
+			}
 		}
 		if (stopGroup[i].currentTask.grabPercent != null && stopGroup[i].currentTask.grabPercent < 100) { //still undecided as to whether or not this logic statement should be moved inside the above condition (stopGroup[i].holding == null)
 			stopGroup[i].currentTask.grabPercent = 0;
