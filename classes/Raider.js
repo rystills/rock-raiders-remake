@@ -36,7 +36,7 @@ Raider.prototype.chooseClosestBuilding = function(buildingType,resourceTypeNeede
 //check whether or not there is a closer resource of the same type on this path. If there is, modify the active task to point to that resource instead.
 Raider.prototype.checkChooseCloserEquivalentResource = function(removeCurrentTask) { //check if a closer equivalent resource is present; return true if switched tasks
 	var currentTaskType = this.getTaskType(this.currentTask); //TODO: consider using this function when getting resources from the toolstore as well
-	if (!(currentTaskType == "collect" && this.holding == null)) {
+	if (!(currentTaskType == "collect" && this.holding.length == 0)) {
 		return;
 	}
 	if (removeCurrentTask == null) {
@@ -409,7 +409,7 @@ Raider.prototype.update = function() {
 	
 	//attempt to choose a new task, if we are currently free
 	if (this.currentTask == null) {
-		if (this.holding != null) {
+		if (this.holding.length != 0) {
 			//if we are holding something, check for a building site. if there are none pathable, check for a toolstore
 			this.attemptSelectResourceLocation();
 		}
@@ -448,7 +448,7 @@ Raider.prototype.moveOnPath = function() {
 		this.distanceTraveled -= distanceToPoint;
 		this.space = this.currentPath.pop();
 		//if the final space is walkable we still check for closer resources as multiple resources may exist on a single walkable space. if the space is not walkable then there should only be able to be a single task on that space such as to drill that space
-		if (this.holding == null && (this.currentPath.length > 1 || (this.currentPath[0].walkable == true && this.currentPath[0].contains.objectList.length > 1))) {
+		if (this.holding.length == 0 && (this.currentPath.length > 1 || (this.currentPath[0].walkable == true && this.currentPath[0].contains.objectList.length > 1))) {
 			if (this.checkChooseCloserEquivalentResource()) {
 				this.choseCloserResource = true;
 			}
@@ -509,7 +509,7 @@ Raider.prototype.workOnCurrentTask = function() {
 						var heldObject = this.holding;
 						this.clearTask();
 						if (heldObject != null) {
-							this.holding = heldObject;
+							this.holding.push(heldObject);
 						}
 						break;
 					}
@@ -622,7 +622,7 @@ Raider.prototype.workOnCurrentTask = function() {
 									collectedResources[this.holding.type]++;
 								}
 								this.dedicatingResource = false;
-								this.holding.die();
+								this.holding[0].die();
 								this.clearTask();
 							}
 						}
@@ -652,7 +652,7 @@ Raider.prototype.workOnCurrentTask = function() {
 				
 				else if (taskType == "collect") {
 					if (this.currentObjective == this.currentTask) {
-						if (this.holding == null) {
+						if (this.holding.length == 0) {
 							this.currentTask.grabPercent += this.grabSpeed;
 							this.busy = true;
 							if (this.currentTask.grabPercent >= 100) {
@@ -682,7 +682,7 @@ Raider.prototype.workOnCurrentTask = function() {
 									collectedResources[this.holding.type]++;
 								}
 								this.dedicatingResource = false;
-								this.holding.die();
+								this.holding[0].die();
 								this.clearTask();
 							}
 						}
@@ -737,7 +737,7 @@ Raider.prototype.workOnCurrentTask = function() {
 		this.drawAngle = getAngle(this.xPrevious,this.yPrevious,this.x,this.y,true);
 	}
 	
-	if (this.holding != null) { //if holding an object, move it relative to our movement after we have moved
+	if (this.holding.length != 0) { //if holding an object, move it relative to our movement after we have moved
 		this.holding.x += (this.x-this.xPrevious);
 		this.holding.y += (this.y-this.yPrevious);
 		this.holding.rotateAroundPoint(this.centerX(),this.centerY(),this.drawAngle,this.holdingAngleDifference); //TODO: WHEN THE RAIDER FINISHES PICKING UP AN OBJECT THE OBJECT MOVES UP A PIXEL OR TWO ON THE 1ST FRAME. PROBABLY NOT A PROBLEM, BUT STILL CHECK THIS!
@@ -754,7 +754,7 @@ Raider.prototype.workOnCurrentTask = function() {
 //update held object to input task
 Raider.prototype.setHolding = function(task) {
 	this.busy = false;
-	this.holding = task;
+	this.holding.push(task);
 	this.holdingAngleDifference = this.holding.drawAngle - this.drawAngle;
 	this.holding.x -= (this.x-this.xPrevious); //move the newly held object in the reverse direction to cancel out the holding movement since we just picked it up this frame
 	this.holding.y -= (this.y-this.yPrevious);
@@ -783,7 +783,7 @@ Raider.prototype.clearTask = function() {
 	if (this.dedicatingResource == true) {
 		this.dedicatingResource = false;
 		var dedicatedResourceLocation = this.currentTask;
-		if (this.holding == null) { //TODO: JUST IMPLEMENTED THIS FIX; VERIFY THAT THIS FUNCTIONS CORRECTLY IN ALL CASES
+		if (this.holding.length == 0) { //TODO: JUST IMPLEMENTED THIS FIX; VERIFY THAT THIS FUNCTIONS CORRECTLY IN ALL CASES
 			this.currentTask.dedicatedResources[this.currentObjectiveResourceType]--; //the case inside this if statement should never be true, but is in place in case the dedicating system changes in the future to allow for dedicating before picking up a collectable
 		}
 		else {
@@ -798,7 +798,7 @@ Raider.prototype.clearTask = function() {
 	this.grabToolPercent = 0; 
 	this.getToolName = null;
 	this.busy = false;
-	this.holding = null;
+	this.holding = [];
 	//this.holdingAngleDifference = 0; we set this again later anyway; no need to reset it here, in case we are calling clearTask but do not actually want to lose currently held info
 	this.currentObjective = null;
 	this.currentTask = null;
@@ -886,7 +886,8 @@ function Raider(space) { //TODO: BUG WHERE SOMETIMES RAIDER STARTS IN THE RIGHT 
 	this.upgradeLevel = 0; //max tools held = 2 + upgradeLevel
 	this.currentTask = null; 
 	this.currentPath = null;
-	this.holding = null;
+	this.holding = [];
+	this.maxHolding = 1;
 	this.holdingAngleDifference = 0;
 	this.drawAngle = 0;
 	this.reservingResource = false; //set to true if a resource has been reserved from the toolstore by this raider in case his trip is cancelled for some reason

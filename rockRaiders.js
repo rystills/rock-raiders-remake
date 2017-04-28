@@ -641,7 +641,7 @@ function checkUpdateSelectionType() {
 		GameManager.refreshObject(tileSelectedGraphic);
 		//manually update vehicle selection to raider riding it, if it has a driver
 		for (var i = 0; i < raiders.objectList.length; ++i) {
-			if (raiders.objectList[i].vehicle == selection[0] || raiders.objectList[i].holding == selection[0]) {
+			if (raiders.objectList[i].vehicle == selection[0] || raiders.objectList[i].holding.indexOf(selection[0]) != -1) {
 				selection[0] = raiders.objectList[i];
 				selectionType = "raider";
 			}
@@ -761,8 +761,21 @@ function checkAssignSelectionTask() {
 				selectedTaskType = baseSelectedTask;
 				//treat build commands as walk unless the raider is holding something that the building site needs
 				if (selectedTaskType == "build") {
-					if (selection[i].holding == null || !selectedTask.resourceNeeded(selection[i].holding.type)) {
+					if (selection[i].holding.length == 0) {
 						selectedTaskType = "walk";
+					}
+					//check if any of the held resources is needed
+					else {
+						var foundNeeded = false;
+						for (var h = 0; h < selection[i].holding.length; ++h) {
+							if (selectedTask.resourceNeeded(selection[i].holding[h].type)) {
+								foundNeeded = true;
+								break;
+							}
+						}
+						if (!foundNeeded) {
+							selectedTaskType = "walk";
+						}
 					}
 				}
 				//treat any other commands as walk commands if the raider does not have the necessary tool
@@ -777,10 +790,10 @@ function checkAssignSelectionTask() {
 				
 				//if we changed the taskType to 'walk' override this canPerformTask check since raiders can always walk
 				if (selection[i].canPerformTask(selectedTask,true) || selectedTaskType == "walk") {
-					if (selection[i].currentTask != null && (selection[i].holding == null || selectedTaskType == "build" || selectedTaskType == "walk")) { //if current raider is already performing a task and not holding anything, stop him before assigning the new task
+					if (selection[i].currentTask != null && (selection[i].holding.length == 0 || selectedTaskType == "build" || selectedTaskType == "walk")) { //if current raider is already performing a task and not holding anything, stop him before assigning the new task
 						stopMinifig(selection[i]);
 					}
-					if (selection[i].currentTask == null && (selection[i].holding == null || selectedTaskType == "build" || selectedTaskType == "walk")) { //raiders are the only valid selection type for now; later on any Space (and maybe collectables as well?) or vehicle, etc.. will be a valid selection[i] as even though these things cannot be assigned tasks they can be added to the high priority task queue as well as create menu buttons
+					if (selection[i].currentTask == null && (selection[i].holding.length == 0 || selectedTaskType == "build" || selectedTaskType == "walk")) { //raiders are the only valid selection type for now; later on any Space (and maybe collectables as well?) or vehicle, etc.. will be a valid selection[i] as even though these things cannot be assigned tasks they can be added to the high priority task queue as well as create menu buttons
 						//selectedTask.taskPriority = 1;
 						if (selection[i].haveTool(selectedTaskType)) {
 							var index = tasksAvailable.indexOf(selectedTask);
@@ -823,8 +836,12 @@ function checkAssignSelectionTask() {
 									selection[i].currentObjective = selection[i].walkPosDummy;
 								}
 								else if (selectedTaskType == "build") {
-									selectedTask.dedicatedResources[selection[i].holding.type]++;
-									this.dedicatingResource = true;								
+									for (var h = 0; h < selection[i].holding.length; ++h) {
+										if (selectedTask.resourceNeeded(selection[i].holding[h].type)) {
+											selectedTask.dedicatedResources[selection[i].holding[h].type]++;
+											this.dedicatingResource = true;							
+										}
+									}
 								}
 							}
 						}
@@ -847,18 +864,21 @@ function unloadMinifig() {
 		return;
 	}
 	for (var i = 0; i < selection.length; i++) {
-		if ( selection[i].holding == null) {
+		if ( selection[i].holding.length == 0) {
 			continue;
 		}
-		//create a new collectable of the same type, and place it on the ground. then, delete the currently held collectable.
-		var newCollectable = (selection[i].holding.type == "dynamite" ? new Dynamite(getNearestSpace(terrain,selection[i])) :
-			new Collectable(getNearestSpace(terrain,selection[i]),selection[i].holding.type));
-		collectables.push(newCollectable);
-		tasksAvailable.push(newCollectable);
-		newCollectable.setCenterX(selection[i].holding.centerX());
-		newCollectable.setCenterY(selection[i].holding.centerY());
-		newCollectable.drawAngle = selection[i].holding.drawAngle;
-		selection[i].holding.die();
+		for (var h = 0; h < selection[i].holding.length; ++h) {
+			//create a new collectable of the same type, and place it on the ground. then, delete the currently held collectable.
+			var newCollectable = (selection[i].holding[0].type == "dynamite" ? new Dynamite(getNearestSpace(terrain,selection[i])) :
+				new Collectable(getNearestSpace(terrain,selection[i]),selection[i].holding[0].type));
+			collectables.push(newCollectable);
+			tasksAvailable.push(newCollectable);
+			newCollectable.setCenterX(selection[i].holding[0].centerX());
+			newCollectable.setCenterY(selection[i].holding[0].centerY());
+			newCollectable.drawAngle = selection[i].holding[0].drawAngle;
+			selection[i].holding[0].die();
+			selection[i].holding.shift();
+		}
 		selection[i].clearTask(); //modifications made to clearTask should now mean that if any resources were reserved from the resource collection or dedicated to a building site, the dedication numbers have been correctly decremented
 	}
 }
@@ -971,10 +991,10 @@ function upgradeRaider() { //TODO: take the 'find path to toolstore' code from t
 		}
 		if (selection[i].upgradeLevel < 3) {
 			//these checks copied rfom checkAssignSelectionTask
-			if (selection[i].currentTask != null && selection[i].holding == null) { //if current raider is already performing a task and not holding anything, stop him before assigning the new task
+			if (selection[i].currentTask != null && selection[i].holding.length == 0) { //if current raider is already performing a task and not holding anything, stop him before assigning the new task
 				stopMinifig(selection[i]);
 			}
-			if (selection[i].currentTask == null && selection[i].holding == null) { //raiders are the only valid selection type for now; later on any Space (and maybe collectables as well?) or vehicle, etc.. will be a valid selection[i] as even though these things cannot be assigned tasks they can be added to the high priority task queue as well as create menu buttons
+			if (selection[i].currentTask == null && selection[i].holding.length == 0) { //raiders are the only valid selection type for now; later on any Space (and maybe collectables as well?) or vehicle, etc.. will be a valid selection[i] as even though these things cannot be assigned tasks they can be added to the high priority task queue as well as create menu buttons
 				var newPath = pathToClosestBuilding(selection[i],"tool store");
 				if (newPath == null) {
 					continue; //no toolstore found or unable to path to any toolstores from this raider
@@ -995,10 +1015,10 @@ function getTool(toolName) {
 		}
 		if (selection[i].tools.indexOf(toolName) == -1) { //&& selection[i].tools.length < selection[i].maxTools) {
 			//these checks copied rfom checkAssignSelectionTask
-			if (selection[i].currentTask != null && selection[i].holding == null) { //if current raider is already performing a task and not holding anything, stop him before assigning the new task
+			if (selection[i].currentTask != null && selection[i].holding.length == 0) { //if current raider is already performing a task and not holding anything, stop him before assigning the new task
 				stopMinifig(selection[i]);
 			}
-			if (selection[i].currentTask == null && selection[i].holding == null) { //raiders are the only valid selection type for now; later on any Space (and maybe collectables as well?) or vehicle, etc.. will be a valid selection[i] as even though these things cannot be assigned tasks they can be added to the high priority task queue as well as create menu buttons
+			if (selection[i].currentTask == null && selection[i].holding.length == 0) { //raiders are the only valid selection type for now; later on any Space (and maybe collectables as well?) or vehicle, etc.. will be a valid selection[i] as even though these things cannot be assigned tasks they can be added to the high priority task queue as well as create menu buttons
 				var newPath = pathToClosestBuilding(selection[i],"tool store");
 				if (newPath == null) {			
 					continue;
@@ -1063,20 +1083,22 @@ function stopMinifig(raider) {
 		if (stopGroup[i].currentTask == null) {
 			continue;
 		}
-		if (stopGroup[i].holding == null) { //this should cover the "collect" taskType, as well as "build" and any other task type which involves a held object, as we don't want that object to be duplicated
+		if (stopGroup[i].holding.length == 0) { //this should cover the "collect" taskType, as well as "build" and any other task type which involves a held object, as we don't want that object to be duplicated
 			//don't add walk dummies to tasksAvailable
 			if (stopGroup[i].currentTask != stopGroup[i].walkPosDummy) {
 				tasksAvailable.push(stopGroup[i].currentTask);
 			}
 		}
-		if (stopGroup[i].currentTask.grabPercent != null && stopGroup[i].currentTask.grabPercent < 100) { //still undecided as to whether or not this logic statement should be moved inside the above condition (stopGroup[i].holding == null)
+		if (stopGroup[i].currentTask.grabPercent != null && stopGroup[i].currentTask.grabPercent < 100) { //still undecided as to whether or not this logic statement should be moved inside the above condition (stopGroup[i].holding.length == 0)
 			stopGroup[i].currentTask.grabPercent = 0;
 		}
 		var currentlyHeld = stopGroup[i].holding;
 		stopGroup[i].clearTask(); //modifications made to clearTask should now mean that if any resources were reserved from the resource collection or dedicated to a building site, the dedication numbers have been correctly decremented
-		stopGroup[i].holding = currentlyHeld; //won't have any effect if it was already null
-		if (stopGroup[i].holding != null) {
-			stopGroup[i].holding.grabPercent = 100; //if the raider was in the process of putting down a collectable but was interrupted, reset its grabPercent as it does't make sense for a collectable to be 'partially put down' after the raider is stopped			
+		stopGroup[i].holding.push(currentlyHeld); //won't have any effect if it was already null
+		if (stopGroup[i].holding.length != 0) {
+			for(var h = 0; h < stopGroup[i].holding.length; ++h) {
+				stopGroup[i].holding[h].grabPercent = 100; //if the raider was in the process of putting down a collectable but was interrupted, reset its grabPercent as it does't make sense for a collectable to be 'partially put down' after the raider is stopped			
+			}
 		}
 	}
 }
