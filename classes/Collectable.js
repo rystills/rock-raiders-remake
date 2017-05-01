@@ -16,4 +16,6 @@ function Collectable(space,type) {
 
 	this.setCenterX(this.space.centerX());
 	this.setCenterY(this.space.centerY());
+	
+	this.holdingAngleDifference = 0;
 }

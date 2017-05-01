@@ -339,12 +339,12 @@ Raider.prototype.checkChooseNewTask = function() {
 
 //find a building site or toolstore to bring the currently held resource to
 Raider.prototype.attemptSelectResourceLocation = function() {
-	destinationSite = this.chooseClosestBuilding("building site",this.holding.type);
+	destinationSite = this.chooseClosestBuilding("building site",this.holding[0].type);
 	if (destinationSite != null) {
 		this.currentObjective = destinationSite;
 		this.currentTask = this.holding;
 		//adjust dedicated resource number because we have elected to take our resource to this building site rather than to the tool store, but dont update building's list of secured resources until we actually get there and drop off the resource
-		destinationSite.dedicatedResources[this.holding.type]++;
+		destinationSite.dedicatedResources[this.holding[0].type]++;
 		this.dedicatingResource = true;
 	}
 	else {
@@ -562,10 +562,10 @@ Raider.prototype.workOnCurrentTask = function() {
 					//current objective == current task, meaning we have picked up the resource
 					else { //TODO: THIS IS ALL REPEAT CODE COPIED FROM THE "COLLECT" CASE; YOU NEED TO BREAK THIS CODE DOWN INTO SMALLER METHODS AND UTILIZE THEM!
 						if (this.busy == true || collisionReached == true) {
-							this.holding.grabPercent -= this.dropSpeed; //no need to have a separate variable for this, grabPercent works nicely
+							this.holding[0].grabPercent -= this.dropSpeed; //no need to have a separate variable for this, grabPercent works nicely
 							this.busy = true;
-							if (this.holding.grabPercent <= 0) {
-								this.holding.ignite(this.currentObjective.space);
+							if (this.holding[0].grabPercent <= 0) {
+								this.holding[0].ignite(this.currentObjective.space);
 								this.clearTask();
 							}
 						}
@@ -611,15 +611,15 @@ Raider.prototype.workOnCurrentTask = function() {
 							if (reachedObjective == true) {
 								this.space = this.currentTask;
 							}
-							this.holding.grabPercent -= this.dropSpeed; //no need to have a separate variable for this, grabPercent works nicely
+							this.holding[0].grabPercent -= this.dropSpeed; //no need to have a separate variable for this, grabPercent works nicely
 							this.busy = true;
-							if (this.holding.grabPercent <= 0) {
+							if (this.holding[0].grabPercent <= 0) {
 								this.playDropSound();
 								if (this.currentObjective.type == "building site") {
-									this.currentObjective.updatePlacedResources(this.holding.type);	
+									this.currentObjective.updatePlacedResources(this.holding[0].type);	
 								}
 								else if (this.currentObjective.type == "tool store") { //because this is copied from the "collect" section and we are in the "build" section this condition is possibly unreachable
-									collectedResources[this.holding.type]++;
+									collectedResources[this.holding[0].type]++;
 								}
 								this.dedicatingResource = false;
 								this.holding[0].die();
@@ -676,10 +676,10 @@ Raider.prototype.workOnCurrentTask = function() {
 							if (this.currentTask.grabPercent <= 0) {
 								this.playDropSound();
 								if (this.currentObjective.type == "building site") {
-									this.currentObjective.updatePlacedResources(this.holding.type);
+									this.currentObjective.updatePlacedResources(this.holding[0].type);
 								}
 								else if (this.currentObjective.type == "tool store") {
-									collectedResources[this.holding.type]++;
+									collectedResources[this.holding[0].type]++;
 								}
 								this.dedicatingResource = false;
 								this.holding[0].die();
@@ -738,9 +738,13 @@ Raider.prototype.workOnCurrentTask = function() {
 	}
 	
 	if (this.holding.length != 0) { //if holding an object, move it relative to our movement after we have moved
-		this.holding.x += (this.x-this.xPrevious);
-		this.holding.y += (this.y-this.yPrevious);
-		this.holding.rotateAroundPoint(this.centerX(),this.centerY(),this.drawAngle,this.holdingAngleDifference); //TODO: WHEN THE RAIDER FINISHES PICKING UP AN OBJECT THE OBJECT MOVES UP A PIXEL OR TWO ON THE 1ST FRAME. PROBABLY NOT A PROBLEM, BUT STILL CHECK THIS!
+		console.log(this.holding[0]);
+		for (var h = 0; h < this.holding.length; ++h) {
+			this.holding[h].x += (this.x-this.xPrevious);
+			this.holding[h].y += (this.y-this.yPrevious);
+			this.holding[h].rotateAroundPoint(this.centerX(),this.centerY(),this.drawAngle,this.holding[h].holdingAngleDifference); //TODO: WHEN THE RAIDER FINISHES PICKING UP AN OBJECT THE OBJECT MOVES UP A PIXEL OR TWO ON THE 1ST FRAME. PROBABLY NOT A PROBLEM, BUT STILL CHECK THIS!
+		
+		}
 	}
 	
 	if (this.vehicle != null) {
@@ -755,11 +759,11 @@ Raider.prototype.workOnCurrentTask = function() {
 Raider.prototype.setHolding = function(task) {
 	this.busy = false;
 	this.holding.push(task);
-	this.holdingAngleDifference = this.holding.drawAngle - this.drawAngle;
-	this.holding.x -= (this.x-this.xPrevious); //move the newly held object in the reverse direction to cancel out the holding movement since we just picked it up this frame
-	this.holding.y -= (this.y-this.yPrevious);
+	task.holdingAngleDifference = task.drawAngle - this.drawAngle;
+	task.x -= (this.x-this.xPrevious); //move the newly held object in the reverse direction to cancel out the holding movement since we just picked it up this frame
+	task.y -= (this.y-this.yPrevious);
 	this.updateCompletedBy();
-	this.holding.space.contains.remove(this.holding);
+	task.space.contains.remove(this.holding);
 }
 	
 //stop all sounds by pausing them and resetting their currentTime to 0
@@ -799,7 +803,6 @@ Raider.prototype.clearTask = function() {
 	this.getToolName = null;
 	this.busy = false;
 	this.holding = [];
-	//this.holdingAngleDifference = 0; we set this again later anyway; no need to reset it here, in case we are calling clearTask but do not actually want to lose currently held info
 	this.currentObjective = null;
 	this.currentTask = null;
 	this.currentObjectiveResourceType = null;
@@ -888,10 +891,9 @@ function Raider(space) { //TODO: BUG WHERE SOMETIMES RAIDER STARTS IN THE RIGHT 
 	this.currentPath = null;
 	this.holding = [];
 	this.maxHolding = 1;
-	this.holdingAngleDifference = 0;
 	this.drawAngle = 0;
-	this.reservingResource = false; //set to true if a resource has been reserved from the toolstore by this raider in case his trip is cancelled for some reason
-	this.dedicatingResource = false;
+	this.reservingResource = []; //set to true if a resource has been reserved from the toolstore by this raider in case his trip is cancelled for some reason
+	this.dedicatingResource = [];
 	this.getToolName = null; //name of tool that we are in the process of grabbing
 	this.walkPosDummy = new RygameObject(0,0,-99999,0,null,this.drawLayer,true,false,true); //dummy storing the walkPos
 	this.walkPosDummy.walkable = true; //workaround so the engine treats this dummy as a walkable space when determining what type of task it is
