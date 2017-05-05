@@ -1094,7 +1094,9 @@ function stopMinifig(raider) {
 		}
 		var currentlyHeld = stopGroup[i].holding;
 		stopGroup[i].clearTask(); //modifications made to clearTask should now mean that if any resources were reserved from the resource collection or dedicated to a building site, the dedication numbers have been correctly decremented
-		stopGroup[i].holding.push(currentlyHeld); //won't have any effect if it was already null
+		for (var h = 0; h < currentlyHeld.length; ++h) {
+			stopGroup[i].holding.push(currentlyHeld[h]);
+		}
 		if (stopGroup[i].holding.length != 0) {
 			for(var h = 0; h < stopGroup[i].holding.length; ++h) {
 				stopGroup[i].holding[h].grabPercent = 100; //if the raider was in the process of putting down a collectable but was interrupted, reset its grabPercent as it does't make sense for a collectable to be 'partially put down' after the raider is stopped			

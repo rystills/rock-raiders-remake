@@ -508,8 +508,8 @@ Raider.prototype.workOnCurrentTask = function() {
 						//make sure we don't drop what we're holding
 						var heldObject = this.holding;
 						this.clearTask();
-						if (heldObject != null) {
-							this.holding.push(heldObject);
+						for (var h = 0; h < heldObject.length; ++h) {
+							this.holding.push(heldObject[h]);
 						}
 						break;
 					}
@@ -777,7 +777,6 @@ Raider.prototype.stopSounds = function() {
 //clear current task, resetting all task related state variables (including this.holding), and updating space to the nearest terrain space
 Raider.prototype.clearTask = function() {
 	this.stopSounds();
-	
 	if (this.reservingResource == true) {
 		this.reservingResource = false;
 		if (this.currentObjectiveResourceType != "dynamite") {
