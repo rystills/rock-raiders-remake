@@ -722,7 +722,9 @@ function checkAssignSelectionTask() {
 					for (var j = 0; j < terrain[p][r].contains.objectList.length + 1; j++) {
 						if (collisionPoint(GameManager.mouseReleasedPosRight.x,GameManager.mouseReleasedPosRight.y,initialSpace,initialSpace.affectedByCamera) && 
 								((tasksAvailable.indexOf(initialSpace) != -1) || initialSpace.walkable || (tasksInProgress.objectList.indexOf(initialSpace) != -1))) { //don't do anything if the task is already taken by another raider, we don't want to readd it to the task queue
+							console.log("A");
 							if ((j == 0 && (initialSpace.drillable || initialSpace.drillHardable || initialSpace.sweepable || initialSpace.buildable || initialSpace.walkable)) || j > 0) { //could optimize by only continuing if j == 1 and initialSpace.walkable == true but won't for now as unwalkable spaces shouldnt have any items in contains anyway
+								console.log("B");
 								clickedTasks.push(initialSpace);
 								if (debug) {
 									console.log("TERRAIN OL LENGTH + 1: " + (terrain[p][r].contains.objectList.length + 1));
@@ -788,6 +790,7 @@ function checkAssignSelectionTask() {
 					continue;
 				}
 				
+				console.log("can we perform? : "  +selection[i].canPerformTask(selectedTask,true));
 				//if we changed the taskType to 'walk' override this canPerformTask check since raiders can always walk
 				if (selection[i].canPerformTask(selectedTask,true) || selectedTaskType == "walk") {
 					if (selection[i].currentTask != null && (selection[i].holding.length == 0 || selectedTaskType == "build" || selectedTaskType == "walk")) { //if current raider is already performing a task and not holding anything, stop him before assigning the new task

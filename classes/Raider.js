@@ -82,16 +82,21 @@ Raider.prototype.checkChooseCloserEquivalentResource = function(removeCurrentTas
 		tasksInProgress.push(this.currentTask);
 		this.currentPath = this.currentPath.splice(-1,1); //technically we no longer need the path at all, but without it the walk speed check will complain
 		this.currentObjective = this.currentTask;
+		//reset task priority once assigned
+		this.currentTask.taskPriority = 0;
 		return true;
 	}
 	return false;
 };
 
-//set current task, objective, and path, and remove from tasksAvailable
+//set current task, objective, and path, remove from tasksAvailable, and add to tasksInProgress
 Raider.prototype.setTask = function(taskIndex, path, initialObjective, keepTask) {
 	this.currentTask = tasksAvailable[taskIndex];
 	if (!keepTask) {
 		tasksAvailable.splice(taskIndex,1);	
+	}
+	if (tasksInProgress.objectList.indexOf(this.currentTask) == -1) {
+		tasksInProgress.push(this.currentTask);
 	}
 	if (initialObjective != null) {
 		this.currentObjective = initialObjective;
@@ -101,6 +106,8 @@ Raider.prototype.setTask = function(taskIndex, path, initialObjective, keepTask)
 		this.currentObjective = this.currentTask;
 		this.currentPath = path;
 	}
+	//reset task priority once assigned
+	this.currentTask.taskPriority = 0;
 }
 
 //determine whether or not any of the space's contents can be performed
@@ -534,7 +541,6 @@ Raider.prototype.workOnCurrentTask = function() {
 					this.drawAngle = this.vehicle.drawAngle;
 					freezeAngle = true;
 					this.clearTask();
-					console.log(this.vehicle);
 				}
 				
 				if (taskType == "dynamite") {
@@ -562,9 +568,7 @@ Raider.prototype.workOnCurrentTask = function() {
 					//current objective == current task, meaning we have picked up the resource
 					else { //TODO: THIS IS ALL REPEAT CODE COPIED FROM THE "COLLECT" CASE; YOU NEED TO BREAK THIS CODE DOWN INTO SMALLER METHODS AND UTILIZE THEM!
 						if (this.busy == true || collisionReached == true) {
-							console.log("before: " + this.holding[0].grabPercent);
 							this.holding[0].grabPercent -= this.dropSpeed; //no need to have a separate variable for this, grabPercent works nicely
-							console.log("after: " + this.holding[0].grabPercent);
 							this.busy = true;
 							if (this.holding[0].grabPercent <= 0) {
 								this.holding[0].ignite(this.currentObjective.space);
@@ -654,7 +658,6 @@ Raider.prototype.workOnCurrentTask = function() {
 				
 				else if (taskType == "collect") {
 					if (this.currentObjective == this.currentTask) {
-						console.log("A");
 						if (this.holding.length == 0) {
 							this.currentTask.grabPercent += this.grabSpeed;
 							this.busy = true;
@@ -665,20 +668,15 @@ Raider.prototype.workOnCurrentTask = function() {
 							}
 						}
 						if (this.currentTask.grabPercent >= 100) {
-							console.log("current objective before: " + this.currentObjective);
 							this.attemptSelectResourceLocation();
-							console.log("current objective after: " + this.currentObjective);
-							console.log("task type: " + this.getTaskType(this.currentTask));
 						}
 						
 					}
 					else {
-						console.log("B");
 						if (this.busy == true || reachedObjective == true || this.currentObjective.buildable != true) {
 							if (reachedObjective == true) {
 								this.space = this.currentTask;
 							}
-							console.log(this.currentTask);
 							this.currentTask.grabPercent -= this.dropSpeed; //no need to have a separate variable for this, grabPercent works nicely
 							this.busy = true;
 							if (this.currentTask.grabPercent <= 0) {
@@ -710,7 +708,6 @@ Raider.prototype.workOnCurrentTask = function() {
 				}
 				else if (taskType == "reinforce") {
 					this.currentTask.updateReinforcePercent(this.reinforceSpeed * this.currentTask.reinforceSpeedModifier, this);
-					console.log(this.currentTask.reinforcePercent);
 					this.busy = true;
 					if (this.currentTask.reinforcePercent >= 100) {
 						this.currentTask.reinforcePercent = 100;
