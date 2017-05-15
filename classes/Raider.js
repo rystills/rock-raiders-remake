@@ -837,10 +837,10 @@ Raider.prototype.samePosition = function(x1,y1,x2,y2) {
 
 //play a sound when dropping a resource (sound depends on whether the resource is ore or crystal)
 Raider.prototype.playDropSound = function() {
-	if (this.holding.type == "ore") {
+	if (this.holding[0].type == "ore") {
 		this.dropOreSound.play();
 	}
-	else if (this.holding.type == "crystal") {
+	else if (this.holding[0].type == "crystal") {
 		this.dropCrystalSound.play();
 	}
 };
