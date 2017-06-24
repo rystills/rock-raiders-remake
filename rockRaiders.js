@@ -548,7 +548,7 @@ function cancelSelection() {
 
 //attempt to update current selection in response to a left-click
 function checkUpdateClickSelection() {
-	if (GameManager.mouseReleasedLeft) { //ignore mouse clicks if they landed on a part of the UI
+	if (GameManager.mouseReleasedLeft && !mousePressIsSelection) { //ignore mouse clicks if they landed on a part of the UI
 		//check if raider clicked
 		var raiderSelected = null; //don't bother polling for more than one raider click since they are guaranteed to have the same drawDepth, meaning choosing one is arbitrary - might as well go with the first one found
 		for (var i = 0; i < raiders.objectList.length; i++) {
@@ -657,45 +657,56 @@ function checkUpdateSelectionType() {
 	}
 }
 
-//attempt to update current ctrl box selection. If ctrl is released, select all raiders within the box.
-function checkUpdateCtrlSelection() {
-	if (GameManager.keyStates[String.fromCharCode(17)] == true) { //if ctrl key is currently pressed
-		if (selectionRectCoords.x1 == null) {
-			selectionRectCoords.x1 = GameManager.mousePos.x;
-			selectionRectCoords.y1 = GameManager.mousePos.y;
+//attempt to update current mouse drag box selection. If mouse is released, select all raiders within the box.
+function checkUpdateMouseSelect() {
+	if (GameManager.mouseDownLeft) {
+		if (GameManager.mousePressedLeft) {
+			mousePressStartPos = GameManager.mousePos;
 		}
-		//determine top-left corner to draw rect
-		selectionRectPointList = [null,null,null,null]; //[xMin, yMin, xMax, yMax];
-		selectionRectCoordList = [selectionRectCoords.x1,selectionRectCoords.y1,GameManager.mousePos.x,GameManager.mousePos.y];
-		for (var i = 0; i < 4; i++) {
-			if (selectionRectPointList[i%2] == null || selectionRectCoordList[i] < selectionRectPointList[i%2]) {
-				selectionRectPointList[i%2] = selectionRectCoordList[i]; 
+		else if (!mousePressIsSelection) {
+			if (getDistance(mousePressStartPos.x,mousePressStartPos.y,GameManager.mousePos.x,GameManager.mousePos.y) > dragStartDistance) {
+				mousePressIsSelection = true;
+				selectionRectCoords.x1 = mousePressStartPos.x;
+				selectionRectCoords.y1 = mousePressStartPos.y;
 			}
-			if (selectionRectPointList[(i%2)+2] == null || selectionRectCoordList[i] > selectionRectPointList[(i%2)+2]) { 
-				selectionRectPointList[(i%2)+2] = selectionRectCoordList[i];
+		}
+		if (mousePressIsSelection) { //we are currently performing a drag select box
+			//determine top-left corner to draw rect
+			selectionRectPointList = [null,null,null,null]; //[xMin, yMin, xMax, yMax];
+			selectionRectCoordList = [selectionRectCoords.x1,selectionRectCoords.y1,GameManager.mousePos.x,GameManager.mousePos.y];
+			for (var i = 0; i < 4; i++) {
+				if (selectionRectPointList[i%2] == null || selectionRectCoordList[i] < selectionRectPointList[i%2]) {
+					selectionRectPointList[i%2] = selectionRectCoordList[i]; 
+				}
+				if (selectionRectPointList[(i%2)+2] == null || selectionRectCoordList[i] > selectionRectPointList[(i%2)+2]) { 
+					selectionRectPointList[(i%2)+2] = selectionRectCoordList[i];
+				}
 			}
 		}
 	}
 	else {
-		if (selectionRectCoords.x1 != null) {
-			selectionRectCoords.x1 = null;
-			selectionRectCoords.y1 = null;
-			selectionRectObject.rect.width = selectionRectPointList[2]-selectionRectPointList[0];
-			selectionRectObject.rect.height = selectionRectPointList[3]-selectionRectPointList[1];
-			selectionRectObject.x = selectionRectPointList[0] + selectionRectObject.drawLayer.cameraX;
-			selectionRectObject.y = selectionRectPointList[1] + selectionRectObject.drawLayer.cameraY;
-			//console.log("X: " + selectionRectObject.x + " Y: "  + selectionRectObject.y + " rectWidth: " + selectionRectObject.rect.width + " rectHeight: " + selectionRectObject.rect.height);
-			var collidingRaiders = [];
-			for (var i = 0; i < raiders.objectList.length; i++) {
-				if (collisionRect(selectionRectObject,raiders.objectList[i])) {
-					collidingRaiders.push(raiders.objectList[i]);
+		if (mousePressIsSelection) {
+			mousePressIsSelection = false;
+			if (selectionRectCoords.x1 != null) {
+				selectionRectCoords.x1 = null;
+				selectionRectCoords.y1 = null;
+				selectionRectObject.rect.width = selectionRectPointList[2]-selectionRectPointList[0];
+				selectionRectObject.rect.height = selectionRectPointList[3]-selectionRectPointList[1];
+				selectionRectObject.x = selectionRectPointList[0] + selectionRectObject.drawLayer.cameraX;
+				selectionRectObject.y = selectionRectPointList[1] + selectionRectObject.drawLayer.cameraY;
+				//console.log("X: " + selectionRectObject.x + " Y: "  + selectionRectObject.y + " rectWidth: " + selectionRectObject.rect.width + " rectHeight: " + selectionRectObject.rect.height);
+				var collidingRaiders = [];
+				for (var i = 0; i < raiders.objectList.length; i++) {
+					if (collisionRect(selectionRectObject,raiders.objectList[i])) {
+						collidingRaiders.push(raiders.objectList[i]);
+					}
 				}
-			}
-			//console.log(collidingRaiders.length);
-			if (collidingRaiders.length > 0) {
-				//set selection to all of the raiders contained within the selection Rect
-				selectionType = "raider";
-				selection = collidingRaiders;
+				//console.log(collidingRaiders.length);
+				if (collidingRaiders.length > 0) {
+					//set selection to all of the raiders contained within the selection Rect
+					selectionType = "raider";
+					selection = collidingRaiders;
+				}
 			}
 		}
 	}
@@ -1324,7 +1335,7 @@ function drawRaiderInfo() {
 	}
 }
 
-//draw active ctrl selection box
+//draw active selection box (meaning selection button is still held down)
 function drawSelectionBox() {
 	if (selectionRectCoords.x1 != null) {
 		GameManager.drawSurface.strokeStyle = "rgb(0,255,0)";
@@ -1716,6 +1727,8 @@ function resetLevelVars(name) {
 	reservedResources = {"ore":0,"crystal":0};
 	selectionRectCoords = {x1:null,y1:null};
 	selection = [];
+	mousePressStartPos = {x: 1, y: 1};
+	mousePressIsSelection = false;
 	openMenu = "";
 	lastLevelScore = 0;
 	selectionType = null;
@@ -1757,6 +1770,7 @@ function initGlobals() {
 	tileSize = 128;
 	scrollDistance = 10;
 	scrollSpeed = 20;
+	dragStartDistance = 10; //distance the mouse must be moved before a click turns into a drag selection box
 	maskUntouchedSpaces = getValue("fog") == "true" ? true : false; //if true, this creates the "fog of war" type effect where unrevealed Spaces appear as solid rock (should only be set to false for debugging purposes)
 	mousePanning = getValue("mousePanning") == "true" ? true : false; //can you scroll the screen using the mouse?
 	keyboardPanning = true; //can you scroll the screen using the arrow keys?
@@ -1946,7 +1960,7 @@ function update() {
 						checkUpdateClickSelection();
 						checkAssignSelectionTask();
 					}
-					checkUpdateCtrlSelection();
+					checkUpdateMouseSelect();
 					checkUpdateSelectionType();
 				}
 				//update objects
