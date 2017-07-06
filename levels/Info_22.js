@@ -1,4 +1,4 @@
 object = {
 		name : "Lake of Fire", //original twentysecond level name
-		objective : ["collect",["crystal",5]]
+		objective : ["collect",["crystal",40]]
 };

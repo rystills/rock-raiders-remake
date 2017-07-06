@@ -1,4 +1,4 @@
 object = {
 		name : "Erode Works", //original tenth level name
-		objective : ["collect",["crystal",5]]
+		objective : ["collect",["crystal",15]]
 };

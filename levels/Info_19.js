@@ -1,4 +1,4 @@
 object = {
 		name : "Fire 'n' Water", //original nineteenth level name
-		objective : ["collect",["crystal",5]]
+		objective : ["collect",["crystal",35]]
 };

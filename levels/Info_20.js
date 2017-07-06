@@ -1,4 +1,4 @@
 object = {
 		name : "Run The Gauntlet", //original twentieth level name
-		objective : ["collect",["crystal",5]]
+		objective : ["recover building",["tool store"]]
 };

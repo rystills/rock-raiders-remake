@@ -1,4 +1,4 @@
 object = {
 		name : "Frozen Frenzy", //original ninth level name
-		objective : ["collect",["crystal",5]]
+		objective : ["recover vehicle",["tunnel transport"]]
 };
