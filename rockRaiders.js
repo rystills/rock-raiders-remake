@@ -1838,9 +1838,18 @@ function getLevelScores() {
 
 //check if current level objective has been accomplished
 function checkAccomplishedObjective() {
+	won = false;
 	objective = GameManager.scriptObjects["Info_" + levelName + ".js"].objective;
 	if (objective[0] == "collect") {
 		won = (collectedResources[objective[1][0]] >= parseInt(objective[1][1]));
+	}
+	else if (objective[0] == "build") {
+		for (let i = 0; i < buildings.length; i++) {
+			if (buildings[i].type == objective[1][0]) {
+				won = true;
+				break;
+			}
+		}
 	}
 	
 	if (won) {
