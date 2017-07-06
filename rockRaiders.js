@@ -1121,34 +1121,57 @@ function stopMinifig(raider) {
 
 //level select screen can be scrolled vertically to navigate the various levels
 function checkScrollLevelSelect() {
-	if (mousePanning) {
+	let pannedKeyboard = false;
+	if (keyboardPanning) { //can you scroll using the arrow keys?
+		if (GameManager.keyStates[String.fromCharCode(38)]) {
+			pannedKeyboard = true;
+			levelSelectLayer.cameraY -= scrollSpeed;
+		}
+		else if (GameManager.keyStates[String.fromCharCode(40)]) {
+			pannedKeyboard = true;
+			levelSelectLayer.cameraY += scrollSpeed;
+		}
+	}	
+	if (mousePanning && !pannedKeyboard) { //can you scroll by moving your mouse to the edge of the screen?
 		if (GameManager.mousePos.y < scrollDistance) {
 			levelSelectLayer.cameraY -= scrollSpeed;
 		}
 		else if (GameManager.mousePos.y > GameManager.screenHeight - scrollDistance) {
 			levelSelectLayer.cameraY += scrollSpeed;
 		}
-	}
-	if (keyboardPanning) { //can you scroll using the arrow keys?
-		if (GameManager.keyStates[String.fromCharCode(38)]) {
-			levelSelectLayer.cameraY -= scrollSpeed;
-		}
-		else if (GameManager.keyStates[String.fromCharCode(40)]) {
-			levelSelectLayer.cameraY += scrollSpeed;
-		}
-	}
+	}	
+	
+	//keep level select camera in bounds
 	if (levelSelectLayer.cameraY < 0) {
 		levelSelectLayer.cameraY = 0;
 	}
 	else if (levelSelectLayer.cameraY > (3163 - GameManager.screenHeight)) { //level select image is 3163 pixels tall
 		levelSelectLayer.cameraY = 3163 - GameManager.screenHeight;
 	}
-	
 }
 
 //check whether the screen should scroll due to mouse position or arrow key input
 function checkScrollScreen() {
-	if (mousePanning) { //can you scroll by hovering the mouse at the corner of the screen?
+	let pannedKeyboard = false;
+	if (keyboardPanning) { //can you scroll using the arrow keys?
+		if (GameManager.keyStates[String.fromCharCode(37)]) {
+			pannedKeyboard = true;
+			gameLayer.cameraX -= scrollSpeed;
+		}
+		else if (GameManager.keyStates[String.fromCharCode(39)]) {
+			pannedKeyboard = true;
+			gameLayer.cameraX += scrollSpeed;
+		}
+		if (GameManager.keyStates[String.fromCharCode(38)]) {
+			pannedKeyboard = true;
+			gameLayer.cameraY -= scrollSpeed;
+		}
+		else if (GameManager.keyStates[String.fromCharCode(40)]) {
+			pannedKeyboard = true;
+			gameLayer.cameraY += scrollSpeed;
+		}
+	}
+	if (mousePanning && !pannedKeyboard) { //can you scroll by hovering the mouse at the corner of the screen?
 		if (GameManager.mousePos.x < scrollDistance) {
 			gameLayer.cameraX -= scrollSpeed;
 		}
@@ -1162,20 +1185,7 @@ function checkScrollScreen() {
 			gameLayer.cameraY += scrollSpeed;
 		}
 	}
-	if (keyboardPanning) { //can you scroll using the arrow keys?
-		if (GameManager.keyStates[String.fromCharCode(37)]) {
-			gameLayer.cameraX -= scrollSpeed;
-		}
-		else if (GameManager.keyStates[String.fromCharCode(39)]) {
-			gameLayer.cameraX += scrollSpeed;
-		}
-		if (GameManager.keyStates[String.fromCharCode(38)]) {
-			gameLayer.cameraY -= scrollSpeed;
-		}
-		else if (GameManager.keyStates[String.fromCharCode(40)]) {
-			gameLayer.cameraY += scrollSpeed;
-		}
-	}
+	
 	//keep camera in world bounds
 	if (gameLayer.cameraY < 0) {
 		gameLayer.cameraY = 0;
@@ -1654,7 +1664,7 @@ function createMenuButtons() {
 	yPos += 40;
 	menuButtons.push(new Button(xPos,yPos,0,0,null,menuLayer,"Debug Mode" + (debug ?  " ✓" : " X"),toggleDebugMode,false,true,null,null,[menuButtons.objectList.length],true,false,[0,220,245]));
 	yPos += 40;
-	menuButtons.push(new Button(xPos,yPos,0,0,null,menuLayer,"Enable Fog" + (maskUntouchedSpaces ?  " ✓" : " X"),toggleFog,false,true,null,null,[menuButtons.objectList.length],true,false,[0,220,245]));
+	menuButtons.push(new Button(xPos,yPos,0,0,null,menuLayer,"Hide Unrevealed Spaces" + (maskUntouchedSpaces ?  " ✓" : " X"),toggleFog,false,true,null,null,[menuButtons.objectList.length],true,false,[0,220,245]));
 }
 
 //switch to the level select layer
@@ -1686,7 +1696,7 @@ function toggleDebugMode(buttonIndex) {
 function toggleFog(buttonIndex) {
 	maskUntouchedSpaces = !maskUntouchedSpaces;
 	setValue("fog",maskUntouchedSpaces);
-	menuButtons.objectList[buttonIndex].updateText("Enable Fog" + (maskUntouchedSpaces ?  " ✓" : " X"));
+	menuButtons.objectList[buttonIndex].updateText("Hide Unrevealed Spaces" + (maskUntouchedSpaces ?  " ✓" : " X"));
 }
 
 //switch layers to the main menu, stopping all sounds and toggling all game-variables off
