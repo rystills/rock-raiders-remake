@@ -1,8 +1,7 @@
-//TODO ADD PROPER METHOD EXPLANATIONS IN PROPER FORMATTING
-
 /**
  * Full screen the game.
  * Snippet taken from StackOverflow.
+ * TODO: Currently operates differently between browsers. fullscreen behavior should be made browser independent if possible.
  */
 function goFullScreen() {
 	var canvas = GameManager.drawSurface.canvas;
@@ -61,14 +60,7 @@ function getMouseDocument(e) {
 	// We return a simple javascript object with x and y defined
 	return {x: mx, y: my};
 }
-/*function getMouseCanvas(canvas, evt) { //this method is deprecated now. Requires the mouse to be hovering over the canvas to work. Otherwise, use getMouseDocument and subtract canvas topLeft. 
-    var rect = canvas.getBoundingClientRect();
-    return {
-      x: evt.clientX - rect.left,
-      y: evt.clientY - rect.top
-    };
-  }
-*/
+
 /**
  * Helper function to determine whether there is an intersection between the two polygons described
  * by the lists of vertices. Uses the Separating Axis Theorem
@@ -124,7 +116,8 @@ function doPolygonsIntersect(a, b) {
 
             // if there is no overlap between the projects, the edge we are looking at separates the two
             // polygons, and we know there is no overlap
-            if (maxA <= minB || maxB <= minA) { //TODO: changed from < to <= so that bordering objects would not be considered colliding
+            //note: changed from < to <= so that bordering objects would not be considered colliding
+            if (maxA <= minB || maxB <= minA) {
                 //CONSOLE("polygons don't intersect!");
                 return false;
             }
@@ -133,10 +126,12 @@ function doPolygonsIntersect(a, b) {
     return true;
 }
 
-function pnpoly(nvert, pointList, testx, testy) { //TODO: DETERMINE IF FIRST VERTEX MUST BE REPEATED AT THE END
-  var c = false; //note that this method originally used a list of x coords and a list of y coords. changed to a single list of x,y coords to improve compatibility with the rest of the engine
-  for (var i = 0, j = nvert-1; i < nvert; j = i++) { //TODO: THIS METHOD HAS BEEN MODIFIED AS DESCRIBED ABOVE. VERIFY THAT IT STILL WORKS AS INTENDED
-    if ( ((pointList[i].y>testy) != (pointList[j].y>testy)) && (testx < (pointList[j].x-pointList[i].x) * (testy-pointList[i].y) / (pointList[j].y-pointList[i].y) + pointList[i].x) ) {
+//determine whether or not the point at (testX, testY) is contained in the polygon defined by pointList
+function pnpoly(nvert, pointList, testX, testY) {
+  var c = false;
+  for (var i = 0, j = nvert-1; i < nvert; j = i++) {
+    if ( ((pointList[i].y>testY) != (pointList[j].y>testY)) && (testX < (pointList[j].x-pointList[i].x) * 
+    		(testY-pointList[i].y) / (pointList[j].y-pointList[i].y) + pointList[i].x) ) {
        c = !c;
     }
   }
@@ -154,15 +149,16 @@ function loadImage(imageSrc) {
 	return image;
 }
 
-function binarySearch(a, x, key, leftMost, lo, hi) {
-	/*Return the index where to insert item x in list a, assuming a is sorted.
-	The return value i is such that all e in a[:i] have e <= x, and all e in
-	a[i:] have e > x.  So if x already appears in the list, a.insert(x) will
-	insert just after the rightmost x already there.
+/**
+ * Return the index where to insert item x in list a, assuming a is sorted.
+The return value i is such that all e in a[:i] have e <= x, and all e in
+a[i:] have e > x.  So if x already appears in the list, a.insert(x) will
+insert just after the rightmost x already there.
 
-	Optional args lo (default 0) and hi (default len(a)) bound the
-	slice of a to be searched.*/
-	if (lo == null) { //appears to be no way to create optional args in javsascript, so manually assign a default value if it comes in as null, meaning it wasn't passed into the function call
+Optional args lo (default 0) and hi (default len(a)) bound the
+slice of a to be searched.*/
+function binarySearch(a, x, key, leftMost, lo, hi) {
+	if (lo == null) {
 		lo = 0;
 	}
 	else if (lo < 0) {
@@ -176,7 +172,6 @@ function binarySearch(a, x, key, leftMost, lo, hi) {
 		hi = a.length;
 	}
 	if (key != null) {
-		//x = x.__getattribute__(key)
 		x = x[key]; 
 	}
 	if (leftMost) {
@@ -217,6 +212,14 @@ function binarySearch(a, x, key, leftMost, lo, hi) {
 	return lo;
 }
 
+
+/**
+ * creates a new context with the specified dimensions.
+ * @param width: the desired width of the new context
+ * @param height: the desired height of the new context
+ * @param is3d: whether the canvas is 3d (true) or 2d (false)
+ * @returns the newly created canvas
+ */
 function createContext(width, height,is3d) {
     var canvas = document.createElement("canvas");
     canvas.setAttribute('width', width);
@@ -227,17 +230,17 @@ function createContext(width, height,is3d) {
     return canvas.getContext('3d');
 }
 
-function rotateImage(image) {
-	//TODO
-}
-
+/**
+ * calculate the 4 points that define the input object's rotated rect
+ * @param object: the object whose rect we should calcualte the rotated bounding points of
+ * @param includeTouching: whether or not the points should be slightly extended to cover 'touching' but not overlapping objects
+ * @returns the ordered list of bounding points
+ */
 function calculateRectPoints(object,includeTouching) {
-	//var objects = [object1,object2];
 	var pointList = [{},{},{},{}];
-	//for (var objectNum = 0; objectNum < 2; objectNum++) {
 	var halfWidth = object.rect.width / 2;
 	var halfHeight = object.rect.height / 2;
-	if (includeTouching == true) { //&& objectNum == 0) {
+	if (includeTouching == true) {
 		halfWidth += 0.01;
 		halfHeight += 0.01;
 	}
@@ -247,24 +250,24 @@ function calculateRectPoints(object,includeTouching) {
 	var centerY = object.centerY();
 	for (var sign1 = -1; sign1 < 2; sign1+=2) {
 		for (var sign2 = -1; sign2 < 2; sign2+=2) {
-			//TODO: VERIFY THAT THIS CANNOT LOCKUP. IT SHOULDN'T, BUT A BUG EARLIER WHICH APPEARED TO HAVE BEEN CAUSED BY REPEATED METHOD CALLS AND NOT INVALID ARGUMENTS STILL LEFT ME A BIT UNEASY REGARDLESS
 			pointList[(sign1+1) + ((sign2+1)/2)].x = centerX + sign1*halfWidth * cos - sign2*halfHeight * sin;
 			pointList[(sign1+1) + ((sign2+1)/2)].y = centerY + sign1*halfWidth * sin + sign2*halfHeight * cos;
 		}
 	}
 	//swap indices 2 and 3 so that the points are ordered in a way that properly borders the object
 	pointList[2] = pointList.splice(3, 1, pointList[2])[0];
-	//}
 	return pointList;
 }
-function collisionRect(object1,object2,includeTouching) { //TODO THE FIRST PART OF WHAT WILL EVENTUALLY MAKEUP THE RYGAME COLLISION METHOD COLLECTION
-	//TODO DECIDE WHETHER THESE METHODS SHOULD BE BY THEMSELVES LIKE THIS ONE OR ENCAPSULATED INSIDE THE RECT CLASS OR SOME SORT OF COLLISION CLASS
-	//TODO DECIDE WHETHER RECTS EVEN NEED TO EXIST IF ALL THEY APPEAR TO HOLD (AT LEAST AT THE MOMENT) IS WIDTH/HEIGHT/OFFSET. THEYRE CONVENIENT AT LEAST IF JUST FOR THE PURPOSE OF ORGANIZATION
-	//object1; the primary collision object
-	//object2; the second collisino object
-	//object1.updateRect();
-	//object2.updateRect();
-	if (object1.drawAngle == 0 && object2.drawAngle == 0) { //TODO: OPTIMIZE TO USE THIS QUICKER CHECK WHEN DRAWANGLE IS ANY OF THE 4 CARDINAL DIRECTIONS
+
+/**
+ * determine whether or not the input objects' rects are colliding
+ * @param object1: the first input object
+ * @param object2: the second input object
+ * @param includeTouching: whether or not the rects should be considered colliding if they touch but do not overlap
+ * @returns whether or not the rects of objects 1 and 2 are colliding
+ */
+function collisionRect(object1,object2,includeTouching) {
+	if (object1.drawAngle == 0 && object2.drawAngle == 0) {
 		var objects = [object1,object2];
 		var objectCoordinates = [{},{}];
 		for (var i = 0; i < 2; i++) {
@@ -282,13 +285,10 @@ function collisionRect(object1,object2,includeTouching) { //TODO THE FIRST PART 
 		return !((objectCoordinates[0].left >= objectCoordinates[1].right)||(objectCoordinates[0].top >= objectCoordinates[1].bottom)||(objectCoordinates[0].right <= objectCoordinates[1].left)||(objectCoordinates[0].bottom <= objectCoordinates[1].top)); //TODO: changed from < and > to <= and >= so that bordering objects would not be considered colliding
 	}
 	else {
-		//since rotation is centered, we have to go from the center and move in the direction of drawAngle * width and the direction perpendicular to drawAngle * height to find corners
-		//TODO: OPTIMIZE THIS TO USE RECT COLLISIONS WHEN DRAWANGLE IS 90 OR 270 AS WELL, JUST WITH HEIGHT AND WIDTH SWITCHED
-		//TODO: OPTIMIZE THIS BY STORING THE CORNERS OF THE MOST RECENT ROTATED RECT RATHER THAN RECALCULATING THEM REPEATEDLY
-		//TODO: OPTIMIZE THIS BY CHANGING THE FUNCTION TO MAKE OPTIMIZATIONS BY ONLY WORKING FOR RECTANGLES RATHER THAN N SIDED POLYGONS
+		//since rotation is centered, we have to go from the center and move in the direction of drawAngle * width,
+		//and the direction perpendicular to drawAngle * height to find corners
 		pointList1 = calculateRectPoints(object1,includeTouching);
 		pointList2 = calculateRectPoints(object2,includeTouching);
-		//console.log(pointLists);
 		return doPolygonsIntersect(pointList1,pointList2);
 	}
 }
@@ -743,9 +743,12 @@ Button.prototype.updateText = function(newText,clearFirst) {
 			drawSurfaces[i].textBaseline="hanging";
 			drawSurfaces[i].font = "32px " + GameManager.fontName;
 			//todo: convert to HSV, adjust brightness, then convert back to RGB, rather than just statically shifting R,G,B channels
-			drawSurfaces[i].fillStyle = i == 0 ? "rgb(" + Math.round(Math.max(baseR - brightnessShiftPercent*.02*255,0)) + ","+ Math.round(Math.max(baseG - brightnessShiftPercent*.02*255,0)) + ","+ Math.round(Math.max(baseB - brightnessShiftPercent*.02*255,0)) + ")"
-			: (i == 1 ? "rgb(" + Math.round(Math.max(baseR - brightnessShiftPercent*.01*255,0)) + ","+ Math.round(Math.max(baseG - brightnessShiftPercent*.01*255,0)) + ","+ Math.round(Math.max(baseB - brightnessShiftPercent*.01*255,0)) + ")"
-			: ( i == 2 ? "rgb(" + baseR + "," + baseG + "," + baseB + ")" : "rgb(" + Math.round(Math.min(baseR + brightnessShiftPercent*.01*255,255)) + ","+ Math.round(Math.min(baseG + brightnessShiftPercent*.01*255,255)) + ","+ Math.round(Math.min(baseB + brightnessShiftPercent*.01*255,255)) + ")"));
+			drawSurfaces[i].fillStyle = i == 0 ? "rgb(" + Math.round(Math.max(baseR - brightnessShiftPercent*.02*255,0)) + ","+ 
+					Math.round(Math.max(baseG - brightnessShiftPercent*.02*255,0)) + ","+ Math.round(Math.max(baseB - brightnessShiftPercent*.02*255,0)) + ")"
+			: (i == 1 ? "rgb(" + Math.round(Math.max(baseR - brightnessShiftPercent*.01*255,0)) + ","+ Math.round(Math.max(baseG - brightnessShiftPercent*.01*255,0)) + ","+ 
+					Math.round(Math.max(baseB - brightnessShiftPercent*.01*255,0)) + ")"
+			: ( i == 2 ? "rgb(" + baseR + "," + baseG + "," + baseB + ")" : "rgb(" + Math.round(Math.min(baseR + brightnessShiftPercent*.01*255,255)) + ","+ 
+					Math.round(Math.min(baseG + brightnessShiftPercent*.01*255,255)) + ","+ Math.round(Math.min(baseB + brightnessShiftPercent*.01*255,255)) + ")"));
 			drawSurfaces[i].fillText(this.text,0,0);
 			//console.log(drawSurfaces[i].fillStyle);
 		}
@@ -777,14 +780,6 @@ function Button(x,y,updateDepth,drawDepth,image,layer,text,runMethod,affectedByC
 	this.updateText(text,false);
 }
 
-RygameObject.prototype.updatePosition = function(x, y) { //TODO we will keep this method for now but it should be made obslete in the long run as now that we havew complete control over collisions theres no need to update rect positions until a rygame collision function is called
-	//x: the new x position for the object
-	//y: the new y position for the object
-	//console.log("old x: " + this.x + " old y: " + this.y);
-	this.x = x;
-	this.y = y;
-	//console.log("new x: " + x + " new y: " + y);
-};
 RygameObject.prototype.renderGuiElements = function(destLayer) { //TODO FILL THIS IN WHEN GUI ELEMENTS ARE REIMPLEMENTED
 	
 };

@@ -11,11 +11,8 @@
 	
 	
 	<script type="text/javascript">
-	var runMode = "web";
-	if (document.URL.slice(0,5) == "file:") {
-		//comment out most of the document and replace it with offline content if running locally
-		runMode = "local";
-	}
+	//comment out most of the document and replace it with offline content if running locally
+	var runMode = document.URL.slice(0,5) == "file:" ? "local" : "web";
 	console.log("index mode: " + runMode);
 	if (runMode == "local") {
 		document.write("<!--");

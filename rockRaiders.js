@@ -1222,7 +1222,8 @@ function drawRaiderTasks() {
 	GameManager.drawSurface.fillStyle = "rgb(200, 220, 255)";
 	for (var i = 0; i < raiders.objectList.length; i++) {
 		curTask = raiders.objectList[i].getTaskType(raiders.objectList[i].currentTask);
-		if (debug || curTask != null) { //only display the current task if it is not null or if debug mode is enabled
+		//only display the current task if it is not null or if debug mode is enabled
+		if (debug || curTask != null) {
 			GameManager.drawText(curTask,raiders.objectList[i].centerX()-raiders.objectList[i].drawLayer.cameraX,raiders.objectList[i].y-raiders.objectList[i].drawLayer.cameraY - 13,true);	
 		}
 	}
@@ -1293,7 +1294,8 @@ function drawUI() {
 	curY = 533;
 	for (var i = 0; i < collectedResources["ore"]; ++i, curY -= 10) {
 		GameManager.drawSurface.drawImage(GameManager.images["CrystalSideBar_Ore.png"], curX, curY);
-		if (curY <= 0) { //don't bother drawing past offscreen
+		//don't bother drawing past offscreen
+		if (curY <= 0) {
 			break;
 		}
 	}
@@ -1352,9 +1354,11 @@ function drawSelectionBox() {
 		GameManager.drawSurface.fillStyle = "rgb(0,255,0)";
 		GameManager.drawSurface.lineWidth = 3;
 		GameManager.drawSurface.beginPath();
-		GameManager.drawSurface.rect(selectionRectPointList[0],selectionRectPointList[1],selectionRectPointList[2]-selectionRectPointList[0],selectionRectPointList[3]-selectionRectPointList[1]);
+		GameManager.drawSurface.rect(selectionRectPointList[0],selectionRectPointList[1],
+				selectionRectPointList[2]-selectionRectPointList[0],selectionRectPointList[3]-selectionRectPointList[1]);
 		GameManager.drawSurface.globalAlpha=0.3;
-		GameManager.drawSurface.fillRect(selectionRectPointList[0],selectionRectPointList[1],selectionRectPointList[2]-selectionRectPointList[0],selectionRectPointList[3]-selectionRectPointList[1]);
+		GameManager.drawSurface.fillRect(selectionRectPointList[0],selectionRectPointList[1],
+				selectionRectPointList[2]-selectionRectPointList[0],selectionRectPointList[3]-selectionRectPointList[1]);
 		GameManager.drawSurface.globalAlpha=1;
 		GameManager.drawSurface.stroke();
 	}
@@ -1372,7 +1376,8 @@ function drawSelectedSquares() {
 			GameManager.drawSurface.beginPath();
 			var rectMaxLength = Math.max(selection[i].rect.width,selection[i].rect.height);
 			var halfRectMaxLength = rectMaxLength/2;
-			GameManager.drawSurface.rect(selection[i].centerX() - halfRectMaxLength - selection[i].drawLayer.cameraX,selection[i].centerY() - halfRectMaxLength - selection[i].drawLayer.cameraY,rectMaxLength,rectMaxLength);
+			GameManager.drawSurface.rect(selection[i].centerX() - halfRectMaxLength - selection[i].drawLayer.cameraX,selection[i].centerY() - 
+					halfRectMaxLength - selection[i].drawLayer.cameraY,rectMaxLength,rectMaxLength);
 			GameManager.drawSurface.stroke();	
 		}
 	}
@@ -1412,7 +1417,8 @@ function highlightRaiderPaths() {
 			GameManager.drawSurface.beginPath();
 			var rectMaxLength = Math.max(path[i].rect.width,path[i].rect.height);
 			var halfRectMaxLength = rectMaxLength/2;
-			GameManager.drawSurface.rect(path[i].centerX() - halfRectMaxLength - path[i].drawLayer.cameraX,path[i].centerY() - halfRectMaxLength - path[i].drawLayer.cameraY,rectMaxLength,rectMaxLength);
+			GameManager.drawSurface.rect(path[i].centerX() - halfRectMaxLength - path[i].drawLayer.cameraX,path[i].centerY() - 
+					halfRectMaxLength - path[i].drawLayer.cameraY,rectMaxLength,rectMaxLength);
 			GameManager.drawSurface.stroke();	
 		}	
 	}
@@ -1423,14 +1429,16 @@ function dimScreen(dimPercentage) { //darken screen by dimPercentage
 	var prevGlobalAlpha = GameManager.drawSurface.globalAlpha;
 	GameManager.drawSurface.globalAlpha=dimPercentage;
 	GameManager.drawSurface.fillStyle = "rgb(0,0,0)";
-	GameManager.drawSurface.fillRect(0,0,GameManager.screenWidth,GameManager.screenHeight); //darken screen while awaitingStart
+	//darken screen while awaitingStart
+	GameManager.drawSurface.fillRect(0,0,GameManager.screenWidth,GameManager.screenHeight);
 	GameManager.drawSurface.globalAlpha=prevGlobalAlpha;
 	
 }
 
 //draw instructions while awaiting player start after loading level
-function drawAwaitingStartInstructions() { //draw game start instructions if awaitingStart
-	if (awaitingStart) { //draw game start instructions if awaitingStart
+function drawAwaitingStartInstructions() {
+	//draw game start instructions if awaitingStart
+	if (awaitingStart) {
 		dimScreen(.4);
 		GameManager.drawSurface.globalAlpha=1.0;
 		GameManager.drawSurface.fillStyle = "rgb(65, 218, 255)";
@@ -1447,7 +1455,8 @@ function drawPauseInstructions() {
 		GameManager.drawSurface.fillStyle = "rgb(65, 218, 255)";
 		GameManager.setFontSize(72);
 		GameManager.drawSurface.fillText("Paused",278,322); //TODO: CENTER THIS AUTOMATICALLY, RATHER THAN ESTIMATING MANUALLY 
-		for (var i = 0; i < pauseButtons.objectList.length; ++i) { //attempt to draw buttons here so that they are rendered in front of other post-render graphics
+		//attempt to draw buttons here so that they are rendered in front of other post-render graphics
+		for (var i = 0; i < pauseButtons.objectList.length; ++i) {
 			pauseButtons.objectList[i].render(GameManager);
 		}
 	}
@@ -1456,7 +1465,8 @@ function drawPauseInstructions() {
 //return whether or not the mouse is currently hovering over an active GUI object
 function mouseOverGUI() {
 	for (var i = 0; i < buttons.objectList.length; i++) {
-		if (buttons.objectList[i].visible && collisionPoint(GameManager.mousePos.x,GameManager.mousePos.y,buttons.objectList[i],buttons.objectList[i].affectedByCamera)) { //use mouseDownOnButton rather than releasedThisFrame because button activates on mouse release, whereas task selection here activates on mouse press
+		//use mouseDownOnButton rather than releasedThisFrame because button activates on mouse release, whereas task selection here activates on mouse press
+		if (buttons.objectList[i].visible && collisionPoint(GameManager.mousePos.x,GameManager.mousePos.y,buttons.objectList[i],buttons.objectList[i].affectedByCamera)) {
 			return true;
 		}
 	}
