@@ -28,11 +28,13 @@ var html;
 var htmlTop = -1; 
 var htmlLeft = -1;
 
-//Creates an object with x and y defined,
-//set to the mouse position relative to the state's canvas
-//If you wanna be super-correct this can be tricky,
-//we have to worry about padding and borders
-//takes an event and a reference to the canvas
+/**
+ * Creates an object with x and y defined,
+ * set to the mouse position relative to the state's canvas
+ * If you wanna be super-correct this can be tricky,
+ * we have to worry about padding and borders
+ * takes an event and a reference to the canvas
+*/
 function getMouseDocument(e) {
 	/*return {
 	      x: e.clientX,
@@ -126,7 +128,14 @@ function doPolygonsIntersect(a, b) {
     return true;
 }
 
-//determine whether or not the point at (testX, testY) is contained in the polygon defined by pointList
+/**
+ * check whether or not the input point is contained in the input polygon
+ * @param nvert: the number of verts in the polygon (passed in for the sake of performance)
+ * @param pointList: the points that construct the desired polygon
+ * @param testX: the x coordinate of the point to check
+ * @param testY: the y coordinate of the point to check
+ * @returns whether or not the input point is contained in the input polygon
+ */
 function pnpoly(nvert, pointList, testX, testY) {
   var c = false;
   for (var i = 0, j = nvert-1; i < nvert; j = i++) {
@@ -293,6 +302,15 @@ function collisionRect(object1,object2,includeTouching) {
 	}
 }
 
+/**
+ * check whether or not the input point collides with the input object
+ * @param x: the x position of the desired point
+ * @param y: the y position of the desired point
+ * @param object: the object to check for a collision with the input point
+ * @param adjustForCamera: whether or not the object's position should be adjusted to remove camera scroll values
+ * @param includeTouching: whether or not the point should be considered colliding if it is touching but not overlapping the object
+ * @returns whether or not the input point collides with the input object
+ */
 function collisionPoint(x,y,object,adjustForCamera,includeTouching) {
 	var pointList = calculateRectPoints(object,includeTouching);
 	var newX = x;
@@ -304,25 +322,61 @@ function collisionPoint(x,y,object,adjustForCamera,includeTouching) {
 	return pnpoly(pointList.length,pointList,newX,newY);
 }
 
-function getAngle(x1,y1,x2,y2,radians) { //TODO: VERIFY THAT THIS METHOD WORKS CORRECTLY
+/**
+ * get the angle between two points
+ * @param x1: the x coordinate of the first point
+ * @param y1: the y coordinate of the first point
+ * @param x2: the x coordinate of the second point
+ * @param y2: the y coordinate of the second point
+ * @param radians: whether the angle is in radians (true) or degrees (false)
+ * @returns the angle between the two input points
+ */
+function getAngle(x1,y1,x2,y2,radians) {
 	if (radians == null || radians == false) {
 		return Math.atan2((y2-y1),(x2-x1))*180/Math.PI;
 	}
 	return Math.atan2((y2-y1),(x2-x1));
 }
+
+/**
+ * get the distance between two points
+ * @param x1: the x coordinate of the first point
+ * @param y1: the y coordinate of the first point
+ * @param x2: the x coordinate of the second point
+ * @param y2: the y coordinate of the second point
+ * @returns the distance between the two input points
+ */
 function getDistance(x1,y1,x2,y2) {
 	return Math.sqrt(((x2-x1)*(x2-x1))+((y2-y1)*(y2-y1)));
 }
-function randomInt(min,max) {//TODO: max appears to be inclusive. needs testing.
+
+/**
+ * choose a random int between min and max
+ * @param min: the minimum value allowed for the random int
+ * @param max: the maximum value allowed for the random int
+ * @returns the randomly generated int
+ */
+function randomInt(min,max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
+/**
+ * make the input object a child of the specified parent object
+ * @param objectName: the name of the child object being given inheritance
+ * @param parentName: the name of the parent object
+ */
 function makeChild(objectName, parentName) {
-	//objectName: the name of the object being given inheritance
-	//parentName: the name of the parent object
 	eval(objectName + ".prototype = Object.create(" + parentName + ".prototype);" + objectName + ".prototype.constructor = " + objectName + ";");
 }
 
+/**
+ * draw some text (optionally centered) at the specified position
+ * @param text: the text string to draw
+ * @param x: the x coordinate at which to draw the text
+ * @param y: the y coordinate at which to draw the text
+ * @param centerX: whether the x coordinate should be the center (true) or the left (false)
+ * @param centerY: whether the y coordinate should be the center (true) or the top (false)
+ */
 GameManagerInternal.prototype.drawText = function(text,x,y,centerX,centerY) {
 	var halfWidth = 0;
 	var halfHeight = 0;
@@ -335,19 +389,35 @@ GameManagerInternal.prototype.drawText = function(text,x,y,centerX,centerY) {
 	this.drawSurface.fillText(text,x-halfWidth,y+halfHeight);
 };
 
+/**
+ * set the current font size
+ * @param size: the desired font size
+ */
 GameManagerInternal.prototype.setFontSize = function(size) {
 	this.fontSize = size;
 	this.setFont();
 };
+
+/**
+ * set the current font name
+ * @param name: the name of the desired font
+ */
 GameManagerInternal.prototype.setFontName = function(name) {
 	this.fontName = name;
 	this.setFont();
 };
+
+/**
+ * update the font depending on the current name and size variables
+ */
 GameManagerInternal.prototype.setFont = function() {
 	this.drawSurface.font = this.fontSize + "px " + this.fontName;
 };
 
-GameManagerInternal.prototype.initializeRygame = function(is3d) {    //FIND A WAY TO MAKE IT POSSIBLE TO HAVE GameManagerInternal BE STATIC BUT ALSO EXTENDABLE
+/**
+ * start up the Rygame engine, initializing all required variables
+ */
+GameManagerInternal.prototype.initializeRygame = function(is3d) {
 	//create context
 	if (!is3d) {
 		this.drawSurface = document.getElementById('canvas').getContext('2d');
@@ -371,7 +441,9 @@ GameManagerInternal.prototype.initializeRygame = function(is3d) {    //FIND A WA
 	//init key events
 	document.body.addEventListener("keydown", function (e) {
 		GameManager.keyStates[String.fromCharCode(e.keyCode)] = true;
-		if (String.fromCharCode(e.keyCode) == GameManager.fullScreenKey) { //fullScreenKey is a property that must be set in the game itself rather than being hardcoded, as that would prevent the programmer from being able to use a key that they might need
+		//fullScreenKey is a property that must be set in the game itself rather than being hardcoded, 
+		//as that would prevent the programmer from being able to use a key that they might need
+		if (String.fromCharCode(e.keyCode) == GameManager.fullScreenKey) {
 			goFullScreen();
 		}
 	});
@@ -382,62 +454,81 @@ GameManagerInternal.prototype.initializeRygame = function(is3d) {    //FIND A WA
 		if (GameManager.drawSurface == null) {
 			return;
 		}
-		//GameManager.documentMousePos = getMouseDocument(e);
-		//GameManager.mousePos = GameManager.documentMousePos;
 		GameManager.mousePos = getMouseDocument(e);
 		canvasRect = GameManager.drawSurface.canvas.getBoundingClientRect();
-		GameManager.mousePos.x -= canvasRect.left + window.pageXOffset; //might need to take into account other factors besides the page scrolling
+		GameManager.mousePos.x -= canvasRect.left + window.pageXOffset;
 		GameManager.mousePos.y -= canvasRect.top + window.pageYOffset;
 	});
 	document.body.addEventListener("mousedown", function (e) {
-		//console.log("MOUSE DOWN");
-		if (e.button == 0) { //left click detected
+		if (e.button == 0) {
+			//left click press detected
 			GameManager.mouseDownLeft = true;
 			GameManager.mousePressedLeft = true;
 			GameManager.mousePressedRight = true;
 		}
-		else if (e.button == 2) { //right click detected
+		else if (e.button == 2) {
+			//right click press detected
 			GameManager.mouseDownRight = true;
 		}
 	});
 	document.body.addEventListener("mouseup", function (e) {
-		//console.log("MOUSE UP");
 		if (e.button == 0) {
 			GameManager.mouseReleasedLeft = true;
-			GameManager.mouseReleasedPosLeft = getMouseDocument(e); //we can use the same method as in mousemove to get the effective mouse position since the mouse coordinates are returned by the event in pageX and pageY regardless of the event type
+			//we can use the same method as in mousemove to get the effective mouse position 
+			//since the mouse coordinates are returned by the event in pageX and pageY regardless of the event type
+			GameManager.mouseReleasedPosLeft = getMouseDocument(e);
 			canvasRect = GameManager.drawSurface.canvas.getBoundingClientRect();
-			GameManager.mouseReleasedPosLeft.x -= canvasRect.left + window.pageXOffset; //might need to take into account other factors besides the page scrolling
+			GameManager.mouseReleasedPosLeft.x -= canvasRect.left + window.pageXOffset;
 			GameManager.mouseReleasedPosLeft.y -= canvasRect.top + window.pageYOffset;
-			GameManager.mouseDownLeft = false; //left click detected
+			//left click release detected
+			GameManager.mouseDownLeft = false;
 		}
 		else if (e.button == 2) {
 			GameManager.mouseReleasedRight = true;
-			GameManager.mouseReleasedPosRight = getMouseDocument(e); //we can use the same method as in mousemove to get the effective mouse position since the mouse coordinates are returned by the event in pageX and pageY regardless of the event type
+			GameManager.mouseReleasedPosRight = getMouseDocument(e);
 			canvasRect = GameManager.drawSurface.canvas.getBoundingClientRect();
-			GameManager.mouseReleasedPosRight.x -= canvasRect.left + window.pageXOffset; //might need to take into account other factors besides the page scrolling
+			GameManager.mouseReleasedPosRight.x -= canvasRect.left + window.pageXOffset;
 			GameManager.mouseReleasedPosRight.y -= canvasRect.top + window.pageYOffset;
-			GameManager.mouseDownRight = false; //right click detected
+			//right click release detected
+			GameManager.mouseDownRight = false;
 		}
 	});
 	document.body.addEventListener('contextmenu', function(e) {
-	    e.preventDefault(); //note: according to stackOverflow, we should be returning false at the end of this method, as well as outside the method, to cause the rightclick menu to not popup. However, i have not observed either false statement to be necessary. Keep an eye on this.
+	    e.preventDefault();
 	});
 };
-GameManagerInternal.prototype.addObject = function(object) { //TODO still need to decide on adding single objects vs lists of objects natively
+
+/**
+ * add a RygameObject to the GameManager
+ * @param object: the object to be added
+ */
+GameManagerInternal.prototype.addObject = function(object) {
 	this.renderOrderedCompleteObjectList.splice(binarySearch(this.renderOrderedCompleteObjectList,object,"drawDepth"),0,object);
 	this.updateOrderedCompleteObjectList.splice(binarySearch(this.updateOrderedCompleteObjectList,object,"updateDepth"),0,object); 
 };
-GameManagerInternal.prototype.removeObject = function(object) { //TODO still need to decide on adding single objects vs lists of objects natively
+
+/**
+ * remove a RygameObject from the GameManager
+ * @param object: the object to be removed
+ */
+GameManagerInternal.prototype.removeObject = function(object) {
 	this.renderOrderedCompleteObjectList.splice(this.renderOrderedCompleteObjectList.indexOf(object),1); 
 	this.updateOrderedCompleteObjectList.splice(this.updateOrderedCompleteObjectList.indexOf(object),1); 	
 };
 
-//remove and re-insert object in order to update render and update depth
+/**
+ * remove and re-insert a RygameObject in order to refresh render and update depth
+ * @param object: the object to refresh
+ */
 GameManagerInternal.prototype.refreshObject = function(object) {
 	this.removeObject(object);
 	this.addObject(object);
 };
 
+/**
+ * add a Layer to the GameManager
+ * @param layer: the layer to be added
+ */
 GameManagerInternal.prototype.addLayer = function(layer) {
 	this.completeLayerList.splice(binarySearch(this.completeLayerList,layer,"drawDepth"),0,layer); 
 };
