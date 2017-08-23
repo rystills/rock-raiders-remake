@@ -43,7 +43,7 @@ function getMouseDocument(e) {
 	var element = GameManager.drawSurface, offsetX = 0, offsetY = 0, mx, my;
 
 	// Compute the total offset. It's possible to cache this if you want
-	if (GameManager.drawSurface && element.offsetParent != undefined) { //TODO: appears to sometimes be a single frame where GameManager.drawSurface is not yet defined. look into a proper fix for this (maybe not depending on GameManager.drawSurface at all for the canvas?)
+	if (GameManager.drawSurface && element.offsetParent != undefined) {
 		do {
 			offsetX += element.offsetLeft;
 			offsetY += element.offsetTop;
@@ -120,7 +120,6 @@ function doPolygonsIntersect(a, b) {
             // polygons, and we know there is no overlap
             //note: changed from < to <= so that bordering objects would not be considered colliding
             if (maxA <= minB || maxB <= minA) {
-                //CONSOLE("polygons don't intersect!");
                 return false;
             }
         }
@@ -291,7 +290,9 @@ function collisionRect(object1,object2,includeTouching) {
 				objectCoordinates[i].bottom += .01;
 			}
 		}
-		return !((objectCoordinates[0].left >= objectCoordinates[1].right)||(objectCoordinates[0].top >= objectCoordinates[1].bottom)||(objectCoordinates[0].right <= objectCoordinates[1].left)||(objectCoordinates[0].bottom <= objectCoordinates[1].top)); //TODO: changed from < and > to <= and >= so that bordering objects would not be considered colliding
+		//note: changed from < and > to <= and >= so that bordering objects would not be considered colliding
+		return !((objectCoordinates[0].left >= objectCoordinates[1].right)||(objectCoordinates[0].top >= objectCoordinates[1].bottom)||
+				(objectCoordinates[0].right <= objectCoordinates[1].left)||(objectCoordinates[0].bottom <= objectCoordinates[1].top));
 	}
 	else {
 		//since rotation is centered, we have to go from the center and move in the direction of drawAngle * width,
@@ -532,19 +533,25 @@ GameManagerInternal.prototype.refreshObject = function(object) {
 GameManagerInternal.prototype.addLayer = function(layer) {
 	this.completeLayerList.splice(binarySearch(this.completeLayerList,layer,"drawDepth"),0,layer); 
 };
+
+/**
+ * update all RygameObjects in order of their update depth
+ */
 GameManagerInternal.prototype.updateObjects = function() {
 	for (var i = 0; i < this.updateOrderedCompleteObjectList.length; i++) {
-		this.updateOrderedCompleteObjectList[i].xPrevious = this.updateOrderedCompleteObjectList[i].x; //TODO: DECIDE IF THE PREVIOUS POSITION VARIABLES SHOULD BE UPDATED BEFORE OR AFTER THE UPDATE METHOD
+		this.updateOrderedCompleteObjectList[i].xPrevious = this.updateOrderedCompleteObjectList[i].x;
 		this.updateOrderedCompleteObjectList[i].yPrevious = this.updateOrderedCompleteObjectList[i].y;
 		if (typeof this.updateOrderedCompleteObjectList[i].update == "function" && this.updateOrderedCompleteObjectList[i].updateAutomatically) {
 			this.updateOrderedCompleteObjectList[i].attemptUpdate(); 
 		}
 	}
 };
-//due to differences between javascript and pygame initializeFrame and updateInput are no longer necessary methods for the GameManagerInternal
+
+/**
+ * renders all objects to their frames, and then draws frames to screen. 
+ * Objects with larger depths have their surfaces drawn first on their frame.
+ */
 GameManagerInternal.prototype.drawFrame = function() { 
-	/*renders all objects to their frames, and then draws frames to screen. Objects with larger depths have their surfaces drawn first on their frame.
-	returns 0 if successful, else 1*/
 	//re-render all layer backgrounds first. also clears their surfaces for a fresh frame if the background fills the layer surface
 	for (var i = this.completeLayerList.length-1; i >= 0; i--) {
 		var layer = this.completeLayerList[i];
@@ -573,11 +580,11 @@ GameManagerInternal.prototype.drawFrame = function() {
 		}
 	}
 
-	//TODO expand on the below code to reimplement layer resizing (this will probably work a bit differently from how it works in pygame)
 	for (var i = this.completeLayerList.length-1; i >= 0; i--) {
 		var layer = this.completeLayerList[i];
 		if (layer.active == true) {
-			this.drawSurface.drawImage(layer.drawSurface.canvas,layer.x,layer.y); //REIMPLEMENT LAYER RESIZING HERE
+			//TODO: layer resizing will occur here, if needed
+			this.drawSurface.drawImage(layer.drawSurface.canvas,layer.x,layer.y);
 			if (layer.freezeFirstFrame) {
 				layer.freezeFirstFrame = False;
 				layer.frozen = True;
@@ -591,14 +598,26 @@ GameManagerInternal.prototype.drawFrame = function() {
 	this.mousePressedRight = false;
 };
 
+/**
+ * draws the input surface to the GameManager's drawSurface at the specified location
+ * @param surface: the surface to be drawn onto the GameManager's drawSurface
+ * @param x: the x coordinate at which to draw the surface
+ * @param y: the y coordinate at which to draw the surface
+ */
 GameManagerInternal.prototype.draw = function(surface, x, y) { //simple draw function. Copied from Layer so that the GameManager can be treated like a layer when necessary.
 	this.drawSurface.drawImage(surface.canvas,x,y);
 };
 
+/**
+ * GameManagerInternal constructor: initialize variables stored and maintained by the GameManager
+ */
 function GameManagerInternal() {
-	this.images = []; //list of resources
-	this.sounds = []; //list of resources
-	this.scriptObjects = []; //list of resources
+	//list of image resources
+	this.images = [];
+	//list of sound resources
+	this.sounds = [];
+	//list of script resources
+	this.scriptObjects = [];
 	this.fps = 40;
 	this.keyStates = [];
 	this.completeLayerList = [];
@@ -607,38 +626,56 @@ function GameManagerInternal() {
 	this.drawSurface = null;
 	this.screenWidth = null;
 	this.screenHeight = null;
-	//this.documentMousePos = {x: 1, y: 1};
 	this.mousePos = {x: 1, y: 1};
 	this.mouseDownLeft = false;
 	this.mouseDownRight = false;
-	this.mousePressedLeft = false; //this variable is only true on the frame when the mouse is initially pressed duringa click. reset to false after drawFrame is called.
+	//mousePressed is only true on the frame when the mouse is initially pressed during click. Resets to false after drawFrame is called.
+	this.mousePressedLeft = false;
 	this.mousePressedRight = false;
-	this.mouseReleasedLeft = false; //this variable is only true on the frame when the mouse is released from a click. reset to false after drawFrame is called.
+	//mouseReleased is only true on the frame when the mouse is initially released during click. Resets to false after drawFrame is called.
+	this.mouseReleasedLeft = false;
 	this.mouseReleasedRight = false;
 	this.mouseReleasedPosLeft = {x: 1, y: 1};
 	this.mouseReleasedPosRight = {x: 1, y: 1};
-	this.fullScreenKey = "F"; //this is just a default; feel free to change it at any point from the game file
-	this.fontSize = 48; //font size in pixels - first part of html font property (formatted 'fontSizepx fontName')
-	this.fontName = "Arial"; //font name - second part of html font property (formatted 'fontSizepx fontName')
+	//this is just a default; feel free to change it at any point from the game file
+	this.fullScreenKey = "F";
+	//font size in pixels - first part of html font property (formatted 'fontSizepx fontName')
+	this.fontSize = 48;
+	//font name - second part of html font property (formatted 'fontSizepx fontName')
+	this.fontName = "Arial";
 }
 
 //create GameManager instance in global namespace to make up for a lack of typical 'static' classes *that support inheritance*
 GameManager = new GameManagerInternal();
 
+/**
+ * add a list of objects to the ObjectGroup
+ * @param appendObjectList: the list of objects to be added to the group
+ */
 ObjectGroup.prototype.push = function(appendObjectList) {
-	appendObjectList = [].concat(appendObjectList); //TODO: CONSIDER THE PERFORMANCE impact OF CALLING CONCAT HERE
+	appendObjectList = [].concat(appendObjectList);
 	for (var i = 0; i < appendObjectList.length; i++) {
 		this.objectList.push(appendObjectList[i]);
 		appendObjectList[i].groupsContained.push(this);
 	}
 };
+
+/**
+ * pop an object off of this ObjectGroup's objectList, and remove this ObjectGroup from that object's groupsContained
+ * @returns the removed object
+ */
 ObjectGroup.prototype.pop = function() {
 	var removeObject = this.objectList.pop();
 	removeObject.groupsContained.splice(removeObject.groupsContained.indexOf(this),1);
 	return removeObject;
 };
-ObjectGroup.prototype.remove = function(removeObjectList) { //arbitrary removal as opposed to simply calling pop
-	removeObjectList = [].concat(removeObjectList); //TODO: CONSIDER THE PERFORMANCE DETRIMENT OF CALLING CONCAT HERE
+
+/**
+ * remove a list of objects from this ObjectGroup
+ * @param removeObjectList: the list of objects to be removed from the group
+ */
+ObjectGroup.prototype.remove = function(removeObjectList) {
+	removeObjectList = [].concat(removeObjectList);
 	for (var i = 0; i < removeObjectList.length; i++) {
 		var position = this.objectList.indexOf(removeObjectList[i]);
 		if (position != -1) { 
@@ -648,6 +685,11 @@ ObjectGroup.prototype.remove = function(removeObjectList) { //arbitrary removal 
 		}
 	}
 };
+
+/**
+ * remove all objects from this objectGroup, optionally killing them in the process
+ * @param kill: whether the removed objects should be killed (true) or left alive (false)
+ */
 ObjectGroup.prototype.removeAll = function(kill) {
 	var curObject;
 	if (kill == null) {
@@ -661,53 +703,85 @@ ObjectGroup.prototype.removeAll = function(kill) {
 	}
 };
 
+/**
+ * update all objects in this ObjectGroup
+ * @param optionalArgs: a list of optional arguments to be passed to each object's update method
+ */
 ObjectGroup.prototype.update = function(optionalArgs) {
 	for (var i = 0; i < this.objectList.length; ++i) {
 		this.objectList[i].attemptUpdate(optionalArgs);
 	}
 };
 
+/**
+ * ObjectGroup constructor: initializes an empty object list
+ */
 function ObjectGroup() {
 	this.objectList = [];
 }
 
-makeChild("Layer","RygameObject"); //TODO: MAKE THE LAYER CLASS MORE SIMILAR TO THE RYGAMEOBJECT CLASS AND CALL THE RYGAMEOBJECT CONSTRUCTOR
-Layer.prototype.draw = function(surface, x, y) { //NEED TO CHANGE ALL IMAGES / DRAWSURFACES TO CANVAS' SO THEY CAN DRAW ON EACH OTHER
-	this.drawSurface.drawImage(surface.canvas,x,y); //change to drawSurface
+makeChild("Layer","RygameObject");
+
+/**
+ * draws the input surface to the Layer's drawSurface at the specified location
+ * @param surface: the surface to be drawn onto the Layer's drawSurface
+ * @param x: the x coordinate at which to draw the surface
+ * @param y: the y coordinate at which to draw the surface
+ */
+Layer.prototype.draw = function(surface, x, y) {
+	this.drawSurface.drawImage(surface.canvas,x,y);
 };
 
-function Layer(x,y,updateDepth,drawDepth,width,height,startActive) { //BECAUSE CANVASES AND IMAGES WORK DIFFERENT IN HTML5 COMPARED TO PYGAME, WE MAY NO LONGER NEED TO USE A BLANK BACKGROUND TO CLEAR EACH LAYER EVERY FRAME IF THEY AUTOCLEAR IN HTML5
-	this.x = x; //TODO: CHANGE LAYER TO USE A RECT FOR ITS DIMENSIONS INSTEAD OF WIDTH AND HEIGHT, LIKE RYGAMEOBJECT
+/**
+ * Layer constructor: creates a new layer instance, initializing its properties
+ * @param x: the initial x coordinate of the layer
+ * @param y: the initial y coordinate of the layer
+ * @param updateDepth: the depth at which this Layer is updated (smaller depths update sooner)
+ * @param drawDepth: the depth at which this Layer is drawn (smaller depths update sooner)
+ * @param width: the width of this Layer
+ * @param height: the height of this Layer
+ * @param startActive: whether or not this Layer is active upon instantiation
+ */
+function Layer(x,y,updateDepth,drawDepth,width,height,startActive) {
+	this.x = x;
 	this.y = y;
 	this.width = width;
 	this.height = height;
 	this.updateDepth = updateDepth;
 	this.drawDepth = drawDepth;
-	//this.drawSurface = new Canvas
 	this.drawSurface = createContext(this.width,this.height,false);
-	//this.drawSurface.
 	this.active = false;
 	if (startActive == true) {
-		this.active = true; //TO FILL IN LATER, AS IS THE CASE WITH MANY FIELDS RIGHT NOW
+		this.active = true;
 	}
-	this.frozen = false; //TO FILL IN LATER
-	this.freezeFirstFrame = false; //TO FILL IN LATER
+	this.frozen = false;
+	this.freezeFirstFrame = false;
 	this.background = null;
 	this.cameraX = 0;
 	this.cameraY = 0;
 	this.drawAngle = 0;
 	this.rect = new Rect(this.drawSurface.canvas.width,this.drawSurface.canvas.height); 
-	//this.background = createContext(this.width,this.height);
-	//this.background.fillRect(0, 0, this.width, this.height); //unlike pygame HTML5 HAS A CLEARRECT METHOD, SO WE DON'T NEED A BACKGROUND UNLESS SPECIFIED AT LAYER CREATION
 	GameManager.addLayer(this);
 }
 
-function Rect(width,height) { //TODO add xOffset and yOffset variables since rect no longer contains its own position information (no need for it to if we simply pass RygameObjects into collision functions rather than rects)
+/**
+ * Rect constructor: create a new Rect instance with the specified width and height
+ * @param width: the width of our new Rect
+ * @param height: the height of our new Rect
+ * @returns
+ */
+function Rect(width,height) {
 	this.width = width;
 	this.height = height;
 }
 
 makeChild("Button","RygameObject");
+
+/**
+ * update this Button's state based on mouse interactivity
+ * @param selectionType: the current active UI selection
+ * @param openMenu: the currently open menu, if any
+ */
 Button.prototype.update = function(selectionType,openMenu) {
 	if (openMenu == null) {
 		openMenu = "";
@@ -760,7 +834,8 @@ Button.prototype.update = function(selectionType,openMenu) {
 		if (this.mouseDownOnButton == true) {
 			if (collisionPoint(GameManager.mousePos.x,GameManager.mousePos.y,this,this.affectedByCamera)) {
 				if (this.runMethod != null) {
-					this.runMethod.apply(this,this.optionalArgs);//button has been clicked
+					//button has been clicked
+					this.runMethod.apply(this,this.optionalArgs);
 				}
 				this.releasedThisFrame = true;
 			}
@@ -779,6 +854,11 @@ Button.prototype.update = function(selectionType,openMenu) {
 	
 };
 
+/**
+ * update this button's visible text, optionally clearing any existing text first
+ * @param newText: the new text that the button should display
+ * @param clearFirst: whether the button's surface should be cleared (true) or not (false) before blitting the new text
+ */
 Button.prototype.updateText = function(newText,clearFirst) {
 	var brightnessShiftPercent = 25;
 	if (clearFirst == null) {
@@ -790,9 +870,12 @@ Button.prototype.updateText = function(newText,clearFirst) {
 	
 	//create brightened and darkened version of drawSurface
 	this.normalSurface = this.drawSurface;
-	this.brightenedSurface = this.drawSurface == null ? null : this.image == null ? createContext(this.normalSurface.canvas.width,this.normalSurface.canvas.height) : updateBrightness(this.normalSurface,brightnessShiftPercent);
-	this.darkenedSurface = this.drawSurface == null ? null : this.image == null ? createContext(this.normalSurface.canvas.width,this.normalSurface.canvas.height) : updateBrightness(this.normalSurface,-brightnessShiftPercent);
-	this.unavailableSurface = this.drawSurface == null ? null : this.image == null ? createContext(this.normalSurface.canvas.width,this.normalSurface.canvas.height) : updateBrightness(this.normalSurface,-brightnessShiftPercent*2);
+	this.brightenedSurface = this.drawSurface == null ? null : this.image == null ? 
+			createContext(this.normalSurface.canvas.width,this.normalSurface.canvas.height) : updateBrightness(this.normalSurface,brightnessShiftPercent);
+	this.darkenedSurface = this.drawSurface == null ? null : this.image == null ? 
+			createContext(this.normalSurface.canvas.width,this.normalSurface.canvas.height) : updateBrightness(this.normalSurface,-brightnessShiftPercent);
+	this.unavailableSurface = this.drawSurface == null ? null : this.image == null ? 
+			createContext(this.normalSurface.canvas.width,this.normalSurface.canvas.height) : updateBrightness(this.normalSurface,-brightnessShiftPercent*2);
 	
 	this.text = newText;
 	if (this.text != "") {
@@ -812,14 +895,15 @@ Button.prototype.updateText = function(newText,clearFirst) {
 			
 			drawSurfaces[i].font = "32px " + GameManager.fontName;
 			
-			var height = parseInt(drawSurfaces[i].font.split(' ')[0].replace('px', '')); //TODO: verify that text height is indeed equal to font name 
+			var height = parseInt(drawSurfaces[i].font.split(' ')[0].replace('px', ''));
 			textDims = drawSurfaces[i].measureText(this.text);
 			if (textDims.width > drawSurfaces[i].canvas.width) {
 				drawSurfaces[i].canvas.width = textDims.width;
 				this.rect.width = drawSurfaces[i].canvas.width;
 				changedDims = true;
 			}
-			if (height > drawSurfaces[i].canvas.height) { //TODO: height here may be an overestimate as it includes space below the text; replace this with render height eventually
+			//note that height in this instance includes space below the text, potentially making it larger than the actual render height
+			if (height > drawSurfaces[i].canvas.height) {
 				drawSurfaces[i].canvas.height = height;
 				this.rect.height = drawSurfaces[i].canvas.height;
 				changedDims = true;
@@ -841,14 +925,36 @@ Button.prototype.updateText = function(newText,clearFirst) {
 			: ( i == 2 ? "rgb(" + baseR + "," + baseG + "," + baseB + ")" : "rgb(" + Math.round(Math.min(baseR + brightnessShiftPercent*.01*255,255)) + ","+ 
 					Math.round(Math.min(baseG + brightnessShiftPercent*.01*255,255)) + ","+ Math.round(Math.min(baseB + brightnessShiftPercent*.01*255,255)) + ")"));
 			drawSurfaces[i].fillText(this.text,0,0);
-			//console.log(drawSurfaces[i].fillStyle);
 		}
 	}
 };
 
-function Button(x,y,updateDepth,drawDepth,image,layer,text,runMethod,affectedByCamera,renderAutomatically,selectionTypeBound,openMenuBound,optionalArgs,clickable,updateAutomatically,textColor,additionalRequirement, additionalRequirementArgs) { //TODO: MODIFY BUTTON CLASS TO OPERATE LARGELY THE SAME AS THE RYGAME PYTHON EDITION BUTTON CLASS
+/**
+ * Button constructor: creates a new Button which can be interacted with via the mouse cursor
+ * @param x: the initial x coordinate of the Button
+ * @param y: the initial y coordinate of the Button
+ * @param updateDepth: the depth at which this Button is updated (smaller depths update sooner)
+ * @param drawDepth: the depth at which this Button is drawn (smaller depths update sooner)
+ * @param image: the image to be displayed on this Button (leave null if no image is desired)
+ * @param layer: the Layer to which this Button belongs
+ * @param text: the text to be displayed on this Button (leave as blank string if no text is desired)
+ * @param runMethod: the method to be executed when this Button is clicked
+ * @param affectedByCamera: whether this Button scrolls with the camera (true) or ignore the camera position (false)
+ * @param renderAutomatically: whether this Button renders on its own (true) or must be rendered manually (false)
+ * @param selectionTypeBound: the list of selection types during which this Button should operate
+ * @param openMenuBound: the list of open menus during which this Button should operate
+ * @param optionalArgs: a list of optional arguments to be passed in to this Button's runMethod
+ * @param clickable: whether this button can be clicked (true) or not (false)
+ * @param updateAutomatically: whether this button updates on its own (true) or must be updated manually (false)
+ * @param textColor: the color of this Button's text
+ * @param additionalRequirement: an optional method that must return true in order for this button to function
+ * @param additionalRequirementArgs: a list of arguments to pass to this Button's additional requirement method
+ */
+function Button(x,y,updateDepth,drawDepth,image,layer,text,runMethod,affectedByCamera,renderAutomatically,selectionTypeBound,openMenuBound,
+		optionalArgs,clickable,updateAutomatically,textColor,additionalRequirement, additionalRequirementArgs) {
 	if (updateAutomatically == null) {
-		updateAutomatically = false; //default to false rather than true for now, as current buttons expect this functionality
+		//default to false rather than true for now, as current buttons expect this functionality
+		updateAutomatically = false;
 	}
 	if (additionalRequirementArgs == null) {
 		additionalRequirementArgs = [];
@@ -864,29 +970,56 @@ function Button(x,y,updateDepth,drawDepth,image,layer,text,runMethod,affectedByC
 	this.optionalArgs = optionalArgs;
 	this.clickable = (clickable == null ? true : clickable);
 	this.normallyClickable = this.clickable;
-	this.textColor = (textColor == null ? [0,245,0] : textColor); //set default text color to an almost pure green
+	//set default text color to an almost pure green
+	this.textColor = (textColor == null ? [0,245,0] : textColor);
 	if (this.optionalArgs == null) {
 		this.optionalArgs = [];
 	}	
 	this.updateText(text,false);
 }
 
-RygameObject.prototype.renderGuiElements = function(destLayer) { //TODO FILL THIS IN WHEN GUI ELEMENTS ARE REIMPLEMENTED
+/**
+ * renders this RygameObject's gui elements
+ * @param destLayer: the layer on which to render the elements
+ */
+RygameObject.prototype.renderGuiElements = function(destLayer) {
 	
 };
+
+/**
+ * calculate this RygameObject's center x coordinate
+ * @returns this RygameObject's center x coordinate
+ */
 RygameObject.prototype.centerX = function() {
-	//TODO: SHOULD THIS GO IN RECT OR RYGAMEOBJECT?! ITS DIFFICULT TO DETERMINE WHAT BELONGS IN THE NEW RECT CLASS..
 	return this.x + (this.rect.width / 2);
 };
+
+/**
+ * calculate this RygameObject's center y coordinate
+ * @returns this RygameObject's center y coordinate
+ */
 RygameObject.prototype.centerY = function() {
 	return this.y + (this.rect.height / 2);
 };
+
+/**
+ * sets this RygammeObject's x coordinate relative to its center
+ */
 RygameObject.prototype.setCenterX = function(x) {
-	this.x = x - (this.rect.width / 2); //note that this does NOT have to return a rounded value! this of course would cause rounding errors which can accumulate very quickly or throw off small values tremendously
+	this.x = x - (this.rect.width / 2);
 };
+
+/**
+ * sets this RygammeObject's y coordinate relative to its center
+ */
 RygameObject.prototype.setCenterY = function(y) {
 	this.y = y - (this.rect.height / 2);
 };
+
+/**
+ * renders this RygameObject to the input Layer
+ * @param destLayer: the Layer to which this RygameObject should be rendered
+ */
 RygameObject.prototype.render = function(destLayer) {
 	if (this.visible) {
 		if (destLayer == null) {
@@ -917,33 +1050,39 @@ RygameObject.prototype.render = function(destLayer) {
 	}
 };
 
+/**
+ * determine whether or not this RygameObject is within the bounds of its Layer
+ * @returns whether or not the object is within its Layer's bounds
+ */
 RygameObject.prototype.withinLayerBounds = function() {
-	/*check if x and y values are within the boundaries of object's drawLayer's surface.*/
-	/*var rectWidth = 0;
-	var rectHeight = 0;
-	//if (this.rect != null) {
-	rectWidth = this.rect.width;
-	rectHeight = this.rect.height;
-	//} //changed this method to call collisionRect rather then reimplementing collisions manually (that was just a temporary hack)
-	//TODO in performing the above change also give the layer class a rect for collision purposes
-	//TODO consider changing the way widths and heights are stored for image like classes entirely (especially Layer) since certain information is superfluous when contained in instance variables if the rect already has that informatino
-	if ((this.x >= this.drawLayer.width) || (this.y >= this.drawLayer.height) || (this.x + rectWidth < 0) || (this.y + rectHeight < 0)) {
-		return false;
-	}
-	return true;*/
 	return collisionRect(this,this.drawLayer);
 };
+
+/**
+ * rotate this RygameObject around a desired point in space
+ * @param x: the x coordinate of the point around which this object should be rotated
+ * @param y: the y coordinate of the point around which this object should be rotated
+ * @param angleRadians: the angle (in radians) at which we should rotate this object
+ * @param angleDifferenceRadians: an optional angle difference (in radians) to offset the rotation angle
+ */
 RygameObject.prototype.rotateAroundPoint = function(x,y,angleRadians,angleDifferenceRadians) {
 	if (angleDifferenceRadians == null) {
 		angleDifferenceRadians = 0;
 	}
 	var moveDistance = getDistance(this.centerX(),this.centerY(),x,y);
 	this.setCenterX(x);
-	this.setCenterY(y); //TODO: ADD THE OPTION TO USE EITHER RADIANS OR DEGREES
+	this.setCenterY(y);
 	this.drawAngle = angleRadians+angleDifferenceRadians;
 	this.moveDirection(angleRadians / Math.PI * 180, moveDistance);
 };
-RygameObject.prototype.changeImage = function(imageName,clearRect) { //TODO: add dynamic drawSurface and rect resizing to match image changes
+
+/**
+ * change this RygameObject's image to a different one
+ * @param imageName: the name of the new image to change to
+ * @param clearRect: whether the current rect should be changed for the new image (true) or left the same (false)
+ */
+RygameObject.prototype.changeImage = function(imageName,clearRect) {
+	//TODO: drawSurface and rect dimensions are currently left unchanged, meaning the new image may be cut off
 	this.image = GameManager.images[imageName];
 	if (clearRect) {
 		this.drawSurface.clearRect(0, 0, this.rect.width, this.rect.height);
@@ -951,7 +1090,12 @@ RygameObject.prototype.changeImage = function(imageName,clearRect) { //TODO: add
 	this.drawSurface.drawImage(this.image,0,0);
 };
 
-//move the current object towards position x,y a distance of speed, optionally using origin = this.center. return true if we reached the destination
+/**
+ * move the current object towards the desired position at the specified speed 
+ * @param speed: the speed at which our object should move
+ * @param center: whether this object's origin should be considered its center (true) or its top-left (false)
+ * returns whether we reached the desired point (true) or not (false)
+ */
 RygameObject.prototype.moveTowardsPoint = function(x,y,speed,center) {
 	if (center == null) {
 		center = false;
@@ -979,34 +1123,54 @@ RygameObject.prototype.moveTowardsPoint = function(x,y,speed,center) {
 	return false;
 };
 
-RygameObject.prototype.moveDirection = function(angleDegrees,amount) {  //TODO: VERIFY THAT THIS METHOD WORKS CORRECTLY
+/**
+ * move this object by a specified amount in a desired direction
+ * @param angleDegrees: the angle (in degrees) at which to move this object
+ * @param amount: the distance (in pixels) to move this object
+ */
+RygameObject.prototype.moveDirection = function(angleDegrees,amount) {
 	this.x += amount * Math.cos(angleDegrees * Math.PI / 180);
     this.y += amount * Math.sin(angleDegrees * Math.PI / 180);
 };
-RygameObject.prototype.moveOutsideCollision = function(otherObject,xPrevious,yPrevious) { //TODO: MAKE THIS SUPPORT ALL COLLISION TYPES INSTEAD OF JUST RECT COLLISION
+
+/**
+ * move this object out of a collision with another object
+ * @param otherObject: the other object with which we wish to stop colliding
+ * @param xPrevious: our previous x coordinate that we are retreating towards
+ * @param yPrevious: our previous y coordinate that we are retreating towards
+ */
+RygameObject.prototype.moveOutsideCollision = function(otherObject,xPrevious,yPrevious) {
+	//TODO: currently only accepts Rect collisions
 	var angle;
-	if (xPrevious == this.x && yPrevious == this.y) { //TODO: VERIFY THAT THIS IS ALWAYS THE BEST THING TO DO 
-		angle = 180 + this.drawAngle/Math.PI*180; //if there was no movement since last frame we just move backwards from where we're facing instead
+	if (xPrevious == this.x && yPrevious == this.y) {
+		//if there was no movement since last frame we just move backwards from where we're facing instead
+		angle = 180 + this.drawAngle/Math.PI*180;
 	}
 	else {
 		angle = getAngle(this.x,this.y,xPrevious,yPrevious); //TODO: VERIFY THAT THIS METHOD WORKS CORRECTLY
 	}
-	while (collisionRect(this,otherObject)) { //TODO: CHANGED FROM A DO-WHILE LOOP TO A WHILE LOOP. VERIFY THAT THIS STILL WORKS AS INTENDED
+	while (collisionRect(this,otherObject)) {
 		this.moveDirection(angle,1);
 	}
-	while (!collisionRect(this,otherObject)) { //TODO: CHANGED FROM A DO-WHILE LOOP TO A WHILE LOOP. VERIFY THAT THIS STILL WORKS AS INTENDED
+	while (!collisionRect(this,otherObject)) {
 		this.moveDirection(180 + angle,.1);
 	}
-	while (collisionRect(this,otherObject)) { //TODO: CHANGED FROM A DO-WHILE LOOP TO A WHILE LOOP. VERIFY THAT THIS STILL WORKS AS INTENDED
+	while (collisionRect(this,otherObject)) {
 		this.moveDirection(angle,.01);
 	}
 };	
-/*RygameObject.prototype.update = function() { //to be overwritten by the object if it needs to do something each frame
-	return; //
-};*/
+
+/**
+ * add a group to this RygameObject's list of groups in which it is contained
+ * @param group: the group to add to this object's groupsContained list
+ */
 RygameObject.prototype.addGroupContained = function(group) { 
 	this.groupsContained.push(group);
 };
+
+/**
+ * kill this RygameObject
+ */
 RygameObject.prototype.die = function() { 
 	//don't do anything if already dead
 	if (this.dead) {
@@ -1024,17 +1188,29 @@ RygameObject.prototype.die = function() {
 	this.dead = true;
 };
 
+/**
+ * attempt to update this RygameObject, verifying that it is on an active, non-frozen layer
+ * @param optionalArgs: a list of optional arguments to be passed to this object's update method
+ */
 RygameObject.prototype.attemptUpdate = function(optionalArgs) {
 	if (this.drawLayer.active && (!this.drawLayer.frozen)) {
 		this.update.apply(this,optionalArgs);
 	}
 };
 
+/**
+ * 
+ * @param x: the initial x coordinate of this object
+ * @param y: the initial y coordinate of this object
+ * @param updateDepth: the depth at which this object is updated (smaller depths update sooner)
+ * @param drawDepth: the depth at which this object is drawn (smaller depths update sooner)
+ * @param image: the image that this object should draw
+ * @param layer: the layer to which this object belongs
+ * @param affectedByCamera: whether this object scrolls with the camera (true) or ignore the camera position (false)
+ * @param renderAutomatically: whether this object renders on its own (true) or must be rendered manually (false)
+ * @param updateAutomatically: whether this object updates on its own (true) or must be updated manually (false)
+ */
 function RygameObject(x,y,updateDepth,drawDepth,image,layer,affectedByCamera,renderAutomatically,updateAutomatically) {
-	//x: the starting x position of the object
-	//y: the starting y position of the object
-	//updateDepth: the ordering for drawing the object. Lower Depths are updated earlier.
-	//this.position = new Position(x,y);
 	if (affectedByCamera == null) {
 		affectedByCamera = true;
 	}
@@ -1060,29 +1236,36 @@ function RygameObject(x,y,updateDepth,drawDepth,image,layer,affectedByCamera,ren
 	this.drawSurface = null;
 	this.image = null;
 	if (image != null) {
-		this.image = GameManager.images[image]; //TODO (maybe this todo is a relic from the image to canvas conversion?!)
+		this.image = GameManager.images[image];
 		this.drawSurface = createContext(this.image.width,this.image.height,false); 
 		this.drawSurface.drawImage(this.image,0,0);
 	}
-	//this.rect = null;
-	if (this.drawSurface != null) { //unfortunately have to reference dimensions via drawSurface.canvas.width rather than drawSurface.width
-		this.rect = new Rect(this.drawSurface.canvas.width,this.drawSurface.canvas.height); //GOTTA IMPLEMENT THIS WITH SOME ACUTAL CONNECTION TO THE DRAWSURFACE IMAGE PROPERTIES LATER
+	//unfortunately have to reference dimensions via drawSurface.canvas.width rather than drawSurface.width
+	if (this.drawSurface != null) {
+		this.rect = new Rect(this.drawSurface.canvas.width,this.drawSurface.canvas.height);
 	}
 	else {
 		this.rect = new Rect(0,0);
 	}
 	
-	this.drawLayer = layer;  //(old comment from early period of importing code from rygame python edition to javascript edition) A LOT OF THIS NEEDS TO BE FILLED IN PROPERLY AND WAS JUST SET TO NULL AS A TEMP VALUE. may be some variables that need to be set properly still in the gamemanager class too.
+	this.drawLayer = layer;
 	this.visible = true;
 	GameManager.addObject(this);
 	
 }
 
+/**
+ * update the brightness of a canvas context
+ * @param oldContext: the context to be brightened
+ * @param brightnessPercent: the percent by which to brighten the context
+ * @param operateInPlace: whether the brightening should occur in place (true) or on a new conetxt (false)
+ * @returns
+ */
 function updateBrightness(oldContext,brightnessPercent,operateInPlace) {
 	if (operateInPlace == null) {
 		operateInPlace = false;
 	}
-	//copy old canvas to new canvas
+	//copy old canvas to new canvas, if in-place operation is not desired
 	var newContext = operateInPlace ? oldCanvas : createContext(oldContext.canvas.width,oldContext.canvas.height,false); 
 	newContext.drawImage(oldContext.canvas,0,0);
 	newContext.globalAlpha = brightnessPercent;
