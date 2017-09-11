@@ -195,10 +195,17 @@ function findClosestStartPath(startObject,paths) {
 	return paths[closestIndex];
 }
 
-//calculate the shortest path in terrain from start space to goal space, or all shortest paths if returnAllSolutions flag is ticked. 
-//If goalSpace is null, instead searches for a task that input raider can perform.
+/**
+ * calculate one or all of the shortest paths in a terrain from one space to another (note that paths go from end to start, rather than from start to end)
+ * if goalSpace is null, the search returns the nearest task that the input raider can perform.
+ * @param terrain: the terrain in which to search for a path
+ * @param startSpace: the space on which to begin the search
+ * @param goalSpace: the desired goal space. If null, searches for a task that the input raider can perform instead.
+ * @param returnAllSolutions: whether all shortest paths should be returned (true) or just one path (false)
+ * @param raider: optional flag; if goalSpace is null, this is the raider who will be used to determine which tasks can be performed.
+ * @returns: the shortest path or paths from the start space to the goal space, or to the nearest task that the input raider can perform.
+ */
 function calculatePath(terrain,startSpace,goalSpace,returnAllSolutions,raider) { 
-	/*find shortest path from startSpace to a space satisfying desiredProperty (note: path goes from end to start, not from start to end)*/
 	//if startSpace meets the desired property, return it without doing any further calculations
 	if (startSpace == goalSpace || (goalSpace == null && raider.canPerformTask(startSpace))) {
 		if (!returnAllSolutions) {
@@ -217,11 +224,11 @@ function calculatePath(terrain,startSpace,goalSpace,returnAllSolutions,raider) {
 	var closedSet = [];
 	var solutions = [];
 	var finalPathDistance = -1;
-	var openSet = [startSpace]; //TODO: we can speed up the algorithm quite a bit if we use hashing for lookup rather than lists
-	//main iteration: keep popping spaces from the back until we have found a solution (or all equal solutions if returnAllSolutions is True) or openSet is empty (in which case there is no solution)
-	while (openSet.length > 0) {
-				
-		var currentSpace = openSet.shift();  //TODO: keep the list sorted in reverse for this algorithm so that you can insert and remove from the back of the list rather than shifting all of the elements when inserting and removing (minor performance improvement)
+	var openSet = [startSpace];
+	//main iteration: keep popping spaces from the back until we have found a solution (or all equal solutions if returnAllSolutions is True) 
+	//or openSet is empty (in which case there is no solution)
+	while (openSet.length > 0) {	
+		var currentSpace = openSet.shift();
 		closedSet.push(currentSpace);
 		var adjacentSpaces = [];
 		adjacentSpaces.push(adjacentSpace(terrain,currentSpace.listX,currentSpace.listY,"up"));
@@ -237,7 +244,6 @@ function calculatePath(terrain,startSpace,goalSpace,returnAllSolutions,raider) {
 			}
 			
 			var newSpace = adjacentSpaces[k];
-			
 			//check this here so that the algorithm is a little bit faster, but also so that paths to non-walkable terrain pieces (such as for drilling) will work
 			//if the newSpace is a goal, find a path back to startSpace (or all equal paths if returnAllSolutions is True)
 			if (newSpace == goalSpace || (goalSpace == null && raider.canPerformTask(newSpace))) {
@@ -271,7 +277,6 @@ function calculatePath(terrain,startSpace,goalSpace,returnAllSolutions,raider) {
 			
 			//attempt to keep branching from newSpace as long as it is a walkable type
 			if ((newSpace != null) && (newSpace.walkable == true)) {					
-				
 				var newStartDistance = currentSpace.startDistance + 1;
 				var notInOpenSet = openSet.indexOf(newSpace) == -1;
 				
@@ -282,12 +287,14 @@ function calculatePath(terrain,startSpace,goalSpace,returnAllSolutions,raider) {
 				
 				//accept newSpace if newSpace has not yet been visited or its new distance from the start space is equal to its existing startDistance
 				if (notInOpenSet || newSpace.startDistance == newStartDistance) { 
-					if (notInOpenSet) { //only reset parent list if this is the first time we are visiting newSpace
+					//only reset parent list if this is the first time we are visiting newSpace
+					if (notInOpenSet) {
 						newSpace.parents = [];
 					}
 					newSpace.parents.push(currentSpace);
 					newSpace.startDistance = newStartDistance;
-					if (notInOpenSet) { //if newSpace does not yet exist in the open set, insert it into the appropriate position using a binary search
+					//if newSpace does not yet exist in the open set, insert it into the appropriate position using a binary search
+					if (notInOpenSet) {
 						openSet.splice(binarySearch(openSet,newSpace,"startDistance",true),0,newSpace);
 					}
 				}
@@ -295,13 +302,19 @@ function calculatePath(terrain,startSpace,goalSpace,returnAllSolutions,raider) {
 			}
 		}
 	}
-	if (solutions.length == 0) { //if solutions is null then that means that no path was found
+	
+	//if solutions is null then that means that no path was found
+	if (solutions.length == 0) {
 		return null;
 	}
 	return solutions; 
 }
 
-//determine whether or not there is a resource available and not resource of the input resource type
+/**
+ * determine whether or not there is a resource available of the input resource type
+ * @param resourceType: the type of resource to check for
+ * @returns whether a resource of the desired type is available (true) or not (false)
+ */
 function resourceAvailable(resourceType) {
 	if (collectedResources[resourceType] - reservedResources[resourceType] > 0) {
 		return true;
@@ -309,33 +322,14 @@ function resourceAvailable(resourceType) {
 	return false;
 }
 
-//deprecated: populate a test level with some specifically placed objects
-function populateTestLevel() {
-	if (terrainMapName == "test level 1.js" || terrainMapName == "test level 2.js") { //create some test objects if we have loaded in one of the test levels (deprecated)
-		collectables.push(new Collectable(terrain[3][4],"ore"));
-		collectables.push(new Collectable(terrain[3][5],"ore"));
-		collectables.push(new Collectable(terrain[2][5],"ore"));
-		collectables.push(new Collectable(terrain[1][5],"ore"));
-	}
-}
-
-//deprecated: populate a test level with some specifically placed raiders and objects
-function populateTestCollision() {
-	var testRaider = new Raider(terrain[0][0]);
-	var testOre = new Collectable(terrain[0][0],"ore");
-	testRaider.x = 10;
-	testRaider.y = 34.9;
-	testRaider.drawAngle = Math.PI / 2;
-	testOre.x = 11;
-	testOre.y = 28;
-	console.log("COLLISION TEST: " + collisionRect(testRaider,testOre,false));
-}
-
-//load in level data for level of input name, reading from all supported map file types.
+/**
+ * load in level data from input level name, reading from all supported map file types
+ * @param name: the name of the level file, minus the file extension
+ */
 function loadLevelData(name) {
 	levelName = name;
 	terrainMapName = "Surf_" + levelName + ".js";
-	cryoreMapName = "Cror_" + levelName + ".js"; //TODO: CONTINUE ADDING NEW MAPS TO THIS BLOCK OF CODE AND CLEANING IT UP, AND ADD CHECKS IN CASE ANY MAP DOESN'T EXIST FOR THE LEVEL BEING LOADED
+	cryoreMapName = "Cror_" + levelName + ".js";
 	olFileName = levelName + ".js";
 	predugMapName = "Dugg_" + levelName + ".js";
 	surfaceMapName = "High_" + levelName + ".js";
@@ -347,7 +341,8 @@ function loadLevelData(name) {
 		terrain.push([]);
 		for (var r = 0; r < GameManager.scriptObjects[terrainMapName].level[i].length; r++) {
 
-			if (GameManager.scriptObjects[pathMapName] && GameManager.scriptObjects[pathMapName].level[i][r] == 1) { //give the path map the highest priority, if it exists
+			//give the path map the highest priority, if it exists
+			if (GameManager.scriptObjects[pathMapName] && GameManager.scriptObjects[pathMapName].level[i][r] == 1) {
 				//rubble 1 Space id = 100
 				terrain[i].push(new Space(100,i,r,GameManager.scriptObjects[surfaceMapName].level[i][r]));	
 			}
@@ -357,7 +352,8 @@ function loadLevelData(name) {
 			}
 			else {
 				if (GameManager.scriptObjects[predugMapName].level[i][r] == 0) {
-					if (GameManager.scriptObjects[terrainMapName].level[i][r] == 5) { //soil(5) was removed pre-release, so replace it with dirt(4)
+					//soil(5) was removed pre-release, so replace it with dirt(4)
+					if (GameManager.scriptObjects[terrainMapName].level[i][r] == 5) {
 						terrain[i].push(new Space(4,i,r,GameManager.scriptObjects[surfaceMapName].level[i][r]));	
 					}
 					else {
@@ -405,7 +401,7 @@ function loadLevelData(name) {
 		for (var r = 0; r < GameManager.scriptObjects[predugMapName].level[i].length; r++) {
 			var currentPredug = GameManager.scriptObjects[predugMapName].level[i][r];
 			if (currentPredug == 1 || currentPredug == 3) {
-				touchAllAdjacentSpaces(terrain[i][r]); //i dont like that this is being called for each space individually, but there shouldn't be any overlap, just seems kinda overkill
+				touchAllAdjacentSpaces(terrain[i][r]);
 			}
 		}
 	}
@@ -423,16 +419,20 @@ function loadLevelData(name) {
 	for (var olObjectName in GameManager.scriptObjects[olFileName]) {
 		var olObject = GameManager.scriptObjects[olFileName][olObjectName];
 	    if (olObject.type == "TVCamera") {
-	    	gameLayer.cameraX = olObject.xPos*tileSize; //note: coords need to be rescaled since 1 unit in LRR is 1, but 1 unit in the remake is 128 (tile size)
-	    	gameLayer.cameraY = olObject.yPos*tileSize; //note: x/y coords should be the same, but x/y position in terrain list is inverted since terrain list is Y,X format
+	    	//coords need to be rescaled since 1 unit in LRR is 1, but 1 unit in the remake is tileSize (128)
+	    	gameLayer.cameraX = olObject.xPos*tileSize;
+	    	gameLayer.cameraY = olObject.yPos*tileSize;
+	    	//center the camera
 	    	gameLayer.cameraX -= parseInt(GameManager.screenWidth/2,10);
-	    	gameLayer.cameraY -= parseInt(GameManager.screenHeight/2,10);//center the camera
+	    	gameLayer.cameraY -= parseInt(GameManager.screenHeight/2,10);
 	    }
 	    else if (olObject.type == "Pilot") {
-	    	var newRaider = new Raider(terrain[parseInt(olObject.yPos,10)][parseInt(olObject.xPos,10)]); //note inverted x/y coords for terrain list
+	    	//note inverted x/y coords for terrain list
+	    	var newRaider = new Raider(terrain[parseInt(olObject.yPos,10)][parseInt(olObject.xPos,10)]);
 	    	newRaider.setCenterX(olObject.xPos*tileSize);
 	    	newRaider.setCenterY(olObject.yPos*tileSize);
-	    	newRaider.drawAngle = (olObject.heading-90)/180*Math.PI; //heading angle appears to be 90 degrees rotated clockwise relative to the remake (this should be because i setup the sprites to face right by default rather than up); also needs to be converted to radians
+	    	//convert to radians (note that heading angle is rotated 90 degrees clockwise relative to the remake angles)
+	    	newRaider.drawAngle = (olObject.heading-90)/180*Math.PI;
 	    	raiders.push(newRaider);
 	    }
 	    else if (olObject.type == "Toolstation") {
@@ -441,36 +441,41 @@ function loadLevelData(name) {
 	    	//check if this space was in a wall, but should now be touched
 	    	checkRevealSpace(currentSpace);
 	    	var powerPathSpace = null;
-	    	var headingDir = Math.round(olObject.heading); //don't do an int conversion here as we need this to be exactly one of 4 values
+	    	//round the heading angle as buildings can only be facing in cardinal directions
+	    	var headingDir = Math.round(olObject.heading);
 	    	if (headingDir == 0) {
 	    		powerPathSpace = adjacentSpace(terrain,currentSpace.listX,currentSpace.listY,"up");
-		    	currentSpace.headingAngle = Math.PI;//use an angle variable separate from drawAngle so that the object does not draw a rotated image when in the fog
+		    	currentSpace.headingAngle = Math.PI;
 	    	}
 	    	else if (headingDir == 90) {
 	    		powerPathSpace = adjacentSpace(terrain,currentSpace.listX,currentSpace.listY,"right");
-		    	currentSpace.headingAngle = -.5*Math.PI;//use an angle variable separate from drawAngle so that the object does not draw a rotated image when in the fog
+		    	currentSpace.headingAngle = -.5*Math.PI;
 	    	}
 	    	else if (headingDir == 180) {
 	    		powerPathSpace = adjacentSpace(terrain,currentSpace.listX,currentSpace.listY,"down");
-		    	currentSpace.headingAngle = 0;//use an angle variable separate from drawAngle so that the object does not draw a rotated image when in the fog
+		    	currentSpace.headingAngle = 0;
 	    	}
 	    	else if (headingDir == 270) {
 	    		powerPathSpace = adjacentSpace(terrain,currentSpace.listX,currentSpace.listY,"left");
-		    	currentSpace.headingAngle = .5*Math.PI;//use an angle variable separate from drawAngle so that the object does not draw a rotated image when in the fog
+		    	currentSpace.headingAngle = .5*Math.PI;
 	    	}
-	    	if (currentSpace.touched) { //set drawAngle to headingAngle now if this space isn't in the fog to start
+	    	//set drawAngle to headingAngle now if this space isn't initially in the fog
+	    	if (currentSpace.touched) {
 	    		currentSpace.drawAngle = currentSpace.headingAngle;
 	    	}
 	    	currentSpace.powerPathSpace = powerPathSpace;
-	    	//check if this space was in a wall, but should now be touched
+	    	//check if this building's power path space was in a wall, but should now be touched
 	    	checkRevealSpace(currentSpace.powerPathSpace);
 	    	currentSpace.powerPathSpace.setTypeProperties("building power path");
 	    }
 	}
 }
 
-//check if this space is surrounded on any side by a touched space; if so, touch this space 
-//this function should only be used when overriding spaces in OL portion of level load procedure
+/**
+ * check if this space is surrounded on any side by a touched space; if so, touch this space.
+ * this function should only be used when overriding spaces in OL portion of level load procedure.
+ * @param initialSpace: the space to check for revealing
+ */
 function checkRevealSpace(initialSpace) {
 	var adjacentSpaces = [];
 	adjacentSpaces.push(adjacentSpace(terrain,initialSpace.listX,initialSpace.listY,"up"));
@@ -485,7 +490,12 @@ function checkRevealSpace(initialSpace) {
 	}
 }
 
-//determine the type of the input task. If optional raider flag is input, gives additional context for determining task type.
+/**
+ * determine the type of the input task. If optional raider flag is included, gives additional context for determining the task type.
+ * @param task: the task whose type we should determine
+ * @param raider: the raider who possesses the input task
+ * @returns: the type of the input task, or null if the task is invalid
+ */
 function taskType(task,raider) { //optional raider flag allows us to determine what the raider is doing from additional task related variables
 	if (typeof task == "undefined" || task == null) {
 		return null;
@@ -524,7 +534,9 @@ function taskType(task,raider) { //optional raider flag allows us to determine w
 	}
 }
 
-//create a new raider, if there is at least one touched toolStore to teleport him to
+/**
+ * create a new raider, as long as there is at least one touched toolStore to which he can teleport
+ */
 function createRaider() {
 	var toolStore = null;
 	for (var i = 0; i < buildings.length; i++) {
@@ -539,7 +551,10 @@ function createRaider() {
 	raiders.push(new Raider(toolStore.powerPathSpace));
 }
 
-//create a new vehicle of input type, if there is at least one touched toolStore to teleport it to
+/**
+ * create a new vehicle of the input type, as long as there is at least one touched toolStore to which it can teleport 
+ * @param vehicleType: the type of vehicle to create
+ */
 function createVehicle(vehicleType) {
 	var toolStore = null;
 	for (var i = 0; i < buildings.length; i++) {
@@ -558,20 +573,26 @@ function createVehicle(vehicleType) {
 	tasksAvailable.push(newVehicle);
 }
 
-//cancel current selection, setting selection to empty list and selectionType to null, and closing any open menus
+/**
+ * cancel the current selection, setting selection to an empty list and selectionType to null, and closing any open menus
+ */
 function cancelSelection() {
 	selection = [];
 	selectionType = null;
 	openMenu = "";
 }
 
-//attempt to update current selection in response to a left-click
+/**
+ * attempt to update the current selection in response to a left-click
+ */
 function checkUpdateClickSelection() {
-	if (GameManager.mouseReleasedLeft && !mousePressIsSelection) { //ignore mouse clicks if they landed on a part of the UI
-		//check if raider clicked
-		var raiderSelected = null; //don't bother polling for more than one raider click since they are guaranteed to have the same drawDepth, meaning choosing one is arbitrary - might as well go with the first one found
+	//ignore mouse clicks if they landed on a part of the UI
+	if (GameManager.mouseReleasedLeft && !mousePressIsSelection) {
+		//check if a raider was clicked
+		var raiderSelected = null;
 		for (var i = 0; i < raiders.objectList.length; i++) {
 			if (collisionPoint(GameManager.mouseReleasedPosLeft.x,GameManager.mouseReleasedPosLeft.y,raiders.objectList[i],raiders.objectList[i].affectedByCamera)) {
+				//simply choose the first raider identified as having been clicked, since all raiders have the same depth regardless
 				raiderSelected = raiders.objectList[i];
 				break;
 			}
@@ -581,7 +602,7 @@ function checkUpdateClickSelection() {
 			selectionType = "raider";
 		}
 		else {
-			//check if vehicle clicked
+			//check if a vehicle was clicked
 			var vehicleSelected = null;
 			for (var i = 0; i < vehicles.objectList.length; i++) {
 				if (collisionPoint(GameManager.mouseReleasedPosLeft.x,GameManager.mouseReleasedPosLeft.y,vehicles.objectList[i],vehicles.objectList[i].affectedByCamera)) {
@@ -594,7 +615,7 @@ function checkUpdateClickSelection() {
 				selectionType = selection[0].type;
 			}
 			else {	
-				//check if collectable clicked
+				//check if a collectable object was clicked
 				var itemSelected = null; 
 				for (var i = 0; i < collectables.objectList.length; i++) {
 					if (collisionPoint(GameManager.mouseReleasedPosLeft.x,GameManager.mouseReleasedPosLeft.y,collectables.objectList[i],collectables.objectList[i].affectedByCamera)) {
@@ -608,7 +629,7 @@ function checkUpdateClickSelection() {
 				}
 				
 				else {
-					//check if space clicked
+					//check if a space was clicked
 					var spaceSelected = null;
 					for (var i = 0; i < terrain.length; i++) {
 						for (var r = 0; r < terrain[i].length; r++) {
@@ -629,7 +650,8 @@ function checkUpdateClickSelection() {
 			}
 		}
 		
-		if (selectionType != "raider" && openMenu == "tool") { //automatically close tool menu if a raider is no longer selected
+		//automatically close tool menu if a raider is no longer selected
+		if (selectionType != "raider" && openMenu == "tool") {
 			openMenu = "";
 		}
 			
