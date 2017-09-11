@@ -12,7 +12,8 @@ function goFullScreen() {
 		canvas.webkitRequestFullScreen();
 	}
 	else if (canvas.mozRequestFullScreen) {
-		canvas.mozRequestFullScreen();
+		//we must use a container element to emulate webkit style fullscreen in firefox
+		document.getElementById("fscontainer").mozRequestFullScreen();
 	}
 }
 
