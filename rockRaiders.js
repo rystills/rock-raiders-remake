@@ -99,7 +99,7 @@ function getNearestSpace(terrain,object) {
  * @param x: the first index representing the desired terrain position
  * @param y: the second index representing the desired terrain position
  * @param dir: the direction (up, down, left, or right) of the adjacent space to return. Returns all spaces if unspecified.
- * @returns: the resulting space or spaces, or null if the adjacent space does not exist.
+ * @returns the resulting space or spaces, or null if the adjacent space does not exist.
  * @throws: direction error if dir is not one of the cardinal directions or null
  */
 function adjacentSpace(terrain,x,y,dir) {
@@ -175,7 +175,7 @@ function touchAllAdjacentSpaces(initialSpace) {
  * determine the path from the input list whose starting space is closest to the input object
  * @param startObject: the object whose position should be checked against the input paths
  * @param paths: the list of potential paths to select from
- * @returns: the path whose start position is closest to the input object
+ * @returns the path whose start position is closest to the input object
  */
 function findClosestStartPath(startObject,paths) {
 	if (paths == null) {
@@ -203,7 +203,7 @@ function findClosestStartPath(startObject,paths) {
  * @param goalSpace: the desired goal space. If null, searches for a task that the input raider can perform instead.
  * @param returnAllSolutions: whether all shortest paths should be returned (true) or just one path (false)
  * @param raider: optional flag; if goalSpace is null, this is the raider who will be used to determine which tasks can be performed.
- * @returns: the shortest path or paths from the start space to the goal space, or to the nearest task that the input raider can perform.
+ * @returns the shortest path or paths from the start space to the goal space, or to the nearest task that the input raider can perform.
  */
 function calculatePath(terrain,startSpace,goalSpace,returnAllSolutions,raider) { 
 	//if startSpace meets the desired property, return it without doing any further calculations
@@ -494,7 +494,7 @@ function checkRevealSpace(initialSpace) {
  * determine the type of the input task. If optional raider flag is included, gives additional context for determining the task type.
  * @param task: the task whose type we should determine
  * @param raider: the raider who possesses the input task
- * @returns: the type of the input task, or null if the task is invalid
+ * @returns the type of the input task, or null if the task is invalid
  */
 function taskType(task,raider) { //optional raider flag allows us to determine what the raider is doing from additional task related variables
 	if (typeof task == "undefined" || task == null) {
@@ -658,7 +658,9 @@ function checkUpdateClickSelection() {
 	}
 }
 
-//update selectionType based on current selection, setting it to null if selection is empty
+/**
+ * update selectionType based on current selection, setting it to null if selection is empty
+ */
 function checkUpdateSelectionType() {
 	if (selection.length == 0) {
 		return;
@@ -698,7 +700,9 @@ function checkUpdateSelectionType() {
 	}
 }
 
-//attempt to update current mouse drag box selection. If mouse is released, select all raiders within the box.
+/**
+ * attempt to update current mouse drag box selection. If mouse button is released, select all raiders within the box.
+ */
 function checkUpdateMouseSelect() {
 	if (GameManager.mouseDownLeft) {
 		if (GameManager.mousePressedLeft) {
@@ -711,9 +715,10 @@ function checkUpdateMouseSelect() {
 				selectionRectCoords.y1 = mousePressStartPos.y;
 			}
 		}
-		if (mousePressIsSelection) { //we are currently performing a drag select box
-			//determine top-left corner to draw rect
-			selectionRectPointList = [null,null,null,null]; //[xMin, yMin, xMax, yMax];
+		//we are currently performing a drag select box
+		if (mousePressIsSelection) {
+			//determine top-left corner to draw rect [xMin, yMin, xMax, yMax]
+			selectionRectPointList = [null,null,null,null];
 			selectionRectCoordList = [selectionRectCoords.x1,selectionRectCoords.y1,GameManager.mousePos.x,GameManager.mousePos.y];
 			for (var i = 0; i < 4; i++) {
 				if (selectionRectPointList[i%2] == null || selectionRectCoordList[i] < selectionRectPointList[i%2]) {
@@ -735,14 +740,12 @@ function checkUpdateMouseSelect() {
 				selectionRectObject.rect.height = selectionRectPointList[3]-selectionRectPointList[1];
 				selectionRectObject.x = selectionRectPointList[0] + selectionRectObject.drawLayer.cameraX;
 				selectionRectObject.y = selectionRectPointList[1] + selectionRectObject.drawLayer.cameraY;
-				//console.log("X: " + selectionRectObject.x + " Y: "  + selectionRectObject.y + " rectWidth: " + selectionRectObject.rect.width + " rectHeight: " + selectionRectObject.rect.height);
 				var collidingRaiders = [];
 				for (var i = 0; i < raiders.objectList.length; i++) {
 					if (collisionRect(selectionRectObject,raiders.objectList[i])) {
 						collidingRaiders.push(raiders.objectList[i]);
 					}
 				}
-				//console.log(collidingRaiders.length);
 				if (collidingRaiders.length > 0) {
 					//set selection to all of the raiders contained within the selection Rect
 					selectionType = "raider";
@@ -753,10 +756,12 @@ function checkUpdateMouseSelect() {
 	}
 }
 
-//attempt to assign a task to the current selection upon releasing right mouse button.
+/**
+ * attempt to assign a task to the current selection upon releasing the right mouse button
+ */
 function checkAssignSelectionTask() {
 	if (GameManager.mouseReleasedRight && selection.length != 0 && selectionType == "raider") {
-		 //TODO: THIS IS A BIG CHUNK OF REPEAT CODE FROM THE LEFTCLICK TASK DETECTION, THIS DESERVES ITS OWN METHOD FOR SURE
+		 //most of this code is copied from left-click task detection
 		var clickedTasks = [];
 		//first check if we clicked a vehicle that is neither being driver already nor has a raider en route
 		for (var i = 0; i < vehicles.objectList.length; ++i) {
@@ -773,9 +778,11 @@ function checkAssignSelectionTask() {
 					var initialSpace = terrain[p][r];
 					for (var j = 0; j < terrain[p][r].contains.objectList.length + 1; j++) {
 						if (collisionPoint(GameManager.mouseReleasedPosRight.x,GameManager.mouseReleasedPosRight.y,initialSpace,initialSpace.affectedByCamera) && 
-								((tasksAvailable.indexOf(initialSpace) != -1) || initialSpace.walkable || (tasksInProgress.objectList.indexOf(initialSpace) != -1))) { //don't do anything if the task is already taken by another raider, we don't want to readd it to the task queue
+								//don't do anything if the task is already taken by another raider, we don't want to re-add it to the task queue
+								((tasksAvailable.indexOf(initialSpace) != -1) || initialSpace.walkable || (tasksInProgress.objectList.indexOf(initialSpace) != -1))) {
 							console.log("A");
-							if ((j == 0 && (initialSpace.drillable || initialSpace.drillHardable || initialSpace.sweepable || initialSpace.buildable || initialSpace.walkable)) || j > 0) { //could optimize by only continuing if j == 1 and initialSpace.walkable == true but won't for now as unwalkable spaces shouldnt have any items in contains anyway
+							if ((j == 0 && (initialSpace.drillable || initialSpace.drillHardable || initialSpace.sweepable || 
+									initialSpace.buildable || initialSpace.walkable)) || j > 0) {
 								console.log("B");
 								clickedTasks.push(initialSpace);
 								if (debug) {
@@ -783,8 +790,7 @@ function checkAssignSelectionTask() {
 								}
 							}
 						}
-						//could optimize by breaking if theres no collision on the square itself rather than checking contains as well, but won't for now as if a contains is on the edge of a space this will cause it to become unclickable except when clicking on the space as well
-						initialSpace = terrain[p][r].contains.objectList[j]; //TODO: RENAME INITIALSPACE NOW THAT IT IS USED FOR COLLECTABLES TOO
+						initialSpace = terrain[p][r].contains.objectList[j];
 					}
 				}
 			}
@@ -793,7 +799,8 @@ function checkAssignSelectionTask() {
 		if (clickedTasks.length > 0) {
 			var lowestDrawDepthValue = clickedTasks[0].drawDepth;
 			var lowestDrawDepthId = 0;
-			var inProgress = tasksInProgress.objectList.indexOf(clickedTasks[0]) != -1; //prioritize tasks that are not in progress in the event that multiple tasks are clicked at once
+			//prioritize tasks that are not in progress in the event that multiple tasks are clicked at once
+			var inProgress = tasksInProgress.objectList.indexOf(clickedTasks[0]) != -1;
 			for (var p = 1; p < clickedTasks.length; p++) {
 				var curInProgress = tasksInProgress.objectList.indexOf(clickedTasks[p]) != -1;
 				if (curInProgress == inProgress && clickedTasks[p].drawDepth < lowestDrawDepthValue || (inProgress == true && curInProgress == false)) {
@@ -811,7 +818,7 @@ function checkAssignSelectionTask() {
 			var assignedAtLeastOnce = false;
 			var taskWasAvailable = false;
 			var baseSelectedTask = taskType(selectedTask);
-			for (var i = 0; i < selection.length; i++) {	//TODO: allow certain tasks to be performed by raiders even if they are holding something
+			for (var i = 0; i < selection.length; i++) {
 				selectedTaskType = baseSelectedTask;
 				//treat build commands as walk unless the raider is holding something that the building site needs
 				if (selectedTaskType == "build") {
@@ -845,14 +852,16 @@ function checkAssignSelectionTask() {
 				console.log("can we perform? : "  +selection[i].canPerformTask(selectedTask,true));
 				//if we changed the taskType to 'walk' override this canPerformTask check since raiders can always walk
 				if (selection[i].canPerformTask(selectedTask,true) || selectedTaskType == "walk") {
-					if (selection[i].currentTask != null && (selection[i].holding.length == 0 || selectedTaskType == "build" || selectedTaskType == "walk")) { //if current raider is already performing a task and not holding anything, stop him before assigning the new task
+					//if current raider is already performing a task and not holding anything, stop him before assigning the new task
+					if (selection[i].currentTask != null && (selection[i].holding.length == 0 || selectedTaskType == "build" || selectedTaskType == "walk")) {
 						stopMinifig(selection[i]);
 					}
-					if (selection[i].currentTask == null && (selection[i].holding.length == 0 || selectedTaskType == "build" || selectedTaskType == "walk")) { //raiders are the only valid selection type for now; later on any Space (and maybe collectables as well?) or vehicle, etc.. will be a valid selection[i] as even though these things cannot be assigned tasks they can be added to the high priority task queue as well as create menu buttons
-						//selectedTask.taskPriority = 1;
+					//raiders are the only valid selection type for now
+					if (selection[i].currentTask == null && (selection[i].holding.length == 0 || selectedTaskType == "build" || selectedTaskType == "walk")) {
 						if (selection[i].haveTool(selectedTaskType)) {
 							var index = tasksAvailable.indexOf(selectedTask);
-							if (index != -1) { //this check will be necessary in the event that we choose a task such as walking
+							//this check will be necessary in the event that we choose a task such as walking
+							if (index != -1) {
 								taskWasAvailable = true;
 								tasksAvailable.splice(index,1);
 							} 
@@ -865,8 +874,8 @@ function checkAssignSelectionTask() {
 							selection[i].currentTask = selectedTask;
 							selection[i].currentObjective = selectedTask;
 							
-							//TODO: cleanup the code at the top of the Raider class which deals with choosing a task, stick it in a method, and reuse it here for simplicity
-							selection[i].currentPath = findClosestStartPath(selection[i],calculatePath(terrain,selection[i].space,typeof selectedTask.space == "undefined" ? selectedTask: selectedTask.space,true));
+							selection[i].currentPath = findClosestStartPath(selection[i],calculatePath(terrain,selection[i].space,
+									typeof selectedTask.space == "undefined" ? selectedTask: selectedTask.space,true));
 							var foundCloserResource = selection[i].checkChooseCloserEquivalentResource(false);
 							
 							//don't assign the task if a valid path to the task cannot be found for the raider
@@ -913,7 +922,9 @@ function checkAssignSelectionTask() {
 	}
 }
 
-//release any held objects from all raiders in selection
+/**
+ * release any held objects from all raiders in selection
+ */
 function unloadMinifig() {
 	if (selection.length == 0) {
 		return;
@@ -934,11 +945,14 @@ function unloadMinifig() {
 			selection[i].holding[0].die();
 			selection[i].holding.shift();
 		}
-		selection[i].clearTask(); //modifications made to clearTask should now mean that if any resources were reserved from the resource collection or dedicated to a building site, the dedication numbers have been correctly decremented
+		//cleartask handles decrementing 'reserved resources' numbers and such
+		selection[i].clearTask();
 	}
 }
 
-//if selection is a collectable that is an available task, boost its task priority so that the next available raider will come to get it
+/**
+ * if selection is a collectable and is an available task, boost its task priority so that the next available raider will come get it
+ */
 function grabItem() {
 	if (selection.length == 0) {
 		return;
@@ -951,7 +965,9 @@ function grabItem() {
 	}
 }
 
-//set a wall to be reinforced
+/**
+ * if the current selection is a wall, set it to be reinforced
+ */
 function reinforceWall() {
 	if (selection.length == 0) {
 		return;
@@ -970,7 +986,9 @@ function reinforceWall() {
 	}
 }
 
-//set the currently selected space to be blown up with dynamite
+/**
+ * if the currently selected space is explodable, set it to be blown up with dynamite
+ */
 function dynamiteWall() {
 	if (selection.length == 0) {
 		return;
@@ -985,7 +1003,9 @@ function dynamiteWall() {
 	}
 }
 
-//set the currently selected space to be drilled
+/**
+ * if the currently selected space is drillable, set it to be drilled
+ */
 function drillWall() {
 	if (selection.length == 0) {
 		return;
@@ -998,7 +1018,9 @@ function drillWall() {
 	}
 }
 
-//set the currently selected space to be cleared of rubble
+/**
+ * if the currently selected space is sweepable, set it to be cleared of rubble
+ */
 function clearRubble() {
 	if (selection.length == 0) {
 		return;
@@ -1011,48 +1033,63 @@ function clearRubble() {
 	}
 }
 
-//set the currently selected space to be built into a power path
+/**
+ * if the currently selected space is cleared ground, set the currently selected space to be built into a power path
+ */
 function buildPowerPath() {
 	if (selection.length == 0) {
 		return;
 	}
 	for (var i = 0; i < selection.length; i++) {
 		if (selection[i].type == "ground") {
-			selection[i].buildingSiteType = "power path"; //this should probably be assigned somewhere else..
+			selection[i].buildingSiteType = "power path";
 			selection[i].setTypeProperties("building site"); 
 			tasksAvailable.push(selection[i]);
 		}
 	}
 }
 
-//attempt to upgrade the selected building
+/**
+ * if the current selection is a building, attempt to upgrade it
+ */
 function upgradeBuilding() {
 	for (var i = 0; i < selection.length; ++i) {
 		selection[i].upgrade();
 	}
 }
 
-//determine the closest path to the closest building of buildingType from raider. return null if no path is found.
+/**
+ * determine the closest path to the closest building of buildingType from raider, or null if no path is found
+ * @param raider: the raider from whom we are looking for a path
+ * @param buildingType: the type of building we are searching for
+ * @returns the closest path to the closest building of the desired type, or null if no path is found
+ */
 function pathToClosestBuilding(raider, buildingType) {
 	var closestBuilding = raider.chooseClosestBuilding(buildingType);
 	return findClosestStartPath(raider,calculatePath(terrain,raider.space,closestBuilding,true));
 }
 
-//set the active task for all raiders in current selection to move to the nearest tool store and start performing an upgrade
-function upgradeRaider() { //TODO: take the 'find path to toolstore' code from this and getTool, and give it its own method.
+/**
+ * assign all raiders in the current selection to move to the nearest tool store and start upgrading, if they are not max level
+ */
+function upgradeRaider() {
+	//find path to toolstore code copied from getTool
 	for (var i = 0; i < selection.length; i++) {
 		if (selection[i].vehicleInhibitsTask("get tool")) {
 			continue;
 		}
 		if (selection[i].upgradeLevel < 3) {
-			//these checks copied rfom checkAssignSelectionTask
-			if (selection[i].currentTask != null && selection[i].holding.length == 0) { //if current raider is already performing a task and not holding anything, stop him before assigning the new task
+			//these checks copied from checkAssignSelectionTask
+			//if current raider is already performing a task and not holding anything, stop him before assigning the new task
+			if (selection[i].currentTask != null && selection[i].holding.length == 0) {
 				stopMinifig(selection[i]);
 			}
-			if (selection[i].currentTask == null && selection[i].holding.length == 0) { //raiders are the only valid selection type for now; later on any Space (and maybe collectables as well?) or vehicle, etc.. will be a valid selection[i] as even though these things cannot be assigned tasks they can be added to the high priority task queue as well as create menu buttons
+			//raiders are the only valid selection type for now
+			if (selection[i].currentTask == null && selection[i].holding.length == 0) {
 				var newPath = pathToClosestBuilding(selection[i],"tool store");
 				if (newPath == null) {
-					continue; //no toolstore found or unable to path to any toolstores from this raider
+					//no toolstore found or unable to path to any toolstores from this raider
+					continue;
 				}
 				selection[i].currentTask = newPath[0];
 				selection[i].currentPath = newPath;
@@ -1062,18 +1099,23 @@ function upgradeRaider() { //TODO: take the 'find path to toolstore' code from t
 	}
 }
 
-//assign all raiders in selection to path to the nearest tool store and get the specified tool type, if they are not currently holding it
+/**
+ * assign all raiders in the selection to go to the nearest tool store and get the specified tool type, if they are not currently holding it
+ * @param toolName: the name of the tool that the raiders should pick up
+ */
 function getTool(toolName) {
 	for (var i = 0; i < selection.length; i++) {
 		if (selection[i].vehicleInhibitsTask("get tool")) {
 			continue;
 		}
-		if (selection[i].tools.indexOf(toolName) == -1) { //&& selection[i].tools.length < selection[i].maxTools) {
-			//these checks copied rfom checkAssignSelectionTask
-			if (selection[i].currentTask != null && selection[i].holding.length == 0) { //if current raider is already performing a task and not holding anything, stop him before assigning the new task
+		if (selection[i].tools.indexOf(toolName) == -1) {
+			//these checks copied from checkAssignSelectionTask
+			//if current raider is already performing a task and not holding anything, stop him before assigning the new task
+			if (selection[i].currentTask != null && selection[i].holding.length == 0) {
 				stopMinifig(selection[i]);
 			}
-			if (selection[i].currentTask == null && selection[i].holding.length == 0) { //raiders are the only valid selection type for now; later on any Space (and maybe collectables as well?) or vehicle, etc.. will be a valid selection[i] as even though these things cannot be assigned tasks they can be added to the high priority task queue as well as create menu buttons
+			//raiders are the only valid selection type for now
+			if (selection[i].currentTask == null && selection[i].holding.length == 0) {
 				var newPath = pathToClosestBuilding(selection[i],"tool store");
 				if (newPath == null) {			
 					continue;
@@ -1082,18 +1124,22 @@ function getTool(toolName) {
 				selection[i].currentPath = newPath;
 				selection[i].currentObjective = selection[i].currentTask;
 				selection[i].getToolName = toolName;
-				//TODO: consider setting task priority here, as well as adding getTool task to tasksInProgreess
 			}
 		}
 	}
 }
 
-//toggle paused flag
+/**
+ * pause or unpause the game
+ */
 function pauseGame() {
 	paused = !paused;
 }
 
-//update levelName to input name, and load level via resetLevelVars method
+/**
+ * switch to the input level name, and load that level via resetLevelVars
+ * @param levelName: the name of the level to switch to
+ */
 function changeLevels(levelName) {
 	if (levelName == null) {
 		levelName = "03";
@@ -1101,7 +1147,9 @@ function changeLevels(levelName) {
 	resetLevelVars(levelName);
 }
 
-//check if the pause key (currently p) is pressed, and if so, toggle the paused flag
+/**
+ * check if the pause key is pressed, and if so, toggle the paused flag
+ */
 function checkTogglePause() {
 	if (GameManager.keyStates[String.fromCharCode(80)]) {
 		holdingPKey = true;
@@ -1112,18 +1160,12 @@ function checkTogglePause() {
 			holdingPKey = false;
 		}
 	}
-	if (GameManager.keyStates[String.fromCharCode(76)]) {
-		holdingLKey = true;
-	}
-	else {
-		if (holdingLKey) {
-			//returnToMainMenu();
-			holdingLKey = false;
-		}
-	}
 }
 
-//stop all selected raiders, regardless of their current task type
+/**
+ * stop the input raider, or all selected raiders if none is provided, regardless of their current task type
+ * @param raider: if specified, only this raider will be stopped
+ */
 function stopMinifig(raider) {
 	if (raider == null) {
 		stopGroup = selection;
@@ -1138,32 +1180,39 @@ function stopMinifig(raider) {
 		if (stopGroup[i].currentTask == null) {
 			continue;
 		}
-		if (stopGroup[i].holding.length == 0) { //this should cover the "collect" taskType, as well as "build" and any other task type which involves a held object, as we don't want that object to be duplicated
+		//don't duplicate task types which involve a held object (collect, build, etc..)
+		if (stopGroup[i].holding.length == 0) {
 			//don't add walk dummies to tasksAvailable
 			if (stopGroup[i].currentTask != stopGroup[i].walkPosDummy) {
 				tasksAvailable.push(stopGroup[i].currentTask);
 			}
 		}
-		if (stopGroup[i].currentTask.grabPercent != null && stopGroup[i].currentTask.grabPercent < 100) { //still undecided as to whether or not this logic statement should be moved inside the above condition (stopGroup[i].holding.length == 0)
+		//still undecided as to whether or not this logic statement should be moved inside the above condition (stopGroup[i].holding.length == 0)
+		if (stopGroup[i].currentTask.grabPercent != null && stopGroup[i].currentTask.grabPercent < 100) {
 			stopGroup[i].currentTask.grabPercent = 0;
 		}
 		var currentlyHeld = stopGroup[i].holding;
-		stopGroup[i].clearTask(); //modifications made to clearTask should now mean that if any resources were reserved from the resource collection or dedicated to a building site, the dedication numbers have been correctly decremented
+		//cleartask handles decrementing 'reserved resources' numbers and such
+		stopGroup[i].clearTask();
 		for (var h = 0; h < currentlyHeld.length; ++h) {
 			stopGroup[i].holding.push(currentlyHeld[h]);
 		}
 		if (stopGroup[i].holding.length != 0) {
 			for(var h = 0; h < stopGroup[i].holding.length; ++h) {
-				stopGroup[i].holding[h].grabPercent = 100; //if the raider was in the process of putting down a collectable but was interrupted, reset its grabPercent as it does't make sense for a collectable to be 'partially put down' after the raider is stopped			
+				//if the raider was in the process of putting down a collectable but was interrupted, reset its grabPercent
+				stopGroup[i].holding[h].grabPercent = 100;
 			}
 		}
 	}
 }
 
-//level select screen can be scrolled vertically to navigate the various levels
+/**
+ * scroll the level select screen vertically if mouse is panned or keyboard is pressed
+ */
 function checkScrollLevelSelect() {
 	let pannedKeyboard = false;
-	if (keyboardPanning) { //can you scroll using the arrow keys?
+	//can we scroll using the arrow keys?
+	if (keyboardPanning) { 
 		if (GameManager.keyStates[String.fromCharCode(38)]) {
 			pannedKeyboard = true;
 			levelSelectLayer.cameraY -= scrollSpeed;
@@ -1173,7 +1222,8 @@ function checkScrollLevelSelect() {
 			levelSelectLayer.cameraY += scrollSpeed;
 		}
 	}	
-	if (mousePanning && !pannedKeyboard) { //can you scroll by moving your mouse to the edge of the screen?
+	//can we scroll by moving your mouse to the edge of the screen?
+	if (mousePanning && !pannedKeyboard) { 
 		if (GameManager.mousePos.y < scrollDistance) {
 			levelSelectLayer.cameraY -= scrollSpeed;
 		}
@@ -1191,10 +1241,13 @@ function checkScrollLevelSelect() {
 	}
 }
 
-//check whether the screen should scroll due to mouse position or arrow key input
+/**
+ * check whether or not the screen should scroll due to mouse position or keyboard input
+ */
 function checkScrollScreen() {
 	let pannedKeyboard = false;
-	if (keyboardPanning) { //can you scroll using the arrow keys?
+	//can we scroll using the arrow keys?
+	if (keyboardPanning) { 
 		if (GameManager.keyStates[String.fromCharCode(37)]) {
 			pannedKeyboard = true;
 			gameLayer.cameraX -= scrollSpeed;
@@ -1212,7 +1265,8 @@ function checkScrollScreen() {
 			gameLayer.cameraY += scrollSpeed;
 		}
 	}
-	if (mousePanning && !pannedKeyboard) { //can you scroll by hovering the mouse at the corner of the screen?
+	//can we scroll by hovering the mouse at the corner of the screen?
+	if (mousePanning && !pannedKeyboard) { 
 		if (GameManager.mousePos.x < scrollDistance) {
 			gameLayer.cameraX -= scrollSpeed;
 		}
@@ -1242,7 +1296,9 @@ function checkScrollScreen() {
 	}
 }
 
-//debug function: draw object properties above each Space in terrain
+/**
+ * debug function: draw object properties above each Space in terrain
+ */
 function drawTerrainVars(varNames) {
 	GameManager.drawSurface.fillStyle = "rgb(255, 0, 0)";
 	GameManager.setFontSize(24);
@@ -1252,12 +1308,15 @@ function drawTerrainVars(varNames) {
 			for (var j = 0; j < varNames.length; ++j) {
 				concatString += (terrain[i][r])[varNames[j]] + (j == varNames.length - 1 ? "" : ", ");
 			}
-			GameManager.drawText(concatString,terrain[i][r].centerX()-terrain[i][r].drawLayer.cameraX,terrain[i][r].centerY()-terrain[i][r].drawLayer.cameraY,true,true);
+			GameManager.drawText(concatString,terrain[i][r].centerX()-terrain[i][r].drawLayer.cameraX,
+					terrain[i][r].centerY()-terrain[i][r].drawLayer.cameraY,true,true);
 		}
 	}
 }
 
-//draw current task above each raider's head
+/**
+ * draw current task above each raider's head
+ */
 function drawRaiderTasks() {
 	GameManager.setFontSize(24);
 	GameManager.drawSurface.fillStyle = "rgb(200, 220, 255)";
@@ -1265,12 +1324,15 @@ function drawRaiderTasks() {
 		curTask = raiders.objectList[i].getTaskType(raiders.objectList[i].currentTask);
 		//only display the current task if it is not null or if debug mode is enabled
 		if (debug || curTask != null) {
-			GameManager.drawText(curTask,raiders.objectList[i].centerX()-raiders.objectList[i].drawLayer.cameraX,raiders.objectList[i].y-raiders.objectList[i].drawLayer.cameraY - 13,true);	
+			GameManager.drawText(curTask,raiders.objectList[i].centerX()-raiders.objectList[i].drawLayer.cameraX,
+					raiders.objectList[i].y-raiders.objectList[i].drawLayer.cameraY - 13,true);	
 		}
 	}
 }
 
-//draw ingite timer above each active dynamite instance
+/**
+ * draw ingite timer above each active dynamite instance
+ */
 function drawDynamiteTimers() {
 	for (var i = 0; i < collectables.objectList.length; ++i) {
 		if (collectables.objectList[i].type == "dynamite" && collectables.objectList[i].ignited) {
@@ -1286,7 +1348,9 @@ function drawDynamiteTimers() {
 	}
 }
 
-//draw required materials (ore and energy crystals) above each building site
+/**
+ * draw required materials (ore and energy crystals) above each building site
+ */
 function drawBuildingSiteMaterials() {
 	GameManager.setFontSize(24);
 	for (var i = 0; i < buildingSites.length; i++) {
@@ -1299,7 +1363,9 @@ function drawBuildingSiteMaterials() {
 	}
 }
 
-//draw all UI components
+/**
+ * draw all UI components
+ */
 function drawUI() {
 	GameManager.setFontSize(36);
 	var selectionString = selectionType;
@@ -1307,12 +1373,15 @@ function drawUI() {
 		selectionString = "power path";
 	}
 	if (selectionType != null) {
-		GameManager.drawSurface.fillText("Selection Type: " + selectionString + (selection.length == 1 ? (selection[0].isBuilding == true && selection[0].touched == true ? " lvl " + selection[0].upgradeLevel : "") : (" x " + selection.length)),8,592); //to be replaced with classic green selection rectangle	
+		GameManager.drawSurface.fillText("Selection Type: " + selectionString + (selection.length == 1 ? 
+				(selection[0].isBuilding == true && selection[0].touched == true ? " lvl " + selection[0].upgradeLevel : "") : 
+					(" x " + selection.length)),8,592);
 	}
 	
 	//don't draw buttons when buildingPlacer is active
 	if (!buildingPlacer.visible) {
-		for (var i = 0; i < buttons.objectList.length; ++i) { //attempt to draw buttons here so that they are rendered in front of other post-render graphics
+		//attempt to draw buttons here so that they are rendered in front of other post-render graphics
+		for (var i = 0; i < buttons.objectList.length; ++i) {
 			buttons.objectList[i].render(GameManager);
 		}
 	}
@@ -1348,7 +1417,9 @@ function drawUI() {
 	GameManager.drawSurface.fillText(collectedResources["crystal"],GameManager.screenWidth - 28,595);
 }
 
-//draw ore and energy crystal count during the score screen
+/**
+ * draw ore and energy crystal count during the score screen
+ */
 function drawScoreScreenUI() {
 	GameManager.setFontSize(48);
 	GameManager.drawSurface.fillStyle = "rgb(65, 218, 0)";
@@ -1356,7 +1427,9 @@ function drawScoreScreenUI() {
 	GameManager.drawSurface.fillText("Energy Crystals: " + collectedResources["crystal"],341,100);
 }
 
-//draw held tools and skills for each raider
+/**
+ * draw held tools and skills for each raider
+ */
 function drawRaiderInfo() {
 	if (selectionType != "raider") {
 		return;
@@ -1388,7 +1461,9 @@ function drawRaiderInfo() {
 	}
 }
 
-//draw active selection box (meaning selection button is still held down)
+/**
+ * draw active selection box (should only be called when the selection button is still held down)
+ */
 function drawSelectionBox() {
 	if (selectionRectCoords.x1 != null) {
 		GameManager.drawSurface.strokeStyle = "rgb(0,255,0)";
@@ -1405,7 +1480,9 @@ function drawSelectionBox() {
 	}
 }
 
-//draw smallest bounding square around each raider
+/**
+ * draw smallest bounding square around each raider
+ */
 function drawSelectedSquares() {
 	GameManager.drawSurface.strokeStyle = "rgb(0,255,0)";
 	GameManager.drawSurface.fillStyle = "rgb(0,255,0)";
@@ -1424,7 +1501,9 @@ function drawSelectedSquares() {
 	}
 }
 
-//draw smallest rotated bounding rect around each raider
+/**
+ * debug function: draw smallest rotated bounding rect around each raider
+ */
 function drawSelectedRects() {
 	if (selectionType == "raider") {
 		GameManager.drawSurface.lineWidth = 2;
@@ -1434,7 +1513,8 @@ function drawSelectedRects() {
 			//draw smallest rotated bounding rect
 			var rectPoints = calculateRectPoints(selection[i],false);
 			GameManager.drawSurface.beginPath();
-			GameManager.drawSurface.moveTo(rectPoints[rectPoints.length-1].x - selection[i].drawLayer.cameraX,rectPoints[rectPoints.length-1].y - selection[i].drawLayer.cameraY);
+			GameManager.drawSurface.moveTo(rectPoints[rectPoints.length-1].x - selection[i].drawLayer.cameraX,
+					rectPoints[rectPoints.length-1].y - selection[i].drawLayer.cameraY);
 			for (var r = 0; r < rectPoints.length; r++) {
 				GameManager.drawSurface.lineTo(rectPoints[r].x - selection[i].drawLayer.cameraX,rectPoints[r].y - selection[i].drawLayer.cameraY);
 			}
@@ -1446,12 +1526,15 @@ function drawSelectedRects() {
 	}
 }
 
-//draw all raider task paths
+/**
+ * draw all raiders' current task paths
+ */
 function highlightRaiderPaths() {
 	var path;
 	for (var r = 0; r < raiders.objectList.length; ++r) {
 		path = raiders.objectList[r].currentPath;
 		if (path == null) {
+			//this raider currently has no path
 			continue;
 		}
 		for (var i = 0; i < path.length; ++i) {
@@ -1465,37 +1548,51 @@ function highlightRaiderPaths() {
 	}
 }
 
-//darken screen by input percentage (currently used during pause and level start)
-function dimScreen(dimPercentage) { //darken screen by dimPercentage
+/**
+ * darken screen by input percentage (currently used during pause and level start)
+ */
+function dimScreen(dimPercentage) {
 	var prevGlobalAlpha = GameManager.drawSurface.globalAlpha;
 	GameManager.drawSurface.globalAlpha=dimPercentage;
 	GameManager.drawSurface.fillStyle = "rgb(0,0,0)";
-	//darken screen while awaitingStart
+	//darken the screen by drawing a semi-transparent black rect
 	GameManager.drawSurface.fillRect(0,0,GameManager.screenWidth,GameManager.screenHeight);
 	GameManager.drawSurface.globalAlpha=prevGlobalAlpha;
 	
 }
 
-//draw instructions while awaiting player start after loading level
+/**
+ * draw game start instructions while awaiting player start after loading level
+ */
 function drawAwaitingStartInstructions() {
-	//draw game start instructions if awaitingStart
 	if (awaitingStart) {
 		dimScreen(.4);
 		GameManager.drawSurface.globalAlpha=1.0;
 		GameManager.drawSurface.fillStyle = "rgb(65, 218, 255)";
 		GameManager.setFontSize(72);
-		GameManager.drawSurface.fillText("Press Enter to Begin",70,322); //TODO: CENTER THIS AUTOMATICALLY, RATHER THAN ESTIMATING MANUALLY
+		var awaitingText = "Press Enter to Begin";
+		var textWidth = GameManager.drawSurface.measureText(awaitingText).width;
+		var textHeight = getHeightFromFont(GameManager.drawSurface.font);
+		GameManager.drawSurface.fillText(awaitingText, GameManager.drawSurface.width / 2 - textWidth / 2,
+				GameManager.drawSurface.height / 2 - textHeight / 2);
 	}
 }
 
-//draw pause screen instructions
+/**
+ * draw pause screen instructions
+ */
 function drawPauseInstructions() {
 	if (paused) {
 		dimScreen(.4);
 		GameManager.drawSurface.globalAlpha=1.0;
 		GameManager.drawSurface.fillStyle = "rgb(65, 218, 255)";
 		GameManager.setFontSize(72);
-		GameManager.drawSurface.fillText("Paused",278,322); //TODO: CENTER THIS AUTOMATICALLY, RATHER THAN ESTIMATING MANUALLY 
+		var pausedText = "Paused";
+		var textWidth = GameManager.drawSurface.measureText(pausedText).width;
+		var textHeight = getHeightFromFont(GameManager.drawSurface.font);
+		GameManager.drawSurface.fillText(pausedText,GameManager.drawSurface.width / 2 - textWidth / 2,
+				GameManager.drawSurface.height / 2 - textHeight / 2);
+		
 		//attempt to draw buttons here so that they are rendered in front of other post-render graphics
 		for (var i = 0; i < pauseButtons.objectList.length; ++i) {
 			pauseButtons.objectList[i].render(GameManager);
@@ -1503,40 +1600,52 @@ function drawPauseInstructions() {
 	}
 }
 
-//return whether or not the mouse is currently hovering over an active GUI object
+/**
+ * determine whether or not the mouse is currently hovering over an active GUI object
+ * @returns whether the mouse is hovering over a GUI object (true) or not (false)
+ */
 function mouseOverGUI() {
 	for (var i = 0; i < buttons.objectList.length; i++) {
 		//use mouseDownOnButton rather than releasedThisFrame because button activates on mouse release, whereas task selection here activates on mouse press
-		if (buttons.objectList[i].visible && collisionPoint(GameManager.mousePos.x,GameManager.mousePos.y,buttons.objectList[i],buttons.objectList[i].affectedByCamera)) {
+		if (buttons.objectList[i].visible && collisionPoint(GameManager.mousePos.x,GameManager.mousePos.y,
+				buttons.objectList[i],buttons.objectList[i].affectedByCamera)) {
 			return true;
 		}
 	}
 	return false;
 }
 
-//toggle building menu open or closed
+/**
+ * open or close the buildings menu
+ */
 function openBuildingMenu() {
 	if (openMenu == "building") {
 		openMenu = "";
 	}
 	else {
-		cancelSelection(); //this clears selection and sets openMenu to ""
+		//this clears selection and sets openMenu to ""
+		cancelSelection();
 		openMenu = "building";	
 	}
 }
 
-//toggle vehicle menu open or closed
+/**
+ * open or close the vehicles menu
+ */
 function openVehicleMenu() {
 	if (openMenu == "vehicle") {
 		openMenu = "";
 	}
 	else {
-		cancelSelection(); //this clears selection and sets openMenu to ""
+		//this clears selection and sets openMenu to ""
+		cancelSelection(); 
 		openMenu = "vehicle";	
 	}
 }
 
-//exit current vehicle, if in one
+/**
+ * make the currently selected raiders exit their vehicles, if they are riding one
+ */
 function exitVehicle() {
 	if (selectionType == "raider") {
 		for (var i = 0; i < selection.length; ++i) {
@@ -1545,7 +1654,9 @@ function exitVehicle() {
 	}
 }
 
-//toggle tool menu open or closed
+/**
+ * open or close the tools menu
+ */
 function openToolMenu() {
 	if (selectionType == "raider") {
 		if (openMenu == "tool") {
@@ -1557,7 +1668,11 @@ function openToolMenu() {
 	}
 }
 
-//return the building requirements for input building type (that is, what buildings are required before the input buildingType can be constructed)
+/**
+ * determine whether or not the requirements are met in order to begin building a building of the input type
+ * @param buildingType: the type of building for which we need to know the requirements
+ * @returns whether the necessary requirements are met to begin building the desired buildingType (true) or not (false)
+ */
 function buildRequirementsMet(buildingType) {
 	buildingRequirements = []
 	//buildings
@@ -1600,7 +1715,8 @@ function buildRequirementsMet(buildingType) {
 	for (var i = 0; i < buildingRequirements.length; ++i) {
 		var requirementMet = false;
 		for (var j = 0; j < buildings.length; ++j) {
-			if (buildings[j].type == buildingRequirements[i] && buildings[j].upgradeLevel >= 1) { //building must be upgraded at least once to build next building
+			//building must be upgraded at least once to build next building
+			if (buildings[j].type == buildingRequirements[i] && buildings[j].upgradeLevel >= 1) {
 				requirementMet = true;
 				break;
 			}
@@ -1612,41 +1728,61 @@ function buildRequirementsMet(buildingType) {
 	return true;
 }
 
-//enable the buildingPlacer object
+/**
+ * enable the buildingPlacer object so that the player can select where to place the desired building
+ * @param buildingType: the type of building that the buildingPlacer should place
+ */
 function startBuildingPlacer(buildingType) {
-	if (buildRequirementsMet(buildingType)) { //buttons now take care of this check, but it can't hurt to check it one more time here
+	//buttons now take care of this check, but it can't hurt to check it one more time here
+	if (buildRequirementsMet(buildingType)) {
 		buildingPlacer.start(buildingType);
 		buildingPlacer.updatePosition();
 		cancelSelection();
 	}
 }
 
-//create all in-game buttons
+/**
+ * create all in-game buttons once here
+ */
 function createButtons() {
 	//base level buttons
 	buttons.push(new Button(0,0,0,0,"teleport raider button 1 (1).png",gameLayer,"", createRaider,false,false));
 	buttons.push(new Button(0,40,0,0,"open building menu button 1 (1).png",gameLayer,"", openBuildingMenu,false,false));
 	buttons.push(new Button(0,80,0,0,"open small vehicle menu button 1 (1).png",gameLayer,"", openVehicleMenu,false,false));
 	
-	buttons.push(new Button(46,0,0,0,"cancel selection button 1 (1).png",gameLayer,"", cancelSelection,false,false,[])); //if selectionTypeBound is an empty list, the button will be visible for all selections except when selection == null
+	//if selectionTypeBound is an empty list, the button will be visible for all selections except when selection == null
+	buttons.push(new Button(46,0,0,0,"cancel selection button 1 (1).png",gameLayer,"", cancelSelection,false,false,[]));
 	//6 pixel boundary between general purpose buttons and selection specific buttons
 	
 	//building menu open buttons
-	buttons.push(new Button(46,40,0,0,"make ToolStation.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["tool store"],true,true,null,buildRequirementsMet,["tool store"]));
-	buttons.push(new Button(46,80,0,0,"make SMteleport.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["teleport pad"],true,true,null,buildRequirementsMet,["teleport pad"]));
-	buttons.push(new Button(46,120,0,0,"make docks.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["docks"],true,true,null,buildRequirementsMet,["docks"]));
-	buttons.push(new Button(46,160,0,0,"make PowerStation.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["power station"],true,true,null,buildRequirementsMet,["power station"]));
-	buttons.push(new Button(46,200,0,0,"make barracks.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["support station"],true,true,null,buildRequirementsMet,["support station"]));
-	buttons.push(new Button(46,240,0,0,"make Upgrade.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["upgrade station"],true,true,null,buildRequirementsMet,["upgrade station"]));
-	buttons.push(new Button(46,280,0,0,"make Geo.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["geological center"],true,true,null,buildRequirementsMet,["geological center"]));
-	buttons.push(new Button(46,320,0,0,"make Orerefinery.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["ore refinery"],true,true,null,buildRequirementsMet,["ore refinery"]));
-	buttons.push(new Button(46,360,0,0,"make Gunstation.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["mining laser"],true,true,null,buildRequirementsMet,["mining laser"]));
-	buttons.push(new Button(46,400,0,0,"make LargeTeleporter.png",gameLayer,"", startBuildingPlacer,false,false,null,["building"],["super teleport"],true,true,null,buildRequirementsMet,["super teleport"]));
+	buttons.push(new Button(46,40,0,0,"make ToolStation.png",gameLayer,"", startBuildingPlacer,false,false,null,
+			["building"],["tool store"],true,true,null,buildRequirementsMet,["tool store"]));
+	buttons.push(new Button(46,80,0,0,"make SMteleport.png",gameLayer,"", startBuildingPlacer,false,false,null,
+			["building"],["teleport pad"],true,true,null,buildRequirementsMet,["teleport pad"]));
+	buttons.push(new Button(46,120,0,0,"make docks.png",gameLayer,"", startBuildingPlacer,false,false,null,
+			["building"],["docks"],true,true,null,buildRequirementsMet,["docks"]));
+	buttons.push(new Button(46,160,0,0,"make PowerStation.png",gameLayer,"", startBuildingPlacer,false,false,null,
+			["building"],["power station"],true,true,null,buildRequirementsMet,["power station"]));
+	buttons.push(new Button(46,200,0,0,"make barracks.png",gameLayer,"", startBuildingPlacer,false,false,null,
+			["building"],["support station"],true,true,null,buildRequirementsMet,["support station"]));
+	buttons.push(new Button(46,240,0,0,"make Upgrade.png",gameLayer,"", startBuildingPlacer,false,false,null,
+			["building"],["upgrade station"],true,true,null,buildRequirementsMet,["upgrade station"]));
+	buttons.push(new Button(46,280,0,0,"make Geo.png",gameLayer,"", startBuildingPlacer,false,false,null,
+			["building"],["geological center"],true,true,null,buildRequirementsMet,["geological center"]));
+	buttons.push(new Button(46,320,0,0,"make Orerefinery.png",gameLayer,"", startBuildingPlacer,false,false,null,
+			["building"],["ore refinery"],true,true,null,buildRequirementsMet,["ore refinery"]));
+	buttons.push(new Button(46,360,0,0,"make Gunstation.png",gameLayer,"", startBuildingPlacer,false,false,null,
+			["building"],["mining laser"],true,true,null,buildRequirementsMet,["mining laser"]));
+	buttons.push(new Button(46,400,0,0,"make LargeTeleporter.png",gameLayer,"", startBuildingPlacer,false,false,null,
+			["building"],["super teleport"],true,true,null,buildRequirementsMet,["super teleport"]));
 	
 	//vehicle menu open buttons
-	buttons.push(new Button(46,40,0,0,"make hoverboard.png",gameLayer,"", createVehicle,false,false,null,["vehicle"],["hover scout"],true,true,null,buildRequirementsMet,["hover scout"]));
-	buttons.push(new Button(46,80,0,0,"make SmallDigger.png",gameLayer,"", createVehicle,false,false,null,["vehicle"],["small digger"],true,true,null,buildRequirementsMet,["small digger"]));
-	buttons.push(new Button(46,120,0,0,"make SmallTruck.png",gameLayer,"", createVehicle,false,false,null,["vehicle"],["small transport truck"],true,true,null,buildRequirementsMet,["small transport truck"]));
+	buttons.push(new Button(46,40,0,0,"make hoverboard.png",gameLayer,"", createVehicle,false,false,null,
+			["vehicle"],["hover scout"],true,true,null,buildRequirementsMet,["hover scout"]));
+	buttons.push(new Button(46,80,0,0,"make SmallDigger.png",gameLayer,"", createVehicle,false,false,null,
+			["vehicle"],["small digger"],true,true,null,buildRequirementsMet,["small digger"]));
+	buttons.push(new Button(46,120,0,0,"make SmallTruck.png",gameLayer,"", createVehicle,false,false,null,
+			["vehicle"],["small transport truck"],true,true,null,buildRequirementsMet,["small transport truck"]));
 	
 	//raider selected buttons
 	buttons.push(new Button(86,0,0,0,"unload minifig button 1 (1).png",gameLayer,"", unloadMinifig,false,false,["raider"]));
@@ -1666,25 +1802,33 @@ function createButtons() {
 	buttons.push(new Button(206,320,0,0,"get_Sonic_Blaster.png",gameLayer,"", getTool,false,false,["raider"],["tool"],["blaster"]));
 
 	//item selected buttons
-	buttons.push(new Button(86,0,0,0,"grab item button 1 (1).png",gameLayer,"", grabItem,false,false,["ore","crystal"]));
+	buttons.push(new Button(86,0,0,0,"grab item button 1 (1).png",gameLayer,"", grabItem,false,false,
+			["ore","crystal"]));
 
 	//drillable wall selected buttons
-	buttons.push(new Button(166,0,0,0,"drill wall button 1 (1).png",gameLayer,"", drillWall,false,false,["dirt", "loose rock", "ore seam", "energy crystal seam", "hard rock"]));
+	buttons.push(new Button(166,0,0,0,"drill wall button 1 (1).png",gameLayer,"", drillWall,false,false,
+			["dirt", "loose rock", "ore seam", "energy crystal seam", "hard rock"]));
 	
 	//dynamitable wall selected buttons
-	buttons.push(new Button(126,0,0,0,"use dynamite 1 (1).png",gameLayer,"", dynamiteWall,false,false,["dirt", "loose rock", "hard rock", "ore seam", "energy crystal seam"]));
+	buttons.push(new Button(126,0,0,0,"use dynamite 1 (1).png",gameLayer,"", dynamiteWall,false,false,
+			["dirt", "loose rock", "hard rock", "ore seam", "energy crystal seam"]));
 	
 	//re-inforcable wall selected
-	buttons.push(new Button(86,0,0,0,"Reinforce.png",gameLayer,"", reinforceWall,false,false,["dirt", "loose rock", "hard rock", "ore seam", "energy crystal seam"]));
+	buttons.push(new Button(86,0,0,0,"Reinforce.png",gameLayer,"", reinforceWall,false,false,
+			["dirt", "loose rock", "hard rock", "ore seam", "energy crystal seam"]));
 
 	//floor Space selected buttons
-	buttons.push(new Button(86,0,0,0,"build power path button 1 (1).png",gameLayer,"", buildPowerPath,false,false,["ground"]));
+	buttons.push(new Button(86,0,0,0,"build power path button 1 (1).png",gameLayer,"", buildPowerPath,false,false,
+			["ground"]));
 
 	//rubble selection buttons
-	buttons.push(new Button(86,0,0,0,"clear rubble button 1 (1).png",gameLayer,"", clearRubble,false,false,["rubble 1","rubble 2","rubble 3","rubble 4"]));
+	buttons.push(new Button(86,0,0,0,"clear rubble button 1 (1).png",gameLayer,"", clearRubble,false,false,
+			["rubble 1","rubble 2","rubble 3","rubble 4"]));
 	
 	//building selection buttons
-	buttons.push(new Button(86,0,0,0,"upgrade button 1 (1).png",gameLayer,"", upgradeBuilding,false,false,["tool store", "teleport pad", "power station", "docks", "geological center", "support station", "super teleport", "mining laser", "upgrade station", "ore refinery"]));
+	buttons.push(new Button(86,0,0,0,"upgrade button 1 (1).png",gameLayer,"", upgradeBuilding,false,false,
+			["tool store", "teleport pad", "power station", "docks", "geological center", "support station", 
+				"super teleport", "mining laser", "upgrade station", "ore refinery"]));
 	
 	pauseButtons.push(new Button(20,200,0,0,null,gameLayer,"Return to Main Menu", returnToMainMenu,false,false));
 	
@@ -1692,16 +1836,23 @@ function createButtons() {
 	scoreScreenButtons.push(new Button(20,200,0,0,null,scoreScreenLayer,"Return to Main Menu", returnToMainMenu,false,true));
 }
 
-//create all level select screen buttons
+/**
+ * create all level select screen buttons once here
+ */
 function createLevelSelectButtons() {
 	//level select buttons
 	for (var i = 0; i < 33; ++i) {
-		levelSelectButtons.push(new Button(GameManager.scriptObjects["levelList.js"].levelPositions[i][0],GameManager.scriptObjects["levelList.js"].levelPositions[i][1],0,0,GameManager.scriptObjects["levelList.js"].levelImages[i],levelSelectLayer,"",resetLevelVars,true,true,null,null,[GameManager.scriptObjects["levelList.js"].levels[i]],true,false));
+		levelSelectButtons.push(new Button(GameManager.scriptObjects["levelList.js"].levelPositions[i][0],
+				GameManager.scriptObjects["levelList.js"].levelPositions[i][1],0,0,
+				GameManager.scriptObjects["levelList.js"].levelImages[i],levelSelectLayer,"",
+				resetLevelVars,true,true,null,null,[GameManager.scriptObjects["levelList.js"].levels[i]],true,false));
 		levelSelectButtons.objectList[i].visible = false;
 	}
 }
 
-//create all menu screen buttons
+/**
+ * create all menu screen buttons once here
+ */
 function createMenuButtons() {	
 	//main menu buttons
 	var xPos = 320;
@@ -1711,46 +1862,65 @@ function createMenuButtons() {
 	
 	menuButtons.push(new Button(xPos,yPos,0,0,null,menuLayer,"Options:",null,false,true,null,null,[],false,false,[0,220,245]));
 	yPos += 40;
-	menuButtons.push(new Button(xPos,yPos,0,0,null,menuLayer,"Edge Panning" + (mousePanning ?  " ✓" : " X"),toggleEdgePanning,false,true,null,null,[menuButtons.objectList.length],true,false,[0,220,245]));
+	menuButtons.push(new Button(xPos,yPos,0,0,null,menuLayer,"Edge Panning" + (mousePanning ?  " ✓" : " X"),
+			toggleEdgePanning,false,true,null,null,[menuButtons.objectList.length],true,false,[0,220,245]));
 	yPos += 40;
-	menuButtons.push(new Button(xPos,yPos,0,0,null,menuLayer,"Debug Mode" + (debug ?  " ✓" : " X"),toggleDebugMode,false,true,null,null,[menuButtons.objectList.length],true,false,[0,220,245]));
+	menuButtons.push(new Button(xPos,yPos,0,0,null,menuLayer,"Debug Mode" + (debug ?  " ✓" : " X"),
+			toggleDebugMode,false,true,null,null,[menuButtons.objectList.length],true,false,[0,220,245]));
 	yPos += 40;
-	menuButtons.push(new Button(xPos,yPos,0,0,null,menuLayer,"Hide Unrevealed Spaces" + (maskUntouchedSpaces ?  " ✓" : " X"),toggleFog,false,true,null,null,[menuButtons.objectList.length],true,false,[0,220,245]));
+	menuButtons.push(new Button(xPos,yPos,0,0,null,menuLayer,"Hide Unrevealed Spaces" + (maskUntouchedSpaces ?  " ✓" : " X"),
+			toggleFog,false,true,null,null,[menuButtons.objectList.length],true,false,[0,220,245]));
 }
 
-//switch to the level select layer
+/**
+ * switch to the level select layer
+ */
 function goToLevelSelect() {
 	menuLayer.active = false;
 	levelSelectLayer.active = true;
 }
 
-//function to always disable buttons when applied as an additional requirement
+/**
+ * dummy function to always disable buttons when applied as an additional requirement
+ * @returns false
+ */
 function grayedOut() {
 	return false;
 }
 
-//toggle the global setting for whether or not the mouse may scroll the screen by pointing at the edges (both the variable and the HTML5 local var)
+/**
+ * toggle the global setting for whether or not the mouse may scroll the screen by pointing at the edges (both the variable and the HTML5 local var)
+ * @param buttonIndex: the index of the 'edge panning' button in the menuButtons list
+ */
 function toggleEdgePanning(buttonIndex) {
 	mousePanning = !mousePanning;
 	setValue("mousePanning", mousePanning);
 	menuButtons.objectList[buttonIndex].updateText("Edge Panning" + (mousePanning ?  " ✓" : " X"));
 }
 
-//toggle debug mode variable and HTML5 local var on or off
+/**
+ * toggle debug mode variable and HTML5 local var on or off
+ * @param buttonIndex: the index of the 'debug mode' button in the menuButtons list
+ */
 function toggleDebugMode(buttonIndex) {
 	debug = !debug;
 	setValue("debug", debug);
 	menuButtons.objectList[buttonIndex].updateText("Debug Mode" + (debug ?  " ✓" : " X"));
 }
 
-//toggle fog variable and HTML5 local var on or off
+/**
+ * toggle fog variable and HTML5 local var on or off
+ * @param buttonIndex: the index of the 'hide unrevealed spaces' button in the menuButtons list
+ */
 function toggleFog(buttonIndex) {
 	maskUntouchedSpaces = !maskUntouchedSpaces;
 	setValue("fog",maskUntouchedSpaces);
 	menuButtons.objectList[buttonIndex].updateText("Hide Unrevealed Spaces" + (maskUntouchedSpaces ?  " ✓" : " X"));
 }
 
-//switch layers to the main menu, stopping all sounds and toggling all game-variables off
+/**
+ * switch layers to the main menu, stopping all sounds and toggling all game-variables off
+ */
 function returnToMainMenu() {
 	//toggle game and menu layers and swap music tracks, as well as update level score strings if coming from score screen
 	if (scoreScreenLayer.active) { //update score strings if coming from score layer, as this means we may have updated one of the level scores
@@ -1769,16 +1939,19 @@ function returnToMainMenu() {
 	tileSelectedGraphic.visible = false;
 }
 
-//stop all currently playing raider sounds
+/**
+ * stop all currently playing raider sounds
+ */
 function stopAllSounds() {
-	//stop all currently playing sounds
-	//stop all raider sounds
 	for (var i = 0; i < raiders.objectList.length; i++) {
 		raiders.objectList[i].stopSounds();
 	}
 }
 
-//reset all non-constant game variables for the start of a new level
+/**
+ * reset all non-constant game variables for the start of a new level
+ * @param name: the name of the level to switch to
+ */
 function resetLevelVars(name) {
 	menuLayer.active = false;
 	levelSelectLayer.active = false;
@@ -1800,9 +1973,11 @@ function resetLevelVars(name) {
 	}
 	terrain = [];
 	//don't need to kill buildings or buildingSites as these are just a type of space
-	buildings = []; //similar to terrain[], just holds spaces which are buildings so that they can be easily located by raiders.
-	buildingSites = []; //used by raider ai pathfinding in a similar manner to buildings[]
-	tasksAvailable = [];//.concat(collectables.objectList); 
+	//similar to terrain[], just holds spaces which are buildings so that they can be easily located by raiders.
+	buildings = []; 
+	//used by raider ai pathfinding in a similar manner to buildings[]
+	buildingSites = []; 
+	tasksAvailable = [];
 	tasksInProgress = new ObjectGroup();
 	raiders.removeAll(true);
 	vehicles.removeAll(true);
@@ -1812,30 +1987,44 @@ function resetLevelVars(name) {
 	awaitingStart = true;
 	paused = false;
 	holdingPKey = false;
-	holdingLKey = false;
 	loadLevelData(name);
 }
 
-//set HTNL5 local storage variable value
+/**
+ * set HTNL5 local storage variable value
+ * @param name: the name of the local storage variable to set
+ * @param value: the value to set the local storage variable to
+ */
 function setValue(name, value) {
     localStorage.setItem(name,value);
 }
 
-//get HTML5 local storage variable value
+/**
+ * get HTML5 local storage variable value
+ * @param name: the name of the local storage variable whose value we want
+ * @returns the value stored in the local storage variable with the input name
+ */
 function getValue(name) {
 	return localStorage.getItem(name);
 }
 
-//initialize global game-related constants
+/**
+ * initialize global game-related constants
+ */
 function initGlobals() {
 	tileSize = 128;
 	scrollDistance = 10;
 	scrollSpeed = 20;
-	dragStartDistance = 10; //distance the mouse must be moved before a click turns into a drag selection box
-	maskUntouchedSpaces = getValue("fog") == "true" ? true : false; //if true, this creates the "fog of war" type effect where unrevealed Spaces appear as solid rock (should only be set to false for debugging purposes)
-	mousePanning = getValue("mousePanning") == "true" ? true : false; //can you scroll the screen using the mouse?
-	keyboardPanning = true; //can you scroll the screen using the arrow keys?
-	debug = getValue("debug") == "true" ? true : false; //should the game render any active debug info?
+	//distance the mouse must be moved before a click turns into a drag selection box
+	dragStartDistance = 10; 
+	//if true, this creates the "fog of war" type effect where unrevealed Spaces appear as solid rock (should only be set to false for debugging purposes)
+	maskUntouchedSpaces = getValue("fog") == "true" ? true : false; 
+	//can we scroll the screen using the mouse?
+	mousePanning = getValue("mousePanning") == "true" ? true : false;
+	//can we scroll the screen using the arrow keys?
+	keyboardPanning = true; 
+	//should the game render any active debug info?
+	debug = getValue("debug") == "true" ? true : false; 
 	
 	gameLayer = new Layer(0,0,1,1,GameManager.screenWidth,GameManager.screenHeight);
 	menuLayer = new Layer(0,0,1,1,GameManager.screenWidth,GameManager.screenHeight,true);
@@ -1848,11 +2037,14 @@ function initGlobals() {
 	menuButtons = new ObjectGroup();
 	levelSelectButtons = new ObjectGroup();
 	scoreScreenButtons = new ObjectGroup();
-	createButtons(); //create all in-game UI buttons initially, as there is no reason to load and unload these
-	createMenuButtons(); //create all menu buttons
+	//create all in-game UI buttons initially, as there is no reason to load and unload these
+	createButtons(); 
+	//create all menu buttons
+	createMenuButtons(); 
 	createLevelSelectButtons();
 	GameManager.drawSurface.font = "48px Arial";
-	tasksAutomated = { //update me manually for now, as the UI does not yet have task priority buttons
+	//update me manually for now, as the UI does not yet have task priority buttons
+	tasksAutomated = { 
 			"sweep":true,
 			"collect":true,
 			"drill":false,
@@ -1863,7 +2055,8 @@ function initGlobals() {
 			"dynamite":false,
 			"vehicle":false
 	};
-	toolsRequired = { //dict of task type to required tool
+	//dict of task type to required tool
+	toolsRequired = { 
 			"sweep":"shovel",
 			"drill":"drill",
 			"drill hard":"big drill",
@@ -1888,7 +2081,10 @@ function initGlobals() {
 	dynamiteInstances = new ObjectGroup();
 }
 
-//get HTML5 local storage value for each level highschore, if present
+/**
+ * get the local storage value for each of the first 3 level highscores, if present
+ * @returns a dict of levelNum : highScore
+ */
 function getLevelScores() {
 	levelScores = {};
 	levelScores["01"] = getValue("01") == null ? -1 : getValue("01");
@@ -1897,7 +2093,9 @@ function getLevelScores() {
 	return levelScores;
 }
 
-//check if current level objective has been accomplished
+/**
+ * check if the current level objective has been accomplished. If it has, transition to the score screen.
+ */
 function checkAccomplishedObjective() {
 	won = false;
 	objective = GameManager.scriptObjects["Info_" + levelName + ".js"].objective;
@@ -1918,12 +2116,18 @@ function checkAccomplishedObjective() {
 	}
 }
 
-//determine level score from 0-100 based off off several factors, including ore and crystals collected, oxygen remaining, and time taken
+/**
+ * determine the level score from 0-100 based off off several factors, including resources collected, oxygen remaining, and time taken
+ * @returns the calculated level score
+ */
 function calculateLevelScore() {
 	return Math.round(100 * Math.min(1,(collectedResources["ore"] / 30) * .5 + (collectedResources["crystal"] / 5) * .5));
 }
 
-//update level dict and cookie to reflect the player's higest score
+/**
+ * update the level dict and local storage var for the current level to reflect the player's highest score
+ * @param score: the newly achieved level score (may or may not be the all-time high-score)
+ */
 function setLevelScore(score) {
 	if (levelScores[levelName] < score) {
 		levelScores[levelName] = score;
@@ -1931,7 +2135,9 @@ function setLevelScore(score) {
 	}
 }
 
-//switch to scoreScreenLayer 
+/**
+ * switch to the score-screen layer 
+ */
 function showScoreScreen() {
 	gameLayer.active = false;
 	scoreScreenLayer.active = true;
@@ -1942,7 +2148,9 @@ function showScoreScreen() {
 	scoreScreenButtons.objectList[0].updateText(scoreScreenButtons.objectList[0].text.split(":")[0] + ": " + lastLevelScore);
 }
 
-//disallow main menus from being open while the user has an active selection (submenues are allowed)
+/**
+ * disallow main menus from being open while the user has an active selection (submenues are allowed)
+ */
 function checkCloseMenu() {
 	if (selection.length != 0) {
 		if (openMenu == "building" || openMenu == "vehicle") {
@@ -1951,12 +2159,16 @@ function checkCloseMenu() {
 	}
 }
 
-//main update loop: update the current layer and any non-automatic objects
+/**
+ * main update loop: update the current layer and any non-automatic objects
+ */
 function update() {
-	if (GameManager.drawSurface == null) { //check if canvas has been updated by the html page
+	//check if canvas has been updated by the html page
+	if (GameManager.drawSurface == null) { 
 		GameManager.drawSurface = document.getElementById('canvas').getContext('2d');
 	}
-	if (menuLayer.active) { //menu update
+	//menu update
+	if (menuLayer.active) { 
 		//update music
 		musicPlayer.trackNum = 0;
 		musicPlayer.update();
@@ -1972,7 +2184,8 @@ function update() {
 		GameManager.drawFrame();
 	}
 	
-	else if (levelSelectLayer.active) { //level select update
+	//level select update
+	else if (levelSelectLayer.active) { 
 		//update music
 		musicPlayer.trackNum = 0;
 		musicPlayer.update();
@@ -1991,7 +2204,8 @@ function update() {
 		GameManager.drawSurface.drawImage(GameManager.images["Levelpick.png"],0,-levelSelectLayer.cameraY);
 	}
 	
-	else if (scoreScreenLayer.active) { //score screen update
+	//score screen update
+	else if (scoreScreenLayer.active) { 
 		//update music
 		musicPlayer.trackNum = -1;
 		musicPlayer.update();
@@ -2011,16 +2225,19 @@ function update() {
 		drawScoreScreenUI();
 	}
 	
-	else if (gameLayer.active) { //game update
+	//game update
+	else if (gameLayer.active) { 
 		if (awaitingStart) {
-			if (GameManager.keyStates[String.fromCharCode(13)]) { //enter key pressed
+			//enter key pressed
+			if (GameManager.keyStates[String.fromCharCode(13)]) { 
 				awaitingStart = false;
 				//update music
 				musicPlayer.playRandomSong();
 			}
 		}
 		else {
-			musicPlayer.update(); //update music regardless of game state
+			//update music regardless of game state
+			musicPlayer.update(); 
 			checkTogglePause();
 			if (!paused) {
 				//update input
@@ -2059,7 +2276,8 @@ function update() {
 		drawRaiderInfo();
 		drawSelectionBox();
 		drawSelectedSquares();
-		if (debug) { //render debug info
+		//render debug info
+		if (debug) { 
 			highlightRaiderPaths();
 			drawSelectedRects();
 			drawTerrainVars(["listX"]);
@@ -2067,7 +2285,8 @@ function update() {
 		drawDynamiteTimers();
 		drawBuildingSiteMaterials();
 		drawRaiderTasks();
-		drawUI(); //draw UI last to ensure that it is in front of everything else
+		//draw UI last to ensure that it is in front of everything else
+		drawUI(); 
 		drawAwaitingStartInstructions();
 		drawPauseInstructions();
 	}

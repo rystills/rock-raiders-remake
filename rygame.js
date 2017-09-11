@@ -159,6 +159,19 @@ function loadImage(imageSrc) {
 }
 
 /**
+ * get the height portion of the passed in font
+ * @param font: the font from which we wish to extract the height
+ * @returns the font height as an int
+ */
+function getHeightFromFont(font) {
+	var pos = 0;
+	while (font[pos] != "p") {
+		++pos;
+	}
+	return font.substring(0,pos);
+}
+
+/**
  * Return the index where to insert item x in list a, assuming a is sorted.
 The return value i is such that all e in a[:i] have e <= x, and all e in
 a[i:] have e > x.  So if x already appears in the list, a.insert(x) will
