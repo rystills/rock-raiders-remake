@@ -11,7 +11,6 @@ function loadScriptAsset(url, callback) //note: this function is partially copie
     script.type = 'text/javascript';
     
     if (callback != null) {
-    	//script.onreadystatechange = callback;
         script.onload = callback;
     }
     
@@ -25,7 +24,6 @@ function loadScriptAsset(url, callback) //note: this function is partially copie
 }
 //TODO: CLEAN UP THESE MESSY FUNCTIONS. THEYRE FROM THE OLD HTML.
 function loadImageAsset(url, name, callback) {
-	//var head = document.getElementsByTagName('head')[0];
 	var img = document.createElement('IMG');
 	
 	if (callback != null) {
@@ -36,7 +34,6 @@ function loadImageAsset(url, name, callback) {
 	 GameManager.images[name] = img;
 	
 	img.src = url;
-	//head.appendChild(img);
 }
 function loadSoundAsset(urlNoExt, name, callback) {
 	var snd = document.createElement('audio');

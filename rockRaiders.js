@@ -1,8 +1,7 @@
-//rygame is loaded in via html prior to this game, as this game is dependent on the rygame javascript port in order to function, so it is assumed that at this point rygame is available and ready for use
-//for now images are being awaitingStart in by the rygame file as hardcoded urls, but this will be changed to the imageloader class which hopefully will be researched at the same time as the javascript dynamic loader so we don't have to define all of our classes in the html, that would't be very fun
-GameManager.initializeRygame(0);
-
-//print terrain out in a 2d array format
+/**
+ * output the terrain 2d-array to the console
+ * @param terrain: a 2d-array representing the terrain (note that terrain is formatted as [y][x])
+ */
 function printTerrain(terrain) {
 	var str;
 	for (var i = 0; i < terrain.length; i++) {
@@ -15,7 +14,10 @@ function printTerrain(terrain) {
 	}
 }
 
-//print out all spaces in input path
+/**
+ * output the coordinates of each space in the input path
+ * @param path: the path to display (note that paths are ordered from last to first space)
+ */
 function printPath(path) {
 	var pathString = "[";
 	for (var i = 0; i < path.length; i++) {
@@ -26,14 +28,19 @@ function printPath(path) {
 	console.log(pathString);
 }
 
-//update position of all sound effects for all RygameObjects based on cameraDistance
+/**
+ * update position of all sound effects for all RygameObjects based on their camera distance
+ */
 function updateObjectSoundPositions() {
 	for (var i = 0; i < GameManager.renderOrderedCompleteObjectList.length; ++i) {
 		updateSoundPositions(GameManager.renderOrderedCompleteObjectList[i]);
 	}
 }
 
-//update volume of all sound effects based on linear distance from camera
+/**
+ * update volume of all sound effects in the input object based on linear distance from the camera
+ * @param obj: the object whose sounds we should update the volume of based on camera distance
+ */
 function updateSoundPositions(obj) {
 	if (typeof obj.soundList != "undefined" && obj.soundList.length > 0) {
 		var camDis = cameraDistance(obj);
@@ -49,7 +56,10 @@ function updateSoundPositions(obj) {
 	
 }
 
-//get linear distance of obj center from camera
+/**
+ * get the distance of passed in object's center from the camera
+ * @param obj: the object to check for camera distance
+ */
 function cameraDistance(obj) {
 	var xDis,yDis;
 	var x = obj.centerX();
@@ -61,7 +71,11 @@ function cameraDistance(obj) {
 	return Math.sqrt(xDis*xDis + yDis*yDis);
 }
 
-//find the space in terrain closest to input object
+/**
+ * find the closest space in the given terrain to the input object
+ * @param terrain: the terrain to check against
+ * @param object: the object to whom we want the closest space
+ */
 function getNearestSpace(terrain,object) {
 	var closestDistance = -1;
 	var closestObject = null;
@@ -79,7 +93,15 @@ function getNearestSpace(terrain,object) {
 	return closestObject;
 }
 
-//get the adjacent space to terrain indices x,y in direction dir. If no direction specified, get all 4 adjacent spaces.
+/**
+ * get the adjacent space to terrain indices x,y in direction dir. If no direction is specified, get all 4 adjacent spaces
+ * @param terrain: the terrain to check against
+ * @param x: the first index representing the desired terrain position
+ * @param y: the second index representing the desired terrain position
+ * @param dir: the direction (up, down, left, or right) of the adjacent space to return. Returns all spaces if unspecified.
+ * @returns: the resulting space or spaces, or null if the adjacent space does not exist.
+ * @throws: direction error if dir is not one of the cardinal directions or null
+ */
 function adjacentSpace(terrain,x,y,dir) {
 	if (dir == "up") {
 		if (x > 0) {
@@ -110,31 +132,30 @@ function adjacentSpace(terrain,x,y,dir) {
 	}
 }
 
-//propagate touched for all adjacent spaces from input initial space
+/**
+ * starting from the input space, mark each reachable space as 'touched' to reveal it
+ * @param initialSpace: the starting space to be marked as touched from which we propogate out
+ */
 function touchAllAdjacentSpaces(initialSpace) {
 	if (!initialSpace.touched) {
 		if (initialSpace.isBuilding == false && (!(initialSpace.walkable || initialSpace.type == "water" || initialSpace.type == "lava"))) {
 			if (initialSpace.drillable || initialSpace.drillHardable || initialSpace.explodable) {
-				//initialSpace.touched = true;
 				tasksAvailable.push(initialSpace);
 			}
-			initialSpace.updateTouched(initialSpace.drillable || initialSpace.explodable || initialSpace.type == "solid rock" || (initialSpace.isBuilding == true)); //the buildings.indexOf section of this or statement should no longer be a possible case
-			return; //TODO: the above statement has outgrown itself; revise appropriately
+			initialSpace.updateTouched(initialSpace.drillable || initialSpace.explodable || initialSpace.type == "solid rock" || (initialSpace.isBuilding == true));
+			return;
 		}
-		//initialSpace.touched = true;
-		initialSpace.updateTouched(true); //need a method for changing touched so that previously unknown spaces that are really ground pieces know to change sprites
+		initialSpace.updateTouched(true);
 		if (initialSpace.sweepable) {
 			tasksAvailable.push(initialSpace);
 		}
-		if (initialSpace.buildable && initialSpace.resourceNeeded()) { //didnt say else in case a space may be allowed to be both buildable and sweepable at the same time
+		if (initialSpace.buildable && initialSpace.resourceNeeded()) {
 			tasksAvailable.push(initialSpace);
 		}
-		//if (tasksAutomated["collect"] == true) {
 		for (var i = 0; i < initialSpace.contains.objectList.length; i++) {
 			//add each member of contains to tasksavailable
 			tasksAvailable.push(initialSpace.contains.objectList[i]);
 		}
-		//}
 		
 		
 		var adjacentSpaces = [];
@@ -150,9 +171,13 @@ function touchAllAdjacentSpaces(initialSpace) {
 	}
 }
 
-//determine which path is closest to the start object's current position from list of input paths
+/**
+ * determine the path from the input list whose starting space is closest to the input object
+ * @param startObject: the object whose position should be checked against the input paths
+ * @param paths: the list of potential paths to select from
+ * @returns: the path whose start position is closest to the input object
+ */
 function findClosestStartPath(startObject,paths) {
-	//console.log(paths);
 	if (paths == null) {
 		return null;
 	}
@@ -160,19 +185,13 @@ function findClosestStartPath(startObject,paths) {
 	var closestIndex = -1;
 	var startObjectCenterX = startObject.centerX();
 	var startObjectCenterY = startObject.centerY();
-	//console.log("CENTERX: "  + startObjectCenterX + " CENTERY: "  + startObjectCenterY);
 	for (var i = 0; i < paths.length; i++) {
-		//console.log(path);
 		var curDistance = getDistance(startObjectCenterX,startObjectCenterY,paths[i][paths[i].length-1].centerX(),paths[i][paths[i].length-1].centerY());
-		//console.log("curDistance: " + curDistance);
-		//console.log("myIdx: " + startObject.space.listX + " myIDy: " + startObject.space.listY + " path[" + i + "] centerx: " + paths[i][paths[i].length-1].centerX() + " centery: " + paths[i][paths[i].length-1].centerY() + " idx: " + paths[i][paths[i].length-1].listX + " idy: " + paths[i][paths[i].length-1].listY); //nice infoDump
-		//printPath(paths[i]);
 		if (closestDistance == -1 || curDistance < closestDistance) {
 			closestDistance = curDistance;
 			closestIndex = i;
 		}
 	}
-	//console.log("findClosestStartPath closestDistance: " + closestDistance);
 	return paths[closestIndex];
 }
 
@@ -2031,6 +2050,9 @@ function update() {
 		drawPauseInstructions();
 	}
 }
+
+//init rygame before we start the game
+GameManager.initializeRygame(0);
 
 //TODO: make it so that pieces with no path to them have their spaces marked as "unaccessible" and when you drill a wall or build a dock or fulfill some other objective that allows you to reach new areas find each newly accessible square and unmark those squares
 initGlobals();

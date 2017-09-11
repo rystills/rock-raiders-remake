@@ -1027,7 +1027,9 @@ RygameObject.prototype.render = function(destLayer) {
 		}
 		if (this.drawSurface != null) {
 			if (this.affectedByCamera == true) {
-				this.x-=destLayer.cameraX; //move in the opposite direction of the layer camera before rendering (and deciding whether or not you're onscreen). this should be done for gui elements as well in renderGuiElements
+				//move in the opposite direction of the layer camera before rendering (and deciding whether or not you're onscreen). 
+				//this should be done for gui elements as well in renderGuiElements
+				this.x-=destLayer.cameraX;
 				this.y-=destLayer.cameraY;
 			}
 			if (this.withinLayerBounds()) {
@@ -1043,7 +1045,8 @@ RygameObject.prototype.render = function(destLayer) {
 				}
 			}
 			if (this.affectedByCamera == true) {
-				this.x+=destLayer.cameraX; //move back once you're finished rendering.
+				//move back once you're finished rendering.
+				this.x+=destLayer.cameraX;
 				this.y+=destLayer.cameraY;
 			}
 		}
@@ -1259,7 +1262,7 @@ function RygameObject(x,y,updateDepth,drawDepth,image,layer,affectedByCamera,ren
  * @param oldContext: the context to be brightened
  * @param brightnessPercent: the percent by which to brighten the context
  * @param operateInPlace: whether the brightening should occur in place (true) or on a new conetxt (false)
- * @returns
+ * @returns oldContext, or a newly created context, depending on whether operateInPlace is true or false
  */
 function updateBrightness(oldContext,brightnessPercent,operateInPlace) {
 	if (operateInPlace == null) {
