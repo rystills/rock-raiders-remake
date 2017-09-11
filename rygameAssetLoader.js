@@ -1,12 +1,9 @@
-var urlBase = document.URL.substring(0,document.URL.lastIndexOf("/")).split("%20").join(" ") + "/"; //remove the "xyz.html" segment of the url
-console.log("RyConsole: current directory detected as '" + urlBase + "'");
-
-overrideLoadingScreen = null; //if a script modifies this to a function, it will be called when refreshing the screen after each asset load
-
-function loadScriptAsset(url, callback) //note: this function is partially copied from a stackOverflow answer, hence the out of character comments
-    {
-    // Adding the script tag to the head as suggested before
-    var head = document.getElementsByTagName('head')[0];
+/**
+ * load a script asset from the input path, setting the callback function to the input callback
+ * @param path: the path from which to load the script asset
+ * @param callback: the callback function to be called once the script has finished loading
+ */
+function loadScriptAsset(path, callback) {
     var script = document.createElement('script');
     script.type = 'text/javascript';
     
@@ -14,31 +11,41 @@ function loadScriptAsset(url, callback) //note: this function is partially copie
         script.onload = callback;
     }
     
-    script.src = url;
+    script.src = path;
 
-    // Then bind the event to the callback function.
-    // There are several events for cross browser compatibility.
-    
-    // Fire the loading
-    head.appendChild(script);
+    //begin loading the script by appending it to the document head
+    document.getElementsByTagName('head')[0].appendChild(script);
 }
-//TODO: CLEAN UP THESE MESSY FUNCTIONS. THEYRE FROM THE OLD HTML.
-function loadImageAsset(url, name, callback) {
+
+/**
+ * load an image asset from the input path, setting the callback function to the input callback
+ * @param path: the path from which to load the image asset
+ * @param name: the name that should be used when referencing the image in the GameManager images dict
+ * @param callback: the callback function to be called once the image has finished loading
+ */
+function loadImageAsset(path, name, callback) {
 	var img = document.createElement('IMG');
 	
 	if (callback != null) {
-    	//img.onreadystatechange = callback;
         img.onload = callback;
     }
 	
-	 GameManager.images[name] = img;
-	
-	img.src = url;
+	GameManager.images[name] = img;
+	img.src = path;
 }
-function loadSoundAsset(urlNoExt, name, callback) {
+
+/**
+ * load a sound asset from the input path, setting the callback function to the input callback
+ * @param path: the path from which to load the sound asset
+ * @param name: the name that should be used when referencing the sound in the GameManager sounds dict
+ * @param callback:  the callback function to be called once the sound has finished loading
+ * @returns
+ */
+function loadSoundAsset(path, name, callback) {
 	var snd = document.createElement('audio');
 	var srcType = ".ogg";
-	if (!(snd.canPlayType && snd.canPlayType('audio/ogg'))) { //use ogg if supported, otherwise fall back to mp4 (cover all modern browsers)
+	//use ogg if supported, otherwise fall back to mp4 (cover all modern browsers)
+	if (!(snd.canPlayType && snd.canPlayType('audio/ogg'))) {
 		srcType = ".m4a";
 	}
 	
@@ -48,26 +55,38 @@ function loadSoundAsset(urlNoExt, name, callback) {
 	
 	GameManager.sounds[name] = snd;
 	
-	snd.src = urlNoExt + srcType;
+	snd.src = path + srcType;
 }
 
-var loadAssetFile = function() {
-	//load in the asset file
+/**
+ * load in the asset file, to begin the chain of asset loading
+ */
+function loadAssetFile() {
 	loadScriptAsset("assets.js", loadRygame);
 };
-var loadRygame = function() {
+
+/**
+ * load in the main rygame JS file
+ * @returns
+ */
+function loadRygame() {
 	console.log("RyConsole: 'assets.js' successfully loaded from directory '' as type 'js'");
 	assetObject = object;
 	object = null;
 	
+	//clear the lower portion of the canvas and update the loading status to display rygame.js
 	ctx.fillStyle = "black";
 	ctx.fillRect(0,400,canv.width,200);
 	ctx.fillStyle = 'white';
 	ctx.fillText("loading rygame.js",20,580);	
 	
-	loadScriptAsset(urlBase + "rygame.js", loadAssets);
+	loadScriptAsset("rygame.js", loadAssets);
 };
-var loadAssets = function() {
+
+/**
+ * begin loading assets one by one from assets.js
+ */
+function loadAssets() {
 	console.log("RyConsole: 'rygame.js' successfully loaded from directory '' as type 'js'");
 	GameManager.scriptObjects["assets.js"] = assetObject;
 	assetObject = null;
@@ -75,12 +94,21 @@ var loadAssets = function() {
 	loadAssetNext();
 	
 };
-var loadAssetNext = function(fileExtension) {
+
+/**
+ * load the next asset from assets.js
+ * @param fileExtension: the file extension of the previously loaded asset
+ * @returns
+ */
+function loadAssetNext(fileExtension) {
 	if (assetNum != -1) {
-		console.log("RyConsole: '" + GameManager.scriptObjects["assets.js"].assets[assetNum][2] + (typeof fileExtension === 'object' ? "" : fileExtension) + "' successfully loaded from directory '" + GameManager.scriptObjects["assets.js"].assets[assetNum][1] + "' as type '" + GameManager.scriptObjects["assets.js"].assets[assetNum][0] + "'");
+		console.log("RyConsole: '" + GameManager.scriptObjects["assets.js"].assets[assetNum][2] + (typeof fileExtension === 'object' ? "" : fileExtension) + 
+				"' successfully loaded from directory '" + GameManager.scriptObjects["assets.js"].assets[assetNum][1] + "' as type '" + 
+				GameManager.scriptObjects["assets.js"].assets[assetNum][0] + "'");
 	}
 	if (lastScriptName != "") {
-		if (object != null) { //a script doesn't have to have an object to store in the GameManager. if it doesn't have one, don't do anything
+		//if the most recently loaded JS file contained an object, store it in the GameManager
+		if (object != null) {
 			GameManager.scriptObjects[lastScriptName] = object;
 			object = null;
 		}
@@ -88,6 +116,7 @@ var loadAssetNext = function(fileExtension) {
 	}
 	assetNum++;
 	if (assetNum < GameManager.scriptObjects["assets.js"].assets.length) {
+		var curAsset = GameManager.scriptObjects["assets.js"].assets[assetNum];
 		if (overrideLoadingScreen) {
 			overrideLoadingScreen(assetNum,GameManager.scriptObjects["assets.js"].assets.length);
 		}
@@ -95,7 +124,8 @@ var loadAssetNext = function(fileExtension) {
 			ctx.fillStyle = "black";
 			ctx.fillRect(0,400,canv.width,200);
 			ctx.fillStyle = 'white';
-			var loadString = "loading " + GameManager.scriptObjects["assets.js"].assets[assetNum][2] + (typeof fileExtension === 'object' ? "" : fileExtension);
+			//update the loading text to the name of the next file, appending .ogg as the default extension for sound files
+			var loadString = "loading " + curAsset[2] + (curAsset[0] == "snd" ? ".ogg" : "");
 			//remove 'undefined' from the end of the loading string if it gets appended in the browser
 			if (loadString.slice(-9) == "undefined") {
 				loadString = loadString.slice(0,-9);
@@ -105,39 +135,48 @@ var loadAssetNext = function(fileExtension) {
 		}
 		
 		appendString = "";
-		if (GameManager.scriptObjects["assets.js"].assets[assetNum][1] != "") {
-			appendString += GameManager.scriptObjects["assets.js"].assets[assetNum][1] + "/";
+		console.log(curAsset)
+		if (curAsset[1] != "") {
+			appendString += curAsset[1] + "/";
 		}
-		if (GameManager.scriptObjects["assets.js"].assets[assetNum][0] == "js") {
-			lastScriptName = GameManager.scriptObjects["assets.js"].assets[assetNum][2];
-			loadScriptAsset(urlBase + appendString + GameManager.scriptObjects["assets.js"].assets[assetNum][2], loadAssetNext);
+		if (curAsset[0] == "js") {
+			lastScriptName = curAsset[2];
+			loadScriptAsset(appendString + curAsset[2], loadAssetNext);
 		}
-		else if (GameManager.scriptObjects["assets.js"].assets[assetNum][0] == "img") {
-			loadImageAsset(urlBase  + appendString + GameManager.scriptObjects["assets.js"].assets[assetNum][2], GameManager.scriptObjects["assets.js"].assets[assetNum][2], loadAssetNext);
+		else if (curAsset[0] == "img") {
+			loadImageAsset(appendString + curAsset[2], curAsset[2], loadAssetNext);
 		}
-		else if (GameManager.scriptObjects["assets.js"].assets[assetNum][0] == "snd") {
-			loadSoundAsset(urlBase + appendString + GameManager.scriptObjects["assets.js"].assets[assetNum][2], GameManager.scriptObjects["assets.js"].assets[assetNum][2], loadAssetNext);
+		else if (curAsset[0] == "snd") {
+			loadSoundAsset(appendString + curAsset[2], curAsset[2], loadAssetNext);
 		}
-		
 	}
 	
 };
+//if a script assigns a function to this variable, the function will be called when refreshing the screen after each asset load
+overrideLoadingScreen = null;
+
+//Any JS file containing an object named 'object' will have the contents of that object stored in GameManager.scriptObjects 
+//if the file contains additional code, it will still be executed immediately as normal. Example: object = { list : [0,1,7] };
 object = null;
+
 assetNum=-1;
 lastScriptName = "";
 var canv = document.getElementById('canvas');
 var ctx = canv.getContext('2d');
 
+//clear the screen to black
 ctx.fillStyle = "black";
 ctx.fillRect(0,0,canv.width,canv.height);
 
+//draw the loading title
 ctx.font = "74px Arial";
 ctx.fillStyle = 'white';
 ctx.fillText("Loading Rock Raiders...",5,310);
 
+//hard-code the first loading message as assets will always be stored in assets.js
 ctx.font = "30px Arial";
-
 ctx.fillStyle = 'white';
 ctx.fillText("loading assets.js",20,580);
+
+//begin loading assets
 loadAssetFile();
-//note that any JS file containing an object named object will have the contents of that object loaded into GameManager.scriptObjects, to be used as needed, in addition to the file being loaded in and executed immediately as normal. Example: object = { list : [0,1,7] };
