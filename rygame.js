@@ -159,7 +159,7 @@ function loadImage(imageSrc) {
 }
 
 /**
- * get the height portion of the passed in font
+ * get the height portion of the passed in font (note that this measures to the top, not to the ascent)
  * @param font: the font from which we wish to extract the height
  * @returns the font height as an int
  */
@@ -168,7 +168,7 @@ function getHeightFromFont(font) {
 	while (font[pos] != "p") {
 		++pos;
 	}
-	return font.substring(0,pos);
+	return parseInt(font.substring(0,pos));
 }
 
 /**

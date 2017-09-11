@@ -1573,8 +1573,8 @@ function drawAwaitingStartInstructions() {
 		var awaitingText = "Press Enter to Begin";
 		var textWidth = GameManager.drawSurface.measureText(awaitingText).width;
 		var textHeight = getHeightFromFont(GameManager.drawSurface.font);
-		GameManager.drawSurface.fillText(awaitingText, GameManager.drawSurface.width / 2 - textWidth / 2,
-				GameManager.drawSurface.height / 2 - textHeight / 2);
+		GameManager.drawSurface.fillText(awaitingText, GameManager.drawSurface.canvas.width / 2 - textWidth / 2,
+				GameManager.drawSurface.canvas.height / 2 + textHeight / 2);
 	}
 }
 
@@ -1590,8 +1590,8 @@ function drawPauseInstructions() {
 		var pausedText = "Paused";
 		var textWidth = GameManager.drawSurface.measureText(pausedText).width;
 		var textHeight = getHeightFromFont(GameManager.drawSurface.font);
-		GameManager.drawSurface.fillText(pausedText,GameManager.drawSurface.width / 2 - textWidth / 2,
-				GameManager.drawSurface.height / 2 - textHeight / 2);
+		GameManager.drawSurface.fillText(pausedText,GameManager.drawSurface.canvas.width / 2 - textWidth / 2,
+				GameManager.drawSurface.canvas.height / 2 + textHeight / 2);
 		
 		//attempt to draw buttons here so that they are rendered in front of other post-render graphics
 		for (var i = 0; i < pauseButtons.objectList.length; ++i) {

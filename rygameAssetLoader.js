@@ -39,7 +39,6 @@ function loadImageAsset(path, name, callback) {
  * @param path: the path from which to load the sound asset
  * @param name: the name that should be used when referencing the sound in the GameManager sounds dict
  * @param callback:  the callback function to be called once the sound has finished loading
- * @returns
  */
 function loadSoundAsset(path, name, callback) {
 	var snd = document.createElement('audio');
