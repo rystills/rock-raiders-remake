@@ -1,24 +1,33 @@
 makeChild("Raider","RygameObject");
 
-//select the closest building of buildingType. Optionally, only select buildings that hit the resourceTypeNeeded flag
+/**
+ * select the closest building of the input type. if resourceTypeNeeded is specified, ignore buildings which do not require this resource type.
+ * @param buildingType: the type of building to search for
+ * @param resourceTypeNeeded: optional flag; if included, the returned building must need a resource of the specified type.
+ * @returns the nearest building satisfying the requested type and resource needed, or null if no such building is found.
+ */
 Raider.prototype.chooseClosestBuilding = function(buildingType,resourceTypeNeeded) {
 	var buildingList = (buildingType == "building site" ? buildingSites : buildings);
 	destinationSites = [];
 	destinationSite = null;
-	for (var i = 0; i < buildingList.length; i++) { //compile all buildings of type buildingType, then find closest one
-		if (buildingList[i].type == buildingType && buildingList[i].touched == true) { //if its not touched yet it is not pathable so dont choose it (this case should be impossible though because buildings that start out in Fog are not added to the buildings list until they are touched)
-			if (resourceTypeNeeded == null || buildingList[i].resourceNeeded(resourceTypeNeeded)) { //if we're looking to place a resource, check if the building site needs it
+	//compile all buildings of type buildingType, then find the closest one
+	for (var i = 0; i < buildingList.length; i++) {
+		//ignore buildings that have not been touched (though this is unlikely to be a possible occurence)
+		if (buildingList[i].type == buildingType && buildingList[i].touched == true) {
+			//if we're looking to place a resource, check if the building site needs it
+			if (resourceTypeNeeded == null || buildingList[i].resourceNeeded(resourceTypeNeeded)) {
 				destinationSites.push(buildingList[i]);
 			}
 		}
 	}
-	//generate list of buildings of type buildingType, then choose the closest one depending on pathfinding
+	//generate a list of buildings of type buildingType, then choose the closest one depending on pathfinding
 	var shortestPathLength = -1;
 	var shortestStartDistance = -1;
 	var nearestBuilding = null;
 	
 	for (var i = 0; i < destinationSites.length; ++i) {
-		var currentPath = findClosestStartPath(this,calculatePath(terrain,this.space,typeof destinationSites[i].space == "undefined" ? destinationSites[i]: destinationSites[i].space,true));
+		var currentPath = findClosestStartPath(this,calculatePath(terrain,this.space,
+				typeof destinationSites[i].space == "undefined" ? destinationSites[i]: destinationSites[i].space,true));
 		if (currentPath == null || currentPath.length == 0) {
 			continue;
 		}
@@ -33,9 +42,13 @@ Raider.prototype.chooseClosestBuilding = function(buildingType,resourceTypeNeede
 	return nearestBuilding;
 };
 
-//check whether or not there is a closer resource of the same type on this path. If there is, modify the active task to point to that resource instead.
-Raider.prototype.checkChooseCloserEquivalentResource = function(removeCurrentTask) { //check if a closer equivalent resource is present; return true if switched tasks
-	var currentTaskType = this.getTaskType(this.currentTask); //TODO: consider using this function when getting resources from the toolstore as well
+/**
+ * check for a closer resource that is quivalent to our active task on the current path. If found, change the active task to point to the new resource.
+ * @param removeCurrentTask: whether the current task should be removed from tasksInProgress and returned to tasksAvailable (true) or forgotten (false).
+ * @returns whether a closer resource was found and made our new active task (true) or not (false)
+ */
+Raider.prototype.checkChooseCloserEquivalentResource = function(removeCurrentTask) {
+	var currentTaskType = this.getTaskType(this.currentTask);
 	if (!(currentTaskType == "collect" && this.holding.length == 0)) {
 		return;
 	}
@@ -47,12 +60,15 @@ Raider.prototype.checkChooseCloserEquivalentResource = function(removeCurrentTas
 	var closestIndex = -1;
 	var centerX = this.centerX();
 	var centerY = this.centerY();
-	var curCheckSpace = this.space; //check current space, as well as immediate next space
+	var curCheckSpace = this.space;
+	//check current space, as well as one space forward on the path
 	for (var r = 0; r < 2; ++r) {
 		for (var i = 0; i < curCheckSpace.contains.objectList.length; ++i) {	
 			if (this.getTaskType(curCheckSpace.contains.objectList[i]) == currentTaskType) {
-				var newIndex = tasksAvailable.indexOf(curCheckSpace.contains.objectList[i]); //look for resources on the next space, not the current space
-				if (newIndex != -1) { //TODO: CONSIDER WHETHER OR NOT RAIDERS SHOULD BE ALLOWED TO 'STEAL' EACH OTHERS' ACTIVE TASKS
+				//look for resources on the next space, not the current space
+				var newIndex = tasksAvailable.indexOf(curCheckSpace.contains.objectList[i]);
+				//only check this resource if it is in tasksAvailable (meaning we can't steal tasks from other raiders)
+				if (newIndex != -1) {
 					//only consider this resource if its the same type as our current task resource
 					if (curCheckSpace.contains.objectList[i].type == this.currentTask.type) {
 						var distance = getDistance(centerX,centerY,curCheckSpace.contains.objectList[i].centerX(),curCheckSpace.contains.objectList[i].centerY());
@@ -68,19 +84,19 @@ Raider.prototype.checkChooseCloserEquivalentResource = function(removeCurrentTas
 		curCheckSpace = this.currentPath[this.currentPath.length-1];
 	}
 	
-	if (closestObject != null) { //switch tasks to the closest object of the same type on this space
-		//change tasks TODO: CONVERT THIS INTO A METHOD
-		//TODO: THIS CREATES RIGID MOVEMENT WHEN CHANGING TASKS. CONSIDER APPROACHING THIS DIFFERENTLY, INCLUDING SETTING THIS.SPACE EARLIER WHEN CHANGING SPACES (may be fixed now that we check one space ahead of us) [should no longer matter as we now update this.space when changing tasks]
+	//switch tasks to the closest object of the same type on this space
+	if (closestObject != null) {
+		//change tasks
 		if (removeCurrentTask) {
 			tasksInProgress.remove(this.currentTask);
 			tasksAvailable.push(this.currentTask);
 		}
 		
-		this.currentTask = closestObject; //TODO: choose the closest task on the space that is of the same type rather than the first one you find
-		//tasksAvailable.remove(this.currentTask);
+		this.currentTask = closestObject;
 		tasksAvailable.splice(closestIndex, 1);
 		tasksInProgress.push(this.currentTask);
-		this.currentPath = this.currentPath.splice(-1,1); //technically we no longer need the path at all, but without it the walk speed check will complain
+		//technically we no longer need the path at all, but without it the walk speed check will complain
+		this.currentPath = this.currentPath.splice(-1,1);
 		this.currentObjective = this.currentTask;
 		//reset task priority once assigned
 		this.currentTask.taskPriority = 0;
@@ -89,7 +105,13 @@ Raider.prototype.checkChooseCloserEquivalentResource = function(removeCurrentTas
 	return false;
 };
 
-//set current task, objective, and path, remove from tasksAvailable, and add to tasksInProgress
+/**
+ * set the current task, updating the objective and path, and moving the task from tasksAvailable to tasksInProgress
+ * @param taskIndex: the index of the desired task in tasksAvailable
+ * @param path: the path to take to reach the desired task
+ * @param initialObjective: if specified, perform this objective as a prerequisite to performing the new task
+ * @param keepTask: whether the new task should remain in tasksAvailable (true) or be removed (false)
+ */
 Raider.prototype.setTask = function(taskIndex, path, initialObjective, keepTask) {
 	this.currentTask = tasksAvailable[taskIndex];
 	if (!keepTask) {
@@ -100,7 +122,8 @@ Raider.prototype.setTask = function(taskIndex, path, initialObjective, keepTask)
 	}
 	if (initialObjective != null) {
 		this.currentObjective = initialObjective;
-		this.currentPath = findClosestStartPath(this,calculatePath(terrain,this.space,typeof initialObjective.space == "undefined" ? initialObjective: initialObjective.space,true));
+		this.currentPath = findClosestStartPath(this,calculatePath(terrain,this.space,
+				typeof initialObjective.space == "undefined" ? initialObjective: initialObjective.space,true));
 	}
 	else {
 		this.currentObjective = this.currentTask;
@@ -110,44 +133,63 @@ Raider.prototype.setTask = function(taskIndex, path, initialObjective, keepTask)
 	this.currentTask.taskPriority = 0;
 }
 
-//determine whether or not any of the space's contents can be performed
-Raider.prototype.canPerformTaskContains = function(task, ignoreAutomation, ignoreContents) {
-	if (ignoreContents || task.contains == null) {
+/**
+ * determine whether or not we can perform a task with any of this space's contents
+ * @param space: the space whose contents we should check for tasks to perform
+ * @param ignoreAutomation: whether we should accept a task regardless of whether or not it can be automated (true) or not (false)
+ * @param ignoreContents: whether we should search this task's contents (true) or simply return false (false)
+ * @returns whether we can perform one of this space's contained tasks (true) or not (false)
+ */
+Raider.prototype.canPerformSpaceContains = function(space, ignoreAutomation, ignoreContents) {
+	if (ignoreContents || space.contains == null) {
 		return false;
 	}
-	for (var i = 0; i < task.contains.objectList.length; ++i) {	
-		var newIndex = tasksAvailable.indexOf(task.contains.objectList[i]);
+	for (var i = 0; i < space.contains.objectList.length; ++i) {	
+		var newIndex = tasksAvailable.indexOf(space.contains.objectList[i]);
 		//make sure this task is available before proceeding
 		if (newIndex != -1) {
-			return this.canPerformTask(task.contains.objectList[i],false,true);
+			return this.canPerformTask(space.contains.objectList[i],false,true);
 		}
 	}
 }
 
-//determine whether or not any of the space's dummies can be performed
-Raider.prototype.canPerformTaskDummies = function(task, ignoreAutomation, ignoreContents) {
-	if (ignoreContents || task.reinforceDummy == null) {
+/**
+ * determine whether or not we can perform a task with any of this space's dummies
+ * @param space: the space whose dummies we should check for tasks to perform
+ * @param ignoreAutomation: whether we should accept a task regardless of whether or not it can be automated (true) or not (false)
+ * @param ignoreContents: whether we should search this task's contents (true) or simply return false (false)
+ * @returns whether we can perform one of this space's dummies (true) or not (false)
+ */
+Raider.prototype.canPerformTaskDummies = function(space, ignoreAutomation, ignoreContents) {
+	if (ignoreContents || space.reinforceDummy == null) {
 		return false;
 	}
-	var newIndex = tasksAvailable.indexOf(task.reinforceDummy);
+	var newIndex = tasksAvailable.indexOf(space.reinforceDummy);
 	//make sure this task is available before proceeding
 	if (newIndex != -1) {
-		return this.canPerformTask(task.reinforceDummy,false,true);
+		return this.canPerformTask(space.reinforceDummy,false,true);
 	}
 }
 
-//check if we have the tool needed for this task, or if our vehicle has the tool needed
+/**
+ * check if we have the tool needed for this task, or if our vehicle has the tool needed
+ * @param inTaskType: the type of task for which we wish to know whether or not we have the correct tool
+ * @returns whether we possess whatever tool is necessary for the input task (true) or not (false)
+ */
 Raider.prototype.haveTool = function(inTaskType) {
 	if (toolsRequired[inTaskType] == undefined) {
 		return true;
 	}
 	if (this.vehicle != null) {
-		return inTaskType == "drill" ? this.vehicle.canDrill : (inTaskType == "sweep" ? this.vehicle.canSweep : (inTaskType == "drill hard" && this.vehicle.canDrillHard));
+		return inTaskType == "drill" ? this.vehicle.canDrill : 
+			(inTaskType == "sweep" ? this.vehicle.canSweep : (inTaskType == "drill hard" && this.vehicle.canDrillHard));
 	}
 	return this.tools.indexOf(toolsRequired[inTaskType]) != -1;
 }
 
-//exit vehicle, if in one
+/**
+ * exit the current vehicle, if we are in one
+ */
 Raider.prototype.exitVehicle = function() {
 	if (this.vehicle != null) {
 		tasksAvailable.push(this.vehicle);
@@ -160,42 +202,42 @@ Raider.prototype.canPerformTask = function(task,ignoreAutomation,ignoreContents)
 	//ignoreContents ensures that this function does not try to recurse endlessly when checking children or dummy objects
 	//make sure the fact that we are in a vehicle won't stop us
 	if (this.vehicleInhibitsTask(taskType(task))) {
-		return this.canPerformTaskContains(task,ignoreAutomation,ignoreContents) || this.canPerformTaskDummies(task,ignoreAutomation,ignoreContents);		
+		return this.canPerformSpaceContains(task,ignoreAutomation,ignoreContents) || this.canPerformTaskDummies(task,ignoreAutomation,ignoreContents);		
 	}
 	if (!ignoreAutomation) {
 		//if the input task is not a valid task and none of its contents (if it is a space) are a task, return false
 		if (tasksAvailable.indexOf(task) == -1) {
 			//check if the task is a space and any of its contents are a task before returning false
-			return this.canPerformTaskContains(task,ignoreAutomation,ignoreContents) || this.canPerformTaskDummies(task,ignoreAutomation,ignoreContents);		
+			return this.canPerformSpaceContains(task,ignoreAutomation,ignoreContents) || this.canPerformTaskDummies(task,ignoreAutomation,ignoreContents);		
 		}
 		
 		//if the input task is a task that cannot be automated, return false
 		if (!tasksAutomated[taskType(task)]) {
-			return this.canPerformTaskContains(task,ignoreAutomation,ignoreContents) || this.canPerformTaskDummies(task,ignoreAutomation, ignoreContents);
+			return this.canPerformSpaceContains(task,ignoreAutomation,ignoreContents) || this.canPerformTaskDummies(task,ignoreAutomation, ignoreContents);
 		}
 	}
 	
 	//if the input task is a vehicle, make sure we aren't already in one
 	if (taskType(task) == "vehicle" && this.vehicle != null) {
-		return this.canPerformTaskContains(task,ignoreAutomation,ignoreContents) || this.canPerformTaskDummies(task,ignoreAutomation,ignoreContents);	
+		return this.canPerformSpaceContains(task,ignoreAutomation,ignoreContents) || this.canPerformTaskDummies(task,ignoreAutomation,ignoreContents);	
 	}
 	
 	//if the input task requires a tool that we don't have, return false
 	if (!this.haveTool(taskType(task))) {
-		return this.canPerformTaskContains(task,ignoreAutomation,ignoreContents) || this.canPerformTaskDummies(task,ignoreAutomation,ignoreContents);	
+		return this.canPerformSpaceContains(task,ignoreAutomation,ignoreContents) || this.canPerformTaskDummies(task,ignoreAutomation,ignoreContents);	
 	}
 	//if the task is of type 'drill' and we are in a vehicle, make sure the vehicle has a drill
 	if (taskType(task) == "drill" && !(this.vehicle == null || this.vehicle.canDrill)) {
-		return this.canPerformTaskContains(task,ignoreAutomation,ignoreContents) || this.canPerformTaskDummies(task,ignoreAutomation,ignoreContents);	
+		return this.canPerformSpaceContains(task,ignoreAutomation,ignoreContents) || this.canPerformTaskDummies(task,ignoreAutomation,ignoreContents);	
 	}
 	//if the task is of type 'drill hard' and we are in a vehicle, make sure the vehicle has a drill
 	if (taskType(task) == "drill hard" && !(this.vehicle == null || this.vehicle.canDrillHard)) {
-		return this.canPerformTaskContains(task,ignoreAutomation,ignoreContents) || this.canPerformTaskDummies(task,ignoreAutomation,ignoreContents);	
+		return this.canPerformSpaceContains(task,ignoreAutomation,ignoreContents) || this.canPerformTaskDummies(task,ignoreAutomation,ignoreContents);	
 	}
 	
 	//if the task is of type 'sweep' and we are in a vehicle, make sure the vehicle has a shovel
 	if (taskType(task) == "sweep" && !(this.vehicle == null || this.vehicle.canSweep)) {
-		return this.canPerformTaskContains(task,ignoreAutomation,ignoreContents) || this.canPerformTaskDummies(task,ignoreAutomation,ignoreContents);	
+		return this.canPerformSpaceContains(task,ignoreAutomation,ignoreContents) || this.canPerformTaskDummies(task,ignoreAutomation,ignoreContents);	
 	}
 	
 	//if the input task is a building site and we don't have a tool store that we can path to or don't have any of the required resources, return false
@@ -203,7 +245,7 @@ Raider.prototype.canPerformTask = function(task,ignoreAutomation,ignoreContents)
 		destinationSite = this.chooseClosestBuilding("tool store");
 		//if there's no path to a tool store to get a resource with which to build, move on to the next high priority task
 		if (destinationSite == null) {
-			return this.canPerformTaskContains(task,ignoreAutomation,ignoreContents)|| this.canPerformTaskDummies(task,ignoreAutomation,ignoreContents);
+			return this.canPerformSpaceContains(task,ignoreAutomation,ignoreContents)|| this.canPerformTaskDummies(task,ignoreAutomation,ignoreContents);
 		}
 		//if there is no resource in the tool store that is needed by the building site, return false
 		var dedicatedResourceTypes = Object.getOwnPropertyNames(task.dedicatedResources);
@@ -214,7 +256,7 @@ Raider.prototype.canPerformTask = function(task,ignoreAutomation,ignoreContents)
 			}
 		}
 		//no resource in the tool store is required by this site
-		return this.canPerformTaskContains(task,ignoreAutomation,ignoreContents) || this.canPerformTaskDummies(task,ignoreAutomation,ignoreContents);		
+		return this.canPerformSpaceContains(task,ignoreAutomation,ignoreContents) || this.canPerformTaskDummies(task,ignoreAutomation,ignoreContents);		
 	}
 	return true;
 }
