@@ -268,19 +268,23 @@ function BuildingPlacer(buildingType,isHelper,xOffset,yOffset,parentBuilder) {
 		yOffset = 0;
 	}
 	this.parentBuilder = parentBuilder;
-	RygameObject.call(this,0,0,1000000,10000,null,gameLayer,false); //update after Space, and draw in front of space
+	//update after Space, and draw in front of space
+	RygameObject.call(this,0,0,1000000,10000,null,gameLayer,false);
 	this.buildingType = buildingType;
 	
 	this.drawSurface = createContext(tileSize,tileSize,false);
 	this.drawSurface.globalAlpha=.25;
 	this.drawSurface.fillStyle = "rgb(255,0,0)";
-	this.drawSurface.fillRect(0,0,this.drawSurface.canvas.width,this.drawSurface.canvas.height); //red semi-transparent overlay
+	//red semi-transparent overlay
+	this.drawSurface.fillRect(0,0,this.drawSurface.canvas.width,this.drawSurface.canvas.height);
 	this.invalidSurface = this.drawSurface;
 	this.validSurface = createContext(tileSize,tileSize,false);
 	this.validSurface.globalAlpha=.25;
+	//color power paths yellowish
 	this.validSurface.fillStyle = (buildingType == "power path" || buildingType == "building power path" || 
-			buildingType == "power station powerPath" ? "rgb(200,255,0)" : "rgb(0,255,0)"); //color power paths yellowish
-	this.validSurface.fillRect(0,0,this.drawSurface.canvas.width,this.drawSurface.canvas.height); //green semi-transparent overlay
+			buildingType == "power station powerPath" ? "rgb(200,255,0)" : "rgb(0,255,0)"); 
+	//green semi-transparent overlay
+	this.validSurface.fillRect(0,0,this.drawSurface.canvas.width,this.drawSurface.canvas.height);
 	
 	this.visible = false;
 	this.isHelper = (isHelper == true ? true : false);

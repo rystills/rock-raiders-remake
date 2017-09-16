@@ -790,7 +790,7 @@ Raider.prototype.workOnCurrentTask = function() {
 				}
 				else if (taskType == "drill" || taskType == "drill hard") {
 					this.currentTask.updateDrillPercent(this.drillSpeed * this.currentTask.drillSpeedModifier * 
-							(this.vehicle == null ? 1 : (taskType == "drill" ? this.vehicle.drillSpeedModifier : this.vehicle.drillHardSpeedModifier)), this);
+							(this.vehicle == null ? 1 : (taskType == "drill" ? this.vehicle.drillSpeedModifier : this.vehicle.drillHardSpeedModifier)), this.space);
 					this.drillSound.play();
 					this.busy = true;
 					if (this.currentTask.drillPercent >= 100) {
@@ -815,7 +815,7 @@ Raider.prototype.workOnCurrentTask = function() {
 						if (reachedObjective == true) {
 							this.space = this.currentTask;
 						}
-						this.currentTask.updateSweepPercent(this.sweepSpeed *  (this.vehicle == null ? 1 : this.vehicle.sweepSpeedModifier), this);
+						this.currentTask.updateSweepPercent(this.sweepSpeed *  (this.vehicle == null ? 1 : this.vehicle.sweepSpeedModifier));
 						this.sweepSound.play();
 						this.busy = true;
 						if (this.currentTask.sweepPercent >= 100) {
