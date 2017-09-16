@@ -1,4 +1,10 @@
 makeChild("Collectable","RygameObject");
+
+/**
+ * simple class which represents a collectable object
+ * @param space: the space on which this object is resting
+ * @param type: this object's type
+ */
 function Collectable(space,type) {
 	this.image = null;
 	this.grabPercent = 0;
@@ -12,7 +18,7 @@ function Collectable(space,type) {
 	RygameObject.call(this,0,0,10,10,this.image,gameLayer);
 	this.space = space;
 	
-	this.space.contains.push(this); //TODO: DECIDE IF ROCK RAIDERS SHOULD ALSO BE INCLUDED IN CONTAINS, SINCE THEY WILL BE BOUNCING AROUND SPACES A LOT ANYWAY
+	this.space.contains.push(this);
 
 	this.setCenterX(this.space.centerX());
 	this.setCenterY(this.space.centerY());

@@ -1,9 +1,9 @@
-function MusicPlayer() {
-	this.trackNum = 0;
-}
-
+/**
+ * play one of the three in-game tracks at random
+ */
 MusicPlayer.prototype.playRandomSong = function() {
-	if (this.trackNum == 0 || GameManager.sounds["song" + this.trackNum + "-reduced noise"].paused) { //don't do anything if we are already playing a song
+	//don't do anything if we are already playing a song
+	if (this.trackNum == 0 || GameManager.sounds["song" + this.trackNum + "-reduced noise"].paused) {
 		var newTrackNum = this.trackNum;
 		while (newTrackNum == this.trackNum) {
 			this.trackNum = randomInt(1, 3);
@@ -12,6 +12,9 @@ MusicPlayer.prototype.playRandomSong = function() {
 	}
 };
 
+/**
+ * update the music player, changing tracks when necessary and choosing a new in-game theme once the previous song ends
+ */
 MusicPlayer.prototype.update = function() {
 	if (this.trackNum == 0) {
 		if (GameManager.sounds["menu theme"].paused) {
@@ -28,6 +31,9 @@ MusicPlayer.prototype.update = function() {
 	}
 };
 
+/**
+ * stop the currently playing music as the game transitions to a new level
+ */
 MusicPlayer.prototype.changeLevels = function() {
 	if (this.trackNum == 0) {
 		GameManager.sounds["menu theme"].pause();
@@ -42,3 +48,10 @@ MusicPlayer.prototype.changeLevels = function() {
 		GameManager.sounds["song" + this.trackNum + "-reduced noise"].currentTime = 0;
 	}
 };
+
+/**
+ * MusicPlayer constructor: start the track number at 0 (main menu music)
+ */
+function MusicPlayer() {
+	this.trackNum = 0;
+}

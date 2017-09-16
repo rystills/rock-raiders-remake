@@ -207,7 +207,7 @@ function findClosestStartPath(startObject,paths) {
  */
 function calculatePath(terrain,startSpace,goalSpace,returnAllSolutions,raider) { 
 	//if startSpace meets the desired property, return it without doing any further calculations
-	if (startSpace == goalSpace || (goalSpace == null && raider.canPerformSpaceTask(startSpace))) {
+	if (startSpace == goalSpace || (goalSpace == null && raider.canPerformTask(startSpace))) {
 		if (!returnAllSolutions) {
 			return [startSpace];
 		}
@@ -246,7 +246,7 @@ function calculatePath(terrain,startSpace,goalSpace,returnAllSolutions,raider) {
 			var newSpace = adjacentSpaces[k];
 			//check this here so that the algorithm is a little bit faster, but also so that paths to non-walkable terrain pieces (such as for drilling) will work
 			//if the newSpace is a goal, find a path back to startSpace (or all equal paths if returnAllSolutions is True)
-			if (newSpace == goalSpace || (goalSpace == null && raider.canPerformSpaceTask(newSpace))) {
+			if (newSpace == goalSpace || (goalSpace == null && raider.canPerformTask(newSpace))) {
 				goalSpace = newSpace;
 				newSpace.parents = [currentSpace]; //start the path with currentSpace and work our way back
 				pathsFound = [[newSpace]];
@@ -849,9 +849,9 @@ function checkAssignSelectionTask() {
 					continue;
 				}
 				
-				console.log("can we perform? : "  +selection[i].canPerformSpaceTask(selectedTask,true));
-				//if we changed the taskType to 'walk' override this canPerformSpaceTask check since raiders can always walk
-				if (selection[i].canPerformSpaceTask(selectedTask,true) || selectedTaskType == "walk") {
+				console.log("can we perform? : "  +selection[i].canPerformTask(selectedTask,true));
+				//if we changed the taskType to 'walk' override this canPerformTask check since raiders can always walk
+				if (selection[i].canPerformTask(selectedTask,true) || selectedTaskType == "walk") {
 					//if current raider is already performing a task and not holding anything, stop him before assigning the new task
 					if (selection[i].currentTask != null && (selection[i].holding.length == 0 || selectedTaskType == "build" || selectedTaskType == "walk")) {
 						stopMinifig(selection[i]);
@@ -1342,7 +1342,9 @@ function drawDynamiteTimers() {
 			}
 			GameManager.setFontSize(24);
 			GameManager.drawSurface.fillStyle = "rgb(255, 0, 0)";
-			GameManager.drawSurface.fillText(Math.floor((collectables.objectList[i].igniteTimer-1)/GameManager.fps + 1),collectables.objectList[i].x-collectables.objectList[i].drawLayer.cameraX,collectables.objectList[i].centerY()-collectables.objectList[i].drawLayer.cameraY - 20); //to be replaced with classic green selection rectangle	
+			GameManager.drawSurface.fillText(Math.floor((collectables.objectList[i].igniteTimer-1)/GameManager.fps + 1),
+					collectables.objectList[i].x-collectables.objectList[i].drawLayer.cameraX,
+					collectables.objectList[i].centerY()-collectables.objectList[i].drawLayer.cameraY - 20);	
 			
 		}
 	}
@@ -1927,7 +1929,8 @@ function returnToMainMenu() {
 		for (var i = 0; i < GameManager.scriptObjects["levelList.js"].levels.length; ++i) {
 			var score = levelScores[GameManager.scriptObjects["levelList.js"].levels[i]];
 			//level select buttons are now images, so for now we don't need to show this score anywhere
-			//levelSelectButtons.objectList[i].updateText(GameManager.scriptObjects["Info_" + GameManager.scriptObjects["levelList.js"].levels[i] + ".js"].name + (score >= 0 ? " - best score: " + score : ""));
+			//levelSelectButtons.objectList[i].updateText(GameManager.scriptObjects["Info_" + 
+			//GameManager.scriptObjects["levelList.js"].levels[i] + ".js"].name + (score >= 0 ? " - best score: " + score : ""));
 		}
 	}
 	menuLayer.active = true;
@@ -2295,6 +2298,5 @@ function update() {
 //init rygame before we start the game
 GameManager.initializeRygame(0);
 
-//TODO: make it so that pieces with no path to them have their spaces marked as "unaccessible" and when you drill a wall or build a dock or fulfill some other objective that allows you to reach new areas find each newly accessible square and unmark those squares
 initGlobals();
 _intervalId = setInterval(update, 1000 / GameManager.fps); //set refresh rate to desired fps
