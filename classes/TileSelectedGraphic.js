@@ -43,7 +43,7 @@ TileSelectedGraphic.prototype.redrawSelectedGraphic = function() {
 }
 
 /**
- * //override withinLayerBounds to pretend we are always in-bounds, and therefore should be rendered
+ * override withinLayerBounds to pretend we are always in-bounds, and therefore should be rendered
  */
 TileSelectedGraphic.prototype.withinLayerBounds = function() {
 	return true;

@@ -1,4 +1,15 @@
 makeChild("BuildingPlacer","RygameObject");
+
+//how each direction alters y,x coordinate placement
+BuildingPlacer.dirOffsets = [];
+BuildingPlacer.dirOffsets.push([[1,0],[1,1],[2,0]]);
+BuildingPlacer.dirOffsets.push([[0,-1],[1,-1],[0,-2]]);
+BuildingPlacer.dirOffsets.push([[-1,0],[-1,-1],[-2,0]]);
+BuildingPlacer.dirOffsets.push([[0,1],[-1,1],[0,2]]);
+
+/**
+ * update the building placer and its children, placing the new building on left mouse click or exiting on right mouse click
+ */
 BuildingPlacer.prototype.update = function() {
 	if (this.visible && !this.isHelper) {
 		if (GameManager.mouseReleasedRight) {
@@ -38,11 +49,16 @@ BuildingPlacer.prototype.update = function() {
 	}
 };
 
+/**
+ * override withinLayerBounds to pretend we are always in-bounds, and therefore should be rendered
+ */
 BuildingPlacer.prototype.withinLayerBounds = function() {
-	//override withinLayerBounds to return true as we do not actually maintain a valid rect, and will therefore be considered out-of-bounds and not rendered otherwise
 	return true;
 };
 
+/**
+ * check if the R key has been pressed, and if so, rotate the placer
+ */
 BuildingPlacer.prototype.checkUpdateKeyPress = function() {
 	//check if the R key is pressed
 	if (GameManager.keyStates[String.fromCharCode(82)]) {
@@ -56,6 +72,9 @@ BuildingPlacer.prototype.checkUpdateKeyPress = function() {
 	}
 };
 
+/**
+ * rotate the building placer by 90 degrees, and update its children's locations by performing a restart
+ */
 BuildingPlacer.prototype.rotate = function() {
 	this.dir = (this.dir+1)%4;
 	//restart with new dir to create children in the correct position
@@ -63,6 +82,11 @@ BuildingPlacer.prototype.rotate = function() {
 	this.start(this.buildingType,true);
 };
 
+/**
+ * start the placer, creating children in the correct location depending on its type and orientation
+ * @param type: the type of building that the user is attempting to place
+ * @param keepDir: whether the placer should keep its current direction (true) or reset its direction to 0 (false)
+ */
 BuildingPlacer.prototype.start = function(type,keepDir) {
 	this.visible = true;
 	if (type != null) {
@@ -103,6 +127,9 @@ BuildingPlacer.prototype.start = function(type,keepDir) {
 	}
 };
 
+/**
+ * stop the placer, destroying its children and setting it to invisible
+ */
 BuildingPlacer.prototype.stop = function() {
 	if (this.visible) {
 		this.visible = false;
@@ -113,8 +140,14 @@ BuildingPlacer.prototype.stop = function() {
 	}
 };
 
+/**
+ * check whether or not the placer is currently in a position that allows for building placement
+ * @param space: the space over which the building placer is currently hovering
+ * @returns whether the building placer is in a valid position (true) or not (false)
+ */
 BuildingPlacer.prototype.positionValid = function(space) {
-	if (space == null) { //this should only happen when we are hovering out of bounds
+	//this should only happen when we are hovering out of bounds
+	if (space == null) {
 		return false;
 	}
 	if (space.type != "ground") {
@@ -130,7 +163,8 @@ BuildingPlacer.prototype.positionValid = function(space) {
 			return false;
 		}
 	}
-	if (this.isHelper ||this.touchingPowerPath(space)) { //helpers don't need to perform power path collision check, as the master checks that
+	//helpers don't need to perform power path collision check, as the master checks that
+	if (this.isHelper ||this.touchingPowerPath(space)) {
 		return true;
 	}
 	for (var i = 0; i < this.children.length; ++i) {
@@ -141,6 +175,11 @@ BuildingPlacer.prototype.positionValid = function(space) {
 	return false;
 };
 
+/**
+ * check whether or not the building placer is currently touching a power path
+ * @param space: the space over which the placer is currently hovering
+ * @returns whether the building placer is touching a power path (true) or not (false)
+ */
 BuildingPlacer.prototype.touchingPowerPath = function(space) {
 	if (adjacentSpace(terrain,space.listX,space.listY,"up").type == "power path") {
 		return true;
@@ -156,11 +195,12 @@ BuildingPlacer.prototype.touchingPowerPath = function(space) {
 	}
 }
 
+/**
+ * update the placer's position based on the mouse coordinates, factoring in the camera position and tile size
+ */
 BuildingPlacer.prototype.updatePosition = function() {
 	this.x = GameManager.mousePos.x;
 	this.x += (gameLayer.cameraX % tileSize);
-	//console.log(this.x / tileSize > 1);
-	//this.x = ((this.x / tileSize > 1) ? Math.floor(this.x / tileSize) : Math.ceil(this.x / tileSize)) * tileSize;
 	this.x = Math.floor(this.x / tileSize) * tileSize;
 	this.x -= (gameLayer.cameraX % tileSize);
 	this.y = GameManager.mousePos.y;
@@ -171,9 +211,14 @@ BuildingPlacer.prototype.updatePosition = function() {
 	this.y += tileSize * this.yOffset;
 };
 
+/**
+ * place a new building instance of the desired type
+ * @param space: the space on which to place the new building
+ */
 BuildingPlacer.prototype.placeBuilding = function(space) {
 	if (powerPathSpaceTypes.indexOf(this.buildingType) != -1) {
-		space.setTypeProperties(this.buildingType,null,null,null,null,null,(this.dir*90 - 90 + (this.dir % 2 == 1 ? 180 : 0)) * (Math.PI / 180),this.parentBuilder == null ? null : this.parentBuilder.getCurrentSpace());
+		space.setTypeProperties(this.buildingType,null,null,null,null,null,(this.dir*90 - 90 + (this.dir % 2 == 1 ? 180 : 0)) * 
+				(Math.PI / 180),this.parentBuilder == null ? null : this.parentBuilder.getCurrentSpace());
 	}
 	else {
 		space.buildingSiteType = this.buildingType;
@@ -181,7 +226,8 @@ BuildingPlacer.prototype.placeBuilding = function(space) {
 		for (var i = 0; i < this.children.length; ++i) {
 			space.childSpaces.push(this.children[i].getCurrentSpace());
 		}
-		space.setTypeProperties("building site",null,null,null,null,null,(this.dir*90 - 90 + (this.dir % 2 == 1 ? 180 : 0)) * (Math.PI / 180),this.parentBuilder == null ? null : this.parentBuilder.getCurrentSpace());
+		space.setTypeProperties("building site",null,null,null,null,null,(this.dir*90 - 90 + (this.dir % 2 == 1 ? 180 : 0)) * 
+				(Math.PI / 180),this.parentBuilder == null ? null : this.parentBuilder.getCurrentSpace());
 	}
 	
 	for (var i = 0; i < this.children.length; ++i) {
@@ -192,6 +238,10 @@ BuildingPlacer.prototype.placeBuilding = function(space) {
 	}
 };
 
+/**
+ * get the space over which the building placer is currently hovering
+ * @returns the space in the level terrain corresponding to the building placer's current location
+ */
 BuildingPlacer.prototype.getCurrentSpace = function() {
 	var yCoord = Math.floor((this.y + gameLayer.cameraY)/tileSize);
 	var xCoord = Math.floor((this.x + gameLayer.cameraX)/tileSize);
@@ -202,6 +252,14 @@ BuildingPlacer.prototype.getCurrentSpace = function() {
 	return terrain[yCoord][xCoord];
 };
 
+/**
+ * BuildingPlacer constructor: instantiate the placer, setting its location and drawSurfaces, and specifying its parent if it is a helper
+ * @param buildingType: the type of building to which this placer corresponds
+ * @param isHelper: whether this placer is a helper (true) or the master placer (falsee)
+ * @param xOffset: the grid x offset of this placer from the master
+ * @param yOffset: the grid y offset of this placer from the master
+ * @param parentBuilder: the master placer of which this placer is a child
+ */
 function BuildingPlacer(buildingType,isHelper,xOffset,yOffset,parentBuilder) {
 	if (xOffset == null) {
 		xOffset = 0;
@@ -220,7 +278,8 @@ function BuildingPlacer(buildingType,isHelper,xOffset,yOffset,parentBuilder) {
 	this.invalidSurface = this.drawSurface;
 	this.validSurface = createContext(tileSize,tileSize,false);
 	this.validSurface.globalAlpha=.25;
-	this.validSurface.fillStyle = (buildingType == "power path" || buildingType == "building power path" || buildingType == "power station powerPath" ? "rgb(200,255,0)" : "rgb(0,255,0)"); //color power paths yellowish
+	this.validSurface.fillStyle = (buildingType == "power path" || buildingType == "building power path" || 
+			buildingType == "power station powerPath" ? "rgb(200,255,0)" : "rgb(0,255,0)"); //color power paths yellowish
 	this.validSurface.fillRect(0,0,this.drawSurface.canvas.width,this.drawSurface.canvas.height); //green semi-transparent overlay
 	
 	this.visible = false;
@@ -230,10 +289,3 @@ function BuildingPlacer(buildingType,isHelper,xOffset,yOffset,parentBuilder) {
 	this.children = [];
 	this.holdingRKey = false;
 }
-
-//how each direction alters y,x coordinate placement
-BuildingPlacer.dirOffsets = [];
-BuildingPlacer.dirOffsets.push([[1,0],[1,1],[2,0]]);
-BuildingPlacer.dirOffsets.push([[0,-1],[1,-1],[0,-2]]);
-BuildingPlacer.dirOffsets.push([[-1,0],[-1,-1],[-2,0]]);
-BuildingPlacer.dirOffsets.push([[0,1],[-1,1],[0,2]]);
