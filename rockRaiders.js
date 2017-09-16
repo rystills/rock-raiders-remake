@@ -207,7 +207,7 @@ function findClosestStartPath(startObject,paths) {
  */
 function calculatePath(terrain,startSpace,goalSpace,returnAllSolutions,raider) { 
 	//if startSpace meets the desired property, return it without doing any further calculations
-	if (startSpace == goalSpace || (goalSpace == null && raider.canPerformTask(startSpace))) {
+	if (startSpace == goalSpace || (goalSpace == null && raider.canPerformSpaceTask(startSpace))) {
 		if (!returnAllSolutions) {
 			return [startSpace];
 		}
@@ -246,7 +246,7 @@ function calculatePath(terrain,startSpace,goalSpace,returnAllSolutions,raider) {
 			var newSpace = adjacentSpaces[k];
 			//check this here so that the algorithm is a little bit faster, but also so that paths to non-walkable terrain pieces (such as for drilling) will work
 			//if the newSpace is a goal, find a path back to startSpace (or all equal paths if returnAllSolutions is True)
-			if (newSpace == goalSpace || (goalSpace == null && raider.canPerformTask(newSpace))) {
+			if (newSpace == goalSpace || (goalSpace == null && raider.canPerformSpaceTask(newSpace))) {
 				goalSpace = newSpace;
 				newSpace.parents = [currentSpace]; //start the path with currentSpace and work our way back
 				pathsFound = [[newSpace]];
@@ -849,9 +849,9 @@ function checkAssignSelectionTask() {
 					continue;
 				}
 				
-				console.log("can we perform? : "  +selection[i].canPerformTask(selectedTask,true));
-				//if we changed the taskType to 'walk' override this canPerformTask check since raiders can always walk
-				if (selection[i].canPerformTask(selectedTask,true) || selectedTaskType == "walk") {
+				console.log("can we perform? : "  +selection[i].canPerformSpaceTask(selectedTask,true));
+				//if we changed the taskType to 'walk' override this canPerformSpaceTask check since raiders can always walk
+				if (selection[i].canPerformSpaceTask(selectedTask,true) || selectedTaskType == "walk") {
 					//if current raider is already performing a task and not holding anything, stop him before assigning the new task
 					if (selection[i].currentTask != null && (selection[i].holding.length == 0 || selectedTaskType == "build" || selectedTaskType == "walk")) {
 						stopMinifig(selection[i]);
