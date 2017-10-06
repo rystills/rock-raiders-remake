@@ -94,10 +94,10 @@ object = {
           ["img", "images\\spaces", "loose rock.png"], //loose rock
           ["img", "images\\spaces", "hard rock.png"], //hard rock
           ["img", "images\\spaces", "solid rock.png"], //solid rock
-          ["img", "images\\spaces", "rubble.png"], //rubble swept 0 times. 4 sweeps required to clear fully
-          ["img", "images\\spaces", "rubble 2 (1).png"], //rubble swept 1 time. 3 sweeps required to clear fully
-          ["img", "images\\spaces", "rubble 3 (1).png"], //rubble swept 2 times. 2 sweeps required to clear fully
-          ["img", "images\\spaces", "rubble 4 (1).png"], //rubble swept 3 times. 1 sweep required to clear fully
+          ["img", "images\\spaces", "rubble 1.png"], //rubble swept 0 times. 4 sweeps required to clear fully
+          ["img", "images\\spaces", "rubble 2.png"], //rubble swept 1 time. 3 sweeps required to clear fully
+          ["img", "images\\spaces", "rubble 3.png"], //rubble swept 2 times. 2 sweeps required to clear fully
+          ["img", "images\\spaces", "rubble 4.png"], //rubble swept 3 times. 1 sweep required to clear fully
           ["img", "images\\spaces", "building site.png"], //building site
           ["img", "images\\spaces", "SlimySlugHole.png"], //hole out of which slimy slugs can emerge
           ["img", "images\\spaces", "reinforcement.png"], //reinforcement overlay for reinforced walls

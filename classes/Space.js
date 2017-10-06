@@ -417,16 +417,16 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 	}
 	else if (type.slice(0,6) == "rubble") {
 		if (type == "rubble 1") {
-			this.image = "rubble.png";
+			this.image = "rubble 1.png";
 		}
 		else if (type == "rubble 2") {
-			this.image = "rubble 2 (1).png";
+			this.image = "rubble 2.png";
 		}
 		else if (type == "rubble 3") {
-			this.image = "rubble 3 (1).png";
+			this.image = "rubble 3.png";
 		}
 		else if (type == "rubble 4") {
-			this.image = "rubble 4 (1).png";
+			this.image = "rubble 4.png";
 		}
 		this.walkable = true;
 		this.sweepable = true;
