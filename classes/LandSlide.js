@@ -27,7 +27,7 @@ LandSlide.prototype.update = function() {
  * @param space: the space on which this land slide is occurring
  */
 function LandSlide(space) {
-	this.image = "landslide 1 (1).png";
+	this.image = "landslide.png";
 	RygameObject.call(this,0,0,10,10,this.image,gameLayer);
 	this.setCenterX(space.centerX());
 	this.setCenterY(space.centerY());

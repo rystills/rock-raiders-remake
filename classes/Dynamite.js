@@ -65,7 +65,7 @@ Dynamite.prototype.detonate = function() {
 	}
 	var centX = this.centerX();
 	var centY = this.centerY();
-	this.image = GameManager.images["dynamite explosion 1 (1).png"];
+	this.image = GameManager.images["dynamite explosion.png"];
 	this.drawSurface = createContext(this.image.width,this.image.height,false); 
 	this.drawSurface.drawImage(this.image,0,0);
 	this.rect = new Rect(this.drawSurface.canvas.width,this.drawSurface.canvas.height);
@@ -80,7 +80,7 @@ Dynamite.prototype.detonate = function() {
  */
 function Dynamite(space) {
 	this.grabPercent = 0;
-	this.image = "dynamite 1 (1).png";
+	this.image = "dynamite.png";
 	this.type = "dynamite";
 	RygameObject.call(this,0,0,10,10,this.image,gameLayer);
 	this.space = space;

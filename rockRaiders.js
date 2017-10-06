@@ -1748,12 +1748,12 @@ function startBuildingPlacer(buildingType) {
  */
 function createButtons() {
 	//base level buttons
-	buttons.push(new Button(0,0,0,0,"teleport raider button 1 (1).png",gameLayer,"", createRaider,false,false));
-	buttons.push(new Button(0,40,0,0,"open building menu button 1 (1).png",gameLayer,"", openBuildingMenu,false,false));
-	buttons.push(new Button(0,80,0,0,"open small vehicle menu button 1 (1).png",gameLayer,"", openVehicleMenu,false,false));
+	buttons.push(new Button(0,0,0,0,"teleport raider button.png",gameLayer,"", createRaider,false,false));
+	buttons.push(new Button(0,40,0,0,"open building menu button.png",gameLayer,"", openBuildingMenu,false,false));
+	buttons.push(new Button(0,80,0,0,"open small vehicle menu button.png",gameLayer,"", openVehicleMenu,false,false));
 	
 	//if selectionTypeBound is an empty list, the button will be visible for all selections except when selection == null
-	buttons.push(new Button(46,0,0,0,"cancel selection button 1 (1).png",gameLayer,"", cancelSelection,false,false,[]));
+	buttons.push(new Button(46,0,0,0,"cancel selection button.png",gameLayer,"", cancelSelection,false,false,[]));
 	//6 pixel boundary between general purpose buttons and selection specific buttons
 	
 	//building menu open buttons
@@ -1787,11 +1787,11 @@ function createButtons() {
 			["vehicle"],["small transport truck"],true,true,null,buildRequirementsMet,["small transport truck"]));
 	
 	//raider selected buttons
-	buttons.push(new Button(86,0,0,0,"unload minifig button 1 (1).png",gameLayer,"", unloadMinifig,false,false,["raider"]));
-	buttons.push(new Button(126,0,0,0,"stop minifig button 1 (1).png",gameLayer,"", stopMinifig,false,false,["raider"]));
-	buttons.push(new Button(166,0,0,0,"upgrade button 1 (1).png",gameLayer,"", upgradeRaider,false,false,["raider"]));
+	buttons.push(new Button(86,0,0,0,"unload minifig button.png",gameLayer,"", unloadMinifig,false,false,["raider"]));
+	buttons.push(new Button(126,0,0,0,"stop minifig button.png",gameLayer,"", stopMinifig,false,false,["raider"]));
+	buttons.push(new Button(166,0,0,0,"upgrade button.png",gameLayer,"", upgradeRaider,false,false,["raider"]));
 	buttons.push(new Button(206,0,0,0,"getTool.png",gameLayer,"", openToolMenu,false,false,["raider"]));
-	buttons.push(new Button(246,0,0,0,"exit vehicle 1 (1).png",gameLayer,"", exitVehicle,false,false,["raider"]));
+	buttons.push(new Button(246,0,0,0,"exit vehicle.png",gameLayer,"", exitVehicle,false,false,["raider"]));
 	
 	//get tool buttons
 	buttons.push(new Button(206,40,0,0,"get_Drill.png",gameLayer,"", getTool,false,false,["raider"],["tool"],["drill"]));
@@ -1804,15 +1804,15 @@ function createButtons() {
 	buttons.push(new Button(206,320,0,0,"get_Sonic_Blaster.png",gameLayer,"", getTool,false,false,["raider"],["tool"],["blaster"]));
 
 	//item selected buttons
-	buttons.push(new Button(86,0,0,0,"grab item button 1 (1).png",gameLayer,"", grabItem,false,false,
+	buttons.push(new Button(86,0,0,0,"grab item button.png",gameLayer,"", grabItem,false,false,
 			["ore","crystal"]));
 
 	//drillable wall selected buttons
-	buttons.push(new Button(166,0,0,0,"drill wall button 1 (1).png",gameLayer,"", drillWall,false,false,
+	buttons.push(new Button(166,0,0,0,"drill wall button.png",gameLayer,"", drillWall,false,false,
 			["dirt", "loose rock", "ore seam", "energy crystal seam", "hard rock"]));
 	
 	//dynamitable wall selected buttons
-	buttons.push(new Button(126,0,0,0,"use dynamite 1 (1).png",gameLayer,"", dynamiteWall,false,false,
+	buttons.push(new Button(126,0,0,0,"use dynamite.png",gameLayer,"", dynamiteWall,false,false,
 			["dirt", "loose rock", "hard rock", "ore seam", "energy crystal seam"]));
 	
 	//re-inforcable wall selected
@@ -1820,15 +1820,15 @@ function createButtons() {
 			["dirt", "loose rock", "hard rock", "ore seam", "energy crystal seam"]));
 
 	//floor Space selected buttons
-	buttons.push(new Button(86,0,0,0,"build power path button 1 (1).png",gameLayer,"", buildPowerPath,false,false,
+	buttons.push(new Button(86,0,0,0,"build power path button.png",gameLayer,"", buildPowerPath,false,false,
 			["ground"]));
 
 	//rubble selection buttons
-	buttons.push(new Button(86,0,0,0,"clear rubble button 1 (1).png",gameLayer,"", clearRubble,false,false,
+	buttons.push(new Button(86,0,0,0,"clear rubble button.png",gameLayer,"", clearRubble,false,false,
 			["rubble 1","rubble 2","rubble 3","rubble 4"]));
 	
 	//building selection buttons
-	buttons.push(new Button(86,0,0,0,"upgrade button 1 (1).png",gameLayer,"", upgradeBuilding,false,false,
+	buttons.push(new Button(86,0,0,0,"upgrade button.png",gameLayer,"", upgradeBuilding,false,false,
 			["tool store", "teleport pad", "power station", "docks", "geological center", "support station", 
 				"super teleport", "mining laser", "upgrade station", "ore refinery"]));
 	

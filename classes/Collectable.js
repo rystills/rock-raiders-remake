@@ -10,10 +10,10 @@ function Collectable(space,type) {
 	this.grabPercent = 0;
 	this.type = type;
 	if (this.type == "ore") {
-		this.image = "ore 1 (1).png";
+		this.image = "ore.png";
 	}
 	else if (this.type == "crystal") {
-		this.image = "energy crystal 1 (1).png";
+		this.image = "energy crystal.png";
 	}
 	RygameObject.call(this,0,0,10,10,this.image,gameLayer);
 	this.space = space;

@@ -60,7 +60,7 @@ spaceTypes = {
  * turn this space into a ground tile
  */
 Space.prototype.makeFloor = function() {
-	this.setTypeProperties("ground",this.image == "ground 1 (1).png");
+	this.setTypeProperties("ground",this.image == "ground.png");
 };
 
 /**
@@ -357,7 +357,7 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 	this.sweepPercent = 0;
 	this.reinforcePercent = 0;
 	if (type == "ground") {
-		this.image = "ground 1 (1).png";
+		this.image = "ground.png";
 		this.walkable = true;
 	}
 	else if (type == "slug hole") {
@@ -365,59 +365,59 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 		this.walkable = true;
 	}
 	else if (powerPathSpaceTypes.indexOf(type) != -1) {
-		this.image = (type == "power station powerPath" ? "power station powerPath 1 (1).png" : type == "building power path" ? "building power path 1 (1).png" : 
-			type == "power path" ? "power path 1 (1).png" : type == "upgrade station right" ? "upgrade station right 1 (1).png" : "mining laser right 1 (1).png");
+		this.image = (type == "power station powerPath" ? "power station powerPath.png" : type == "building power path" ? "building power path.png" : 
+			type == "power path" ? "power path.png" : type == "upgrade station right" ? "upgrade station right.png" : "mining laser right.png");
 		if (type == "power station powerPath" || type == "upgrade station right" || type == "mining laser right") {
-			this.image = "building power path 1 (1).png";
+			this.image = "building power path.png";
 		}
 		this.walkable = true;
 		this.speedModifier = 1.5;
 	}
 	else if (type == "solid rock") {
-		this.image = "solid rock 1 (1).png";
+		this.image = "solid rock.png";
 		this.isWall = true;
 	}
 	else if (type == "hard rock") {
-		this.image = "hard rock 1 (1).png";
+		this.image = "hard rock.png";
 		this.isWall = true;
 		this.explodable = true;
 		this.drillHardable = true;
 	}
 	else if (type == "dirt") {
-		this.image = "dirt 1 (1).png";
+		this.image = "dirt.png";
 		this.drillable = true;
 		this.isWall = true;
 	}
 	else if (type == "lava") {
-		this.image = "lava 1 (1).png";
+		this.image = "lava.png";
 	}
 	else if (type == "ore seam") {
-		this.image = "ore seam 1 (1).png";
+		this.image = "ore seam.png";
 		this.drillable = true;
 		this.isWall = true;
 		this.drillSpeedModifier = .2;
 	}
 	else if (type == "water") {
-		this.image = "water 1 (1).png";
+		this.image = "water.png";
 	}
 	else if (type == "energy crystal seam") {
-		this.image = "energy crystal seam 1 (1).png";
+		this.image = "energy crystal seam.png";
 		this.drillable = true;
 		this.isWall = true;
 		this.drillSpeedModifier = .2;
 	}
 	else if (type == "recharge seam") {
-		this.image = "recharge seam 1 (1).png";
+		this.image = "recharge seam.png";
 		this.isWall = true;
 	}
 	else if (type == "loose rock") {
-		this.image = "loose rock 1 (1).png";
+		this.image = "loose rock.png";
 		this.drillable = true;
 		this.isWall = true;
 	}
 	else if (type.slice(0,6) == "rubble") {
 		if (type == "rubble 1") {
-			this.image = "rubble 1 (1).png";
+			this.image = "rubble.png";
 		}
 		else if (type == "rubble 2") {
 			this.image = "rubble 2 (1).png";
@@ -433,7 +433,7 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 		this.speedModifier = .5;
 	}
 	else if (type == "teleport pad") {
-		this.image = "teleport pad 1 (1).png";
+		this.image = "teleport pad.png";
 		this.isBuilding = true;
 		if (this.touched == true) {
 			var index = buildings.indexOf(this);
@@ -443,7 +443,7 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 		}
 	}
 	else if (type == "docks") {
-		this.image = "docks 1 (1).png";
+		this.image = "docks.png";
 		this.isBuilding = true;
 		if (this.touched == true) {
 			var index = buildings.indexOf(this);
@@ -453,7 +453,7 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 		}
 	}
 	else if (type == "support station") {
-		this.image = "support station 1 (1).png";
+		this.image = "support station.png";
 		this.isBuilding = true;
 		if (this.touched == true) {
 			var index = buildings.indexOf(this);
@@ -463,7 +463,7 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 		}
 	}
 	else if (type == "power station" || type == "power station topRight") {
-		this.image = (type == "power station" ? "power station topLeft 1 (1).png" : "power station topRight 1 (1).png");
+		this.image = (type == "power station" ? "power station topLeft.png" : "power station topRight.png");
 		this.isBuilding = true;
 		if (this.touched == true) {
 			var index = buildings.indexOf(this);
@@ -474,7 +474,7 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 	}
 	
 	else if (type == "geological center" || type == "geological center right") {
-		this.image = (type == "geological center" ? "geological center left 1 (1).png" : "geological center right 1 (1).png");
+		this.image = (type == "geological center" ? "geological center left.png" : "geological center right.png");
 		this.isBuilding = true;
 		if (this.touched == true) {
 			var index = buildings.indexOf(this);
@@ -485,7 +485,7 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 	}
 	
 	else if (type == "upgrade station") {
-		this.image = "upgrade station left 1 (1).png";
+		this.image = "upgrade station left.png";
 		this.isBuilding = true;
 		if (this.touched == true) {
 			var index = buildings.indexOf(this);
@@ -496,7 +496,7 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 	}
 	
 	else if (type == "ore refinery" || type == "ore refinery right") {
-		this.image = (type == "ore refinery" ? "ore refinery left 1 (1).png" : "ore refinery right 1 (1).png");
+		this.image = (type == "ore refinery" ? "ore refinery left.png" : "ore refinery right.png");
 		this.isBuilding = true;
 		if (this.touched == true) {
 			var index = buildings.indexOf(this);
@@ -507,7 +507,7 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 	}
 	
 	else if (type == "mining laser") {
-		this.image = "mining laser left 1 (1).png";
+		this.image = "mining laser left.png";
 		this.isBuilding = true;
 		if (this.touched == true) {
 			var index = buildings.indexOf(this);
@@ -518,7 +518,7 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 	}
 	
 	else if (type == "super teleport" || type == "super teleport topRight") {
-		this.image = (type == "super teleport" ? "super teleport topLeft 1 (1).png" : "super teleport topRight 1 (1).png");
+		this.image = (type == "super teleport" ? "super teleport topLeft.png" : "super teleport topRight.png");
 		this.isBuilding = true;
 		if (this.touched == true) {
 			var index = buildings.indexOf(this);
@@ -529,7 +529,7 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 	}
 	
 	else if (type == "tool store") {
-		this.image = "tool store 1 (1).png";
+		this.image = "tool store.png";
 		this.isBuilding = true;
 		if (this.touched == true) {
 			var index = buildings.indexOf(this);
@@ -545,7 +545,7 @@ Space.prototype.setTypeProperties = function(type,doNotChangeImage,rubbleContain
 	}
 	
 	else if (type == "building site") {
-		this.image = (this.buildingSiteType == "power path" ? "power path building site 1 (1).png" : "building site 1 (1).png");
+		this.image = (this.buildingSiteType == "power path" ? "power path building site.png" : "building site.png");
 		console.log(this.type);
 		if (this.touched == true) {
 			var index = buildingSites.indexOf(this);
@@ -593,8 +593,8 @@ Space.prototype.updateTouched = function(touched) {
 	
 	//if this space has not yet been revealed then we want it to appear as solid rock, but we leave this.image alone to keep track of its actual image. 
 	if (this.touched == false && maskUntouchedSpaces == true) {
-		if (this.image != "solid rock 1 (1).png") {
-			this.changeImage("solid rock 1 (1).png");
+		if (this.image != "solid rock.png") {
+			this.changeImage("solid rock.png");
 		}
 	}
 	else {
@@ -799,12 +799,12 @@ Space.prototype.update = function() {
 			this.completeConstruction();
 		}
 	}
-	if (this.type == "power station powerPath" && this.image != "power station powerPath 1 (1).png"
-		|| this.type == "upgrade station right" && this.image != "upgrade station right 1 (1).png"
-			|| this.type == "mining laser right" && this.image != "mining laser right 1 (1).png") {
+	if (this.type == "power station powerPath" && this.image != "power station powerPath.png"
+		|| this.type == "upgrade station right" && this.image != "upgrade station right.png"
+			|| this.type == "mining laser right" && this.image != "mining laser right.png") {
 		if (this.parentSpace.isBuilding) {
-			this.image = (this.type == "power station powerPath" ? "power station powerPath 1 (1).png" : 
-				this.type == "upgrade station right" ? "upgrade station right 1 (1).png" : "mining laser right 1 (1).png");
+			this.image = (this.type == "power station powerPath" ? "power station powerPath.png" : 
+				this.type == "upgrade station right" ? "upgrade station right.png" : "mining laser right.png");
 			this.changeImage(this.image);
 		}
 	}
@@ -918,7 +918,7 @@ function Space(type,listX,listY,height,parentSpace) {
 	this.completedBy = null;
 	this.reinforced = false;
 	//dummy used to identify reinforce tasks
-	this.reinforceDummy = this.isWall ? new RygameObject(0,0,-99999,0,"reinforcement 1 (1).png",this.drawLayer,true,false,true) : null;
+	this.reinforceDummy = this.isWall ? new RygameObject(0,0,-99999,0,"reinforcement.png",this.drawLayer,true,false,true) : null;
 	if (this.reinforceDummy != null) {
 		//workaround so the engine treats this dummy as a reinforcable space when determining what type of task it is
 		this.reinforceDummy.reinforcable = true;

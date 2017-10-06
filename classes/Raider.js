@@ -990,7 +990,7 @@ Raider.prototype.hurt = function(damageAmount) {
  * Raider constructor: inititalize all properties, sounds, dummies, etc..
  */
 function Raider(space) {
-	RygameObject.call(this,0,0,1,1,"raider 1 (1).png",gameLayer);
+	RygameObject.call(this,0,0,1,1,"raider.png",gameLayer);
 	this.space = space;
 	this.setCenterX(this.space.centerX());
 	this.setCenterY(this.space.centerY());
