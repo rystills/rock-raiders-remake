@@ -48,3 +48,6 @@ Temporary Items
 
 # ignore local test files
 bugfixing
+
+# ignore WIP .xcf files
+*.xcf

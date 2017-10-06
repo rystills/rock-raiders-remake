@@ -1216,7 +1216,6 @@ RygameObject.prototype.attemptUpdate = function(optionalArgs) {
 };
 
 /**
- * 
  * @param x: the initial x coordinate of this object
  * @param y: the initial y coordinate of this object
  * @param updateDepth: the depth at which this object is updated (smaller depths update sooner)
