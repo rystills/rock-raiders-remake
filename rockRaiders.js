@@ -94,13 +94,13 @@ function getNearestSpace(terrain,object) {
 }
 
 /**
- * get the adjacent space to terrain indices x,y in direction dir. If no direction is specified, get all 4 adjacent spaces
+ * get the adjacent space to terrain indices x,y in direction dir
  * @param terrain: the terrain to check against
  * @param x: the first index representing the desired terrain position
  * @param y: the second index representing the desired terrain position
- * @param dir: the direction (up, down, left, or right) of the adjacent space to return. Returns all spaces if unspecified.
- * @returns the resulting space or spaces, or null if the adjacent space does not exist.
- * @throws: direction error if dir is not one of the cardinal directions or null
+ * @param dir: the direction (up, down, left, or right) of the adjacent space to return
+ * @returns the resulting space, or null if no such space exists
+ * @throws: direction error if dir is not one of the cardinal directions
  */
 function adjacentSpace(terrain,x,y,dir) {
 	if (dir == "up") {
@@ -1872,6 +1872,12 @@ function createMenuButtons() {
 	yPos += 40;
 	menuButtons.push(new Button(xPos,yPos,0,0,null,menuLayer,"Hide Unrevealed Spaces" + (maskUntouchedSpaces ?  " ✓" : " X"),
 			toggleFog,false,true,null,null,[menuButtons.objectList.length],true,false,[0,220,245]));
+	yPos += 40;
+	menuButtons.push(new Button(xPos,yPos,0,0,null,menuLayer,"Unlock All Levels",
+			unlockAllLevels,false,true,null,null,[],true,false,[0,220,245]));
+	yPos += 40;
+	menuButtons.push(new Button(xPos,yPos,0,0,null,menuLayer,"Clear Data",
+			clearData,false,true,null,null,[],true,false,[0,220,245]));
 }
 
 /**
@@ -1918,6 +1924,28 @@ function toggleFog(buttonIndex) {
 	maskUntouchedSpaces = !maskUntouchedSpaces;
 	setValue("fog",maskUntouchedSpaces);
 	menuButtons.objectList[buttonIndex].updateText("Hide Unrevealed Spaces" + (maskUntouchedSpaces ?  " ✓" : " X"));
+}
+
+function unlockAllLevels() {
+	for (var i = 0; i < 33; ++i) {
+		levelName = GameManager.scriptObjects["levelList.js"].levels[i];
+		let curVal = getValue(levelName);
+		if (curVal == undefined || curVal == "null") {
+			setValue(levelName,0);
+		}
+	}
+	levelScores = getLevelScores();
+}
+
+function clearData() {
+	for (var i = 0; i < 33; ++i) {
+		levelName = GameManager.scriptObjects["levelList.js"].levels[i];
+		let curVal = getValue(levelName);
+		if (curVal != undefined && curVal != "null") {
+			setValue(levelName,null);
+		}
+	}
+	levelScores = getLevelScores();
 }
 
 /**
@@ -2090,9 +2118,39 @@ function initGlobals() {
  */
 function getLevelScores() {
 	levelScores = {};
+	levelScores["M01"] = getValue("01") == null ? -1 : getValue("M01");
+	levelScores["D01"] = getValue("02") == null ? -1 : getValue("D01");
+	levelScores["B01"] = getValue("03") == null ? -1 : getValue("B01");
+	levelScores["M02"] = getValue("01") == null ? -1 : getValue("M02");
+	levelScores["D02"] = getValue("02") == null ? -1 : getValue("D02");
+	levelScores["B02"] = getValue("03") == null ? -1 : getValue("B02");
+	levelScores["D03"] = getValue("03") == null ? -1 : getValue("D03");
+	levelScores["DE1"] = getValue("03") == null ? -1 : getValue("DE1");
 	levelScores["01"] = getValue("01") == null ? -1 : getValue("01");
 	levelScores["02"] = getValue("02") == null ? -1 : getValue("02");
 	levelScores["03"] = getValue("03") == null ? -1 : getValue("03");
+	levelScores["04"] = getValue("01") == null ? -1 : getValue("04");
+	levelScores["05"] = getValue("02") == null ? -1 : getValue("05");
+	levelScores["06"] = getValue("03") == null ? -1 : getValue("06");
+	levelScores["07"] = getValue("01") == null ? -1 : getValue("07");
+	levelScores["08"] = getValue("02") == null ? -1 : getValue("08");
+	levelScores["09"] = getValue("03") == null ? -1 : getValue("09");
+	levelScores["10"] = getValue("01") == null ? -1 : getValue("10");
+	levelScores["11"] = getValue("02") == null ? -1 : getValue("11");
+	levelScores["12"] = getValue("03") == null ? -1 : getValue("12");
+	levelScores["13"] = getValue("01") == null ? -1 : getValue("13");
+	levelScores["14"] = getValue("02") == null ? -1 : getValue("14");
+	levelScores["15"] = getValue("03") == null ? -1 : getValue("15");
+	levelScores["16"] = getValue("01") == null ? -1 : getValue("16");
+	levelScores["17"] = getValue("02") == null ? -1 : getValue("17");
+	levelScores["18"] = getValue("03") == null ? -1 : getValue("18");
+	levelScores["19"] = getValue("01") == null ? -1 : getValue("19");
+	levelScores["20"] = getValue("02") == null ? -1 : getValue("20");
+	levelScores["21"] = getValue("03") == null ? -1 : getValue("21");
+	levelScores["22"] = getValue("01") == null ? -1 : getValue("22");
+	levelScores["23"] = getValue("02") == null ? -1 : getValue("23");
+	levelScores["24"] = getValue("03") == null ? -1 : getValue("24");
+	levelScores["25"] = getValue("03") == null ? -1 : getValue("25");
 	return levelScores;
 }
 
