@@ -1843,7 +1843,7 @@ function createButtons() {
  */
 function createLevelSelectButtons() {
 	//level select buttons
-	for (var i = 0; i < 33; ++i) {
+	for (var i = 0; i < GameManager.scriptObjects["levelList.js"].levels.length; ++i) {
 		levelSelectButtons.push(new Button(GameManager.scriptObjects["levelList.js"].levelPositions[i][0],
 				GameManager.scriptObjects["levelList.js"].levelPositions[i][1],0,0,
 				GameManager.scriptObjects["levelList.js"].levelImages[i],levelSelectLayer,"",
@@ -1927,7 +1927,7 @@ function toggleFog(buttonIndex) {
 }
 
 function unlockAllLevels() {
-	for (var i = 0; i < 33; ++i) {
+	for (var i = 0; i < GameManager.scriptObjects["levelList.js"].levels.length; ++i) {
 		levelName = GameManager.scriptObjects["levelList.js"].levels[i];
 		let curVal = getValue(levelName);
 		if (curVal == undefined || curVal == "null") {
@@ -1938,7 +1938,7 @@ function unlockAllLevels() {
 }
 
 function clearData() {
-	for (var i = 0; i < 33; ++i) {
+	for (var i = 0; i < GameManager.scriptObjects["levelList.js"].levels.length; ++i) {
 		levelName = GameManager.scriptObjects["levelList.js"].levels[i];
 		let curVal = getValue(levelName);
 		if (curVal != undefined && curVal != "null") {
@@ -1953,14 +1953,6 @@ function clearData() {
  */
 function returnToMainMenu() {
 	//toggle game and menu layers and swap music tracks, as well as update level score strings if coming from score screen
-	if (scoreScreenLayer.active) { //update score strings if coming from score layer, as this means we may have updated one of the level scores
-		for (var i = 0; i < GameManager.scriptObjects["levelList.js"].levels.length; ++i) {
-			var score = levelScores[GameManager.scriptObjects["levelList.js"].levels[i]];
-			//level select buttons are now images, so for now we don't need to show this score anywhere
-			//levelSelectButtons.objectList[i].updateText(GameManager.scriptObjects["Info_" + 
-			//GameManager.scriptObjects["levelList.js"].levels[i] + ".js"].name + (score >= 0 ? " - best score: " + score : ""));
-		}
-	}
 	menuLayer.active = true;
 	scoreScreenLayer.active = false;
 	gameLayer.active = false;
@@ -2118,39 +2110,10 @@ function initGlobals() {
  */
 function getLevelScores() {
 	levelScores = {};
-	levelScores["M01"] = getValue("01") == null ? -1 : getValue("M01");
-	levelScores["D01"] = getValue("02") == null ? -1 : getValue("D01");
-	levelScores["B01"] = getValue("03") == null ? -1 : getValue("B01");
-	levelScores["M02"] = getValue("01") == null ? -1 : getValue("M02");
-	levelScores["D02"] = getValue("02") == null ? -1 : getValue("D02");
-	levelScores["B02"] = getValue("03") == null ? -1 : getValue("B02");
-	levelScores["D03"] = getValue("03") == null ? -1 : getValue("D03");
-	levelScores["DE1"] = getValue("03") == null ? -1 : getValue("DE1");
-	levelScores["01"] = getValue("01") == null ? -1 : getValue("01");
-	levelScores["02"] = getValue("02") == null ? -1 : getValue("02");
-	levelScores["03"] = getValue("03") == null ? -1 : getValue("03");
-	levelScores["04"] = getValue("01") == null ? -1 : getValue("04");
-	levelScores["05"] = getValue("02") == null ? -1 : getValue("05");
-	levelScores["06"] = getValue("03") == null ? -1 : getValue("06");
-	levelScores["07"] = getValue("01") == null ? -1 : getValue("07");
-	levelScores["08"] = getValue("02") == null ? -1 : getValue("08");
-	levelScores["09"] = getValue("03") == null ? -1 : getValue("09");
-	levelScores["10"] = getValue("01") == null ? -1 : getValue("10");
-	levelScores["11"] = getValue("02") == null ? -1 : getValue("11");
-	levelScores["12"] = getValue("03") == null ? -1 : getValue("12");
-	levelScores["13"] = getValue("01") == null ? -1 : getValue("13");
-	levelScores["14"] = getValue("02") == null ? -1 : getValue("14");
-	levelScores["15"] = getValue("03") == null ? -1 : getValue("15");
-	levelScores["16"] = getValue("01") == null ? -1 : getValue("16");
-	levelScores["17"] = getValue("02") == null ? -1 : getValue("17");
-	levelScores["18"] = getValue("03") == null ? -1 : getValue("18");
-	levelScores["19"] = getValue("01") == null ? -1 : getValue("19");
-	levelScores["20"] = getValue("02") == null ? -1 : getValue("20");
-	levelScores["21"] = getValue("03") == null ? -1 : getValue("21");
-	levelScores["22"] = getValue("01") == null ? -1 : getValue("22");
-	levelScores["23"] = getValue("02") == null ? -1 : getValue("23");
-	levelScores["24"] = getValue("03") == null ? -1 : getValue("24");
-	levelScores["25"] = getValue("03") == null ? -1 : getValue("25");
+	for (var i = 0; i < GameManager.scriptObjects["levelList.js"].levels.length; ++i) {
+		let levelName = GameManager.scriptObjects["levelList.js"].levels[i];
+		levelScores[levelName] = getValue(levelName) == null ? -1 : getValue(levelName);
+	}
 	return levelScores;
 }
 
