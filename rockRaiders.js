@@ -1581,6 +1581,15 @@ function drawAwaitingStartInstructions() {
 }
 
 /**
+ * manually render level select ui buttons last
+ */
+function drawLevelSelectUIButtons() {
+	for (var i = 0; i < levelSelectUIButtons.objectList.length; ++i) {
+		levelSelectUIButtons.objectList[i].render(GameManager);
+	}
+}
+
+/**
  * draw pause screen instructions
  */
 function drawPauseInstructions() {
@@ -1850,6 +1859,10 @@ function createLevelSelectButtons() {
 				resetLevelVars,true,true,null,null,[GameManager.scriptObjects["levelList.js"].levels[i]],true,false));
 		levelSelectButtons.objectList[i].visible = false;
 	}
+
+	//back button
+	levelSelectUIButtons.push(new Button(0,GameManager.screenHeight-40,0,0,"cancel selection button.png",levelSelectLayer,"",returnToMainMenu,false,false,null,null,[],true,false));
+	levelSelectUIButtons.objectList[0].visible = false;
 }
 
 /**
@@ -1954,6 +1967,7 @@ function clearData() {
 function returnToMainMenu() {
 	//toggle game and menu layers and swap music tracks, as well as update level score strings if coming from score screen
 	menuLayer.active = true;
+	levelSelectLayer.active = false;
 	scoreScreenLayer.active = false;
 	gameLayer.active = false;
 	musicPlayer.changeLevels();
@@ -2059,6 +2073,7 @@ function initGlobals() {
 	pauseButtons = new ObjectGroup();
 	menuButtons = new ObjectGroup();
 	levelSelectButtons = new ObjectGroup();
+	levelSelectUIButtons = new ObjectGroup();
 	scoreScreenButtons = new ObjectGroup();
 	//create all in-game UI buttons initially, as there is no reason to load and unload these
 	createButtons(); 
@@ -2220,12 +2235,15 @@ function update() {
 		//update objects
 		GameManager.updateObjects();
 		levelSelectButtons.update();
-		
+		levelSelectUIButtons.update();
 		//inital render; draw all rygame objects
 		GameManager.drawFrame();
 		
 		//draw level select imaged scrolled according to current scroll value (in front of buttons to hide overlaid pixels when highlighted or darkened)
 		GameManager.drawSurface.drawImage(GameManager.images["Levelpick.png"],0,-levelSelectLayer.cameraY);
+		
+		//draw ui buttons on top
+		drawLevelSelectUIButtons();
 	}
 	
 	//score screen update
