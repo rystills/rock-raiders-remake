@@ -1977,6 +1977,35 @@ function returnToMainMenu() {
 }
 
 /**
+ * check if a level is highlighted; if so, display its name and best score
+ */
+function checkHighlightedLevel() {
+	for (let i = 0; i < levelSelectButtons.objectList.length; ++i) {
+		if (collisionPoint(GameManager.mousePos.x,GameManager.mousePos.y,levelSelectButtons.objectList[i],levelSelectButtons.objectList[i].affectedByCamera)) {
+			GameManager.drawSurface.fillStyle = "rgb(65, 218, 255)";
+			GameManager.setFontSize(36);
+			
+			//draw level name
+			let highlightedLevelName = GameManager.scriptObjects["levelList.js"].levelNames[i];
+			var textWidth = GameManager.drawSurface.measureText(highlightedLevelName).width;
+			var textHeight = getHeightFromFont(GameManager.drawSurface.font);
+			GameManager.drawSurface.fillText(highlightedLevelName,GameManager.drawSurface.canvas.width / 2 - textWidth / 2,
+					GameManager.drawSurface.canvas.height - 8);
+			
+			//draw level score
+			let highlightedLevelScore = getValue(GameManager.scriptObjects["levelList.js"].levels[i]);
+			if (highlightedLevelScore == undefined || highlightedLevelScore == "null") {
+				highlightedLevelScore = "";
+			}
+			var textWidth = GameManager.drawSurface.measureText(highlightedLevelScore).width;
+			var textHeight = getHeightFromFont(GameManager.drawSurface.font);
+			GameManager.drawSurface.fillText(highlightedLevelScore,GameManager.drawSurface.canvas.width / 2 - textWidth / 2,
+					GameManager.drawSurface.canvas.height - 8);
+		}
+	}
+}
+
+/**
  * stop all currently playing raider sounds
  */
 function stopAllSounds() {
@@ -2127,7 +2156,7 @@ function getLevelScores() {
 	levelScores = {};
 	for (var i = 0; i < GameManager.scriptObjects["levelList.js"].levels.length; ++i) {
 		let levelName = GameManager.scriptObjects["levelList.js"].levels[i];
-		levelScores[levelName] = getValue(levelName) == null ? -1 : getValue(levelName);
+		levelScores[levelName] = getValue(levelName) == "null" || getValue(levelName) == undefined ? -1 : getValue(levelName);
 	}
 	return levelScores;
 }
@@ -2168,6 +2197,7 @@ function calculateLevelScore() {
  * @param score: the newly achieved level score (may or may not be the all-time high-score)
  */
 function setLevelScore(score) {
+	console.log("UPDATING SCORE");
 	if (levelScores[levelName] < score) {
 		levelScores[levelName] = score;
 		setValue(levelName,score);
@@ -2244,6 +2274,7 @@ function update() {
 		
 		//draw ui buttons on top
 		drawLevelSelectUIButtons();
+		checkHighlightedLevel();
 	}
 	
 	//score screen update
