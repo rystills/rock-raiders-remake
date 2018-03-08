@@ -1993,7 +1993,7 @@ function checkHighlightedLevel() {
 			}
 			
 			//draw level name and score
-			let highlightedLevelName = GameManager.scriptObjects["levelList.js"].levelNames[i] + highlightedLevelScore;
+			let highlightedLevelName = GameManager.scriptObjects["Info_" + GameManager.scriptObjects["levelList.js"].levels[i] + ".js"].name + highlightedLevelScore;
 			var textWidth = GameManager.drawSurface.measureText(highlightedLevelName).width;
 			var textHeight = getHeightFromFont(GameManager.drawSurface.font);
 			GameManager.drawSurface.fillText(highlightedLevelName,GameManager.drawSurface.canvas.width / 2 - textWidth / 2,
