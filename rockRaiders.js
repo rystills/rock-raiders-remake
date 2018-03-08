@@ -1861,7 +1861,7 @@ function createLevelSelectButtons() {
 	}
 
 	//back button
-	levelSelectUIButtons.push(new Button(0,GameManager.screenHeight-40,0,0,"cancel selection button.png",levelSelectLayer,"",returnToMainMenu,false,false,null,null,[],true,false));
+	levelSelectUIButtons.push(new Button(0,GameManager.screenHeight-40,0,0,"cancel selection button.png",levelSelectLayer,"",returnToMainMenu,false,false,null,null,[true],true,false));
 	levelSelectUIButtons.objectList[0].visible = false;
 }
 
@@ -1962,14 +1962,16 @@ function clearData() {
 /**
  * switch layers to the main menu, stopping all sounds and toggling all game-variables off
  */
-function returnToMainMenu() {
+function returnToMainMenu(keepMusic = false) {
 	//toggle game and menu layers and swap music tracks, as well as update level score strings if coming from score screen
 	menuLayer.active = true;
 	levelSelectLayer.active = false;
 	scoreScreenLayer.active = false;
 	gameLayer.active = false;
-	musicPlayer.changeLevels();
-	stopAllSounds();
+	if (!keepMusic) {
+		musicPlayer.changeLevels();
+		stopAllSounds();	
+	}
 	buildingPlacer.stop();
 	tileSelectedGraphic.visible = false;
 }
