@@ -1947,7 +1947,6 @@ function unlockAllLevels() {
 			setValue(levelName,0);
 		}
 	}
-	levelScores = getLevelScores();
 }
 
 function clearData() {
@@ -1958,7 +1957,6 @@ function clearData() {
 			setValue(levelName,null);
 		}
 	}
-	levelScores = getLevelScores();
 }
 
 /**
@@ -2096,7 +2094,6 @@ function initGlobals() {
 	menuLayer = new Layer(0,0,1,1,GameManager.screenWidth,GameManager.screenHeight,true);
 	levelSelectLayer = new Layer(0,0,1,1,GameManager.screenWidth,GameManager.screenHeight,true);
 	scoreScreenLayer = new Layer(0,0,1,1,GameManager.screenWidth,GameManager.screenHeight);
-	levelScores = getLevelScores();
 	musicPlayer = new MusicPlayer();
 	buttons = new ObjectGroup();
 	pauseButtons = new ObjectGroup();
@@ -2149,19 +2146,6 @@ function initGlobals() {
 }
 
 /**
- * get the local storage value for each of the first 3 level highscores, if present
- * @returns a dict of levelNum : highScore
- */
-function getLevelScores() {
-	levelScores = {};
-	for (var i = 0; i < GameManager.scriptObjects["levelList.js"].levels.length; ++i) {
-		let levelName = GameManager.scriptObjects["levelList.js"].levels[i];
-		levelScores[levelName] = getValue(levelName) == "null" || getValue(levelName) == undefined ? -1 : getValue(levelName);
-	}
-	return levelScores;
-}
-
-/**
  * check if the current level objective has been accomplished. If it has, transition to the score screen.
  */
 function checkAccomplishedObjective() {
@@ -2198,8 +2182,8 @@ function calculateLevelScore() {
  */
 function setLevelScore(score) {
 	console.log("UPDATING SCORE");
-	if (levelScores[levelName] < score) {
-		levelScores[levelName] = score;
+	let prevScore = getValue(levelName);
+	if (prevScore == "null" || prevScore == undefined || prevScore < score) {
 		setValue(levelName,score);
 	}
 }
