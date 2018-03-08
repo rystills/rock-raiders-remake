@@ -1875,22 +1875,22 @@ function createMenuButtons() {
 	menuButtons.push(new Button(xPos,yPos,0,0,null,menuLayer,"Select a Level",goToLevelSelect,false,true,null,null,[],true,false,[20,245,40]));
 	yPos += 80;
 	
-	menuButtons.push(new Button(xPos,yPos,0,0,null,menuLayer,"Options:",null,false,true,null,null,[],false,false,[0,220,245]));
+	menuButtons.push(new Button(xPos,yPos,0,0,null,menuLayer,"    Options:",null,false,true,null,null,[],false,false,[200,200,200]));
 	yPos += 40;
 	menuButtons.push(new Button(xPos,yPos,0,0,null,menuLayer,"Edge Panning" + (mousePanning ?  " ✓" : " X"),
 			toggleEdgePanning,false,true,null,null,[menuButtons.objectList.length],true,false,[0,220,245]));
 	yPos += 40;
 	menuButtons.push(new Button(xPos,yPos,0,0,null,menuLayer,"Debug Mode" + (debug ?  " ✓" : " X"),
-			toggleDebugMode,false,true,null,null,[menuButtons.objectList.length],true,false,[0,220,245]));
+			toggleDebugMode,false,true,null,null,[menuButtons.objectList.length],true,false,[200,160,185]));
 	yPos += 40;
-	menuButtons.push(new Button(xPos,yPos,0,0,null,menuLayer,"Hide Unrevealed Spaces" + (maskUntouchedSpaces ?  " ✓" : " X"),
-			toggleFog,false,true,null,null,[menuButtons.objectList.length],true,false,[0,220,245]));
+	menuButtons.push(new Button(xPos,yPos,0,0,null,menuLayer,"Show Hidden Spaces" + (maskUntouchedSpaces ?  " X" : " ✓"),
+			toggleFog,false,true,null,null,[menuButtons.objectList.length],true,false,[200,160,185]));
 	yPos += 40;
 	menuButtons.push(new Button(xPos,yPos,0,0,null,menuLayer,"Unlock All Levels",
-			unlockAllLevels,false,true,null,null,[],true,false,[0,220,245]));
+			unlockAllLevels,false,true,null,null,[],true,false,[240,120,122]));
 	yPos += 40;
 	menuButtons.push(new Button(xPos,yPos,0,0,null,menuLayer,"Clear Data",
-			clearData,false,true,null,null,[],true,false,[0,220,245]));
+			clearData,false,true,null,null,[],true,false,[240,120,122]));
 }
 
 /**
@@ -1931,12 +1931,12 @@ function toggleDebugMode(buttonIndex) {
 
 /**
  * toggle fog variable and HTML5 local var on or off
- * @param buttonIndex: the index of the 'hide unrevealed spaces' button in the menuButtons list
+ * @param buttonIndex: the index of the 'Show Hidden Spaces' button in the menuButtons list
  */
 function toggleFog(buttonIndex) {
 	maskUntouchedSpaces = !maskUntouchedSpaces;
 	setValue("fog",maskUntouchedSpaces);
-	menuButtons.objectList[buttonIndex].updateText("Hide Unrevealed Spaces" + (maskUntouchedSpaces ?  " ✓" : " X"));
+	menuButtons.objectList[buttonIndex].updateText("Show Hidden Spaces" + (maskUntouchedSpaces ?  " X" : " ✓"));
 }
 
 function unlockAllLevels() {
@@ -1983,7 +1983,7 @@ function checkHighlightedLevel() {
 			GameManager.drawSurface.fillStyle = "rgb(65, 218, 255)";
 			GameManager.setFontSize(36);
 			
-			//draw level name and score
+			//grab score, and format score string if valid
 			let highlightedLevelScore = getValue(GameManager.scriptObjects["levelList.js"].levels[i]);
 			if (highlightedLevelScore == undefined || highlightedLevelScore == "null") {
 				highlightedLevelScore = "";
@@ -1992,6 +1992,7 @@ function checkHighlightedLevel() {
 				highlightedLevelScore = ": " + highlightedLevelScore + "%";
 			}
 			
+			//draw level name and score
 			let highlightedLevelName = GameManager.scriptObjects["levelList.js"].levelNames[i] + highlightedLevelScore;
 			var textWidth = GameManager.drawSurface.measureText(highlightedLevelName).width;
 			var textHeight = getHeightFromFont(GameManager.drawSurface.font);
