@@ -1983,21 +1983,19 @@ function checkHighlightedLevel() {
 			GameManager.drawSurface.fillStyle = "rgb(65, 218, 255)";
 			GameManager.setFontSize(36);
 			
-			//draw level name
-			let highlightedLevelName = GameManager.scriptObjects["levelList.js"].levelNames[i];
-			var textWidth = GameManager.drawSurface.measureText(highlightedLevelName).width;
-			var textHeight = getHeightFromFont(GameManager.drawSurface.font);
-			GameManager.drawSurface.fillText(highlightedLevelName,GameManager.drawSurface.canvas.width / 2 - textWidth / 2,
-					GameManager.drawSurface.canvas.height - 8);
-			
-			//draw level score
+			//draw level name and score
 			let highlightedLevelScore = getValue(GameManager.scriptObjects["levelList.js"].levels[i]);
 			if (highlightedLevelScore == undefined || highlightedLevelScore == "null") {
 				highlightedLevelScore = "";
 			}
-			var textWidth = GameManager.drawSurface.measureText(highlightedLevelScore).width;
+			else {
+				highlightedLevelScore = ": " + highlightedLevelScore + "%";
+			}
+			
+			let highlightedLevelName = GameManager.scriptObjects["levelList.js"].levelNames[i] + highlightedLevelScore;
+			var textWidth = GameManager.drawSurface.measureText(highlightedLevelName).width;
 			var textHeight = getHeightFromFont(GameManager.drawSurface.font);
-			GameManager.drawSurface.fillText(highlightedLevelScore,GameManager.drawSurface.canvas.width / 2 - textWidth / 2,
+			GameManager.drawSurface.fillText(highlightedLevelName,GameManager.drawSurface.canvas.width / 2 - textWidth / 2,
 					GameManager.drawSurface.canvas.height - 8);
 		}
 	}
@@ -2181,7 +2179,6 @@ function calculateLevelScore() {
  * @param score: the newly achieved level score (may or may not be the all-time high-score)
  */
 function setLevelScore(score) {
-	console.log("UPDATING SCORE");
 	let prevScore = getValue(levelName);
 	if (prevScore == "null" || prevScore == undefined || prevScore < score) {
 		setValue(levelName,score);
