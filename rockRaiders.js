@@ -1856,13 +1856,131 @@ function createLevelSelectButtons() {
 		levelSelectButtons.push(new Button(GameManager.scriptObjects["levelList.js"].levelPositions[i][0],
 				GameManager.scriptObjects["levelList.js"].levelPositions[i][1],0,0,
 				GameManager.scriptObjects["levelList.js"].levelImages[i],levelSelectLayer,"",
-				resetLevelVars,true,true,null,null,[GameManager.scriptObjects["levelList.js"].levels[i]],true,false));
+				resetLevelVars,true,true,null,null,[GameManager.scriptObjects["levelList.js"].levels[i]],true,false,null,levelIsUnlocked,[i]));
 		levelSelectButtons.objectList[i].visible = false;
 	}
 
 	//back button
 	levelSelectUIButtons.push(new Button(0,GameManager.screenHeight-40,0,0,"cancel selection button.png",levelSelectLayer,"",returnToMainMenu,false,false,null,null,[true],true,false));
 	levelSelectUIButtons.objectList[0].visible = false;
+}
+
+/**
+ * return whether or not level levelNum has been unlocked
+ */
+function levelIsUnlocked(levelNum) {
+	//tutorial levels
+	if (levelNum == 0) {
+		return true;
+	}
+	if (levelNum < 8) {
+		let highlightedLevelScore = getValue(GameManager.scriptObjects["levelList.js"].levels[levelNum-1]);
+		return (highlightedLevelScore != undefined && highlightedLevelScore != "null");
+	}
+	
+	//main levels
+	if (levelNum == 8) {
+		return true;
+	}
+	if (levelNum < 11) {
+		let highlightedLevelScore = getValue(GameManager.scriptObjects["levelList.js"].levels[8]);
+		return (highlightedLevelScore != undefined && highlightedLevelScore != "null");
+	}
+	if (levelNum < 14) {
+		let levelScore9 = getValue(GameManager.scriptObjects["levelList.js"].levels[9]);
+		let levelScore10 = getValue(GameManager.scriptObjects["levelList.js"].levels[10]);
+		if (levelNum == 11) {
+			return (levelScore9 != undefined && levelScore9 != "null");
+		}
+		if (levelNum == 12) {
+			return (levelScore9 != undefined && levelScore9 != "null") || (levelScore10 != undefined && levelScore10 != "null");
+		}
+		if (levelNum == 13) {
+			return (levelScore10 != undefined && levelScore10 != "null");
+		}
+	}
+	if (levelNum < 16) {
+		let levelScore11 = getValue(GameManager.scriptObjects["levelList.js"].levels[11]);
+		let levelScore12 = getValue(GameManager.scriptObjects["levelList.js"].levels[12]);
+		let levelScore13 = getValue(GameManager.scriptObjects["levelList.js"].levels[13]);
+		if (levelNum == 14) {
+			return (levelScore11 != undefined && levelScore11 != "null") && (levelScore12 != undefined && levelScore12 != "null"); 	
+		}
+		if (levelNum == 15) {
+			return (levelScore12 != undefined && levelScore12 != "null") && (levelScore13 != undefined && levelScore13 != "null"); 
+		}
+	}
+	if (levelNum == 16) {
+		let levelScore14 = getValue(GameManager.scriptObjects["levelList.js"].levels[14]);
+		let levelScore15 = getValue(GameManager.scriptObjects["levelList.js"].levels[15]);
+		return (levelScore14 != undefined && levelScore14 != "null") && (levelScore15 != undefined && levelScore15 != "null"); 
+	}
+	if (levelNum < 19) {
+		let levelScore16 = getValue(GameManager.scriptObjects["levelList.js"].levels[16]);
+		return (levelScore16 != undefined && levelScore16 != "null");
+	}
+	if (levelNum < 22) {
+		let levelScore17 = getValue(GameManager.scriptObjects["levelList.js"].levels[17]);
+		let levelScore18 = getValue(GameManager.scriptObjects["levelList.js"].levels[18]);
+		if (levelNum == 19) {
+			return (levelScore17 != undefined && levelScore17 != "null");
+		}
+		if (levelNum == 20) {
+			return (levelScore17 != undefined && levelScore17 != "null") || (levelScore18 != undefined && levelScore18 != "null");
+		}
+		if (levelNum == 21) {
+			return (levelScore18 != undefined && levelScore18 != "null");
+		}
+	}
+	if (levelNum < 24) {
+		let levelScore19 = getValue(GameManager.scriptObjects["levelList.js"].levels[19]);
+		let levelScore20 = getValue(GameManager.scriptObjects["levelList.js"].levels[20]);
+		let levelScore21 = getValue(GameManager.scriptObjects["levelList.js"].levels[21]);
+		if (levelNum == 22) {
+			return (levelScore19 != undefined && levelScore19 != "null") && (levelScore20 != undefined && levelScore20 != "null"); 	
+		}
+		if (levelNum == 23) {
+			return (levelScore20 != undefined && levelScore20 != "null") && (levelScore21 != undefined && levelScore21 != "null"); 
+		}
+	}
+	if (levelNum == 24) {
+		let levelScore22 = getValue(GameManager.scriptObjects["levelList.js"].levels[22]);
+		let levelScore23 = getValue(GameManager.scriptObjects["levelList.js"].levels[23]);
+		return (levelScore22 != undefined && levelScore22 != "null") && (levelScore23 != undefined && levelScore23 != "null"); 
+	}
+	if (levelNum < 27) {
+		let levelScore24 = getValue(GameManager.scriptObjects["levelList.js"].levels[24]);
+		return (levelScore24 != undefined && levelScore24 != "null"); 
+	}
+	if (levelNum < 30) {
+		let levelScore25 = getValue(GameManager.scriptObjects["levelList.js"].levels[25]);
+		let levelScore26 = getValue(GameManager.scriptObjects["levelList.js"].levels[26]);
+		if (levelNum == 27) {
+			return (levelScore25 != undefined && levelScore25 != "null");
+		}
+		if (levelNum == 28) {
+			return (levelScore25 != undefined && levelScore25 != "null") || (levelScore26 != undefined && levelScore26 != "null");
+		}
+		if (levelNum == 29) {
+			return (levelScore26 != undefined && levelScore26 != "null");
+		}
+	}
+	if (levelNum < 32) {
+		let levelScore27 = getValue(GameManager.scriptObjects["levelList.js"].levels[27]);
+		let levelScore28 = getValue(GameManager.scriptObjects["levelList.js"].levels[28]);
+		let levelScore29 = getValue(GameManager.scriptObjects["levelList.js"].levels[29]);
+		if (levelNum == 30) {
+			return (levelScore27 != undefined && levelScore27 != "null") && (levelScore28 != undefined && levelScore28 != "null"); 	
+		}
+		if (levelNum == 31) {
+			return (levelScore28 != undefined && levelScore28 != "null") && (levelScore29 != undefined && levelScore29 != "null"); 
+		}
+	}
+	if (levelNum == 32) {
+		let levelScore30 = getValue(GameManager.scriptObjects["levelList.js"].levels[30]);
+		let levelScore31 = getValue(GameManager.scriptObjects["levelList.js"].levels[31]);
+		return (levelScore30 != undefined && levelScore30 != "null") && (levelScore31 != undefined && levelScore31 != "null"); 
+	}
 }
 
 /**
@@ -1981,6 +2099,10 @@ function returnToMainMenu(keepMusic = false) {
  */
 function checkHighlightedLevel() {
 	for (let i = 0; i < levelSelectButtons.objectList.length; ++i) {
+		//if level is not yet unlocked, hovering over it does nothing
+		if (!levelIsUnlocked(i)) {
+			continue;
+		}
 		if (collisionPoint(GameManager.mousePos.x,GameManager.mousePos.y,levelSelectButtons.objectList[i],levelSelectButtons.objectList[i].affectedByCamera)) {
 			GameManager.drawSurface.fillStyle = "rgb(65, 218, 255)";
 			GameManager.setFontSize(36);
