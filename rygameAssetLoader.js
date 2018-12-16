@@ -18,6 +18,14 @@ function loadScriptAsset(path, callback) {
 }
 
 /**
+ * indicate that loading has finished, and display the total loading time
+ */
+function displayFinishedLoading() {
+	console.log("RyConsole: Loading complete! Total load time: " + (new Date().getTime()/1000 - startTime.getTime()/1000).toFixed(2).toString() + " seconds.");
+	
+}
+
+/**
  * load an image asset from the input path, setting the callback function to the input callback
  * @param path: the path from which to load the image asset
  * @param name: the name that should be used when referencing the image in the GameManager images dict
@@ -134,9 +142,11 @@ function loadAssetNext(fileExtension) {
 		}
 		
 		appendString = "";
-		console.log(curAsset)
 		if (curAsset[1] != "") {
 			appendString += curAsset[1] + "/";
+		}
+		else {
+			displayFinishedLoading();
 		}
 		if (curAsset[0] == "js") {
 			lastScriptName = curAsset[2];
@@ -178,4 +188,5 @@ ctx.fillStyle = 'white';
 ctx.fillText("loading assets.js",20,580);
 
 //begin loading assets
+startTime = new Date();
 loadAssetFile();
