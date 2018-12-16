@@ -2471,6 +2471,12 @@ function update() {
 	}
 }
 
+//split level data files (combined for faster loading)
+Object.keys(GameManager.scriptObjects["levels.js"]).forEach(function(key) {
+	GameManager.scriptObjects[key] = GameManager.scriptObjects["levels.js"][key];
+});
+GameManager.scriptObjects.splice("levels.js",1)
+
 //init rygame before we start the game
 GameManager.initializeRygame(0);
 

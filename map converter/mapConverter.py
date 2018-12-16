@@ -1,3 +1,5 @@
+#run me to convert all supported rock raiders map files in the specified directory to javascript files
+
 #! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 

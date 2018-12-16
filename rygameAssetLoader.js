@@ -20,9 +20,11 @@ function loadScriptAsset(path, callback) {
 /**
  * indicate that loading has finished, and display the total loading time
  */
-function displayFinishedLoading() {
+function finishLoading() {
+	//remove globals used during loading phase so as not to clutter the memory, if even only by a small amount
+	delete object;
 	console.log("RyConsole: Loading complete! Total load time: " + (new Date().getTime()/1000 - startTime.getTime()/1000).toFixed(2).toString() + " seconds.");
-	
+	delete startTime;
 }
 
 /**
@@ -145,9 +147,6 @@ function loadAssetNext(fileExtension) {
 		if (curAsset[1] != "") {
 			appendString += curAsset[1] + "/";
 		}
-		else {
-			displayFinishedLoading();
-		}
 		if (curAsset[0] == "js") {
 			lastScriptName = curAsset[2];
 			loadScriptAsset(appendString + curAsset[2], loadAssetNext);
@@ -158,6 +157,9 @@ function loadAssetNext(fileExtension) {
 		else if (curAsset[0] == "snd") {
 			loadSoundAsset(appendString + curAsset[2], curAsset[2], loadAssetNext);
 		}
+	}
+	else {
+		finishLoading();
 	}
 	
 };
