@@ -2205,7 +2205,7 @@ function initGlobals() {
 	//distance the mouse must be moved before a click turns into a drag selection box
 	dragStartDistance = 10; 
 	//if true, this creates the "fog of war" type effect where unrevealed Spaces appear as solid rock (should only be set to false for debugging purposes)
-	maskUntouchedSpaces = getValue("fog") == "true" ? true : false; 
+	maskUntouchedSpaces = getValue("fog") == "false" ? false : true; 
 	//can we scroll the screen using the mouse?
 	mousePanning = getValue("mousePanning") == "true" ? true : false;
 	//can we scroll the screen using the arrow keys?
