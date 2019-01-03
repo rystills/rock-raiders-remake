@@ -81,7 +81,7 @@ Space.prototype.updateDrillPercent = function(drillPercentIncrease, dropSpace) {
 		for (var i = 20; i <= 80; i += 20) {
 			//if we go up by a 20% mark, spawn a piece of ore or energy crystal
 			if (this.drillPercent >= i && this.drillPercent - drillPercentIncrease < i) {
-				var newOre = new Collectable(dropSpace.space,this.type == "ore seam" ? "ore" : "crystal");
+				var newOre = new Collectable(dropSpace,this.type == "ore seam" ? "ore" : "crystal");
 				collectables.push(newOre);
 				tasksAvailable.push(newOre);
 			}
