@@ -918,7 +918,7 @@ function Space(type,listX,listY,height,parentSpace) {
 	this.completedBy = null;
 	this.reinforced = false;
 	//dummy used to identify reinforce tasks
-	this.reinforceDummy = this.isWall ? new RygameObject(0,0,-99999,0,"reinforcement.png",this.drawLayer,true,false,true) : null;
+	this.reinforceDummy = this.isWall ? new RygameObject(0,0,-99999,99999,"reinforcement.png",this.drawLayer,true,false,true) : null;
 	if (this.reinforceDummy != null) {
 		//workaround so the engine treats this dummy as a reinforcable space when determining what type of task it is
 		this.reinforceDummy.reinforcable = true;
