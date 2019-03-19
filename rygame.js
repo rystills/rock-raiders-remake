@@ -427,10 +427,11 @@ GameManagerInternal.prototype.setFont = function () {
  */
 GameManagerInternal.prototype.initializeRygame = function (is3d) {
 	//create context
+	let canvas = document.getElementById('canvas');
 	if (!is3d) {
-		this.drawSurface = document.getElementById('canvas').getContext('2d');
+		this.drawSurface = canvas.getContext('2d');
 	} else {
-		this.drawSurface = document.getElementById('canvas').getContext('3d');
+		this.drawSurface = canvas.getContext('3d');
 	}
 	//mouse code (this snippet is taken from a stackOverflow answer)
 	stylePaddingLeft = parseInt(document.defaultView.getComputedStyle(canvas, null)['paddingLeft'], 10) || 0;
@@ -446,7 +447,7 @@ GameManagerInternal.prototype.initializeRygame = function (is3d) {
 	this.screenHeight = this.drawSurface.canvas.height;
 
 	//init key events
-	document.body.addEventListener("keydown", function (e) {
+	canvas.addEventListener("keydown", function (e) {
 		GameManager.keyStates[String.fromCharCode(e.keyCode)] = true;
 		//fullScreenKey is a property that must be set in the game itself rather than being hardcoded, 
 		//as that would prevent the programmer from being able to use a key that they might need
@@ -454,10 +455,10 @@ GameManagerInternal.prototype.initializeRygame = function (is3d) {
 			goFullScreen();
 		}
 	});
-	document.body.addEventListener("keyup", function (e) {
+	canvas.addEventListener("keyup", function (e) {
 		GameManager.keyStates[String.fromCharCode(e.keyCode)] = false;
 	});
-	document.body.addEventListener("mousemove", function (e) {
+	canvas.addEventListener("mousemove", function (e) {
 		if (GameManager.drawSurface == null) {
 			return;
 		}
@@ -466,7 +467,7 @@ GameManagerInternal.prototype.initializeRygame = function (is3d) {
 		GameManager.mousePos.x -= canvasRect.left + window.pageXOffset;
 		GameManager.mousePos.y -= canvasRect.top + window.pageYOffset;
 	});
-	document.body.addEventListener("mousedown", function (e) {
+	canvas.addEventListener("mousedown", function (e) {
 		if (e.button === 0) {
 			//left click press detected
 			GameManager.mouseDownLeft = true;
@@ -477,7 +478,7 @@ GameManagerInternal.prototype.initializeRygame = function (is3d) {
 			GameManager.mouseDownRight = true;
 		}
 	});
-	document.body.addEventListener("mouseup", function (e) {
+	canvas.addEventListener("mouseup", function (e) {
 		if (e.button === 0) {
 			GameManager.mouseReleasedLeft = true;
 			//we can use the same method as in mousemove to get the effective mouse position 
@@ -498,7 +499,7 @@ GameManagerInternal.prototype.initializeRygame = function (is3d) {
 			GameManager.mouseDownRight = false;
 		}
 	});
-	document.body.addEventListener('contextmenu', function (e) {
+	canvas.addEventListener('contextmenu', function (e) {
 		e.preventDefault();
 	});
 };
