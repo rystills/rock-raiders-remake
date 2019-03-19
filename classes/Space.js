@@ -538,6 +538,14 @@ Space.prototype.updateTouched = function (touched) {
 	if (this.touched === false && maskUntouchedSpaces === true) {
 		if (this.image !== "solid rock.png") {
 			this.changeImage("solid rock.png");
+			if (this.drawSurface != null) {
+				this.drawSurface.beginPath();
+				this.drawSurface.globalAlpha = 0.5;
+				this.drawSurface.fillStyle = "rgb(0,0,0)";
+				this.drawSurface.fillRect(0, 0, this.rect.width, this.rect.height);
+				this.drawSurface.stroke();
+				this.drawSurface.globalAlpha = 1;
+			}
 		}
 	} else {
 		//we never actually modified this.image so we should just be able to use it
