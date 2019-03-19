@@ -128,6 +128,15 @@ function adjacentSpace(terrain, x, y, dir) {
 	}
 }
 
+function adjacentSpaceXY(terrain, x, y, dirX, dirY) {
+	const absX = x + dirX;
+	const absY = y + dirY;
+	if (absX >= 0 && absY >= 0 && absX < terrain.length && absY < terrain[absX].length) {
+		return terrain[absX][absY];
+	}
+	return null;
+}
+
 /**
  * starting from the input space, mark each reachable space as 'touched' to reveal it
  * @param initialSpace: the starting space to be marked as touched from which we propagate out
@@ -154,10 +163,11 @@ function touchAllAdjacentSpaces(initialSpace) {
 		}
 
 		const adjacentSpaces = [];
-		adjacentSpaces.push(adjacentSpace(terrain, initialSpace.listX, initialSpace.listY, "up"));
-		adjacentSpaces.push(adjacentSpace(terrain, initialSpace.listX, initialSpace.listY, "down"));
-		adjacentSpaces.push(adjacentSpace(terrain, initialSpace.listX, initialSpace.listY, "left"));
-		adjacentSpaces.push(adjacentSpace(terrain, initialSpace.listX, initialSpace.listY, "right"));
+		for (let x = -1; x <= 1; ++x) {
+			for (let y = -1; y <= 1; ++y) {
+				adjacentSpaces.push(adjacentSpaceXY(terrain, initialSpace.listX, initialSpace.listY, x, y));
+			}
+		}
 		for (let i = 0; i < adjacentSpaces.length; i++) {
 			if (adjacentSpaces[i] != null) {
 				touchAllAdjacentSpaces(adjacentSpaces[i]);
@@ -454,13 +464,16 @@ function loadLevelData(name) {
  * @param initialSpace: the space to check for revealing
  */
 function checkRevealSpace(initialSpace) {
+	if (initialSpace == null) {
+		return;
+	}
 	const adjacentSpaces = [];
 	adjacentSpaces.push(adjacentSpace(terrain, initialSpace.listX, initialSpace.listY, "up"));
 	adjacentSpaces.push(adjacentSpace(terrain, initialSpace.listX, initialSpace.listY, "down"));
 	adjacentSpaces.push(adjacentSpace(terrain, initialSpace.listX, initialSpace.listY, "left"));
 	adjacentSpaces.push(adjacentSpace(terrain, initialSpace.listX, initialSpace.listY, "right"));
 	for (let i = 0; i < adjacentSpaces.length; ++i) {
-		if (adjacentSpaces[i].touched) {
+		if (adjacentSpaces[i] != null && adjacentSpaces[i].touched) {
 			touchAllAdjacentSpaces(initialSpace);
 			return;
 		}
