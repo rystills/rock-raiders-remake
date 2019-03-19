@@ -586,9 +586,12 @@ function setSelectionByMouseCursor() {
 	//check if a terrain was clicked
 	for (let i = 0; i < terrain.length; i++) {
 		for (let r = 0; r < terrain[i].length; r++) {
-			if (collisionPoint(GameManager.mouseReleasedPosLeft.x, GameManager.mouseReleasedPosLeft.y, terrain[i][r], terrain[i][r].affectedByCamera)) {
-				selection = [terrain[i][r]];
-				selectionType = selection[0].touched === true ? selection[0].type : "Hidden";
+			let terrainTile = terrain[i][r];
+			if (collisionPoint(GameManager.mouseReleasedPosLeft.x, GameManager.mouseReleasedPosLeft.y, terrainTile, terrainTile.affectedByCamera)) {
+				if (terrainTile.type !== "solid rock" && terrainTile.touched) {
+					selection = [terrainTile];
+					selectionType = selection[0].touched ? selection[0].type : "Hidden";
+				}
 				return;
 			}
 		}
