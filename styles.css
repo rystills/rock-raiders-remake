@@ -1,14 +1,32 @@
 .noselect {
-	cursor: default;
-	-webkit-touch-callout: none; /* iOS Safari */
-	-webkit-user-select: none; /* Safari */
-	-khtml-user-select: none; /* Konqueror HTML */
-	-moz-user-select: none; /* Firefox */
-	-ms-user-select: none; /* Internet Explorer/Edge */
-	user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
+    cursor: default;
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
 }
 
 /* immitate webkit fullscreen in firefox */
-.container:-moz-full-screen {display: table; height: 100%; position:absolute; overflow: hidden;width:100%;}
-.container:-moz-full-screen .helper {#position: absolute; #top: 50%;display: table-cell; vertical-align: middle;}
-.container:-moz-full-screen .canvas {#position: relative; #top: -50%;margin:0 auto;width:500px;}
+.container:-moz-full-screen {
+    display: table;
+    height: 100%;
+    position: absolute;
+    overflow: hidden;
+    width: 100%;
+}
+
+.container:-moz-full-screen .helper {
+    #position: absolute;
+    #top: 50%;
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.container:-moz-full-screen .canvas {
+    #position: relative;
+    #top: -50%;
+    margin: 0 auto;
+    width: 500px;
+}

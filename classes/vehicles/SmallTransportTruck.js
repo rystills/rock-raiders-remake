@@ -1,4 +1,4 @@
-makeChild("SmallTransportTruck","Vehicle");
+makeChild("SmallTransportTruck", "Vehicle");
 
 function SmallTransportTruck(space, driver) {
 	Vehicle.call(this, "small transport truck.png", space, driver, 100);

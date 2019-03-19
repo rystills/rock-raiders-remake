@@ -1,4 +1,4 @@
-makeChild("SmallDigger","Vehicle");
+makeChild("SmallDigger", "Vehicle");
 
 function SmallDigger(space, driver) {
 	Vehicle.call(this, "small digger.png", space, driver, 100);
