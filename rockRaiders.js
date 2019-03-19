@@ -1800,8 +1800,7 @@ function levelIsUnlocked(levelNum) {
 		return true;
 	}
 	if (levelNum < 8) {
-		let highlightedLevelScore = getValue(GameManager.scriptObjects["levelList.js"].levels[levelNum - 1]);
-		return (highlightedLevelScore !== undefined && highlightedLevelScore !== "null");
+		return getLevelScore(levelNum - 1) != null;
 	}
 
 	//main levels
@@ -1809,103 +1808,102 @@ function levelIsUnlocked(levelNum) {
 		return true;
 	}
 	if (levelNum < 11) {
-		let highlightedLevelScore = getValue(GameManager.scriptObjects["levelList.js"].levels[8]);
-		return (highlightedLevelScore !== undefined && highlightedLevelScore !== "null");
+		return getLevelScore(8) != null;
 	}
 	if (levelNum < 14) {
-		let levelScore9 = getValue(GameManager.scriptObjects["levelList.js"].levels[9]);
-		let levelScore10 = getValue(GameManager.scriptObjects["levelList.js"].levels[10]);
+		const levelScore9 = getLevelScore(9);
+		const levelScore10 = getLevelScore(10);
 		if (levelNum === 11) {
-			return (levelScore9 !== undefined && levelScore9 !== "null");
+			return levelScore9 != null;
 		}
 		if (levelNum === 12) {
-			return (levelScore9 !== undefined && levelScore9 !== "null") || (levelScore10 !== undefined && levelScore10 !== "null");
+			return levelScore9 != null || levelScore10 != null;
 		}
 		if (levelNum === 13) {
-			return (levelScore10 !== undefined && levelScore10 !== "null");
+			return levelScore10 != null;
 		}
 	}
 	if (levelNum < 16) {
-		let levelScore11 = getValue(GameManager.scriptObjects["levelList.js"].levels[11]);
-		let levelScore12 = getValue(GameManager.scriptObjects["levelList.js"].levels[12]);
-		let levelScore13 = getValue(GameManager.scriptObjects["levelList.js"].levels[13]);
+		const levelScore11 = getLevelScore(11);
+		const levelScore12 = getLevelScore(12);
+		const levelScore13 = getLevelScore(13);
 		if (levelNum === 14) {
-			return (levelScore11 !== undefined && levelScore11 !== "null") && (levelScore12 !== undefined && levelScore12 !== "null");
+			return levelScore11 != null && levelScore12 != null;
 		}
 		if (levelNum === 15) {
-			return (levelScore12 !== undefined && levelScore12 !== "null") && (levelScore13 !== undefined && levelScore13 !== "null");
+			return levelScore12 != null && levelScore13 != null;
 		}
 	}
 	if (levelNum === 16) {
-		let levelScore14 = getValue(GameManager.scriptObjects["levelList.js"].levels[14]);
-		let levelScore15 = getValue(GameManager.scriptObjects["levelList.js"].levels[15]);
-		return (levelScore14 !== undefined && levelScore14 !== "null") && (levelScore15 !== undefined && levelScore15 !== "null");
+		const levelScore14 = getLevelScore(14);
+		const levelScore15 = getValue(GameManager.scriptObjects["levelList.js"].levels[15]);
+		return levelScore14 != null && levelScore15 != null;
 	}
 	if (levelNum < 19) {
-		let levelScore16 = getValue(GameManager.scriptObjects["levelList.js"].levels[16]);
-		return (levelScore16 !== undefined && levelScore16 !== "null");
+		const levelScore16 = getLevelScore(16);
+		return levelScore16 != null
 	}
 	if (levelNum < 22) {
-		let levelScore17 = getValue(GameManager.scriptObjects["levelList.js"].levels[17]);
-		let levelScore18 = getValue(GameManager.scriptObjects["levelList.js"].levels[18]);
+		const levelScore17 = getLevelScore(17);
+		const levelScore18 = getLevelScore(18);
 		if (levelNum === 19) {
-			return (levelScore17 !== undefined && levelScore17 !== "null");
+			return levelScore17 != null
 		}
 		if (levelNum === 20) {
-			return (levelScore17 !== undefined && levelScore17 !== "null") || (levelScore18 !== undefined && levelScore18 !== "null");
+			return levelScore17 != null || levelScore18 != null;
 		}
 		if (levelNum === 21) {
-			return (levelScore18 !== undefined && levelScore18 !== "null");
+			return levelScore18 != null
 		}
 	}
 	if (levelNum < 24) {
-		let levelScore19 = getValue(GameManager.scriptObjects["levelList.js"].levels[19]);
-		let levelScore20 = getValue(GameManager.scriptObjects["levelList.js"].levels[20]);
-		let levelScore21 = getValue(GameManager.scriptObjects["levelList.js"].levels[21]);
+		const levelScore19 = getLevelScore(19);
+		const levelScore20 = getLevelScore(20);
+		const levelScore21 = getLevelScore(21);
 		if (levelNum === 22) {
-			return (levelScore19 !== undefined && levelScore19 !== "null") && (levelScore20 !== undefined && levelScore20 !== "null");
+			return levelScore19 != null && levelScore20 != null;
 		}
 		if (levelNum === 23) {
-			return (levelScore20 !== undefined && levelScore20 !== "null") && (levelScore21 !== undefined && levelScore21 !== "null");
+			return levelScore20 != null && levelScore21 != null;
 		}
 	}
 	if (levelNum === 24) {
-		let levelScore22 = getValue(GameManager.scriptObjects["levelList.js"].levels[22]);
-		let levelScore23 = getValue(GameManager.scriptObjects["levelList.js"].levels[23]);
-		return (levelScore22 !== undefined && levelScore22 !== "null") && (levelScore23 !== undefined && levelScore23 !== "null");
+		const levelScore22 = getLevelScore(22);
+		const levelScore23 = getLevelScore(23);
+		return levelScore22 != null && levelScore23 != null;
 	}
 	if (levelNum < 27) {
-		let levelScore24 = getValue(GameManager.scriptObjects["levelList.js"].levels[24]);
-		return (levelScore24 !== undefined && levelScore24 !== "null");
+		const levelScore24 = getLevelScore(24);
+		return levelScore24 != null
 	}
 	if (levelNum < 30) {
-		let levelScore25 = getValue(GameManager.scriptObjects["levelList.js"].levels[25]);
-		let levelScore26 = getValue(GameManager.scriptObjects["levelList.js"].levels[26]);
+		const levelScore25 = getLevelScore(25);
+		const levelScore26 = getLevelScore(26);
 		if (levelNum === 27) {
-			return (levelScore25 !== undefined && levelScore25 !== "null");
+			return levelScore25 != null
 		}
 		if (levelNum === 28) {
-			return (levelScore25 !== undefined && levelScore25 !== "null") || (levelScore26 !== undefined && levelScore26 !== "null");
+			return levelScore25 != null || levelScore26 != null;
 		}
 		if (levelNum === 29) {
-			return (levelScore26 !== undefined && levelScore26 !== "null");
+			return levelScore26 != null
 		}
 	}
 	if (levelNum < 32) {
-		let levelScore27 = getValue(GameManager.scriptObjects["levelList.js"].levels[27]);
-		let levelScore28 = getValue(GameManager.scriptObjects["levelList.js"].levels[28]);
-		let levelScore29 = getValue(GameManager.scriptObjects["levelList.js"].levels[29]);
+		const levelScore27 = getLevelScore(27);
+		const levelScore28 = getLevelScore(28);
+		const levelScore29 = getLevelScore(29);
 		if (levelNum === 30) {
-			return (levelScore27 !== undefined && levelScore27 !== "null") && (levelScore28 !== undefined && levelScore28 !== "null");
+			return levelScore27 != null && levelScore28 != null;
 		}
 		if (levelNum === 31) {
-			return (levelScore28 !== undefined && levelScore28 !== "null") && (levelScore29 !== undefined && levelScore29 !== "null");
+			return levelScore28 != null && levelScore29 != null;
 		}
 	}
 	if (levelNum === 32) {
-		let levelScore30 = getValue(GameManager.scriptObjects["levelList.js"].levels[30]);
-		let levelScore31 = getValue(GameManager.scriptObjects["levelList.js"].levels[31]);
-		return (levelScore30 !== undefined && levelScore30 !== "null") && (levelScore31 !== undefined && levelScore31 !== "null");
+		const levelScore30 = getLevelScore(30);
+		const levelScore31 = getLevelScore(31);
+		return levelScore30 != null && levelScore31 != null;
 	}
 }
 
@@ -1985,21 +1983,16 @@ function toggleFog(buttonIndex) {
 
 function unlockAllLevels() {
 	for (let i = 0; i < GameManager.scriptObjects["levelList.js"].levels.length; ++i) {
-		levelName = GameManager.scriptObjects["levelList.js"].levels[i];
-		let curVal = getValue(levelName);
-		if (curVal === undefined || curVal === "null") {
-			setValue(levelName, 0);
+		const level = GameManager.scriptObjects["levelList.js"].levels[i];
+		if (getLevelScore(level) == null) {
+			setValue(level, 0);
 		}
 	}
 }
 
 function clearData() {
 	for (let i = 0; i < GameManager.scriptObjects["levelList.js"].levels.length; ++i) {
-		levelName = GameManager.scriptObjects["levelList.js"].levels[i];
-		let curVal = getValue(levelName);
-		if (curVal !== undefined && curVal !== "null") {
-			setValue(levelName, null);
-		}
+		localStorage.removeItem(GameManager.scriptObjects["levelList.js"].levels[i]);
 	}
 }
 
@@ -2034,8 +2027,8 @@ function checkHighlightedLevel() {
 			GameManager.setFontSize(36);
 
 			//grab score, and format score string if valid
-			let highlightedLevelScore = getValue(GameManager.scriptObjects["levelList.js"].levels[i]);
-			if (highlightedLevelScore === undefined || highlightedLevelScore === "null") {
+			let highlightedLevelScore = getLevelScore(i);
+			if (highlightedLevelScore == null || highlightedLevelScore === "null") {
 				highlightedLevelScore = "";
 			} else {
 				highlightedLevelScore = ": " + highlightedLevelScore + "%";
@@ -2228,10 +2221,14 @@ function calculateLevelScore() {
  * @param score: the newly achieved level score (may or may not be the all-time high-score)
  */
 function setLevelScore(score) {
-	let prevScore = getValue(levelName);
+	const prevScore = getValue(levelName);
 	if (prevScore === "null" || prevScore === undefined || prevScore < score) {
 		setValue(levelName, score);
 	}
+}
+
+function getLevelScore(level) {
+	return getValue(GameManager.scriptObjects["levelList.js"].levels[level]);
 }
 
 /**
