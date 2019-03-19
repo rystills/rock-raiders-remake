@@ -2401,4 +2401,9 @@ GameManager.scriptObjects.splice("levels.js", 1);
 GameManager.initializeRygame(0);
 
 initGlobals();
+
+// to auto load a level for testing use the following lines
+// changeLevels("02");
+// awaitingStart = false;
+
 _intervalId = setInterval(update, 1000 / GameManager.fps); //set refresh rate to desired fps
