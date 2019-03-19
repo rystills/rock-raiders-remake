@@ -794,6 +794,9 @@ Button.prototype.update = function (selectionType, openMenu) {
 				return;
 			}
 		}
+	} else if (selectionType != null) {
+		this.visible = false;
+		return;
 	}
 	if (this.openMenuBound != null) {
 		if (this.openMenuBound.indexOf(openMenu) === -1) {
@@ -802,6 +805,9 @@ Button.prototype.update = function (selectionType, openMenu) {
 				return;
 			}
 		}
+	} else if (openMenu !== "") {
+		this.visible = false;
+		return;
 	}
 	this.visible = true;
 
@@ -966,6 +972,7 @@ function Button(x, y, updateDepth, drawDepth, image, layer, text, runMethod, aff
 	if (this.optionalArgs == null) {
 		this.optionalArgs = [];
 	}
+	this.visible = false;
 	this.updateText(text, false);
 }
 
