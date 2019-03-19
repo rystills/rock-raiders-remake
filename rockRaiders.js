@@ -2134,7 +2134,7 @@ function initGlobals() {
 
 	gameLayer = new Layer(0, 0, 1, 1, GameManager.screenWidth, GameManager.screenHeight);
 	menuLayer = new Layer(0, 0, 1, 1, GameManager.screenWidth, GameManager.screenHeight, true);
-	levelSelectLayer = new Layer(0, 0, 1, 1, GameManager.screenWidth, GameManager.screenHeight, true);
+	levelSelectLayer = new Layer(0, 0, 1, 1, GameManager.screenWidth, GameManager.screenHeight);
 	scoreScreenLayer = new Layer(0, 0, 1, 1, GameManager.screenWidth, GameManager.screenHeight);
 	musicPlayer = new MusicPlayer();
 	buttons = new ObjectGroup();
