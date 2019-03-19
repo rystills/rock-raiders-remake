@@ -807,12 +807,11 @@ Raider.prototype.workOnCurrentTask = function () {
 					}
 				}
 			}
-
 		}
 		this.distanceTraveled /= speedModifier;
 	}
 
-	if ((!freezeAngle) & (!this.samePosition(this.x, this.y, this.xPrevious, this.yPrevious))) {
+	if (!freezeAngle && !this.samePosition(this.x, this.y, this.xPrevious, this.yPrevious)) {
 		this.drawAngle = getAngle(this.xPrevious, this.yPrevious, this.x, this.y, true);
 	}
 
