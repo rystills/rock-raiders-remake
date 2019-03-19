@@ -968,10 +968,10 @@ function Raider(space) {
 	this.space = space;
 	this.setCenterX(this.space.centerX());
 	this.setCenterY(this.space.centerY());
-	this.speed = 5;
+	this.speed = 4;
 	this.drillSpeed = .4;
 	this.sweepSpeed = 2;
-	this.reinforceSpeed = 3;
+	this.reinforceSpeed = 1.25;
 	this.grabSpeed = 5;
 	this.upgradeSpeed = .1;
 	this.grabToolSpeed = 20;
