@@ -557,75 +557,55 @@ function cancelSelection() {
 	openMenu = "";
 }
 
+function setSelectionByMouseCursor() {
+	//check if a raider was clicked
+	for (let i = 0; i < raiders.objectList.length; i++) {
+		if (collisionPoint(GameManager.mouseReleasedPosLeft.x, GameManager.mouseReleasedPosLeft.y, raiders.objectList[i], raiders.objectList[i].affectedByCamera)) {
+			//simply choose the first raider identified as having been clicked, since all raiders have the same depth regardless
+			selection = [raiders.objectList[i]];
+			selectionType = "raider";
+			return;
+		}
+	}
+	//check if a vehicle was clicked
+	for (let i = 0; i < vehicles.objectList.length; i++) {
+		if (collisionPoint(GameManager.mouseReleasedPosLeft.x, GameManager.mouseReleasedPosLeft.y, vehicles.objectList[i], vehicles.objectList[i].affectedByCamera)) {
+			selection = [vehicles.objectList[i]];
+			selectionType = selection[0].type;
+			return;
+		}
+	}
+	//check if a collectable object was clicked
+	for (let i = 0; i < collectables.objectList.length; i++) {
+		if (collisionPoint(GameManager.mouseReleasedPosLeft.x, GameManager.mouseReleasedPosLeft.y, collectables.objectList[i], collectables.objectList[i].affectedByCamera)) {
+			selection = [collectables.objectList[i]];
+			selectionType = selection[0].type;
+			return;
+		}
+	}
+	//check if a terrain was clicked
+	for (let i = 0; i < terrain.length; i++) {
+		for (let r = 0; r < terrain[i].length; r++) {
+			if (collisionPoint(GameManager.mouseReleasedPosLeft.x, GameManager.mouseReleasedPosLeft.y, terrain[i][r], terrain[i][r].affectedByCamera)) {
+				selection = [terrain[i][r]];
+				selectionType = selection[0].touched === true ? selection[0].type : "Hidden";
+				return;
+			}
+		}
+	}
+}
+
 /**
  * attempt to update the current selection in response to a left-click
  */
 function checkUpdateClickSelection() {
 	//ignore mouse clicks if they landed on a part of the UI
 	if (GameManager.mouseReleasedLeft && !mousePressIsSelection) {
-		//check if a raider was clicked
-		let raiderSelected = null;
-		for (let i = 0; i < raiders.objectList.length; i++) {
-			if (collisionPoint(GameManager.mouseReleasedPosLeft.x, GameManager.mouseReleasedPosLeft.y, raiders.objectList[i], raiders.objectList[i].affectedByCamera)) {
-				//simply choose the first raider identified as having been clicked, since all raiders have the same depth regardless
-				raiderSelected = raiders.objectList[i];
-				break;
-			}
-		}
-		if (raiderSelected != null) {
-			selection = [raiderSelected];
-			selectionType = "raider";
-		} else {
-			//check if a vehicle was clicked
-			let vehicleSelected = null;
-			for (let i = 0; i < vehicles.objectList.length; i++) {
-				if (collisionPoint(GameManager.mouseReleasedPosLeft.x, GameManager.mouseReleasedPosLeft.y, vehicles.objectList[i], vehicles.objectList[i].affectedByCamera)) {
-					vehicleSelected = vehicles.objectList[i];
-					break;
-				}
-			}
-			if (vehicleSelected != null) {
-				selection = [vehicleSelected];
-				selectionType = selection[0].type;
-			} else {
-				//check if a collectable object was clicked
-				let itemSelected = null;
-				for (let i = 0; i < collectables.objectList.length; i++) {
-					if (collisionPoint(GameManager.mouseReleasedPosLeft.x, GameManager.mouseReleasedPosLeft.y, collectables.objectList[i], collectables.objectList[i].affectedByCamera)) {
-						itemSelected = collectables.objectList[i];
-						break;
-					}
-				}
-				if (itemSelected != null) {
-					selection = [itemSelected];
-					selectionType = itemSelected.type;
-				} else {
-					//check if a space was clicked
-					let spaceSelected = null;
-					for (let i = 0; i < terrain.length; i++) {
-						for (let r = 0; r < terrain[i].length; r++) {
-							if (collisionPoint(GameManager.mouseReleasedPosLeft.x, GameManager.mouseReleasedPosLeft.y, terrain[i][r], terrain[i][r].affectedByCamera)) {
-								spaceSelected = terrain[i][r];
-								break;
-							}
-						}
-						if (spaceSelected != null) {
-							break;
-						}
-					}
-					if (spaceSelected != null) {
-						selection = [spaceSelected];
-						selectionType = spaceSelected.touched === true ? spaceSelected.type : "Hidden";
-					}
-				}
-			}
-		}
-
+		setSelectionByMouseCursor();
 		//automatically close tool menu if a raider is no longer selected
 		if (selectionType !== "raider" && openMenu === "tool") {
 			openMenu = "";
 		}
-
 	}
 }
 
