@@ -92,31 +92,31 @@ BuildingPlacer.prototype.start = function(type,keepDir) {
 	if (type != null) {
 		this.buildingType = type;
 	}
-	if (keepDir != true) {
+	if (keepDir !== true) {
 		this.dir = 0;
 	}
 	                                  
-	if (type == "tool store" || type == "teleport pad" || type == "docks" || type == "support station") {
+	if (type === "tool store" || type === "teleport pad" || type === "docks" || type === "support station") {
 		this.children.push(new BuildingPlacer("building power path",true,BuildingPlacer.dirOffsets[this.dir][0][0],BuildingPlacer.dirOffsets[this.dir][0][1]));
 	}
-	else if (type == "power station") {
+	else if (type === "power station") {
 		this.children.push(new BuildingPlacer("power station topRight",true,BuildingPlacer.dirOffsets[this.dir][0][0],BuildingPlacer.dirOffsets[this.dir][0][1],this));
 		this.children.push(new BuildingPlacer("power station powerPath",true,BuildingPlacer.dirOffsets[this.dir][1][0],BuildingPlacer.dirOffsets[this.dir][1][1],this));
 	}
-	else if (type == "ore refinery") {
+	else if (type === "ore refinery") {
 		this.children.push(new BuildingPlacer("ore refinery right",true,BuildingPlacer.dirOffsets[this.dir][0][0],BuildingPlacer.dirOffsets[this.dir][0][1],this));
 		this.children.push(new BuildingPlacer("building power path",true,BuildingPlacer.dirOffsets[this.dir][2][0],BuildingPlacer.dirOffsets[this.dir][2][1]));
 	}
-	else if (type == "geological center") {
+	else if (type === "geological center") {
 		this.children.push(new BuildingPlacer("geological center right",true,BuildingPlacer.dirOffsets[this.dir][0][0],BuildingPlacer.dirOffsets[this.dir][0][1],this));
 	}
-	else if (type == "mining laser") {
+	else if (type === "mining laser") {
 		this.children.push(new BuildingPlacer("mining laser right",true,BuildingPlacer.dirOffsets[this.dir][0][0],BuildingPlacer.dirOffsets[this.dir][0][1],this));
 	}
-	else if (type == "upgrade station") {
+	else if (type === "upgrade station") {
 		this.children.push(new BuildingPlacer("upgrade station right",true,BuildingPlacer.dirOffsets[this.dir][0][0],BuildingPlacer.dirOffsets[this.dir][0][1],this));
 	}
-	else if (type == "super teleport") {
+	else if (type === "super teleport") {
 		this.children.push(new BuildingPlacer("super teleport topRight",true,BuildingPlacer.dirOffsets[this.dir][0][0],BuildingPlacer.dirOffsets[this.dir][0][1],this));
 		this.children.push(new BuildingPlacer("building power path",true,BuildingPlacer.dirOffsets[this.dir][1][0],BuildingPlacer.dirOffsets[this.dir][1][1]));
 		this.children.push(new BuildingPlacer("building power path",true,-1*BuildingPlacer.dirOffsets[this.dir][0][1],BuildingPlacer.dirOffsets[this.dir][0][0]));
@@ -150,11 +150,11 @@ BuildingPlacer.prototype.positionValid = function(space) {
 	if (space == null) {
 		return false;
 	}
-	if (space.type != "ground") {
+	if (space.type !== "ground") {
 		return false;
 	}
 	//power paths are allowed to be colliding with other objects, as long as they are still being placed on a ground tile
-	if (this.buildingType == "power path" || this.buildingType == "building power path" || this.buildingType == "power station powerPath") {
+	if (this.buildingType === "power path" || this.buildingType === "building power path" || this.buildingType === "power station powerPath") {
 		return true;
 	}
 	//do not allow placement on a space on which any raiders are currently colliding
@@ -181,16 +181,16 @@ BuildingPlacer.prototype.positionValid = function(space) {
  * @returns whether the building placer is touching a power path (true) or not (false)
  */
 BuildingPlacer.prototype.touchingPowerPath = function(space) {
-	if (adjacentSpace(terrain,space.listX,space.listY,"up").type == "power path") {
+	if (adjacentSpace(terrain,space.listX,space.listY,"up").type === "power path") {
 		return true;
 	}
-	if (adjacentSpace(terrain,space.listX,space.listY,"down").type == "power path") {
+	if (adjacentSpace(terrain,space.listX,space.listY,"down").type === "power path") {
 		return true;
 	}
-	if (adjacentSpace(terrain,space.listX,space.listY,"left").type == "power path") {
+	if (adjacentSpace(terrain,space.listX,space.listY,"left").type === "power path") {
 		return true;
 	}
-	if (adjacentSpace(terrain,space.listX,space.listY,"right").type == "power path") {
+	if (adjacentSpace(terrain,space.listX,space.listY,"right").type === "power path") {
 		return true;
 	}
 }
@@ -216,8 +216,8 @@ BuildingPlacer.prototype.updatePosition = function() {
  * @param space: the space on which to place the new building
  */
 BuildingPlacer.prototype.placeBuilding = function(space) {
-	if (powerPathSpaceTypes.indexOf(this.buildingType) != -1) {
-		space.setTypeProperties(this.buildingType,null,null,null,null,null,(this.dir*90 - 90 + (this.dir % 2 == 1 ? 180 : 0)) * 
+	if (powerPathSpaceTypes.indexOf(this.buildingType) !== -1) {
+		space.setTypeProperties(this.buildingType,null,null,null,null,null,(this.dir*90 - 90 + (this.dir % 2 === 1 ? 180 : 0)) *
 				(Math.PI / 180),this.parentBuilder == null ? null : this.parentBuilder.getCurrentSpace());
 	}
 	else {
@@ -226,7 +226,7 @@ BuildingPlacer.prototype.placeBuilding = function(space) {
 		for (var i = 0; i < this.children.length; ++i) {
 			space.childSpaces.push(this.children[i].getCurrentSpace());
 		}
-		space.setTypeProperties("building site",null,null,null,null,null,(this.dir*90 - 90 + (this.dir % 2 == 1 ? 180 : 0)) * 
+		space.setTypeProperties("building site",null,null,null,null,null,(this.dir*90 - 90 + (this.dir % 2 === 1 ? 180 : 0)) *
 				(Math.PI / 180),this.parentBuilder == null ? null : this.parentBuilder.getCurrentSpace());
 	}
 	
@@ -246,7 +246,7 @@ BuildingPlacer.prototype.getCurrentSpace = function() {
 	var yCoord = Math.floor((this.y + gameLayer.cameraY)/tileSize);
 	var xCoord = Math.floor((this.x + gameLayer.cameraX)/tileSize);
 	//check bounds before attempting to access terrain Space
-	if (Math.min(yCoord,xCoord) < 0 || yCoord >= terrain.length || terrain.length == 0 || xCoord >= terrain[yCoord].length) {
+	if (Math.min(yCoord,xCoord) < 0 || yCoord >= terrain.length || terrain.length === 0 || xCoord >= terrain[yCoord].length) {
 		return null;
 	}
 	return terrain[yCoord][xCoord];
@@ -281,13 +281,13 @@ function BuildingPlacer(buildingType,isHelper,xOffset,yOffset,parentBuilder) {
 	this.validSurface = createContext(tileSize,tileSize,false);
 	this.validSurface.globalAlpha=.25;
 	//color power paths yellowish
-	this.validSurface.fillStyle = (buildingType == "power path" || buildingType == "building power path" || 
-			buildingType == "power station powerPath" ? "rgb(200,255,0)" : "rgb(0,255,0)"); 
+	this.validSurface.fillStyle = (buildingType === "power path" || buildingType === "building power path" ||
+			buildingType === "power station powerPath" ? "rgb(200,255,0)" : "rgb(0,255,0)");
 	//green semi-transparent overlay
 	this.validSurface.fillRect(0,0,this.drawSurface.canvas.width,this.drawSurface.canvas.height);
 	
 	this.visible = false;
-	this.isHelper = (isHelper == true ? true : false);
+	this.isHelper = (isHelper === true ? true : false);
 	this.xOffset = xOffset;
 	this.yOffset = yOffset;
 	this.children = [];

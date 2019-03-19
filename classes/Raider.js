@@ -7,13 +7,13 @@ makeChild("Raider","RygameObject");
  * @returns the nearest building satisfying the requested type and resource needed, or null if no such building is found.
  */
 Raider.prototype.chooseClosestBuilding = function(buildingType,resourceTypeNeeded) {
-	var buildingList = (buildingType == "building site" ? buildingSites : buildings);
+	var buildingList = (buildingType === "building site" ? buildingSites : buildings);
 	destinationSites = [];
 	destinationSite = null;
 	//compile all buildings of type buildingType, then find the closest one
 	for (var i = 0; i < buildingList.length; i++) {
 		//ignore buildings that have not been touched (though this is unlikely to be a possible occurence)
-		if (buildingList[i].type == buildingType && buildingList[i].touched == true) {
+		if (buildingList[i].type === buildingType && buildingList[i].touched === true) {
 			//if we're looking to place a resource, check if the building site needs it
 			if (resourceTypeNeeded == null || buildingList[i].resourceNeeded(resourceTypeNeeded)) {
 				destinationSites.push(buildingList[i]);
@@ -28,12 +28,12 @@ Raider.prototype.chooseClosestBuilding = function(buildingType,resourceTypeNeede
 	for (var i = 0; i < destinationSites.length; ++i) {
 		var currentPath = findClosestStartPath(this,calculatePath(terrain,this.space,
 				typeof destinationSites[i].space == "undefined" ? destinationSites[i]: destinationSites[i].space,true));
-		if (currentPath == null || currentPath.length == 0) {
+		if (currentPath == null || currentPath.length === 0) {
 			continue;
 		}
 		var currentLength = currentPath.length;
 		var currentStartDistance = getDistance(this.centerX,this.centerY,currentPath[currentPath.length-1].centerX(),currentPath[currentPath.length-1].centerY());
-		if (shortestPathLength == -1 || currentLength < shortestPathLength || currentLength == shortestPathLength && currentStartDistance < shortestStartDistance) {
+		if (shortestPathLength === -1 || currentLength < shortestPathLength || currentLength === shortestPathLength && currentStartDistance < shortestStartDistance) {
 			shortestPathLength = currentLength;
 			shortestStartDistance = currentStartDistance;
 			nearestBuilding = destinationSites[i];
@@ -49,7 +49,7 @@ Raider.prototype.chooseClosestBuilding = function(buildingType,resourceTypeNeede
  */
 Raider.prototype.checkChooseCloserEquivalentResource = function(removeCurrentTask) {
 	var currentTaskType = this.getTaskType(this.currentTask);
-	if (!(currentTaskType == "collect" && this.holding.length == 0)) {
+	if (!(currentTaskType === "collect" && this.holding.length === 0)) {
 		return;
 	}
 	if (removeCurrentTask == null) {
@@ -64,13 +64,13 @@ Raider.prototype.checkChooseCloserEquivalentResource = function(removeCurrentTas
 	//check current space, as well as one space forward on the path
 	for (var r = 0; r < 2; ++r) {
 		for (var i = 0; i < curCheckSpace.contains.objectList.length; ++i) {	
-			if (this.getTaskType(curCheckSpace.contains.objectList[i]) == currentTaskType) {
+			if (this.getTaskType(curCheckSpace.contains.objectList[i]) === currentTaskType) {
 				//look for resources on the next space, not the current space
 				var newIndex = tasksAvailable.indexOf(curCheckSpace.contains.objectList[i]);
 				//only check this resource if it is in tasksAvailable (meaning we can't steal tasks from other raiders)
-				if (newIndex != -1) {
+				if (newIndex !== -1) {
 					//only consider this resource if its the same type as our current task resource
-					if (curCheckSpace.contains.objectList[i].type == this.currentTask.type) {
+					if (curCheckSpace.contains.objectList[i].type === this.currentTask.type) {
 						var distance = getDistance(centerX,centerY,curCheckSpace.contains.objectList[i].centerX(),curCheckSpace.contains.objectList[i].centerY());
 						if (closestObject == null || distance < closestDistance) {
 							closestDistance = distance;
@@ -117,7 +117,7 @@ Raider.prototype.setTask = function(taskIndex, path, initialObjective, keepTask)
 	if (!keepTask) {
 		tasksAvailable.splice(taskIndex,1);	
 	}
-	if (tasksInProgress.objectList.indexOf(this.currentTask) == -1) {
+	if (tasksInProgress.objectList.indexOf(this.currentTask) === -1) {
 		tasksInProgress.push(this.currentTask);
 	}
 	if (initialObjective != null) {
@@ -147,7 +147,7 @@ Raider.prototype.canPerformSpaceContains = function(space, ignoreAutomation, ign
 	for (var i = 0; i < space.contains.objectList.length; ++i) {	
 		var newIndex = tasksAvailable.indexOf(space.contains.objectList[i]);
 		//make sure this task is available before proceeding
-		if (newIndex != -1) {
+		if (newIndex !== -1) {
 			return this.canPerformTask(space.contains.objectList[i],false,true);
 		}
 	}
@@ -166,7 +166,7 @@ Raider.prototype.canPerformTaskDummies = function(space, ignoreAutomation, ignor
 	}
 	var newIndex = tasksAvailable.indexOf(space.reinforceDummy);
 	//make sure this task is available before proceeding
-	if (newIndex != -1) {
+	if (newIndex !== -1) {
 		return this.canPerformTask(space.reinforceDummy,false,true);
 	}
 }
@@ -177,14 +177,14 @@ Raider.prototype.canPerformTaskDummies = function(space, ignoreAutomation, ignor
  * @returns whether we possess whatever tool is necessary for the input task (true) or not (false)
  */
 Raider.prototype.haveTool = function(inTaskType) {
-	if (toolsRequired[inTaskType] == undefined) {
+	if (toolsRequired[inTaskType] === undefined) {
 		return true;
 	}
 	if (this.vehicle != null) {
-		return inTaskType == "drill" ? this.vehicle.canDrill : 
-			(inTaskType == "sweep" ? this.vehicle.canSweep : (inTaskType == "drill hard" && this.vehicle.canDrillHard));
+		return inTaskType === "drill" ? this.vehicle.canDrill :
+			(inTaskType === "sweep" ? this.vehicle.canSweep : (inTaskType === "drill hard" && this.vehicle.canDrillHard));
 	}
-	return this.tools.indexOf(toolsRequired[inTaskType]) != -1;
+	return this.tools.indexOf(toolsRequired[inTaskType]) !== -1;
 }
 
 /**
@@ -211,7 +211,7 @@ Raider.prototype.canPerformTask = function(task,ignoreAutomation,ignoreContents)
 	}
 	if (!ignoreAutomation) {
 		//if the input task is not a valid task and none of its contents (if it is a space) are a task, return false
-		if (tasksAvailable.indexOf(task) == -1) {
+		if (tasksAvailable.indexOf(task) === -1) {
 			//check if the task is a space and any of its contents are a task before returning false
 			return this.canPerformSpaceContains(task,ignoreAutomation,ignoreContents) || this.canPerformTaskDummies(task,ignoreAutomation,ignoreContents);		
 		}
@@ -223,7 +223,7 @@ Raider.prototype.canPerformTask = function(task,ignoreAutomation,ignoreContents)
 	}
 	
 	//if the input task is a vehicle, make sure we aren't already in one
-	if (taskType(task) == "vehicle" && this.vehicle != null) {
+	if (taskType(task) === "vehicle" && this.vehicle != null) {
 		return this.canPerformSpaceContains(task,ignoreAutomation,ignoreContents) || this.canPerformTaskDummies(task,ignoreAutomation,ignoreContents);	
 	}
 	
@@ -232,21 +232,21 @@ Raider.prototype.canPerformTask = function(task,ignoreAutomation,ignoreContents)
 		return this.canPerformSpaceContains(task,ignoreAutomation,ignoreContents) || this.canPerformTaskDummies(task,ignoreAutomation,ignoreContents);	
 	}
 	//if the task is of type 'drill' and we are in a vehicle, make sure the vehicle has a drill
-	if (taskType(task) == "drill" && !(this.vehicle == null || this.vehicle.canDrill)) {
+	if (taskType(task) === "drill" && !(this.vehicle == null || this.vehicle.canDrill)) {
 		return this.canPerformSpaceContains(task,ignoreAutomation,ignoreContents) || this.canPerformTaskDummies(task,ignoreAutomation,ignoreContents);	
 	}
 	//if the task is of type 'drill hard' and we are in a vehicle, make sure the vehicle has a drill
-	if (taskType(task) == "drill hard" && !(this.vehicle == null || this.vehicle.canDrillHard)) {
+	if (taskType(task) === "drill hard" && !(this.vehicle == null || this.vehicle.canDrillHard)) {
 		return this.canPerformSpaceContains(task,ignoreAutomation,ignoreContents) || this.canPerformTaskDummies(task,ignoreAutomation,ignoreContents);	
 	}
 	
 	//if the task is of type 'sweep' and we are in a vehicle, make sure the vehicle has a shovel
-	if (taskType(task) == "sweep" && !(this.vehicle == null || this.vehicle.canSweep)) {
+	if (taskType(task) === "sweep" && !(this.vehicle == null || this.vehicle.canSweep)) {
 		return this.canPerformSpaceContains(task,ignoreAutomation,ignoreContents) || this.canPerformTaskDummies(task,ignoreAutomation,ignoreContents);	
 	}
 	
 	//if the input task is a building site and we don't have a tool store that we can path to or don't have any of the required resources, return false
-	if (taskType(task) == "build") {
+	if (taskType(task) === "build") {
 		destinationSite = this.chooseClosestBuilding("tool store");
 		//if there's no path to a tool store to get a resource with which to build, move on to the next high priority task
 		if (destinationSite == null) {
@@ -276,16 +276,16 @@ Raider.prototype.vehicleInhibitsTask = function(taskType) {
 		return false;
 	}
 	//for now, all vehicles can collect and build
-	if (taskType == "walk" || taskType == "collect" || taskType == "build") {
+	if (taskType === "walk" || taskType === "collect" || taskType === "build") {
 		return false;
 	}
-	if (taskType == "sweep") {
+	if (taskType === "sweep") {
 		return !this.vehicle.canSweep;
 	}
-	if (taskType == "drill") {
+	if (taskType === "drill") {
 		return !this.vehicle.canDrill;
 	}
-	if (taskType == "drill hard") {
+	if (taskType === "drill hard") {
 		return !this.vehicle.canDrillHard;
 	}
 	return true;
@@ -301,12 +301,12 @@ Raider.prototype.vehicleInhibitsTask = function(taskType) {
 Raider.prototype.checkSetTask = function(i,mustBeHighPriority,calculatedPath) {
 	//TODO: raiders will select the first high priority task this way, rather than the nearest one. Should be fixed when implementing automatic task priority order.
 	//if this task index is invalid, return now
-	if (i == -1) {
+	if (i === -1) {
 		return false;
 	}
 	
 	//skip any tasks that cannot be performed automatically, unless they are high priority
-	if (tasksAvailable[i].taskPriority == 1 || (tasksAutomated[taskType(tasksAvailable[i])] && (mustBeHighPriority != true))) {
+	if (tasksAvailable[i].taskPriority === 1 || (tasksAutomated[taskType(tasksAvailable[i])] && (mustBeHighPriority !== true))) {
 		var newPath = calculatedPath; //if we already calculated a path, don't bother calculating it again
 		if (newPath == null) {
 			newPath = findClosestStartPath(this,calculatePath(terrain,this.space,
@@ -321,7 +321,7 @@ Raider.prototype.checkSetTask = function(i,mustBeHighPriority,calculatedPath) {
 			return false;
 		}
 		//for building sites, we have to check for a pathable tool store and resources, otherwise we can't do anything
-		if (taskType(tasksAvailable[i]) == "build") {
+		if (taskType(tasksAvailable[i]) === "build") {
 			destinationSite = this.chooseClosestBuilding("tool store");
 			//if there's no path to a tool store to get a resource with which to build, move on to the next high priority task
 			if (destinationSite == null) {
@@ -341,7 +341,7 @@ Raider.prototype.checkSetTask = function(i,mustBeHighPriority,calculatedPath) {
 			}
 		}
 		//for walls to be blown up with dynamite, check for a pathable tool store (same as build)
-		else if (taskType(tasksAvailable[i]) == "dynamite") {
+		else if (taskType(tasksAvailable[i]) === "dynamite") {
 			//make sure we can handle explosives
 			if (!this.amExplosivesExpert) {
 				return false;
@@ -390,7 +390,7 @@ Raider.prototype.checkChooseNewTask = function() {
 					for (var i = 0; i < newTaskPath[0].contains.objectList.length; ++i) {	
 						var newIndex = tasksAvailable.indexOf(newTaskPath[0].contains.objectList[i]);
 						//make sure this task is available before proceeding
-						if (newIndex != -1) {
+						if (newIndex !== -1) {
 							//if we are able to set the task to this contains, we can return early
 							if (this.checkSetTask(tasksAvailable.indexOf(newTaskPath[0].contains.objectList[i]),false,newTaskPath)) {
 								return;
@@ -426,12 +426,12 @@ Raider.prototype.attemptSelectResourceLocation = function() {
 		}
 	}
 	
-	if (this.currentObjective != this.currentTask) {
+	if (this.currentObjective !== this.currentTask) {
 		var newPath = findClosestStartPath(this,calculatePath(terrain,this.space,this.currentObjective,true));
 		if (newPath != null) {
 			this.currentPath = newPath;
 			this.busy = false;
-			if (this.currentObjective.type == "building site") {
+			if (this.currentObjective.type === "building site") {
 				this.currentTask = this.currentObjective;
 			}
 		}
@@ -447,10 +447,10 @@ Raider.prototype.attemptSelectResourceLocation = function() {
 Raider.prototype.updateCompletedBy = function() {
 	this.tasksToClear.push(this.currentObjective);
 	for (var i = 0; i < raiders.objectList.length; ++i) {
-		if (raiders.objectList[i] == this) {
+		if (raiders.objectList[i] === this) {
 			continue;
 		}
-		if (this.tasksToClear.indexOf(raiders.objectList[i].currentObjective) != -1) {
+		if (this.tasksToClear.indexOf(raiders.objectList[i].currentObjective) !== -1) {
 			raiders.objectList[i].clearTask();
 		}
 	}
@@ -473,18 +473,18 @@ Raider.prototype.update = function() {
 	}
 	//if we are of taskType "build" make sure our job hasn't been taken by somebody else closer to the building site
 	//note that optionally allowing 'undefined' rather than build here should likely be unnecessary
-	if ((this.getTaskType(this.currentTask) == "build" || this.getTaskType(this.currentTask) == "undefined") && 
+	if ((this.getTaskType(this.currentTask) === "build" || this.getTaskType(this.currentTask) === "undefined") &&
 			this.reservingResource && (!(this.currentTask.dedicatedResources[this.currentObjectiveResourceType] < 
 					this.currentTask.requiredResources[this.currentObjectiveResourceType]))) {
 		this.clearTask();
 	}
-	if ((selection.indexOf(this) != -1) && (this.currentTask == null)) { //don't start a new task if currently selected unless instructed to
+	if ((selection.indexOf(this) !== -1) && (this.currentTask == null)) { //don't start a new task if currently selected unless instructed to
 		return;
 	}
 	
 	//attempt to choose a new task, if we are currently free
 	if (this.currentTask == null) {
-		if (this.holding.length != 0) {
+		if (this.holding.length !== 0) {
 			//if we are holding something, check for a building site. if there are none pathable, check for a toolstore
 			this.attemptSelectResourceLocation();
 		}
@@ -529,7 +529,7 @@ Raider.prototype.moveOnPath = function() {
 		this.distanceTraveled -= distanceToPoint;
 		this.space = this.currentPath.pop();
 		//if the final space is walkable we still check for closer resources as multiple resources may exist on a single walkable space
-		if (this.holding.length == 0 && (this.currentPath.length > 1 || (this.currentPath[0].walkable == true && this.currentPath[0].contains.objectList.length > 1))) {
+		if (this.holding.length === 0 && (this.currentPath.length > 1 || (this.currentPath[0].walkable === true && this.currentPath[0].contains.objectList.length > 1))) {
 			if (this.checkChooseCloserEquivalentResource()) {
 				this.choseCloserResource = true;
 			}
@@ -589,14 +589,14 @@ Raider.prototype.workOnCurrentTask = function() {
 			//TODO: actions should opreate in sub-methods, eliminating the need for this.busy
 			if (!this.busy) {
 				//if we have taskType 'sweep' we need to keep moving until reachedObjective is true
-				if ((!(taskType == "sweep" || taskType == "walk" || taskType == "build" || 
-						(taskType == "collect" && this.currentObjective.buildable == true))) && 
+				if ((!(taskType === "sweep" || taskType === "walk" || taskType === "build" ||
+						(taskType === "collect" && this.currentObjective.buildable === true))) &&
 						collisionRect(this,this.currentObjective,true)) {
 					collisionReached = true;
 				}
 				else {
 					reachedObjective = this.moveTowardsPoint(this.currentObjective.centerX(),this.currentObjective.centerY(),this.distanceTraveled,true);	
-					if (reachedObjective && taskType == "walk") {
+					if (reachedObjective && taskType === "walk") {
 						//make sure we don't drop what we're holding
 						var heldObject = this.holding;
 						this.clearTask();
@@ -611,8 +611,8 @@ Raider.prototype.workOnCurrentTask = function() {
 			this.distanceTraveled = 0;
 			if (this.busy || collisionReached || collisionRect(this,this.currentObjective,true)) {
 				if (!this.busy) {
-					if ((taskType == "collect" && this.currentObjective.buildable != true) || taskType == "drill"  || 
-							taskType == "drill hard" || taskType == "reinforce" || taskType == "get tool") {
+					if ((taskType === "collect" && this.currentObjective.buildable !== true) || taskType === "drill"  ||
+							taskType === "drill hard" || taskType === "reinforce" || taskType === "get tool") {
 						//if we didnt move yet and are just moving to suddenly get out of a collision that is occurring, we want to preserve our angle
 						if (this.samePosition(this.x,this.y,this.xPrevious,this.yPrevious)) {
 							freezeAngle = true;
@@ -622,7 +622,7 @@ Raider.prototype.workOnCurrentTask = function() {
 					}
 				}
 				
-				if (taskType == "vehicle") {
+				if (taskType === "vehicle") {
 					this.vehicle = this.currentObjective;
 					this.setCenterX(this.vehicle.centerX());
 					this.setCenterY(this.vehicle.centerY());
@@ -631,8 +631,8 @@ Raider.prototype.workOnCurrentTask = function() {
 					this.clearTask();
 				}
 				
-				if (taskType == "dynamite") {
-					if (this.currentObjective != this.currentTask) {
+				if (taskType === "dynamite") {
+					if (this.currentObjective !== this.currentTask) {
 						if ((this.busy) || (this.reservingResource)) {
 							if (!this.busy) {
 								this.reservingResource = false;
@@ -656,7 +656,7 @@ Raider.prototype.workOnCurrentTask = function() {
 					//current objective == current task, meaning we have picked up the resource
 					//TODO: a good portion of this is copied from the "collect" case
 					else {
-						if (this.busy == true || collisionReached == true) {
+						if (this.busy === true || collisionReached === true) {
 							this.holding[0].grabPercent -= this.dropSpeed; //no need to have a separate variable for this, grabPercent works nicely
 							this.busy = true;
 							if (this.holding[0].grabPercent <= 0) {
@@ -667,8 +667,8 @@ Raider.prototype.workOnCurrentTask = function() {
 					}
 				}
 				
-				else if (taskType == "build") {
-					if (this.currentObjective != this.currentTask) {
+				else if (taskType === "build") {
+					if (this.currentObjective !== this.currentTask) {
 						if ((this.busy) || (this.reservingResource)) {
 							if (!this.busy) {
 								this.reservingResource = false;
@@ -704,8 +704,8 @@ Raider.prototype.workOnCurrentTask = function() {
 					//current objective == current task, meaning we have picked up the resource
 					//TODO: more repeat code from the "collect" case
 					else {
-						if (this.busy == true || reachedObjective == true) {
-							if (reachedObjective == true) {
+						if (this.busy === true || reachedObjective === true) {
+							if (reachedObjective === true) {
 								this.space = this.currentTask;
 							}
 							//no need to have a separate variable for this, grabPercent works nicely
@@ -713,11 +713,11 @@ Raider.prototype.workOnCurrentTask = function() {
 							this.busy = true;
 							if (this.holding[0].grabPercent <= 0) {
 								this.playDropSound();
-								if (this.currentObjective.type == "building site") {
+								if (this.currentObjective.type === "building site") {
 									this.currentObjective.updatePlacedResources(this.holding[0].type);	
 								}
 								//because this is copied from the "collect" section and we are in the "build" section this condition is possibly unreachable
-								else if (this.currentObjective.type == "tool store") {
+								else if (this.currentObjective.type === "tool store") {
 									collectedResources[this.holding[0].type]++;
 								}
 								this.dedicatingResource = false;
@@ -728,7 +728,7 @@ Raider.prototype.workOnCurrentTask = function() {
 					}
 				}
 				
-				if (taskType == "get tool") {
+				if (taskType === "get tool") {
 					this.grabToolPercent+=this.grabToolSpeed;
 					if (this.grabToolPercent >= 100) {
 						this.tools.unshift(this.getToolName);
@@ -739,7 +739,7 @@ Raider.prototype.workOnCurrentTask = function() {
 					}
 				}
 				
-				else if (taskType == "upgrade") {
+				else if (taskType === "upgrade") {
 					this.upgradePercent+=this.upgradeSpeed;
 					if (this.upgradePercent >= 100) {
 						//reset upgradePercent after completing an upgrade here, since upgrade percent is preserved when clearing or changing tasks
@@ -749,9 +749,9 @@ Raider.prototype.workOnCurrentTask = function() {
 					}
 				}
 				
-				else if (taskType == "collect") {
-					if (this.currentObjective == this.currentTask) {
-						if (this.holding.length == 0) {
+				else if (taskType === "collect") {
+					if (this.currentObjective === this.currentTask) {
+						if (this.holding.length === 0) {
 							this.currentTask.grabPercent += this.grabSpeed;
 							this.busy = true;
 							if (this.currentTask.grabPercent >= 100) {
@@ -766,8 +766,8 @@ Raider.prototype.workOnCurrentTask = function() {
 						
 					}
 					else {
-						if (this.busy == true || reachedObjective == true || this.currentObjective.buildable != true) {
-							if (reachedObjective == true) {
+						if (this.busy === true || reachedObjective === true || this.currentObjective.buildable !== true) {
+							if (reachedObjective === true) {
 								this.space = this.currentTask;
 							}
 							//no need to have a separate variable for drop percent; grabPercent works nicely
@@ -775,10 +775,10 @@ Raider.prototype.workOnCurrentTask = function() {
 							this.busy = true;
 							if (this.currentTask.grabPercent <= 0) {
 								this.playDropSound();
-								if (this.currentObjective.type == "building site") {
+								if (this.currentObjective.type === "building site") {
 									this.currentObjective.updatePlacedResources(this.holding[0].type);
 								}
-								else if (this.currentObjective.type == "tool store") {
+								else if (this.currentObjective.type === "tool store") {
 									collectedResources[this.holding[0].type]++;
 								}
 								this.dedicatingResource = false;
@@ -788,9 +788,9 @@ Raider.prototype.workOnCurrentTask = function() {
 						}
 					}
 				}
-				else if (taskType == "drill" || taskType == "drill hard") {
+				else if (taskType === "drill" || taskType === "drill hard") {
 					this.currentTask.updateDrillPercent(this.drillSpeed * this.currentTask.drillSpeedModifier * 
-							(this.vehicle == null ? 1 : (taskType == "drill" ? this.vehicle.drillSpeedModifier : this.vehicle.drillHardSpeedModifier)), this.space);
+							(this.vehicle == null ? 1 : (taskType === "drill" ? this.vehicle.drillSpeedModifier : this.vehicle.drillHardSpeedModifier)), this.space);
 					this.drillSound.play();
 					this.busy = true;
 					if (this.currentTask.drillPercent >= 100) {
@@ -800,7 +800,7 @@ Raider.prototype.workOnCurrentTask = function() {
 						this.clearTask();
 					}
 				}
-				else if (taskType == "reinforce") {
+				else if (taskType === "reinforce") {
 					this.currentTask.updateReinforcePercent(this.reinforceSpeed * this.currentTask.reinforceSpeedModifier, this);
 					this.busy = true;
 					if (this.currentTask.reinforcePercent >= 100) {
@@ -810,9 +810,9 @@ Raider.prototype.workOnCurrentTask = function() {
 						this.clearTask();
 					}
 				}
-				else if (taskType == "sweep") {
-					if (this.busy == true || reachedObjective == true) {
-						if (reachedObjective == true) {
+				else if (taskType === "sweep") {
+					if (this.busy === true || reachedObjective === true) {
+						if (reachedObjective === true) {
 							this.space = this.currentTask;
 						}
 						this.currentTask.updateSweepPercent(this.sweepSpeed *  (this.vehicle == null ? 1 : this.vehicle.sweepSpeedModifier));
@@ -837,7 +837,7 @@ Raider.prototype.workOnCurrentTask = function() {
 	}
 	
 	//if holding an object, move it relative to our movement after we have moved
-	if (this.holding.length != 0) {
+	if (this.holding.length !== 0) {
 		for (var h = 0; h < this.holding.length; ++h) {
 			this.holding[h].x += (this.x-this.xPrevious);
 			this.holding[h].y += (this.y-this.yPrevious);
@@ -884,16 +884,16 @@ Raider.prototype.stopSounds = function() {
  */
 Raider.prototype.clearTask = function() {
 	this.stopSounds();
-	if (this.reservingResource == true) {
+	if (this.reservingResource === true) {
 		this.reservingResource = false;
-		if (this.currentObjectiveResourceType != "dynamite") {
+		if (this.currentObjectiveResourceType !== "dynamite") {
 			reservedResources[this.currentObjectiveResourceType]--;
 		}
 	}
-	if (this.dedicatingResource == true) {
+	if (this.dedicatingResource === true) {
 		this.dedicatingResource = false;
 		var dedicatedResourceLocation = this.currentTask;
-		if (this.holding.length == 0) {
+		if (this.holding.length === 0) {
 			 //this case should never be true, but is in place in case we eventually allow dedicating before picking up a collectable
 			this.currentTask.dedicatedResources[this.currentObjectiveResourceType]--;
 		}
@@ -902,7 +902,7 @@ Raider.prototype.clearTask = function() {
 			dedicatedResourceLocation = this.currentObjective;
 		}		
 	}
-	if (this.currentTask != null && this.getTaskType(this.currentTask) != "get tool") {
+	if (this.currentTask != null && this.getTaskType(this.currentTask) !== "get tool") {
 		//reset the task priority since it will otherwise remain high priority in some instances (eg. drill high priority wall --> rubble remains high priority)
 		this.currentTask.taskPriority = 0;
 		tasksInProgress.remove(this.currentTask);
@@ -948,17 +948,17 @@ Raider.prototype.upgrade = function() {
  * @returns whether (x1,y1) is equivalent to (x2,y2) (true) or not (false)
  */
 Raider.prototype.samePosition = function(x1,y1,x2,y2) {
-	return (x1 == x2 && y1 == y2);
+	return (x1 === x2 && y1 === y2);
 };
 
 /**
  * play a sound when dropping a resource (sound depends on whether the resource is ore or crystal)
  */
 Raider.prototype.playDropSound = function() {
-	if (this.holding[0].type == "ore") {
+	if (this.holding[0].type === "ore") {
 		this.dropOreSound.play();
 	}
-	else if (this.holding[0].type == "crystal") {
+	else if (this.holding[0].type === "crystal") {
 		this.dropCrystalSound.play();
 	}
 };

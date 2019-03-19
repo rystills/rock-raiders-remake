@@ -110,12 +110,12 @@ function loadAssets() {
  * @returns
  */
 function loadAssetNext(fileExtension) {
-	if (assetNum != -1) {
+	if (assetNum !== -1) {
 		console.log("RyConsole: '" + GameManager.scriptObjects["assets.js"].assets[assetNum][2] + (typeof fileExtension === 'object' ? "" : fileExtension) + 
 				"' successfully loaded from directory '" + GameManager.scriptObjects["assets.js"].assets[assetNum][1] + "' as type '" + 
 				GameManager.scriptObjects["assets.js"].assets[assetNum][0] + "'");
 	}
-	if (lastScriptName != "") {
+	if (lastScriptName !== "") {
 		//if the most recently loaded JS file contained an object, store it in the GameManager
 		if (object != null) {
 			GameManager.scriptObjects[lastScriptName] = object;
@@ -134,9 +134,9 @@ function loadAssetNext(fileExtension) {
 			ctx.fillRect(0,400,canv.width,200);
 			ctx.fillStyle = 'white';
 			//update the loading text to the name of the next file, appending .ogg as the default extension for sound files
-			var loadString = "loading " + curAsset[2] + (curAsset[0] == "snd" ? ".ogg" : "");
+			var loadString = "loading " + curAsset[2] + (curAsset[0] === "snd" ? ".ogg" : "");
 			//remove 'undefined' from the end of the loading string if it gets appended in the browser
-			if (loadString.slice(-9) == "undefined") {
+			if (loadString.slice(-9) === "undefined") {
 				loadString = loadString.slice(0,-9);
 			}
 			ctx.fillText(loadString,20,580);	
@@ -144,17 +144,17 @@ function loadAssetNext(fileExtension) {
 		}
 		
 		appendString = "";
-		if (curAsset[1] != "") {
+		if (curAsset[1] !== "") {
 			appendString += curAsset[1] + "/";
 		}
-		if (curAsset[0] == "js") {
+		if (curAsset[0] === "js") {
 			lastScriptName = curAsset[2];
 			loadScriptAsset(appendString + curAsset[2], loadAssetNext);
 		}
-		else if (curAsset[0] == "img") {
+		else if (curAsset[0] === "img") {
 			loadImageAsset(appendString + curAsset[2], curAsset[2], loadAssetNext);
 		}
-		else if (curAsset[0] == "snd") {
+		else if (curAsset[0] === "snd") {
 			loadSoundAsset(appendString + curAsset[2], curAsset[2], loadAssetNext);
 		}
 	}

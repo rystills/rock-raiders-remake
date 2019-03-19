@@ -4,9 +4,9 @@ makeChild("TileSelectedGraphic","RygameObject");
  * update the selected tile effect to match the position and size of whatever is currently selected
  */
 TileSelectedGraphic.prototype.update = function() {
-	if (selection.length != 0 && selectionType != "raider") {
+	if (selection.length !== 0 && selectionType !== "raider") {
 		this.visible = true;
-		if (selection[0].drawSurface.canvas.width != this.drawSurface.canvas.width && selection[0].drawSurface.canvas.height != this.drawSurface.canvas.height) {
+		if (selection[0].drawSurface.canvas.width !== this.drawSurface.canvas.width && selection[0].drawSurface.canvas.height !== this.drawSurface.canvas.height) {
 			var maxDim = Math.max(selection[0].drawSurface.canvas.width, selection[0].drawSurface.canvas.height);
 			this.resizeDrawSurface(maxDim,maxDim);
 			this.rect.width = maxDim;

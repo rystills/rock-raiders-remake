@@ -16,10 +16,10 @@ Dynamite.prototype.ignite = function(targetSpace) {
 Dynamite.prototype.updateCompletedBy = function() {
 	//NOTE: largely copied from Raider.js
 	for (var i = 0; i < raiders.objectList.length; ++i) {
-		if (raiders.objectList[i] == this) {
+		if (raiders.objectList[i] === this) {
 			continue;
 		}
-		if (this.tasksToClear.indexOf(raiders.objectList[i].currentObjective) != -1) {
+		if (this.tasksToClear.indexOf(raiders.objectList[i].currentObjective) !== -1) {
 			raiders.objectList[i].clearTask();
 		}
 	}
@@ -39,14 +39,14 @@ Dynamite.prototype.update = function() {
 			this.drawSurface.clearRect(0,0,this.image.width,this.image.height);
 			this.drawSurface.globalAlpha = this.effectTimer/this.maxEffectTimer;
 			this.drawSurface.drawImage(this.image,0,0);
-			if (this.effectTimer == 0) {
+			if (this.effectTimer === 0) {
 				this.die();
 			}
 			return;
 		}
 		//we have not detonated yet, so tick down our ignite timer
 		this.igniteTimer -= 1;
-		if (this.igniteTimer == 0) {
+		if (this.igniteTimer === 0) {
 			this.detonate();
 		}
 	}

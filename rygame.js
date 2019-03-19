@@ -44,7 +44,7 @@ function getMouseDocument(e) {
 	var element = GameManager.drawSurface, offsetX = 0, offsetY = 0, mx, my;
 
 	// Compute the total offset. It's possible to cache this if you want
-	if (GameManager.drawSurface && element.offsetParent != undefined) {
+	if (GameManager.drawSurface && element.offsetParent !== undefined) {
 		do {
 			offsetX += element.offsetLeft;
 			offsetY += element.offsetTop;
@@ -139,7 +139,7 @@ function doPolygonsIntersect(a, b) {
 function pnpoly(nvert, pointList, testX, testY) {
   var c = false;
   for (var i = 0, j = nvert-1; i < nvert; j = i++) {
-    if ( ((pointList[i].y>testY) != (pointList[j].y>testY)) && (testX < (pointList[j].x-pointList[i].x) * 
+    if ( ((pointList[i].y>testY) !== (pointList[j].y>testY)) && (testX < (pointList[j].x-pointList[i].x) *
     		(testY-pointList[i].y) / (pointList[j].y-pointList[i].y) + pointList[i].x) ) {
        c = !c;
     }
@@ -165,7 +165,7 @@ function loadImage(imageSrc) {
  */
 function getHeightFromFont(font) {
 	var pos = 0;
-	while (font[pos] != "p") {
+	while (font[pos] !== "p") {
 		++pos;
 	}
 	return parseInt(font.substring(0,pos));
@@ -262,7 +262,7 @@ function calculateRectPoints(object,includeTouching) {
 	var pointList = [{},{},{},{}];
 	var halfWidth = object.rect.width / 2;
 	var halfHeight = object.rect.height / 2;
-	if (includeTouching == true) {
+	if (includeTouching === true) {
 		halfWidth += 0.01;
 		halfHeight += 0.01;
 	}
@@ -289,7 +289,7 @@ function calculateRectPoints(object,includeTouching) {
  * @returns whether or not the rects of objects 1 and 2 are colliding
  */
 function collisionRect(object1,object2,includeTouching) {
-	if (object1.drawAngle == 0 && object2.drawAngle == 0) {
+	if (object1.drawAngle === 0 && object2.drawAngle === 0) {
 		var objects = [object1,object2];
 		var objectCoordinates = [{},{}];
 		for (var i = 0; i < 2; i++) {
@@ -297,7 +297,7 @@ function collisionRect(object1,object2,includeTouching) {
 			objectCoordinates[i].top = objects[i].y;
 			objectCoordinates[i].right = objects[i].x + objects[i].rect.width;
 			objectCoordinates[i].bottom = objects[i].y + objects[i].rect.height;
-			if (includeTouching == true && i == 0) {
+			if (includeTouching === true && i === 0) {
 				objectCoordinates[i].left -= .01;
 				objectCoordinates[i].top -= .01;
 				objectCoordinates[i].right += .01;
@@ -330,7 +330,7 @@ function collisionPoint(x,y,object,adjustForCamera,includeTouching) {
 	var pointList = calculateRectPoints(object,includeTouching);
 	var newX = x;
 	var newY = y;
-	if (adjustForCamera == true) {
+	if (adjustForCamera === true) {
 		newX += object.drawLayer.cameraX;
 		newY += object.drawLayer.cameraY;
 	}
@@ -347,7 +347,7 @@ function collisionPoint(x,y,object,adjustForCamera,includeTouching) {
  * @returns the angle between the two input points
  */
 function getAngle(x1,y1,x2,y2,radians) {
-	if (radians == null || radians == false) {
+	if (radians == null || radians === false) {
 		return Math.atan2((y2-y1),(x2-x1))*180/Math.PI;
 	}
 	return Math.atan2((y2-y1),(x2-x1));
@@ -395,10 +395,10 @@ function makeChild(objectName, parentName) {
 GameManagerInternal.prototype.drawText = function(text,x,y,centerX,centerY) {
 	var halfWidth = 0;
 	var halfHeight = 0;
-	if (centerX == true) {
+	if (centerX === true) {
 		halfWidth = this.drawSurface.measureText(text).width/2; //TODO: DECIDE HOW ROUNDING SHOULD BE PERFORMED IN THIS INSTANCE
 	}
-	if (centerY == true) {
+	if (centerY === true) {
 		halfHeight = parseInt(this.drawSurface.font) / 2; //TODO: VERIFY THAT THIS GIVES THE CORRECT HEIGHT VALUE IN ALL CASES
 	}
 	this.drawSurface.fillText(text,x-halfWidth,y+halfHeight);
@@ -458,7 +458,7 @@ GameManagerInternal.prototype.initializeRygame = function(is3d) {
 		GameManager.keyStates[String.fromCharCode(e.keyCode)] = true;
 		//fullScreenKey is a property that must be set in the game itself rather than being hardcoded, 
 		//as that would prevent the programmer from being able to use a key that they might need
-		if (String.fromCharCode(e.keyCode) == GameManager.fullScreenKey) {
+		if (String.fromCharCode(e.keyCode) === GameManager.fullScreenKey) {
 			goFullScreen();
 		}
 	});
@@ -475,19 +475,19 @@ GameManagerInternal.prototype.initializeRygame = function(is3d) {
 		GameManager.mousePos.y -= canvasRect.top + window.pageYOffset;
 	});
 	document.body.addEventListener("mousedown", function (e) {
-		if (e.button == 0) {
+		if (e.button === 0) {
 			//left click press detected
 			GameManager.mouseDownLeft = true;
 			GameManager.mousePressedLeft = true;
 			GameManager.mousePressedRight = true;
 		}
-		else if (e.button == 2) {
+		else if (e.button === 2) {
 			//right click press detected
 			GameManager.mouseDownRight = true;
 		}
 	});
 	document.body.addEventListener("mouseup", function (e) {
-		if (e.button == 0) {
+		if (e.button === 0) {
 			GameManager.mouseReleasedLeft = true;
 			//we can use the same method as in mousemove to get the effective mouse position 
 			//since the mouse coordinates are returned by the event in pageX and pageY regardless of the event type
@@ -498,7 +498,7 @@ GameManagerInternal.prototype.initializeRygame = function(is3d) {
 			//left click release detected
 			GameManager.mouseDownLeft = false;
 		}
-		else if (e.button == 2) {
+		else if (e.button === 2) {
 			GameManager.mouseReleasedRight = true;
 			GameManager.mouseReleasedPosRight = getMouseDocument(e);
 			canvasRect = GameManager.drawSurface.canvas.getBoundingClientRect();
@@ -596,7 +596,7 @@ GameManagerInternal.prototype.drawFrame = function() {
 
 	for (var i = this.completeLayerList.length-1; i >= 0; i--) {
 		var layer = this.completeLayerList[i];
-		if (layer.active == true) {
+		if (layer.active === true) {
 			//TODO: layer resizing will occur here, if needed
 			this.drawSurface.drawImage(layer.drawSurface.canvas,layer.x,layer.y);
 			if (layer.freezeFirstFrame) {
@@ -692,7 +692,7 @@ ObjectGroup.prototype.remove = function(removeObjectList) {
 	removeObjectList = [].concat(removeObjectList);
 	for (var i = 0; i < removeObjectList.length; i++) {
 		var position = this.objectList.indexOf(removeObjectList[i]);
-		if (position != -1) { 
+		if (position !== -1) {
 			removeObject = this.objectList[position];
 			this.objectList.splice(position,1);
 			removeObject.groupsContained.splice(removeObject.groupsContained.indexOf(this),1);
@@ -765,7 +765,7 @@ function Layer(x,y,updateDepth,drawDepth,width,height,startActive) {
 	this.drawDepth = drawDepth;
 	this.drawSurface = createContext(this.width,this.height,false);
 	this.active = false;
-	if (startActive == true) {
+	if (startActive === true) {
 		this.active = true;
 	}
 	this.frozen = false;
@@ -801,16 +801,16 @@ Button.prototype.update = function(selectionType,openMenu) {
 		openMenu = "";
 	}
 	if (this.selectionTypeBound != null) {
-		if (this.selectionTypeBound.indexOf(selectionType) == -1) {
-			if (!(this.selectionTypeBound.length == 0 && (selectionType != null || openMenu != ""))) {
+		if (this.selectionTypeBound.indexOf(selectionType) === -1) {
+			if (!(this.selectionTypeBound.length === 0 && (selectionType != null || openMenu !== ""))) {
 				this.visible = false;
 				return;
 			}
 		}
 	}	
 	if (this.openMenuBound != null) {
-		if (this.openMenuBound.indexOf(openMenu) == -1) {
-			if (!(this.openMenuBound.length == 0 && (selectionType != null || openMenu != ""))) {
+		if (this.openMenuBound.indexOf(openMenu) === -1) {
+			if (!(this.openMenuBound.length === 0 && (selectionType != null || openMenu !== ""))) {
 				this.visible = false;
 				return;
 			}
@@ -837,15 +837,15 @@ Button.prototype.update = function(selectionType,openMenu) {
 		return;
 	}
 	
-	if (GameManager.mousePressedLeft == true) {
+	if (GameManager.mousePressedLeft === true) {
 		this.mouseDownOnButton = false;
 		if (collisionPoint(GameManager.mousePos.x,GameManager.mousePos.y,this,this.affectedByCamera)) {
 			this.mouseDownOnButton = true;
 		}
 	}
 	
-	else if (GameManager.mouseReleasedLeft == true) {
-		if (this.mouseDownOnButton == true) {
+	else if (GameManager.mouseReleasedLeft === true) {
+		if (this.mouseDownOnButton === true) {
 			if (collisionPoint(GameManager.mousePos.x,GameManager.mousePos.y,this,this.affectedByCamera)) {
 				if (this.runMethod != null) {
 					//button has been clicked
@@ -892,7 +892,7 @@ Button.prototype.updateText = function(newText,clearFirst) {
 			createContext(this.normalSurface.canvas.width,this.normalSurface.canvas.height) : updateBrightness(this.normalSurface,-brightnessShiftPercent*2);
 	
 	this.text = newText;
-	if (this.text != "") {
+	if (this.text !== "") {
 		var changedDims = false;
 		if (this.drawSurface == null) {
 			this.drawSurface = createContext(0,0,false); 
@@ -932,11 +932,11 @@ Button.prototype.updateText = function(newText,clearFirst) {
 			drawSurfaces[i].textBaseline="hanging";
 			drawSurfaces[i].font = "32px " + GameManager.fontName;
 			//todo: convert to HSV, adjust brightness, then convert back to RGB, rather than just statically shifting R,G,B channels
-			drawSurfaces[i].fillStyle = i == 0 ? "rgb(" + Math.round(Math.max(baseR - brightnessShiftPercent*.02*255,0)) + ","+ 
+			drawSurfaces[i].fillStyle = i === 0 ? "rgb(" + Math.round(Math.max(baseR - brightnessShiftPercent*.02*255,0)) + ","+
 					Math.round(Math.max(baseG - brightnessShiftPercent*.02*255,0)) + ","+ Math.round(Math.max(baseB - brightnessShiftPercent*.02*255,0)) + ")"
-			: (i == 1 ? "rgb(" + Math.round(Math.max(baseR - brightnessShiftPercent*.01*255,0)) + ","+ Math.round(Math.max(baseG - brightnessShiftPercent*.01*255,0)) + ","+ 
+			: (i === 1 ? "rgb(" + Math.round(Math.max(baseR - brightnessShiftPercent*.01*255,0)) + ","+ Math.round(Math.max(baseG - brightnessShiftPercent*.01*255,0)) + ","+
 					Math.round(Math.max(baseB - brightnessShiftPercent*.01*255,0)) + ")"
-			: ( i == 2 ? "rgb(" + baseR + "," + baseG + "," + baseB + ")" : "rgb(" + Math.round(Math.min(baseR + brightnessShiftPercent*.01*255,255)) + ","+ 
+			: ( i === 2 ? "rgb(" + baseR + "," + baseG + "," + baseB + ")" : "rgb(" + Math.round(Math.min(baseR + brightnessShiftPercent*.01*255,255)) + ","+
 					Math.round(Math.min(baseG + brightnessShiftPercent*.01*255,255)) + ","+ Math.round(Math.min(baseB + brightnessShiftPercent*.01*255,255)) + ")"));
 			drawSurfaces[i].fillText(this.text,0,0);
 		}
@@ -1040,14 +1040,14 @@ RygameObject.prototype.render = function(destLayer) {
 			destLayer = this.drawLayer;
 		}
 		if (this.drawSurface != null) {
-			if (this.affectedByCamera == true) {
+			if (this.affectedByCamera === true) {
 				//move in the opposite direction of the layer camera before rendering (and deciding whether or not you're onscreen). 
 				//this should be done for gui elements as well in renderGuiElements
 				this.x-=destLayer.cameraX;
 				this.y-=destLayer.cameraY;
 			}
 			if (this.withinLayerBounds()) {
-				if (this.drawAngle == 0) {
+				if (this.drawAngle === 0) {
 					destLayer.draw(this.drawSurface, this.x,this.y);
 				}
 				else {
@@ -1058,7 +1058,7 @@ RygameObject.prototype.render = function(destLayer) {
 					destLayer.drawSurface.restore();
 				}
 			}
-			if (this.affectedByCamera == true) {
+			if (this.affectedByCamera === true) {
 				//move back once you're finished rendering.
 				this.x+=destLayer.cameraX;
 				this.y+=destLayer.cameraY;
@@ -1117,12 +1117,12 @@ RygameObject.prototype.moveTowardsPoint = function(x,y,speed,center) {
 	if (center == null) {
 		center = false;
 	}
-	if (center == true) {
+	if (center === true) {
 		this.x += this.rect.width / 2;
 		this.y += this.rect.height / 2;
 	}
 	if (getDistance(this.x,this.y,x,y) <= speed) {
-		if (center == true) {
+		if (center === true) {
 			this.setCenterX(x);
 			this.setCenterY(y);
 		}
@@ -1133,7 +1133,7 @@ RygameObject.prototype.moveTowardsPoint = function(x,y,speed,center) {
 		return true;
 	}
 	this.moveDirection(getAngle(this.x,this.y,x,y),speed);
-	if (center == true) {
+	if (center === true) {
 		this.x -= this.rect.width / 2;
 		this.y -= this.rect.height / 2;
 	}
@@ -1159,7 +1159,7 @@ RygameObject.prototype.moveDirection = function(angleDegrees,amount) {
 RygameObject.prototype.moveOutsideCollision = function(otherObject,xPrevious,yPrevious) {
 	//TODO: currently only accepts Rect collisions
 	var angle;
-	if (xPrevious == this.x && yPrevious == this.y) {
+	if (xPrevious === this.x && yPrevious === this.y) {
 		//if there was no movement since last frame we just move backwards from where we're facing instead
 		angle = 180 + this.drawAngle/Math.PI*180;
 	}

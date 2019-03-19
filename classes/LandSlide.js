@@ -10,14 +10,14 @@ LandSlide.prototype.update = function() {
 	this.drawSurface.globalAlpha = this.life/this.maxLife;
 	this.drawSurface.drawImage(this.image,0,0);
 	//deal damage to raiders in 5 intervals over lifespan (every 10 frames)
-	if (this.life %10 == 0) {
+	if (this.life %10 === 0) {
 		for (var i = 0; i < raiders.objectList.length; ++i) {
 			if (collisionRect(this,raiders.objectList[i])) {
 				raiders.objectList[i].hurt(this.damagePerInstance);
 			}
 		}
 	}
-	if (this.life == 0) {
+	if (this.life === 0) {
 		this.die();
 	}
 };
