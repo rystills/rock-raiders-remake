@@ -804,7 +804,6 @@ Button.prototype.update = function (selectionType, openMenu) {
 		}
 	}
 	this.visible = true;
-	this.releasedThisFrame = false;
 
 	this.drawSurface = this.normalSurface;
 
@@ -832,7 +831,6 @@ Button.prototype.update = function (selectionType, openMenu) {
 					//button has been clicked
 					this.runMethod.apply(this, this.optionalArgs);
 				}
-				this.releasedThisFrame = true;
 			}
 		}
 		this.mouseDownOnButton = false;
@@ -958,7 +956,6 @@ function Button(x, y, updateDepth, drawDepth, image, layer, text, runMethod, aff
 	this.additionalRequirementArgs = additionalRequirementArgs;
 	this.runMethod = runMethod;
 	this.mouseDownOnButton = false;
-	this.releasedThisFrame = false;
 	this.selectionTypeBound = selectionTypeBound;
 	this.openMenuBound = openMenuBound;
 	this.optionalArgs = optionalArgs;
