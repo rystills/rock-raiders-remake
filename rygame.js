@@ -1253,7 +1253,7 @@ function RygameObject(x, y, updateDepth, drawDepth, image, layer, affectedByCame
  */
 function updateBrightness(oldContext, brightnessPercent, operateInPlace = false) {
 	//copy old canvas to new canvas, if in-place operation is not desired
-	const newContext = operateInPlace ? oldCanvas : createContext(oldContext.canvas.width, oldContext.canvas.height, false);
+	const newContext = operateInPlace ? oldContext : createContext(oldContext.canvas.width, oldContext.canvas.height, false);
 	newContext.drawImage(oldContext.canvas, 0, 0);
 	newContext.globalAlpha = brightnessPercent;
 	newContext.fillStyle = brightnessPercent >= 0 ? 'rgba(225,225,225,' + (brightnessPercent * .01) + ')' : 'rgba(0,0,0,' + (-1 * (brightnessPercent * .01)) + ')';
