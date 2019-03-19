@@ -339,8 +339,8 @@ function collisionPoint(x, y, object, adjustForCamera, includeTouching) {
  * @param radians: whether the angle is in radians (true) or degrees (false)
  * @returns number the angle between the two input points
  */
-function getAngle(x1, y1, x2, y2, radians) {
-	if (radians == null || radians === false) {
+function getAngle(x1, y1, x2, y2, radians = false) {
+	if (radians === false) {
 		return Math.atan2((y2 - y1), (x2 - x1)) * 180 / Math.PI;
 	}
 	return Math.atan2((y2 - y1), (x2 - x1));
