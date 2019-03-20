@@ -568,7 +568,7 @@ Space.prototype.updateTouched = function (touched) {
  * brighten or darken space based on its height (brigher = higher)
  */
 Space.prototype.adjustHeightAlpha = function () {
-	if (this.drawSurface == null) {
+	if (this.drawSurface == null || this.isWall) {
 		return;
 	}
 	const heightAlphaChange = .02;
