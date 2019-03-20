@@ -12,13 +12,13 @@ function Vehicle(image, space, driver, maxHp) {
 	this.maxHp = maxHp;
 	this.hp = this.maxHp;
 	//default parameters; child classes will overwrite these
-	this.speedModifier = 2;
-	this.capacity = 3;
-	this.drillSpeedModifier = 3;
-	this.sweepSpeedModifier = 2;
-	this.drillHardSpeedModifier = 1;
-	this.canDrill = true;
-	this.canDrillHard = true;
+	this.speedModifier = 1;
+	this.capacity = 0;
+	this.drillSpeedModifier = 0;
+	this.sweepSpeedModifier = 0;
+	this.drillHardSpeedModifier = 0;
+	this.canDrill = false;
+	this.canDrillHard = false;
 	this.canSweep = false;
 	this.canFly = false;
 	this.canSwim = false;
