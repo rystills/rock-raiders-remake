@@ -63,8 +63,8 @@ Dynamite.prototype.detonate = function () {
 		this.target.makeRubble(true, this);
 		this.updateCompletedBy();
 	}
-	var centX = this.centerX();
-	var centY = this.centerY();
+	const centX = this.centerX();
+	const centY = this.centerY();
 	this.image = GameManager.images["dynamite explosion.png"];
 	this.drawSurface = createContext(this.image.width, this.image.height, false);
 	this.drawSurface.drawImage(this.image, 0, 0);

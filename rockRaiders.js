@@ -317,10 +317,10 @@ function calculatePath(terrain, startSpace, goalSpace, returnAllSolutions, raide
 /**
  * determine whether or not there is a resource available of the input resource type
  * @param resourceType: the type of resource to check for
- * @returns whether a resource of the desired type is available (true) or not (false)
+ * @returns boolean whether a resource of the desired type is available (true) or not (false)
  */
 function resourceAvailable(resourceType) {
-	return collectedResources[resourceType] - reservedResources[resourceType] > 0;
+	return (collectedResources[resourceType] - reservedResources[resourceType]) > 0;
 }
 
 /**
@@ -1280,7 +1280,7 @@ function drawTerrainVars(varNames) {
 	GameManager.setFontSize(24);
 	for (let i = 0; i < terrain.length; i++) {
 		for (let r = 0; r < terrain[i].length; r++) {
-			concatString = "";
+			let concatString = "";
 			for (let j = 0; j < varNames.length; ++j) {
 				concatString += (terrain[i][r])[varNames[j]] + (j === varNames.length - 1 ? "" : ", ");
 			}
@@ -1318,7 +1318,7 @@ function drawDynamiteTimers() {
 			}
 			GameManager.setFontSize(24);
 			GameManager.drawSurface.fillStyle = "rgb(255, 0, 0)";
-			GameManager.drawSurface.fillText(Math.floor((collectables.objectList[i].igniteTimer - 1) / GameManager.fps + 1),
+			GameManager.drawSurface.fillText(Math.floor((collectables.objectList[i].igniteTimer - 1) / GameManager.fps + 1).toString(),
 				collectables.objectList[i].x - collectables.objectList[i].drawLayer.cameraX,
 				collectables.objectList[i].centerY() - collectables.objectList[i].drawLayer.cameraY - 20);
 
@@ -1659,10 +1659,10 @@ function openToolMenu() {
 /**
  * determine whether or not the requirements are met in order to begin building a building of the input type
  * @param buildingType: the type of building for which we need to know the requirements
- * @returns whether the necessary requirements are met to begin building the desired buildingType (true) or not (false)
+ * @returns boolean whether the necessary requirements are met to begin building the desired buildingType (true) or not (false)
  */
 function buildRequirementsMet(buildingType) {
-	buildingRequirements = [];
+	let buildingRequirements = [];
 	// buildings
 	if (buildingType === "teleport pad") {
 		buildingRequirements = ["tool store"];
@@ -2168,13 +2168,13 @@ function initGlobals() {
 	// distance the mouse must be moved before a click turns into a drag selection box
 	dragStartDistance = 10;
 	// if true, this creates the "fog of war" type effect where unrevealed Spaces appear as solid rock (should only be set to false for debugging purposes)
-	maskUntouchedSpaces = getValue("fog") === "false" ? false : true;
+	maskUntouchedSpaces = getValue("fog") !== "false";
 	// can we scroll the screen using the mouse?
-	mousePanning = getValue("mousePanning") === "true" ? true : false;
+	mousePanning = getValue("mousePanning") === "true";
 	// can we scroll the screen using the arrow keys?
 	keyboardPanning = true;
 	// should the game render any active debug info?
-	debug = getValue("debug") === "true" ? true : false;
+	debug = getValue("debug") === "true";
 
 	gameLayer = new Layer(0, 0, 1, 1, GameManager.screenWidth, GameManager.screenHeight);
 	menuLayer = new Layer(0, 0, 1, 1, GameManager.screenWidth, GameManager.screenHeight, true);

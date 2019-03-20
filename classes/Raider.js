@@ -799,7 +799,7 @@ Raider.prototype.workOnCurrentTask = function () {
 						this.clearTask();
 					}
 				} else if (taskType === "reinforce") {
-					this.currentTask.updateReinforcePercent(this.reinforceSpeed * this.currentTask.reinforceSpeedModifier, this);
+					this.currentTask.updateReinforcePercent(this.reinforceSpeed * this.currentTask.reinforceSpeedModifier);
 					this.busy = true;
 					if (this.currentTask.reinforcePercent >= 100) {
 						this.currentTask.reinforcePercent = 100;

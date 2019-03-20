@@ -119,7 +119,7 @@ Space.prototype.randomX = function () {
 Space.prototype.randomY = function () {
 	const ry = this.rect.height / 3;
 	return this.centerY() + randomInt(-ry, ry);
-}
+};
 
 /**
  * turn this space into rubble 1 (largest rubble level)
@@ -609,7 +609,7 @@ Space.prototype.allResourcesPlaced = function () {
  * @param resourceType: the type of resource to check for. If not specified, all resource types will be considered.
  * @returns boolean whether there are any required resources that have not been dedicated (true) or not (false)
  */
-Space.prototype.resourceNeeded = function (resourceType) {
+Space.prototype.resourceNeeded = function (resourceType = null) {
 	if (resourceType != null) {
 		return this.dedicatedResources[resourceType] < this.requiredResources[resourceType];
 	}
@@ -847,7 +847,6 @@ function Space(type, listX, listY, height, parentSpace) {
 	this.curLandSlideWait = 0;
 	// contains lists objects which currently reside on the space, such as collectables
 	this.contains = new ObjectGroup();
-	this.completedBy = null;
 	this.reinforced = false;
 	// dummy used to identify reinforce tasks
 	this.reinforceDummy = this.isWall ? new RygameObject(0, 0, -99999, 99999, "reinforcement.png", this.drawLayer, true, false, true) : null;
@@ -862,7 +861,7 @@ function Space(type, listX, listY, height, parentSpace) {
 		this.reinforceDummy.setCenterY(this.centerY());
 		this.reinforceDummy.reinforcePercent = 0;
 		this.reinforceDummy.reinforceSpeedModifier = 1;
-		this.reinforceDummy.updateReinforcePercent = function (reinforcePercentIncrease, raider) {
+		this.reinforceDummy.updateReinforcePercent = function (reinforcePercentIncrease) {
 			this.reinforcePercent += reinforcePercentIncrease;
 		};
 		this.reinforceDummy.reinforce = function () {

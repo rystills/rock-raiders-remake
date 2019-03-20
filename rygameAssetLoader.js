@@ -59,11 +59,10 @@ function loadSoundAsset(path, name, callback) {
 	}
 
 	if (callback != null) {
-		snd.oncanplay = callback(srcType);
+		snd.oncanplay = callback(srcType); // FIXME this is NOT executed onload but immediately, callback() is an actual function call
 	}
 
 	GameManager.sounds[name] = snd;
-
 	snd.src = path + srcType;
 }
 
@@ -105,12 +104,11 @@ function loadAssets() {
 
 /**
  * load the next asset from assets.js
- * @param fileExtension: the file extension of the previously loaded asset
  * @returns
  */
-function loadAssetNext(fileExtension) {
+function loadAssetNext() {
 	if (assetNum !== -1) {
-		console.log("RyConsole: '" + GameManager.scriptObjects["assets.js"].assets[assetNum][2] + (typeof fileExtension === 'object' ? "" : fileExtension) +
+		console.log("RyConsole: '" + GameManager.scriptObjects["assets.js"].assets[assetNum][2] +
 			"' successfully loaded from directory '" + GameManager.scriptObjects["assets.js"].assets[assetNum][1] + "' as type '" +
 			GameManager.scriptObjects["assets.js"].assets[assetNum][0] + "'");
 	}
