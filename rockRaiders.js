@@ -2413,6 +2413,13 @@ GameManager.initializeRygame(0);
 
 initGlobals();
 
+const url = new URL(window.location.href);
+const levelFromUrl = url.searchParams.get("level");
+if (levelFromUrl != null) {
+	changeLevels(levelFromUrl);
+	awaitingStart = false;
+}
+
 // to auto load a level for testing use the following lines
 // changeLevels("02");
 // awaitingStart = false;
