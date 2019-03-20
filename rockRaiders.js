@@ -559,6 +559,7 @@ function createVehicle(vehicleType) {
 		(vehicleType === "small digger" ? new SmallDigger(toolStore.powerPathSpace) : new SmallTransportTruck(toolStore.powerPathSpace)));
 	vehicles.push(newVehicle);
 	tasksAvailable.push(newVehicle);
+	cancelSelection();
 }
 
 /**
@@ -921,6 +922,7 @@ function grabItem() {
 			selection[i].taskPriority = 1;
 		}
 	}
+	cancelSelection();
 }
 
 /**
@@ -942,6 +944,7 @@ function reinforceWall() {
 		}
 		selection[i].reinforceDummy.taskPriority = 1;
 	}
+	cancelSelection();
 }
 
 /**
@@ -959,6 +962,7 @@ function dynamiteWall() {
 		}
 		selection[i].dynamiteDummy.taskPriority = 1;
 	}
+	cancelSelection();
 }
 
 /**
@@ -974,6 +978,7 @@ function drillWall() {
 			selection[i].taskPriority = 1;
 		}
 	}
+	cancelSelection();
 }
 
 /**
@@ -989,6 +994,7 @@ function clearRubble() {
 			selection[i].taskPriority = 1;
 		}
 	}
+	cancelSelection();
 }
 
 /**
@@ -1005,6 +1011,7 @@ function buildPowerPath() {
 			tasksAvailable.push(selection[i]);
 		}
 	}
+	cancelSelection();
 }
 
 /**
@@ -1014,6 +1021,7 @@ function upgradeBuilding() {
 	for (let i = 0; i < selection.length; ++i) {
 		selection[i].upgrade();
 	}
+	cancelSelection();
 }
 
 /**
@@ -1085,6 +1093,7 @@ function getTool(toolName) {
 			}
 		}
 	}
+	cancelSelection();
 }
 
 /**
