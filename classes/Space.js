@@ -111,6 +111,16 @@ Space.prototype.checkRemoveDummyTasks = function () {
 	}
 };
 
+Space.prototype.randomX = function () {
+	const rx = this.rect.width / 3;
+	return this.centerX() + randomInt(-rx, rx);
+};
+
+Space.prototype.randomY = function () {
+	const ry = this.rect.height / 3;
+	return this.centerY() + randomInt(-ry, ry);
+}
+
 /**
  * turn this space into rubble 1 (largest rubble level)
  * @param rubbleContainsOre: whether this space's rubble has ore in it (true) or not (false)
@@ -123,7 +133,7 @@ Space.prototype.makeRubble = function (rubbleContainsOre, drilledBy, silent = fa
 		for (let i = 20; i <= 80; i += 20) {
 			//if we hadn't drilled this far yet, release another collectable
 			if (this.drillPercent < i) {
-				const newOre = new Collectable(this, this.type === "ore seam" ? "ore" : "crystal");
+				const newOre = new Collectable(this, this.type === "ore seam" ? "ore" : "crystal", this.randomX(), this.randomY());
 				collectables.push(newOre);
 				tasksAvailable.push(newOre);
 			}
@@ -148,13 +158,13 @@ Space.prototype.makeRubble = function (rubbleContainsOre, drilledBy, silent = fa
 	this.setTypeProperties("rubble 1", false, rubbleContainsOre);
 	for (let i = this.containedCrystals; i > 0; i--) {
 		this.containedCrystals--;
-		const newCrystal = new Collectable(this, "crystal");
+		const newCrystal = new Collectable(this, "crystal", this.randomX(), this.randomY());
 		//don't add to tasksAvailable yet because it will be picked up by touchAllAdjacentSpaces
 		collectables.push(newCrystal);
 	}
 	for (let i = this.containedOre; i > 0; i--) {
 		this.containedOre--;
-		const newOre = new Collectable(this, "ore");
+		const newOre = new Collectable(this, "ore", this.randomX(), this.randomY());
 		//don't add to tasksAvailable yet because it will be picked up by touchAllAdjacentSpaces
 		collectables.push(newOre);
 	}
@@ -229,7 +239,7 @@ Space.prototype.checkWallSupported = function (drilledBy, silent = false) {
  */
 Space.prototype.sweep = function () {
 	if (this.rubbleContainsOre === true) {
-		const newOre = new Collectable(this, "ore");
+		const newOre = new Collectable(this, "ore", this.randomX(), this.randomY());
 		collectables.push(newOre);
 		tasksAvailable.push(newOre);
 	}

@@ -895,12 +895,10 @@ function unloadMinifig() {
 		}
 		for (let h = 0; h < selection[i].holding.length; ++h) {
 			//create a new collectable of the same type, and place it on the ground. then, delete the currently held collectable.
-			const newCollectable = (selection[i].holding[0].type === "dynamite" ? new Dynamite(getNearestSpace(terrain, selection[i])) :
-				new Collectable(getNearestSpace(terrain, selection[i]), selection[i].holding[0].type));
+			const newCollectable = (selection[i].holding[0].type === "dynamite" ? new Dynamite(getNearestSpace(terrain, selection[i], selection[i].holding[0].centerX(), selection[i].holding[0].centerY())) :
+				new Collectable(getNearestSpace(terrain, selection[i]), selection[i].holding[0].type, selection[i].holding[0].centerX(), selection[i].holding[0].centerY()));
 			collectables.push(newCollectable);
 			tasksAvailable.push(newCollectable);
-			newCollectable.setCenterX(selection[i].holding[0].centerX());
-			newCollectable.setCenterY(selection[i].holding[0].centerY());
 			newCollectable.drawAngle = selection[i].holding[0].drawAngle;
 			selection[i].holding[0].die();
 			selection[i].holding.shift();

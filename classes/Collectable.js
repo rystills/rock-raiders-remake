@@ -4,8 +4,10 @@ makeChild("Collectable", "RygameObject");
  * simple class which represents a collectable object
  * @param space: the space on which this object is resting
  * @param type: this object's type
+ * @param x
+ * @param y
  */
-function Collectable(space, type) {
+function Collectable(space, type, x = null, y = null) {
 	this.image = null;
 	this.grabPercent = 0;
 	this.type = type;
@@ -19,8 +21,13 @@ function Collectable(space, type) {
 
 	this.space.contains.push(this);
 
-	this.setCenterX(this.space.centerX());
-	this.setCenterY(this.space.centerY());
+	if (x != null && y != null) {
+		this.setCenterX(x);
+		this.setCenterY(y);
+	} else {
+		this.setCenterX(this.space.centerX());
+		this.setCenterY(this.space.centerY());
+	}
 
 	this.holdingAngleDifference = 0;
 }
