@@ -7320,175 +7320,175 @@ level: [
 ]
 },
 'Info_01.js' : {
-		name : "Driller Night!", //original first level name
+		name : "Driller Night!", // original first level name
 		objective : ["collect",["crystal",5]]
 },
 'Info_02.js' : {
-		name : "The Path to Power", //original second level name
+		name : "The Path to Power", // original second level name
 		objective : ["build",["power station"]]
 },
 'Info_03.js' : {
-		name : "Rubble Trouble!", //original third level name
+		name : "Rubble Trouble!", // original third level name
 		objective : ["collect",["crystal",5]]
 },
 'Info_04.js' : {
-		name : "A Breath Of Fresh Air", //original fourth level name
+		name : "A Breath Of Fresh Air", // original fourth level name
 		objective : ["build",["support station"]]
 },
 'Info_05.js' : {
-		name : "It's A Hold Up", //original fifth level name
+		name : "It's A Hold Up", // original fifth level name
 		objective : ["collect",["crystal",5]]
 },
 'Info_06.js' : {
-		name : "Explosive Action", //original sixth level name
+		name : "Explosive Action", // original sixth level name
 		objective : ["recover vehicle",["small digger"]]
 },
 'Info_07.js' : {
-		name : "Search 'n' Rescue", //original seventh level name
+		name : "Search 'n' Rescue", // original seventh level name
 		objective : ["recover raider", []]
 },
 'Info_08.js' : {
-		name : "Breathless", //original eigth level name
+		name : "Breathless", // original eigth level name
 		objective : ["recover raider", []]
 },
 'Info_09.js' : {
-		name : "Frozen Frenzy", //original ninth level name
+		name : "Frozen Frenzy", // original ninth level name
 		objective : ["recover vehicle",["tunnel transport"]]
 },
 'Info_10.js' : {
-		name : "Erode Works", //original tenth level name
+		name : "Erode Works", // original tenth level name
 		objective : ["collect",["crystal",15]]
 },
 'Info_11.js' : {
-		name : "Water Lot Of Fun", //original eleventh level name
+		name : "Water Lot Of Fun", // original eleventh level name
 		objective : ["collect",["crystal",15]]
 },
 'Info_12.js' : {
-		name : "Water Works", //original twelth level name
+		name : "Water Works", // original twelth level name
 		objective : ["collect",["crystal",20]]
 },
 'Info_13.js' : {
-		name : "Rock Hard", //original thirteenth level name
+		name : "Rock Hard", // original thirteenth level name
 		objective : ["collect",["crystal",20]]
 },
 'Info_14.js' : {
-		name : "Don't Panic!", //original fourteenth level name
+		name : "Don't Panic!", // original fourteenth level name
 		objective : ["collect",["crystal",20]]
 },
 'Info_15.js' : {
-		name : "Ice Spy", //original fifteenth level name
+		name : "Ice Spy", // original fifteenth level name
 		objective : ["collect",["crystal",25]]
 },
 'Info_16.js' : {
-		name : "Split Down The Middle", //original sixteenth level name
+		name : "Split Down The Middle", // original sixteenth level name
 		objective : ["collect",["crystal",25]]
 },
 'Info_17.js' : {
-		name : "Lava Laughter", //original seventeenth level name
+		name : "Lava Laughter", // original seventeenth level name
 		objective : ["collect",["crystal",30]]
 },
 'Info_18.js' : {
-		name : "Oresome!", //original eighteenth level name
+		name : "Oresome!", // original eighteenth level name
 		objective : ["collect",["crystal",35]]
 },
 'Info_19.js' : {
-		name : "Fire 'n' Water", //original nineteenth level name
+		name : "Fire 'n' Water", // original nineteenth level name
 		objective : ["collect",["crystal",35]]
 },
 'Info_20.js' : {
-		name : "Run The Gauntlet", //original twentieth level name
+		name : "Run The Gauntlet", // original twentieth level name
 		objective : ["recover building",["tool store"]]
 },
 'Info_21.js' : {
-		name : "Air Raiders", //original twentyfirst level name
+		name : "Air Raiders", // original twentyfirst level name
 		objective : ["collect",["crystal",40]]
 },
 'Info_22.js' : {
-		name : "Lake of Fire", //original twentysecond level name
+		name : "Lake of Fire", // original twentysecond level name
 		objective : ["collect",["crystal",40]]
 },
 'Info_23.js' : {
-		name : "Back to Basics", //original twentythird level name
+		name : "Back to Basics", // original twentythird level name
 		objective : ["collect",["crystal",45]]
 },
 'Info_24.js' : {
-		name : "Hot Stuff", //original twentyfourth level name
+		name : "Hot Stuff", // original twentyfourth level name
 		objective : ["collect",["crystal",45]]
 },
 'Info_25.js' : {
-		name : "Rocky Horror", //original twntyfifth level name
+		name : "Rocky Horror", // original twntyfifth level name
 		objective : ["collect",["crystal",50]]
 },
 'Info_B01.js' : {
-		name : "Building Rock Raider HQ", //original third tutorial level name
+		name : "Building Rock Raider HQ", // original third tutorial level name
 		objective : ["collect",["crystal",5]]
 },
 'Info_B02.js' : {
-		name : "Constructing Advanced Buildings", //original sixth tutorial level name
+		name : "Constructing Advanced Buildings", // original sixth tutorial level name
 		objective : ["collect",["crystal",5]]
 },
 'Info_D01.js' : {
-		name : "Rock Types And Drilling", //original second tutorial level name
+		name : "Rock Types And Drilling", // original second tutorial level name
 		objective : ["collect",["crystal",5]]
 },
 'Info_D02.js' : {
-		name : "Using Explosives", //original fifth tutorial level name
+		name : "Using Explosives", // original fifth tutorial level name
 		objective : ["collect",["crystal",5]]
 },
 'Info_D03.js' : {
-		name : "Drilling With Vehicles", //original seventh tutorial level name
+		name : "Drilling With Vehicles", // original seventh tutorial level name
 		objective : ["collect",["crystal",5]]
 },
 'Info_DE1.js' : {
-		name : "Defending Rock Raider HQ", //original eigth tutorial level name
+		name : "Defending Rock Raider HQ", // original eigth tutorial level name
 		objective : ["collect",["crystal",5]]
 },
 'Info_M01.js' : {
-		name : "Moving Rock Raiders", //original first tutorial level name
+		name : "Moving Rock Raiders", // original first tutorial level name
 		objective : ["collect",["crystal",5]]
 },
 'Info_M02.js' : {
-		name : "Moving Rock Raider Vehicles", //original fourth tutorial level name
+		name : "Moving Rock Raider Vehicles", // original fourth tutorial level name
 		objective : ["collect",["crystal",5]]
 },
 'levelList.js' : {
-		levels : [ //list of level file names
-			"M01", //tutorial level 1
-			"D01", //tutorial level 2
-			"B01", //tutorial level 3
-			"M02", //tutorial level 4
-			"D02", //tutorial level 5
-			"B02", //tutorial level 6
-			"D03", //tutorial level 7
-			"DE1", //tutorial level 8
-			"01", //level 1
-			"02", //level 2
-			"03", //level 3
-			"04", //level 4
-			"05", //level 5 
-			"06", //level 6
-			"07", //level 7
-			"08", //level 8
-			"09", //level 9
-			"10", //level 10 
-			"11", //level 11
-			"12", //level 12
-			"13", //level 13
-			"14", //level 14
-			"15", //level 15
-			"16", //level 16
-			"17", //level 17
-			"18", //level 18
-			"19", //level 19
-			"20", //level 20
-			"21", //level 21
-			"22", //level 22
-			"23", //level 23
-			"24", //level 24
-			"25" //level 25
+		levels : [ // list of level file names
+			"M01", // tutorial level 1
+			"D01", // tutorial level 2
+			"B01", // tutorial level 3
+			"M02", // tutorial level 4
+			"D02", // tutorial level 5
+			"B02", // tutorial level 6
+			"D03", // tutorial level 7
+			"DE1", // tutorial level 8
+			"01", // level 1
+			"02", // level 2
+			"03", // level 3
+			"04", // level 4
+			"05", // level 5
+			"06", // level 6
+			"07", // level 7
+			"08", // level 8
+			"09", // level 9
+			"10", // level 10
+			"11", // level 11
+			"12", // level 12
+			"13", // level 13
+			"14", // level 14
+			"15", // level 15
+			"16", // level 16
+			"17", // level 17
+			"18", // level 18
+			"19", // level 19
+			"20", // level 20
+			"21", // level 21
+			"22", // level 22
+			"23", // level 23
+			"24", // level 24
+			"25" // level 25
 		],
 		
-		levelImages : [ //list of level button image names
+		levelImages : [ // list of level button image names
 			"Tutorial01.png",
 			"Tutorial02.png",
 			"Tutorial03.png",
@@ -7524,16 +7524,16 @@ level: [
 			"Level25.png"
 		],
 		
-		levelPositions : [ //list of level select button positions in the level select menu
-			[128,142], //first tutorial level
+		levelPositions : [ // list of level select button positions in the level select menu
+			[128,142], // first tutorial level
 			[352,150],
 			[563,152],
 			[36,288],
 			[334,322],
 			[620,295],
 			[155,380],
-			[516,385], //last tutorial level
-			[332,595], //first main level
+			[516,385], // last tutorial level
+			[332,595], // first main level
 			[191,692],
 			[490,714],
 			[40,825],
@@ -7542,7 +7542,7 @@ level: [
 			[157,1056],
 			[423,1060],
 			[266,1213],
-			[52,1382], //10th main level
+			[52,1382], // 10th main level
 			[553,1361],
 			[57,1579],
 			[314,1592],
@@ -7552,7 +7552,7 @@ level: [
 			[296,1887],
 			[119,2130],
 			[469,2110],
-			[40,2255], //20th main level
+			[40,2255], // 20th main level
 			[294,2245],
 			[566,2270],
 			[136,2386],
@@ -10089,7 +10089,7 @@ level: [
 ]
 },
 'test level 1.js' : {
-		level: [ //check space class in rockRaiders.js for the number key
+		level: [ // check space class in rockRaiders.js for the number key
           [0,0,1,1,1,1,1,0,0,0,0,1,0,1],
           [1,-1,0,0,0,1,0,1,0,0,1,0,1,1],
           [0,1,0,1,0,1,-101,0,0,1,2,1,1,0],
@@ -10107,7 +10107,7 @@ level: [
           ]
 },
 'test level 2.js' : {
-		level: [ //check space class in rockRaiders.js for the number key
+		level: [ // check space class in rockRaiders.js for the number key
           [0,0,1,1,1,1,1,0,0,0,0,1,0,1],
           [1,-1,0,0,0,1,0,1,0,0,1,0,1,1],
           [0,1,0,1,0,1,-100,0,0,1,2,1,1,0],

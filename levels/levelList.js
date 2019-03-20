@@ -1,41 +1,41 @@
 object = {
-		levels : [ //list of level file names
-			"M01", //tutorial level 1
-			"D01", //tutorial level 2
-			"B01", //tutorial level 3
-			"M02", //tutorial level 4
-			"D02", //tutorial level 5
-			"B02", //tutorial level 6
-			"D03", //tutorial level 7
-			"DE1", //tutorial level 8
-			"01", //level 1
-			"02", //level 2
-			"03", //level 3
-			"04", //level 4
-			"05", //level 5 
-			"06", //level 6
-			"07", //level 7
-			"08", //level 8
-			"09", //level 9
-			"10", //level 10 
-			"11", //level 11
-			"12", //level 12
-			"13", //level 13
-			"14", //level 14
-			"15", //level 15
-			"16", //level 16
-			"17", //level 17
-			"18", //level 18
-			"19", //level 19
-			"20", //level 20
-			"21", //level 21
-			"22", //level 22
-			"23", //level 23
-			"24", //level 24
-			"25" //level 25
+		levels : [ // list of level file names
+			"M01", // tutorial level 1
+			"D01", // tutorial level 2
+			"B01", // tutorial level 3
+			"M02", // tutorial level 4
+			"D02", // tutorial level 5
+			"B02", // tutorial level 6
+			"D03", // tutorial level 7
+			"DE1", // tutorial level 8
+			"01", // level 1
+			"02", // level 2
+			"03", // level 3
+			"04", // level 4
+			"05", // level 5
+			"06", // level 6
+			"07", // level 7
+			"08", // level 8
+			"09", // level 9
+			"10", // level 10
+			"11", // level 11
+			"12", // level 12
+			"13", // level 13
+			"14", // level 14
+			"15", // level 15
+			"16", // level 16
+			"17", // level 17
+			"18", // level 18
+			"19", // level 19
+			"20", // level 20
+			"21", // level 21
+			"22", // level 22
+			"23", // level 23
+			"24", // level 24
+			"25" // level 25
 		],
 		
-		levelImages : [ //list of level button image names
+		levelImages : [ // list of level button image names
 			"Tutorial01.png",
 			"Tutorial02.png",
 			"Tutorial03.png",
@@ -71,16 +71,16 @@ object = {
 			"Level25.png"
 		],
 		
-		levelPositions : [ //list of level select button positions in the level select menu
-			[128,142], //first tutorial level
+		levelPositions : [ // list of level select button positions in the level select menu
+			[128,142], // first tutorial level
 			[352,150],
 			[563,152],
 			[36,288],
 			[334,322],
 			[620,295],
 			[155,380],
-			[516,385], //last tutorial level
-			[332,595], //first main level
+			[516,385], // last tutorial level
+			[332,595], // first main level
 			[191,692],
 			[490,714],
 			[40,825],
@@ -89,7 +89,7 @@ object = {
 			[157,1056],
 			[423,1060],
 			[266,1213],
-			[52,1382], //10th main level
+			[52,1382], // 10th main level
 			[553,1361],
 			[57,1579],
 			[314,1592],
@@ -99,7 +99,7 @@ object = {
 			[296,1887],
 			[119,2130],
 			[469,2110],
-			[40,2255], //20th main level
+			[40,2255], // 20th main level
 			[294,2245],
 			[566,2270],
 			[136,2386],

@@ -51,3 +51,8 @@ bugfixing
 
 # ignore WIP .xcf files
 *.xcf
+
+# WebStorm
+# =========================
+/.idea/
+

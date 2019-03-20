@@ -1,4 +1,4 @@
-makeChild("HoverScout","Vehicle");
+makeChild("HoverScout", "Vehicle");
 
 function HoverScout(space, driver) {
 	Vehicle.call(this, "hover scout.png", space, driver, 100);
