@@ -6,15 +6,15 @@
 object = {
 	assets: [
 		// loading screen resources
-		["img", "images\\menus", "loading screen.png"], // loading screen image
-		["img", "images\\menus", "loading bar.png"], // loading bar container image
+		["wad0bmp", "Languages/Loading.bmp", "loading screen.png"], // loading screen image
+		["wad0bmp", "Interface/FrontEnd/gradient.bmp", "loading bar.png"], // loading bar container image
 		["js", "", "loadingScreenOverride.js"], // script to override loading screen to Rock Raiders loading screen
 
 		// ~images~
 		// menu resources
-		["img", "images\\menus", "MenuBGpic.png"], // main menu background
+		["wad0bmp", "Interface/FrontEnd/MenuBGpic.bmp", "MenuBGpic.png"], // main menu background
 
-		// level images
+		// level images FIXME replace with levels from wad
 		["img", "images\\level_select", "Levelpick.png"], // level select menu background
 		["img", "images\\level_select", "Tutorial01.png"], // tutorial 1 image
 		["img", "images\\level_select", "Tutorial02.png"], // tutorial 2 image
@@ -66,19 +66,19 @@ object = {
 		["img", "images\\effects", "dynamite explosion.png"], // explosion created by a dynamite blast
 
 		// small vehicle buttons
-		["img", "images\\vehicles", "make hoverboard.png"], // make hoverscout button
-		["img", "images\\vehicles", "make SmallCat.png"], // make rapid rider button
-		["img", "images\\vehicles", "make SmallDigger.png"], // make small digger button
-		["img", "images\\vehicles", "make SmallHeli.png"], // make tunnel scout button
-		["img", "images\\vehicles", "make SmallMWP.png"], // make small mobile laser cutter button
-		["img", "images\\vehicles", "make SmallTruck.png"], // make small transport truck button
+		["wad0bmp", "Interface/Icons/hoverboard.bmp", "make hoverboard.png"], // make hoverscout button
+		["wad0bmp", "Interface/Icons/SmallCat.bmp", "make SmallCat.png"], // make rapid rider button
+		["wad0bmp", "Interface/Icons/SmallDigger.bmp", "make SmallDigger.png"], // make small digger button
+		["wad0bmp", "Interface/Icons/SmallHeli.bmp", "make SmallHeli.png"], // make tunnel scout button
+		["wad0bmp", "Interface/Icons/SmallMWP.bmp", "make SmallMWP.png"], // make small mobile laser cutter button
+		["wad0bmp", "Interface/Icons/SmallTruck.bmp", "make SmallTruck.png"], // make small transport truck button
 
 		// large vehicle buttons
-		["img", "images\\vehicles", "make Bulldozer.png"], // make loader dozer button
-		["img", "images\\vehicles", "make LargeCatamaran.png"], // make cargo carrier button
-		["img", "images\\vehicles", "make largeDigger.png"], // make large digger button
-		["img", "images\\vehicles", "make LargeMWP.png"], // make large mobile laser cutter button
-		["img", "images\\vehicles", "make WalkerDigger.png"], // make granite grinder button
+		["wad0bmp", "Interface/Icons/Bulldozer.bmp", "make Bulldozer.png"], // make loader dozer button
+		["wad0bmp", "Interface/Icons/LargeCatamaran.bmp", "make LargeCatamaran.png"], // make cargo carrier button
+		["wad0bmp", "Interface/Icons/largeDigger.bmp", "make largeDigger.png"], // make large digger button
+		["wad0bmp", "Interface/Icons/LargeMWP.bmp", "make LargeMWP.png"], // make large mobile laser cutter button
+		["wad0bmp", "Interface/Icons/WalkerDigger.bmp", "make WalkerDigger.png"], // make granite grinder button
 
 		// spaces
 		["img", "images\\spaces", "ground.png"], // ground
@@ -125,23 +125,24 @@ object = {
 		["img", "images\\objects", "raider.png"], // rock raider
 
 		// buttons
-		["img", "images\\buttons", "teleport raider button.png"], // teleport rock raider button
-		["img", "images\\buttons", "grab item button.png"], // button to instruct a raider to pick up item (collectable, dynamite, etc..)
-		["img", "images\\buttons", "drill wall button.png"], // button to instruct a raider to drill a wall
-		["img", "images\\buttons", "Reinforce.png"], // button to instruct a raider to reinforce a wall
-		["img", "images\\buttons", "clear rubble button.png"], // button to instruct a raider to clear rubble
-		["img", "images\\buttons", "build power path button.png"], // button to instruct a raider to build a power path
-		["img", "images\\buttons", "cancel selection button.png"], // cancel selection button
-		["img", "images\\buttons", "unload minifig button.png"], // unload minifig button (drops held object)
-		["img", "images\\buttons", "stop minifig button.png"], // stop minifig button (stops any performed task)
-		["img", "images\\buttons", "upgrade button.png"], // button to upgrade a raider or building
-		["img", "images\\buttons", "open building menu button.png"], // button to open up the building menu
-		["img", "images\\buttons", "open large vehicle menu button.png"], // button to open up the large vehicle menu
-		["img", "images\\buttons", "open small vehicle menu button.png"], // button to open up the small vehicle menu
-		["img", "images\\buttons", "use dynamite.png"], // button to instruct a raider to blow up a wall using dynamite
-		["img", "images\\buttons", "exit vehicle.png"], // button to instruct a raider to exit the current vehicle
+		["wad0bmp", "Interface/Icons/minifigures.bmp", "teleport raider button.png"], // teleport rock raider button
+		["wad0bmp", "Interface/Menus/MF_Pickup.bmp", "grab item button.png"], // button to instruct a raider to pick up item (collectable, dynamite, etc..)
+		["wad0bmp", "Interface/Menus/drill.bmp", "drill wall button.png"], // button to instruct a raider to drill a wall
+		["wad0bmp", "Interface/Menus/Reinforce.bmp", "Reinforce.png"], // button to instruct a raider to reinforce a wall
+		["wad0bmp", "Interface/Menus/ClearRubble.bmp", "clear rubble button.png"], // button to instruct a raider to clear rubble
+		["wad0bmp", "Interface/Menus/buildpath.bmp", "build power path button.png"], // button to instruct a raider to build a power path
+		// FIXME back_hl is not the right one
+		["wad0bmp", "Interface/IconPanel/Back_HL.bmp", "cancel selection button.png"], // cancel selection button
+		["wad0bmp", "Interface/Menus/UnloadMinifigure.bmp", "unload minifig button.png"], // unload minifig button (drops held object)
+		["wad0bmp", "Interface/Menus/STOPeverything.bmp", "stop minifig button.png"], // stop minifig button (stops any performed task)
+		["wad0bmp", "Interface/Menus/Upgrade.bmp", "upgrade button.png"], // button to upgrade a raider or building
+		["wad0bmp", "Interface/Menus/building.bmp", "open building menu button.png"], // button to open up the building menu
+		["wad0bmp", "Interface/Menus/BIGvehicle.bmp", "open large vehicle menu button.png"], // button to open up the large vehicle menu
+		["wad0bmp", "Interface/Menus/SMvehicle.bmp", "open small vehicle menu button.png"], // button to open up the small vehicle menu
+		["wad0bmp", "Interface/Menus/dynamite.bmp", "use dynamite.png"], // button to instruct a raider to blow up a wall using dynamite
+		["wad0bmp", "Interface/Menus/exit.bmp", "exit vehicle.png"], // button to instruct a raider to exit the current vehicle
 
-		// grab item buttons
+		// grab item buttons FIXME replace with wadbmp
 		["img", "images\\buttons", "getTool.png"], // button to open the 'get tool' raider submenu
 		["img", "images\\buttons", "get_Drill.png"], // button to instruct a raider to get a drill from the nearest toolstore
 		["img", "images\\buttons", "get_Shovel.png"], // button to instruct a raider to get a shovel from the nearest toolstore
@@ -152,7 +153,7 @@ object = {
 		["img", "images\\buttons", "get_Laser.png"], // button to instruct a raider to get a laser beam from the nearest toolstore
 		["img", "images\\buttons", "get_Sonic_Blaster.png"], // button to instruct a raider to get a sonic blaster from the nearest toolstore
 
-		// held tools and skills images
+		// held tools and skills images FIXME replace with wadbmp
 		["img", "images\\skills_and_tools", "have drill.png"], // image indicating that a raider is currently carrying a drill in this tool slot
 		["img", "images\\skills_and_tools", "have shovel.png"], // image indicating that a raider is currently carrying a shovel in this tool slot
 		["img", "images\\skills_and_tools", "have hammer.png"], // image indicating that a raider is currently carrying a hammer in this tool slot
@@ -169,7 +170,7 @@ object = {
 		["img", "images\\skills_and_tools", "am geologist.png"], // image indicating that a raider is a geologist
 		["img", "images\\skills_and_tools", "am engineer.png"], // image indicating that a raider is an engineer
 
-		// building buttons
+		// building buttons FIXME replace with wadbmp
 		["img", "images\\buttons", "make ToolStation.png"], // button to select to build tool store from building menu
 		["img", "images\\buttons", "make SMteleport.png"], // button to select to build teleport pad from building menu
 		["img", "images\\buttons", "make docks.png"], // button to select to build docks from building menu
@@ -181,7 +182,7 @@ object = {
 		["img", "images\\buttons", "make Gunstation.png"], // button to select to build mining laser from building menu
 		["img", "images\\buttons", "make LargeTeleporter.png"], // button to select to build super teleport from building menu
 
-		// interface
+		// interface FIXME replace with wadbmp
 		["img", "images\\overlay", "CrystalSideBar.png"], // right side overlay showing crystal and ore count
 		["img", "images\\overlay", "CrystalSideBar_Ore.png"], // image representing a single piece of ore on the overlay
 		["img", "images\\overlay", "NoSmallCrystal.png"], // image representing no energy crystal on the overlay

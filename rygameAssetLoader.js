@@ -150,11 +150,92 @@ function loadAssetNext() {
 			loadImageAsset(appendString + curAsset[2], curAsset[2], loadAssetNext);
 		} else if (curAsset[0] === "snd") {
 			loadSoundAsset(appendString + curAsset[2], curAsset[2], loadAssetNext);
+		} else if (curAsset[0] === "wad0bmp") {
+			loadImageAsset(wad0File.getEntry(curAsset[1]), curAsset[2], loadAssetNext);
 		}
 	} else {
 		finishLoading();
 	}
+}
 
+function loadWadFile(url) {
+	return new Promise(resolve => {
+		console.log("Loading wad file from " + url);
+		const xhr = new XMLHttpRequest();
+		xhr.open('GET', url, true);
+		xhr.responseType = 'arraybuffer'; // jQuery cant handle response type arraybuffer
+		xhr.onload = function () {
+			if (this.status === 200) {
+				resolve(parseWadFile(this.response));
+			}
+		};
+		xhr.send();
+	})
+}
+
+function parseWadFile(data) {
+	const dataView = new DataView(data);
+	const buffer = new Int8Array(data);
+	let pos = 0;
+	if (String.fromCharCode.apply(null, buffer.slice(pos, 4)) !== "WWAD") {
+		throw "Invalid WAD0 file provided";
+	}
+	if (this.debug)
+		console.log("WAD0 file seems legit");
+	pos = 4;
+	const numberOfEntries = dataView.getInt32(pos, true);
+	if (this.debug)
+		console.log(numberOfEntries);
+	pos = 8;
+
+	let wad = new WadHandler(buffer);
+
+	let bufferStart = pos;
+	for (let i = 0; i < numberOfEntries; pos++) {
+		if (buffer[pos] === 0) {
+			wad.entries[i] = String.fromCharCode.apply(null, buffer.slice(bufferStart, pos)).replace(/\\/g, "/").toLowerCase();
+			bufferStart = pos + 1;
+			i++;
+		}
+	}
+	if (this.debug)
+		console.log(wad.entries);
+	for (let i = 0; i < numberOfEntries; pos++) {
+		if (buffer[pos] === 0) {
+			bufferStart = pos + 1;
+			i++;
+		}
+	}
+	if (this.debug)
+		console.log("Offset after absolute original names is " + pos);
+
+	for (let i = 0; i < numberOfEntries; i++) {
+		wad.fLength[i] = dataView.getInt32(pos + 8, true);
+		wad.fStart[i] = dataView.getInt32(pos + 12, true);
+		pos += 16;
+	}
+	if (this.debug) {
+		console.log(wad.fLength);
+		console.log(wad.fStart);
+	}
+	return wad;
+}
+
+WadHandler.prototype.getEntry = function (entryName) {
+	entryName = entryName.toLowerCase();
+	for (let i = 0; i < this.entries.length; i++) {
+		if (this.entries[i] === entryName) {
+			return URL.createObjectURL(new Blob([this.buffer.slice(this.fStart[i], this.fStart[i] + this.fLength[i])], {'type': 'image/bmp'}));
+		}
+	}
+	throw "Entry '" + entryName + "' not found in wad file";
+};
+
+function WadHandler(buffer) {
+	this.buffer = buffer;
+	this.entries = [];
+	this.fLength = [];
+	this.fStart = [];
 }
 
 // if a script assigns a function to this variable, the function will be called when refreshing the screen after each asset load
@@ -167,6 +248,9 @@ let assetObject = null;
 
 let assetNum = -1;
 let lastScriptName = "";
+let wad0File;
+let wad1File;
+
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
@@ -186,4 +270,10 @@ ctx.fillText("loading assets.js", 20, 580);
 
 // begin loading assets
 startTime = new Date();
-loadAssetFile();
+const wad0Loader = loadWadFile(document.getElementById("wad0-url").value);
+const wad1Loader = loadWadFile(document.getElementById("wad1-url").value);
+Promise.all([wad0Loader, wad1Loader]).then(wadFiles => {
+	wad0File = wadFiles[0];
+	wad1File = wadFiles[1];
+	loadAssetFile();
+});

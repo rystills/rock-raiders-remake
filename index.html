@@ -31,10 +31,30 @@
         <div id="fscontainer" class="container-fluid" align="center">
             <canvas id="canvas" width="800" height="600" tabindex="1"></canvas>
         </div>
+        <ul class="nav nav-tabs" id="wadTab" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="upload-tab" data-toggle="tab" href="#upload" role="tab" aria-controls="upload" aria-selected="true">upload</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="url-tab" data-toggle="tab" href="#url" role="tab" aria-controls="url" aria-selected="false">url</a>
+            </li>
+        </ul>
+        <div class="tab-content" id="wadTabContent">
+            <div class="tab-pane fade show active" id="upload" role="tabpanel" aria-labelledby="upload-tab">
+                TODO provide upload form
+            </div>
+            <div class="tab-pane fade" id="url" role="tabpanel" aria-labelledby="url-tab">
+                TODO provide url form
+                <form class="form">
+                    <input id="wad0-url" type="url" value="/rock-raiders-remake/LegoRR0.wad">
+                    <input id="wad1-url" type="url" value="/rock-raiders-remake/LegoRR1.wad">
+                </form>
+            </div>
+        </div>
     </div>
 </div>
-<script src="rygameAssetLoader.js"></script>
 <script src="js/jquery-3.3.1.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
+<script src="rygameAssetLoader.js"></script>
 </body>
 </html>
