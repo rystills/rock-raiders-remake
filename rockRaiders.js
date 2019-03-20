@@ -1099,8 +1099,16 @@ function getTool(toolName) {
 /**
  * pause or unpause the game
  */
-function pauseGame() {
+function togglePauseGame() {
 	paused = !paused;
+}
+
+function pauseGame() {
+	paused = true;
+}
+
+function unpauseGame() {
+	paused = false;
 }
 
 /**
@@ -1120,11 +1128,15 @@ function changeLevels(levelName) {
 function checkTogglePause() {
 	if (GameManager.keyStates[String.fromCharCode(80)]) {
 		holdingPKey = true;
-	} else {
-		if (holdingPKey) {
-			pauseGame();
-			holdingPKey = false;
-		}
+	} else if (holdingPKey) {
+		togglePauseGame();
+		holdingPKey = false;
+	}
+	if (GameManager.keyStates[String.fromCharCode(27)]) {
+		holdingEscKey = true;
+	} else if (holdingEscKey) {
+		togglePauseGame();
+		holdingEscKey = false;
 	}
 }
 
@@ -1560,7 +1572,7 @@ function drawPauseInstructions() {
 		const textWidth = GameManager.drawSurface.measureText(pausedText).width;
 		const textHeight = getHeightFromFont(GameManager.drawSurface.font);
 		GameManager.drawSurface.fillText(pausedText, GameManager.drawSurface.canvas.width / 2 - textWidth / 2,
-			GameManager.drawSurface.canvas.height / 2 + textHeight / 2);
+			GameManager.drawSurface.canvas.height / 2 - 150 + textHeight / 2);
 
 		// attempt to draw buttons here so that they are rendered in front of other post-render graphics
 		for (let i = 0; i < pauseButtons.objectList.length; ++i) {
@@ -1788,7 +1800,8 @@ function createButtons() {
 		["tool store", "teleport pad", "power station", "docks", "geological center", "support station",
 			"super teleport", "mining laser", "upgrade station", "ore refinery"]));
 
-	pauseButtons.push(new Button(20, 200, 0, 0, null, gameLayer, "Return to Main Menu", returnToMainMenu, false, false));
+	pauseButtons.push(new Button(100, gameLayer.height / 2 - 50, 0, 0, null, gameLayer, "Continue", unpauseGame, false, false));
+	pauseButtons.push(new Button(100, gameLayer.height / 2 + 50, 0, 0, null, gameLayer, "Return to Main Menu", returnToMainMenu, false, false));
 
 	scoreScreenButtons.push(new Button(200, 135, 0, 0, null, scoreScreenLayer, "Score: 0", null, false, true, null, null, [], false));
 	scoreScreenButtons.push(new Button(20, 200, 0, 0, null, scoreScreenLayer, "Return to Main Menu", returnToMainMenu, false, true));
@@ -2113,6 +2126,7 @@ function resetLevelVars(name) {
 	awaitingStart = true;
 	paused = false;
 	holdingPKey = false;
+	holdingEscKey = false;
 	loadLevelData(name);
 }
 
