@@ -13,9 +13,9 @@ to do:
 -Switch over to Task class so objects can have multiple simultaneous tasks  
 -convert remaining level files and content from original game  
   
-For progress updates and general discussion see: http:// www.rockraidersunited.com/topic/6319-html5-rock-raiders-remake/  
+For progress updates and general discussion see: http://www.rockraidersunited.com/topic/6319-html5-rock-raiders-remake/  
   
-Play here: http:// rystills.github.io/rock-raiders-remake/  
+Play here: http://rystills.github.io/rock-raiders-remake/  
   
 Screen Shots:  
 <img src="screenshots\preview 1.png" width="800" height="600">  
