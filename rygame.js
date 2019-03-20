@@ -377,6 +377,14 @@ function makeChild(objectName, parentName) {
 	eval(objectName + ".prototype = Object.create(" + parentName + ".prototype);" + objectName + ".prototype.constructor = " + objectName + ";");
 }
 
+GameManagerInternal.prototype.createSound = function (soundName) {
+	if (this.sounds[soundName] !== undefined) {
+		return this.sounds[soundName].cloneNode();
+	} else {
+		throw "Unknown sound '" + soundName + "' requested";
+	}
+};
+
 /**
  * draw some text (optionally centered) at the specified position
  * @param text: the text string to draw

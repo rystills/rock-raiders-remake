@@ -789,7 +789,8 @@ Raider.prototype.workOnCurrentTask = function () {
 				} else if (taskType === "drill" || taskType === "drill hard") {
 					this.currentTask.updateDrillPercent(this.drillSpeed * this.currentTask.drillSpeedModifier *
 						(this.vehicle == null ? 1 : (taskType === "drill" ? this.vehicle.drillSpeedModifier : this.vehicle.drillHardSpeedModifier)), this.space);
-					this.drillSound.play();
+					this.drillSound.play().catch(error => {
+					});
 					this.busy = true;
 					if (this.currentTask.drillPercent >= 100) {
 						this.currentTask.drillPercent = 100;
@@ -812,7 +813,8 @@ Raider.prototype.workOnCurrentTask = function () {
 							this.space = this.currentTask;
 						}
 						this.currentTask.updateSweepPercent(this.sweepSpeed * (this.vehicle == null ? 1 : this.vehicle.sweepSpeedModifier));
-						this.sweepSound.play();
+						this.sweepSound.play().catch(error => {
+						});
 						this.busy = true;
 						if (this.currentTask.sweepPercent >= 100) {
 							this.currentTask.sweepPercent = 100;
@@ -948,9 +950,11 @@ Raider.prototype.samePosition = function (x1, y1, x2, y2) {
  */
 Raider.prototype.playDropSound = function () {
 	if (this.holding[0].type === "ore") {
-		this.dropOreSound.play();
+		this.dropOreSound.play().catch(error => {
+		});
 	} else if (this.holding[0].type === "crystal") {
-		this.dropCrystalSound.play();
+		this.dropCrystalSound.play().catch(error => {
+		});
 	}
 };
 
@@ -972,7 +976,8 @@ Raider.prototype.hurt = function (damageAmount) {
 	if (this.hp <= 0) {
 		this.die();
 	} else {
-		this.hurtSound.play();
+		this.hurtSound.play().catch(error => {
+		});
 	}
 };
 
@@ -1023,13 +1028,13 @@ function Raider(space) {
 	this.walkPosDummy.walkable = true;
 	// busy means the raider is in the middle of performing a task (ex drilling, picking up an object, etc..) and is NOT walking
 	this.busy = false;
-	this.sweepSound = GameManager.sounds["dig"].cloneNode();
+	this.sweepSound = GameManager.createSound("dig");
 	this.sweepSound.loop = true;
-	this.drillSound = GameManager.sounds["drtdrillc"].cloneNode();
+	this.drillSound = GameManager.createSound("drtdrillc");
 	this.drillSound.loop = true;
-	this.dropOreSound = GameManager.sounds["Rockdrop"].cloneNode();
-	this.dropCrystalSound = GameManager.sounds["Crystaldrop"].cloneNode();
-	this.hurtSound = GameManager.sounds["hurt1"].cloneNode();
+	this.dropOreSound = GameManager.createSound("Rockdrop");
+	this.dropCrystalSound = GameManager.createSound("Crystaldrop");
+	this.hurtSound = GameManager.createSound("hurt1");
 	this.soundList = [this.sweepSound, this.drillSound, this.dropOreSound, this.dropCrystalSound, this.hurtSound];
 	this.maxHp = 100;
 	this.hp = this.maxHp;

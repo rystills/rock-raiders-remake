@@ -8,7 +8,7 @@ MusicPlayer.prototype.playRandomSong = function () {
 		while (newTrackNum === this.trackNum) {
 			this.trackNum = randomInt(1, 3);
 		}
-		GameManager.sounds["song" + this.trackNum + "-reduced noise"].play();
+		GameManager.sounds["song" + this.trackNum + "-reduced noise"].play().catch(error => {});
 	}
 };
 
@@ -18,11 +18,11 @@ MusicPlayer.prototype.playRandomSong = function () {
 MusicPlayer.prototype.update = function () {
 	if (this.trackNum === 0) {
 		if (GameManager.sounds["menu theme"].paused) {
-			GameManager.sounds["menu theme"].play();
+			GameManager.sounds["menu theme"].play().catch(error => {});
 		}
 	} else if (this.trackNum === -1) {
 		if (GameManager.sounds["score screen"].paused) {
-			GameManager.sounds["score screen"].play();
+			GameManager.sounds["score screen"].play().catch(error => {});
 		}
 	} else if (GameManager.sounds["song" + this.trackNum + "-reduced noise"].paused) {
 		this.playRandomSong();

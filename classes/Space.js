@@ -149,10 +149,11 @@ Space.prototype.makeRubble = function (rubbleContainsOre, drilledBy, silent = fa
 	if (!silent) {
 		// if we are not drillable but were drilled indirectly, we don't have this sound yet, so clone it now
 		if (!this.rockBreakSound) {
-			this.rockBreakSound = GameManager.sounds["ROKBREK1"].cloneNode();
+			this.rockBreakSound = GameManager.createSound("ROKBREK1");
 			this.soundList.push(this.rockBreakSound);
 		}
-		this.rockBreakSound.play();
+		this.rockBreakSound.play().catch(error => {
+		});
 	}
 	// setTypeProperties will check the value of rubbleContainsOre for us, so no need to do a type check here, just pipe it in
 	this.setTypeProperties("rubble 1", false, rubbleContainsOre);
@@ -705,7 +706,8 @@ Space.prototype.activateLandSlide = function () {
 			}
 		}
 		this.landSlides.push([new LandSlide(this)]);
-		this.landSlideSound.play();
+		this.landSlideSound.play().catch(error => {
+		});
 
 	} else {
 		console.log("bordering wall type: No valid wall bordered");
@@ -721,7 +723,7 @@ Space.prototype.setLandSlideFrequency = function (frequency) {
 		this.landSlideFrequency = frequency;
 		if (this.landSlides == null) {
 			this.landSlides = new ObjectGroup();
-			this.landSlideSound = GameManager.sounds["lanslide"].cloneNode();
+			this.landSlideSound = GameManager.createSound("lanslide");
 			this.soundList.push(this.landSlideSound);
 		}
 	}
@@ -882,7 +884,7 @@ function Space(type, listX, listY, height, parentSpace) {
 	}
 	// temporary angle variable used to store correct drawAngle when space has not yet been touched (is still in the fog)
 	this.headingAngle = 0;
-	this.rockBreakSound = (this.drillable ? GameManager.sounds["ROKBREK1"].cloneNode() : null);
+	this.rockBreakSound = (this.drillable ? GameManager.createSound("ROKBREK1") : null);
 	this.landSlides = null;
 	this.landSlideSound = null;
 	this.soundList = [];
