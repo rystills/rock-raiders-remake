@@ -362,6 +362,22 @@ Raider.prototype.checkSetTask = function (i, mustBeHighPriority, calculatedPath)
 				this.setTask(i, newPath);
 				return true;
 			}
+			// check if the task requires a tool and we can take it
+			const maxTools = 2 + this.upgradeLevel;
+			if (this.tools.length < maxTools && !this.vehicleInhibitsTask("get tool")) {
+				const destinationSite = pathToClosestBuilding(this, "tool store");
+				// if there's no path to a tool store to get a resource with which to build, move on to the next high priority task
+				if (destinationSite != null) {
+					// set original task so no other takes it
+					this.setTask(i, newPath, null, true);
+					// override task with gettool task
+					this.currentTask = destinationSite[0];
+					this.currentPath = destinationSite;
+					this.currentObjective = this.currentTask;
+					this.getToolName = toolsRequired[taskType(tasksAvailable[i])];
+					return true;
+				}
+			}
 		}
 	}
 	return false;
