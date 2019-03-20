@@ -12,7 +12,7 @@ TileSelectedGraphic.prototype.update = function () {
 			this.rect.width = maxDim;
 			this.rect.height = maxDim;
 		}
-		//for the time being we only care about the first selection
+		// for the time being we only care about the first selection
 		this.setCenterX(selection[0].centerX());
 		this.setCenterY(selection[0].centerY());
 	} else {
@@ -52,7 +52,7 @@ TileSelectedGraphic.prototype.withinLayerBounds = function () {
  * TileSelectedGraphic constructor: create our drawSurface and initialize the selected graphic with our starting dimensions
  */
 function TileSelectedGraphic() {
-	//default to a render depth between Space and BuildingPlacer
+	// default to a render depth between Space and BuildingPlacer
 	RygameObject.call(this, 0, 0, 500000, 5000, null, gameLayer);
 
 	this.drawSurface = createContext(tileSize, tileSize, false);

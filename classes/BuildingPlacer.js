@@ -1,6 +1,6 @@
 makeChild("BuildingPlacer", "RygameObject");
 
-//how each direction alters y,x coordinate placement
+// how each direction alters y,x coordinate placement
 BuildingPlacer.dirOffsets = [];
 BuildingPlacer.dirOffsets.push([[1, 0], [1, 1], [2, 0]]);
 BuildingPlacer.dirOffsets.push([[0, -1], [1, -1], [0, -2]]);
@@ -60,7 +60,7 @@ BuildingPlacer.prototype.withinLayerBounds = function () {
  * check if the R key has been pressed, and if so, rotate the placer
  */
 BuildingPlacer.prototype.checkUpdateKeyPress = function () {
-	//check if the R key is pressed
+	// check if the R key is pressed
 	if (GameManager.keyStates[String.fromCharCode(82)]) {
 		this.holdingRKey = true;
 	} else {
@@ -76,7 +76,7 @@ BuildingPlacer.prototype.checkUpdateKeyPress = function () {
  */
 BuildingPlacer.prototype.rotate = function () {
 	this.dir = (this.dir + 1) % 4;
-	//restart with new dir to create children in the correct position
+	// restart with new dir to create children in the correct position
 	this.stop();
 	this.start(this.buildingType, true);
 };
@@ -139,24 +139,24 @@ BuildingPlacer.prototype.stop = function () {
  * @returns whether the building placer is in a valid position (true) or not (false)
  */
 BuildingPlacer.prototype.positionValid = function (space) {
-	//this should only happen when we are hovering out of bounds
+	// this should only happen when we are hovering out of bounds
 	if (space == null) {
 		return false;
 	}
 	if (space.type !== "ground") {
 		return false;
 	}
-	//power paths are allowed to be colliding with other objects, as long as they are still being placed on a ground tile
+	// power paths are allowed to be colliding with other objects, as long as they are still being placed on a ground tile
 	if (this.buildingType === "power path" || this.buildingType === "building power path" || this.buildingType === "power station powerPath") {
 		return true;
 	}
-	//do not allow placement on a space on which any raiders are currently colliding
+	// do not allow placement on a space on which any raiders are currently colliding
 	for (let i = 0; i < raiders.objectList.length; ++i) {
 		if (collisionRect(raiders.objectList[i], space)) {
 			return false;
 		}
 	}
-	//helpers don't need to perform power path collision check, as the master checks that
+	// helpers don't need to perform power path collision check, as the master checks that
 	if (this.isHelper || this.touchingPowerPath(space)) {
 		return true;
 	}
@@ -237,7 +237,7 @@ BuildingPlacer.prototype.placeBuilding = function (space) {
 BuildingPlacer.prototype.getCurrentSpace = function () {
 	var yCoord = Math.floor((this.y + gameLayer.cameraY) / tileSize);
 	var xCoord = Math.floor((this.x + gameLayer.cameraX) / tileSize);
-	//check bounds before attempting to access terrain Space
+	// check bounds before attempting to access terrain Space
 	if (Math.min(yCoord, xCoord) < 0 || yCoord >= terrain.length || terrain.length === 0 || xCoord >= terrain[yCoord].length) {
 		return null;
 	}
@@ -260,22 +260,22 @@ function BuildingPlacer(buildingType, isHelper, xOffset, yOffset, parentBuilder)
 		yOffset = 0;
 	}
 	this.parentBuilder = parentBuilder;
-	//update after Space, and draw in front of space
+	// update after Space, and draw in front of space
 	RygameObject.call(this, 0, 0, 1000000, 10000, null, gameLayer, false);
 	this.buildingType = buildingType;
 
 	this.drawSurface = createContext(tileSize, tileSize, false);
 	this.drawSurface.globalAlpha = .25;
 	this.drawSurface.fillStyle = "rgb(255,0,0)";
-	//red semi-transparent overlay
+	// red semi-transparent overlay
 	this.drawSurface.fillRect(0, 0, this.drawSurface.canvas.width, this.drawSurface.canvas.height);
 	this.invalidSurface = this.drawSurface;
 	this.validSurface = createContext(tileSize, tileSize, false);
 	this.validSurface.globalAlpha = .25;
-	//color power paths yellowish
+	// color power paths yellowish
 	this.validSurface.fillStyle = (buildingType === "power path" || buildingType === "building power path" ||
 	buildingType === "power station powerPath" ? "rgb(200,255,0)" : "rgb(0,255,0)");
-	//green semi-transparent overlay
+	// green semi-transparent overlay
 	this.validSurface.fillRect(0, 0, this.drawSurface.canvas.width, this.drawSurface.canvas.height);
 
 	this.visible = false;

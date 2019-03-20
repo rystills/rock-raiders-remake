@@ -14,7 +14,7 @@ Dynamite.prototype.ignite = function (targetSpace) {
  * this is necessary to ensure that raiders acting on a wall destroyed by dynamite are notified that their task is gone.
  */
 Dynamite.prototype.updateCompletedBy = function () {
-	//NOTE: largely copied from Raider.js
+	// NOTE: largely copied from Raider.js
 	for (let i = 0; i < raiders.objectList.length; ++i) {
 		if (raiders.objectList[i] === this) {
 			continue;
@@ -32,10 +32,10 @@ Dynamite.prototype.updateCompletedBy = function () {
  */
 Dynamite.prototype.update = function () {
 	if (this.ignited) {
-		//if our effect timer is set, that means we have already detonated
+		// if our effect timer is set, that means we have already detonated
 		if (this.effectTimer > 0) {
 			this.effectTimer -= 1;
-			//update effect transparency to create a fade-out
+			// update effect transparency to create a fade-out
 			this.drawSurface.clearRect(0, 0, this.image.width, this.image.height);
 			this.drawSurface.globalAlpha = this.effectTimer / this.maxEffectTimer;
 			this.drawSurface.drawImage(this.image, 0, 0);
@@ -44,7 +44,7 @@ Dynamite.prototype.update = function () {
 			}
 			return;
 		}
-		//we have not detonated yet, so tick down our ignite timer
+		// we have not detonated yet, so tick down our ignite timer
 		this.igniteTimer -= 1;
 		if (this.igniteTimer === 0) {
 			this.detonate();
@@ -56,7 +56,7 @@ Dynamite.prototype.update = function () {
  * detonate this instance, destroying the target space if it is still a wall
  */
 Dynamite.prototype.detonate = function () {
-	//if the target has already been drilled, don't do anything to it
+	// if the target has already been drilled, don't do anything to it
 	if (this.target.isWall) {
 		this.tasksToClear = [];
 		this.tasksToClear.push(this.target);

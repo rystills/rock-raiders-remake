@@ -2,7 +2,7 @@
  * play one of the three in-game tracks at random
  */
 MusicPlayer.prototype.playRandomSong = function () {
-	//don't do anything if we are already playing a song
+	// don't do anything if we are already playing a song
 	if (this.trackNum === 0 || GameManager.sounds["song" + this.trackNum + "-reduced noise"].paused) {
 		var newTrackNum = this.trackNum;
 		while (newTrackNum === this.trackNum) {

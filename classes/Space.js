@@ -1,6 +1,6 @@
 makeChild("Space", "RygameObject");
 
-//enum of space types
+// enum of space types
 spaceTypes = {
 	1: "solid rock",
 	2: "hard rock",
@@ -79,7 +79,7 @@ Space.prototype.updateDrillPercent = function (drillPercentIncrease, dropSpace) 
 	this.drillPercent += drillPercentIncrease;
 	if (this.type === "ore seam" || this.type === "energy crystal seam") {
 		for (let i = 20; i <= 80; i += 20) {
-			//if we go up by a 20% mark, spawn a piece of ore or energy crystal
+			// if we go up by a 20% mark, spawn a piece of ore or energy crystal
 			if (this.drillPercent >= i && this.drillPercent - drillPercentIncrease < i) {
 				const newOre = new Collectable(dropSpace, this.type === "ore seam" ? "ore" : "crystal");
 				collectables.push(newOre);
@@ -128,10 +128,10 @@ Space.prototype.randomY = function () {
  * @param silent: whether this wall should collapse silently (true) or play a sound on collapsing (false)
  */
 Space.prototype.makeRubble = function (rubbleContainsOre, drilledBy, silent = false) {
-	//if we are a seam, generate all of the remaining ore/crystals now
+	// if we are a seam, generate all of the remaining ore/crystals now
 	if (this.type === "ore seam" || this.type === "energy crystal seam") {
 		for (let i = 20; i <= 80; i += 20) {
-			//if we hadn't drilled this far yet, release another collectable
+			// if we hadn't drilled this far yet, release another collectable
 			if (this.drillPercent < i) {
 				const newOre = new Collectable(this, this.type === "ore seam" ? "ore" : "crystal", this.randomX(), this.randomY());
 				collectables.push(newOre);
@@ -139,7 +139,7 @@ Space.prototype.makeRubble = function (rubbleContainsOre, drilledBy, silent = fa
 			}
 		}
 	}
-	//kill dummies to stop any active tasks, since these can no longer be performed (if already dead, nothing will happen)
+	// kill dummies to stop any active tasks, since these can no longer be performed (if already dead, nothing will happen)
 	this.reinforceDummy.die();
 	this.dynamiteDummy.die();
 	this.checkRemoveDummyTasks();
@@ -147,31 +147,31 @@ Space.prototype.makeRubble = function (rubbleContainsOre, drilledBy, silent = fa
 		drilledBy.tasksToClear.push(this);
 	}
 	if (!silent) {
-		//if we are not drillable but were drilled indirectly, we don't have this sound yet, so clone it now
+		// if we are not drillable but were drilled indirectly, we don't have this sound yet, so clone it now
 		if (!this.rockBreakSound) {
 			this.rockBreakSound = GameManager.sounds["ROKBREK1"].cloneNode();
 			this.soundList.push(this.rockBreakSound);
 		}
 		this.rockBreakSound.play();
 	}
-	//setTypeProperties will check the value of rubbleContainsOre for us, so no need to do a type check here, just pipe it in
+	// setTypeProperties will check the value of rubbleContainsOre for us, so no need to do a type check here, just pipe it in
 	this.setTypeProperties("rubble 1", false, rubbleContainsOre);
 	for (let i = this.containedCrystals; i > 0; i--) {
 		this.containedCrystals--;
 		const newCrystal = new Collectable(this, "crystal", this.randomX(), this.randomY());
-		//don't add to tasksAvailable yet because it will be picked up by touchAllAdjacentSpaces
+		// don't add to tasksAvailable yet because it will be picked up by touchAllAdjacentSpaces
 		collectables.push(newCrystal);
 	}
 	for (let i = this.containedOre; i > 0; i--) {
 		this.containedOre--;
 		const newOre = new Collectable(this, "ore", this.randomX(), this.randomY());
-		//don't add to tasksAvailable yet because it will be picked up by touchAllAdjacentSpaces
+		// don't add to tasksAvailable yet because it will be picked up by touchAllAdjacentSpaces
 		collectables.push(newOre);
 	}
 
-	//set touched back to false so we can run the search from the newly drilled square (this is also where the 'sweep' task is added to the tasksAvailable list)
+	// set touched back to false so we can run the search from the newly drilled square (this is also where the 'sweep' task is added to the tasksAvailable list)
 	this.updateTouched(false);
-	//note that we call updateTouched before checking the adjacentSpaces
+	// note that we call updateTouched before checking the adjacentSpaces
 	const adjacentSpaces = this.getAdjacentSpaces();
 
 	for (let i = 0; i < adjacentSpaces.length; i++) {
@@ -286,7 +286,7 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 	if (parentSpace != null) {
 		this.parentSpace = parentSpace;
 	}
-	//certain variables, such as rubbleContainsOre, should stay true even when this method is called multiple times
+	// certain variables, such as rubbleContainsOre, should stay true even when this method is called multiple times
 	rubbleContainsOre = !((rubbleContainsOre !== true) && (this.rubbleContainsOre !== true));
 	if (dedicatedResources == null) {
 		dedicatedResources = {"ore": 0, "crystal": 0};
@@ -338,8 +338,8 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 	this.buildable = false;
 	this.isBuilding = false;
 	this.isWall = false;
-	//rubble from an avalanche or a destroyed building will not contain ore, but rubble from drilling will. 
-	//these types of rubble are identical in every other sense, so no reason to create separate types, just remember the contained ore instead.
+	// rubble from an avalanche or a destroyed building will not contain ore, but rubble from drilling will.
+	// these types of rubble are identical in every other sense, so no reason to create separate types, just remember the contained ore instead.
 	this.rubbleContainsOre = rubbleContainsOre;
 	this.drillPercent = 0;
 	this.sweepPercent = 0;
@@ -493,7 +493,7 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 			if (index === -1) {
 				buildings.push(this);
 			}
-			//this case should never be possible
+			// this case should never be possible
 			else {
 				console.log("WARNING: BUILDING TRIED TO ADD ITSELF TO BUILDINGS LIST, BUT WAS ALREADY THERE");
 			}
@@ -520,12 +520,12 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 		this.explodable = true;
 		this.drillHardable = true;
 	}
-	//need the check for drawSurface as the first time this method is run the RygameObject constructor has not yet been called
+	// need the check for drawSurface as the first time this method is run the RygameObject constructor has not yet been called
 	if ((maskUntouchedSpaces === false || this.touched === true) && doNotChangeImage !== true) {
 		this.changeImage(this.image);
 	}
 	if (type === "building site") {
-		//if building site requires no resources or started with all required resources, build immediately
+		// if building site requires no resources or started with all required resources, build immediately
 		this.updatePlacedResources();
 	}
 	this.adjustHeightAlpha();
@@ -544,7 +544,7 @@ Space.prototype.updateTouched = function (touched) {
 		this.drawAngle = 0;
 	}
 
-	//if this space has not yet been revealed then we want it to appear as solid rock, but we leave this.image alone to keep track of its actual image. 
+	// if this space has not yet been revealed then we want it to appear as solid rock, but we leave this.image alone to keep track of its actual image.
 	if (this.touched === false && maskUntouchedSpaces === true) {
 		if (this.image !== "solid rock.png") {
 			this.changeImage("solid rock.png");
@@ -558,7 +558,7 @@ Space.prototype.updateTouched = function (touched) {
 			}
 		}
 	} else {
-		//we never actually modified this.image so we should just be able to use it
+		// we never actually modified this.image so we should just be able to use it
 		this.setTypeProperties(this.type);
 	}
 };
@@ -578,8 +578,8 @@ Space.prototype.adjustHeightAlpha = function () {
 		this.drawSurface.fillRect(0, 0, this.rect.width, this.rect.height);
 
 	} else if (this.height < 10) {
-		//multiply by a constant to artificially inflate the darkness change, since rendering a black semitransparent rect seems 
-		//to have much less of an effect than rendering a white semitransparent rect for some reason
+		// multiply by a constant to artificially inflate the darkness change, since rendering a black semitransparent rect seems
+		// to have much less of an effect than rendering a white semitransparent rect for some reason
 		this.drawSurface.globalAlpha = heightAlphaChange * 3 * (10 - this.height);
 		this.drawSurface.fillStyle = "rgb(0,0,0)";
 		this.drawSurface.fillRect(0, 0, this.rect.width, this.rect.height);
@@ -629,13 +629,13 @@ Space.prototype.updatePlacedResources = function (resourceType) {
 		this.placedResources[resourceType]++;
 	}
 	if (this.allResourcesPlaced()) {
-		//remove this from the list of available tasks once it is finished being built
+		// remove this from the list of available tasks once it is finished being built
 		const taskIndex = tasksAvailable.indexOf(this);
 		if (taskIndex !== -1) {
 			tasksAvailable.splice(taskIndex, 1);
 		}
 		const index = buildingSites.indexOf(this);
-		//this check should never evaluate to false, but we do it regardless as a safety precaution
+		// this check should never evaluate to false, but we do it regardless as a safety precaution
 		if (index !== -1) {
 			buildingSites.splice(index, 1);
 		}
@@ -655,11 +655,11 @@ Space.prototype.updatePlacedResources = function (resourceType) {
  */
 Space.prototype.childrenIncomplete = function () {
 	for (let i = 0; i < this.childSpaces.length; ++i) {
-		//power paths auto-complete upon initiating build, and don't require any resources, so skip them
+		// power paths auto-complete upon initiating build, and don't require any resources, so skip them
 		if (powerPathSpaceTypes.indexOf(this.childSpaces[i].type) !== -1) {
 			continue;
 		}
-		//if one of our children still needs some resources placed, we are not yet finished
+		// if one of our children still needs some resources placed, we are not yet finished
 		if (!this.childSpaces[i].allResourcesPlaced()) {
 			return true;
 		}
@@ -683,11 +683,11 @@ Space.prototype.activateLandSlide = function () {
 	this.curLandSlideWait = this.minLandSlideWait;
 	const adjacentSpaces = this.getAdjacentSpaces();
 	let borderingValidWall = false;
-	//make sure at least one of the directly adjacent spaces is a valid wall
+	// make sure at least one of the directly adjacent spaces is a valid wall
 	for (let i = 0; i < adjacentSpaces.length; ++i) {
 		if (adjacentSpaces[i].type === "dirt" || adjacentSpaces[i].type === "loose rock" || adjacentSpaces[i].type === "hard rock" ||
 			adjacentSpaces[i].type === "ore seam" || adjacentSpaces[i].type === "energy crystal seam") {
-			//TODO: allow land-slides to re-fill partially swept rubble spaces as well (but don't reset rubbleContainsOre)
+			// TODO: allow land-slides to re-fill partially swept rubble spaces as well (but don't reset rubbleContainsOre)
 			if (adjacentSpaces[i].reinforced === false) {
 				borderingValidWall = true;
 				console.log("bordering wall type: " + adjacentSpaces[i].type);
@@ -697,7 +697,7 @@ Space.prototype.activateLandSlide = function () {
 	}
 	if (borderingValidWall) {
 		if (this.type === "ground" || this.type === "rubble 1" || this.type === "rubble 2" || this.type === "rubble 3" || this.type === "rubble 4") {
-			//only change tile type if you are a ground or rubble tile
+			// only change tile type if you are a ground or rubble tile
 			console.log(this.type);
 			this.setTypeProperties("rubble 1", false, false);
 			if (tasksAvailable.indexOf(this) === -1) {
@@ -731,7 +731,7 @@ Space.prototype.setLandSlideFrequency = function (frequency) {
  * update this space, and roll the dice for a landslide if the space is touched
  */
 Space.prototype.update = function () {
-	//spaces which have not yet been discovered should not trigger land-slides, erode nearby Spaces, etc..
+	// spaces which have not yet been discovered should not trigger land-slides, erode nearby Spaces, etc..
 	if (!this.touched) {
 		return;
 	}
@@ -755,14 +755,14 @@ Space.prototype.update = function () {
 			this.changeImage(this.image);
 		}
 	}
-	//land-slides may only occur on walkable tiles
+	// land-slides may only occur on walkable tiles
 	if (this.walkable) {
 		if (this.landSlideFrequency > 0) {
-			//if another landSlide just occurred, wait a certain amount of time before starting to check for land-slides again
+			// if another landSlide just occurred, wait a certain amount of time before starting to check for land-slides again
 			if (this.curLandSlideWait > 0) {
 				--this.curLandSlideWait;
 			} else {
-				//the constant 10000 will give us on average .36 land-slides per second if landSlideFrequency = 1, and 2.88 land-slides per second if landSlideFrequency = 8 
+				// the constant 10000 will give us on average .36 land-slides per second if landSlideFrequency = 1, and 2.88 land-slides per second if landSlideFrequency = 8
 				if (Math.random() < (this.landSlideFrequency / 10000)) {
 					this.activateLandSlide();
 				}
@@ -780,11 +780,11 @@ Space.prototype.update = function () {
  * @param parentSpace: the space of which this is a child, if specified
  */
 function Space(type, listX, listY, height, parentSpace) {
-	//convert basic types from the numbers used in the level files to easily readable strings
+	// convert basic types from the numbers used in the level files to easily readable strings
 	this.height = height;
 	this.childSpaces = [];
 	this.buildingSiteType = null;
-	//convert the type number from the level file to a string here
+	// convert the type number from the level file to a string here
 	this.type = spaceTypes[type];
 	if (type === -101) {
 		this.buildingSiteType = "building power path";
@@ -827,33 +827,33 @@ function Space(type, listX, listY, height, parentSpace) {
 	this.setTypeProperties(this.type, true, null, null, null, null, null, parentSpace);
 
 	RygameObject.call(this, listY * tileSize, listX * tileSize, 100000, 100000, this.image, gameLayer);
-	//set the height alpha now since the first time we setTypeProperties we don't have a drawSurface yet to alpha adjust
+	// set the height alpha now since the first time we setTypeProperties we don't have a drawSurface yet to alpha adjust
 	this.adjustHeightAlpha();
 	this.updateTouched(false);
 	this.listX = listX;
 	this.listY = listY;
 	this.powerPathSpace = null;
 	this.upgradeLevel = 0;
-	//contained ore and crystals are defined by the cryore map and set immediately after Space creation
+	// contained ore and crystals are defined by the cryore map and set immediately after Space creation
 	this.containedOre = 0;
 	this.containedCrystals = 0;
-	//how often land-slides occur on this is defined by the fallinMap
+	// how often land-slides occur on this is defined by the fallinMap
 	this.landSlideFrequency = 0;
-	//wait 120 frames after a land-slide before starting to roll the dice for land-slides again
+	// wait 120 frames after a land-slide before starting to roll the dice for land-slides again
 	this.minLandSlideWait = 120;
 	this.curLandSlideWait = 0;
-	//contains lists objects which currently reside on the space, such as collectables
+	// contains lists objects which currently reside on the space, such as collectables
 	this.contains = new ObjectGroup();
 	this.completedBy = null;
 	this.reinforced = false;
-	//dummy used to identify reinforce tasks
+	// dummy used to identify reinforce tasks
 	this.reinforceDummy = this.isWall ? new RygameObject(0, 0, -99999, 99999, "reinforcement.png", this.drawLayer, true, false, true) : null;
 	if (this.reinforceDummy != null) {
-		//workaround so the engine treats this dummy as a reinforcable space when determining what type of task it is
+		// workaround so the engine treats this dummy as a reinforcable space when determining what type of task it is
 		this.reinforceDummy.reinforcable = true;
-		//share a rect for collisions
+		// share a rect for collisions
 		this.reinforceDummy.rect = this.rect;
-		//set space for use in pathfinding
+		// set space for use in pathfinding
 		this.reinforceDummy.space = this;
 		this.reinforceDummy.setCenterX(this.centerX());
 		this.reinforceDummy.setCenterY(this.centerY());
@@ -868,19 +868,19 @@ function Space(type, listX, listY, height, parentSpace) {
 			this.space.reinforced = true;
 		}
 	}
-	//dummy used to identify dynamite tasks
+	// dummy used to identify dynamite tasks
 	this.dynamiteDummy = this.isWall ? new RygameObject(0, 0, -99999, 0, null, this.drawLayer, true, false, true) : null;
 	if (this.dynamiteDummy != null) {
-		//workaround so the engine treats this dummy as a space that can be blown up when determining what type of task it is
+		// workaround so the engine treats this dummy as a space that can be blown up when determining what type of task it is
 		this.dynamiteDummy.dynamitable = true;
-		//share a rect for collisions
+		// share a rect for collisions
 		this.dynamiteDummy.rect = this.rect;
-		//set space for use in pathfinding
+		// set space for use in pathfinding
 		this.dynamiteDummy.space = this;
 		this.dynamiteDummy.setCenterX(this.centerX());
 		this.dynamiteDummy.setCenterY(this.centerY());
 	}
-	//temporary angle variable used to store correct drawAngle when space has not yet been touched (is still in the fog)
+	// temporary angle variable used to store correct drawAngle when space has not yet been touched (is still in the fog)
 	this.headingAngle = 0;
 	this.rockBreakSound = (this.drillable ? GameManager.sounds["ROKBREK1"].cloneNode() : null);
 	this.landSlides = null;
@@ -889,6 +889,6 @@ function Space(type, listX, listY, height, parentSpace) {
 	if (this.rockBreakSound != null) {
 		this.soundList.push(this.rockBreakSound);
 	}
-	//modifier determines how difficult this wall is to drill (for ore and crystal seams, this will be 0.2, as they require 5 'drills')
+	// modifier determines how difficult this wall is to drill (for ore and crystal seams, this will be 0.2, as they require 5 'drills')
 	this.drillSpeedModifier = 1;
 }

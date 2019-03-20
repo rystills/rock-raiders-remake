@@ -5,11 +5,11 @@ makeChild("LandSlide", "RygameObject");
  */
 LandSlide.prototype.update = function () {
 	this.life -= 1;
-	//update effect transparency to create a fade-out
+	// update effect transparency to create a fade-out
 	this.drawSurface.clearRect(0, 0, this.image.width, this.image.height);
 	this.drawSurface.globalAlpha = this.life / this.maxLife;
 	this.drawSurface.drawImage(this.image, 0, 0);
-	//deal damage to raiders in 5 intervals over lifespan (every 10 frames)
+	// deal damage to raiders in 5 intervals over lifespan (every 10 frames)
 	if (this.life % 10 === 0) {
 		for (let i = 0; i < raiders.objectList.length; ++i) {
 			if (collisionRect(this, raiders.objectList[i])) {

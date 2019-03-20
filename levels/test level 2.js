@@ -1,5 +1,5 @@
 object = {
-		level: [ //check space class in rockRaiders.js for the number key
+		level: [ // check space class in rockRaiders.js for the number key
           [0,0,1,1,1,1,1,0,0,0,0,1,0,1],
           [1,-1,0,0,0,1,0,1,0,0,1,0,1,1],
           [0,1,0,1,0,1,-100,0,0,1,2,1,1,0],

@@ -10,12 +10,12 @@ function goFullScreen() {
 	} else if (canvas.webkitRequestFullScreen) {
 		canvas.webkitRequestFullScreen();
 	} else if (canvas.mozRequestFullScreen) {
-		//we must use a container element to emulate webkit style fullscreen in firefox
+		// we must use a container element to emulate webkit style fullscreen in firefox
 		document.getElementById("fscontainer").mozRequestFullScreen();
 	}
 }
 
-//mouse code - Snippet taken from StackOverflow
+// mouse code - Snippet taken from StackOverflow
 let stylePaddingLeft = -1;
 let stylePaddingTop = -1;
 let styleBorderLeft = -1;
@@ -117,7 +117,7 @@ function doPolygonsIntersect(a, b) {
 
 			// if there is no overlap between the projects, the edge we are looking at separates the two
 			// polygons, and we know there is no overlap
-			//note: changed from < to <= so that bordering objects would not be considered colliding
+			// note: changed from < to <= so that bordering objects would not be considered colliding
 			if (maxA <= minB || maxB <= minA) {
 				return false;
 			}
@@ -270,7 +270,7 @@ function calculateRectPoints(object, includeTouching) {
 			pointList[(sign1 + 1) + ((sign2 + 1) / 2)].y = centerY + sign1 * halfWidth * sin + sign2 * halfHeight * cos;
 		}
 	}
-	//swap indices 2 and 3 so that the points are ordered in a way that properly borders the object
+	// swap indices 2 and 3 so that the points are ordered in a way that properly borders the object
 	pointList[2] = pointList.splice(3, 1, pointList[2])[0];
 	return pointList;
 }
@@ -298,12 +298,12 @@ function collisionRect(object1, object2, includeTouching) {
 				objectCoordinates[i].bottom += .01;
 			}
 		}
-		//note: changed from < and > to <= and >= so that bordering objects would not be considered colliding
+		// note: changed from < and > to <= and >= so that bordering objects would not be considered colliding
 		return !((objectCoordinates[0].left >= objectCoordinates[1].right) || (objectCoordinates[0].top >= objectCoordinates[1].bottom) ||
 			(objectCoordinates[0].right <= objectCoordinates[1].left) || (objectCoordinates[0].bottom <= objectCoordinates[1].top));
 	} else {
-		//since rotation is centered, we have to go from the center and move in the direction of drawAngle * width,
-		//and the direction perpendicular to drawAngle * height to find corners
+		// since rotation is centered, we have to go from the center and move in the direction of drawAngle * width,
+		// and the direction perpendicular to drawAngle * height to find corners
 		const pointList1 = calculateRectPoints(object1, includeTouching);
 		const pointList2 = calculateRectPoints(object2, includeTouching);
 		return doPolygonsIntersect(pointList1, pointList2);
@@ -389,10 +389,10 @@ GameManagerInternal.prototype.drawText = function (text, x, y, centerX, centerY)
 	let halfWidth = 0;
 	let halfHeight = 0;
 	if (centerX === true) {
-		halfWidth = this.drawSurface.measureText(text).width / 2; //TODO: DECIDE HOW ROUNDING SHOULD BE PERFORMED IN THIS INSTANCE
+		halfWidth = this.drawSurface.measureText(text).width / 2; // TODO: DECIDE HOW ROUNDING SHOULD BE PERFORMED IN THIS INSTANCE
 	}
 	if (centerY === true) {
-		halfHeight = parseInt(this.drawSurface.font) / 2; //TODO: VERIFY THAT THIS GIVES THE CORRECT HEIGHT VALUE IN ALL CASES
+		halfHeight = parseInt(this.drawSurface.font) / 2; // TODO: VERIFY THAT THIS GIVES THE CORRECT HEIGHT VALUE IN ALL CASES
 	}
 	this.drawSurface.fillText(text, x - halfWidth, y + halfHeight);
 };
@@ -426,14 +426,14 @@ GameManagerInternal.prototype.setFont = function () {
  * start up the Rygame engine, initializing all required variables
  */
 GameManagerInternal.prototype.initializeRygame = function (is3d) {
-	//create context
+	// create context
 	let canvas = document.getElementById('canvas');
 	if (!is3d) {
 		this.drawSurface = canvas.getContext('2d');
 	} else {
 		this.drawSurface = canvas.getContext('3d');
 	}
-	//mouse code (this snippet is taken from a stackOverflow answer)
+	// mouse code (this snippet is taken from a stackOverflow answer)
 	stylePaddingLeft = parseInt(document.defaultView.getComputedStyle(canvas, null)['paddingLeft'], 10) || 0;
 	stylePaddingTop = parseInt(document.defaultView.getComputedStyle(canvas, null)['paddingTop'], 10) || 0;
 	styleBorderLeft = parseInt(document.defaultView.getComputedStyle(canvas, null)['borderLeftWidth'], 10) || 0;
@@ -446,11 +446,11 @@ GameManagerInternal.prototype.initializeRygame = function (is3d) {
 	this.screenWidth = this.drawSurface.canvas.width;
 	this.screenHeight = this.drawSurface.canvas.height;
 
-	//init key events
+	// init key events
 	canvas.addEventListener("keydown", function (e) {
 		GameManager.keyStates[String.fromCharCode(e.keyCode)] = true;
-		//fullScreenKey is a property that must be set in the game itself rather than being hardcoded, 
-		//as that would prevent the programmer from being able to use a key that they might need
+		// fullScreenKey is a property that must be set in the game itself rather than being hardcoded,
+		// as that would prevent the programmer from being able to use a key that they might need
 		if (String.fromCharCode(e.keyCode) === GameManager.fullScreenKey) {
 			goFullScreen();
 		}
@@ -469,25 +469,25 @@ GameManagerInternal.prototype.initializeRygame = function (is3d) {
 	});
 	canvas.addEventListener("mousedown", function (e) {
 		if (e.button === 0) {
-			//left click press detected
+			// left click press detected
 			GameManager.mouseDownLeft = true;
 			GameManager.mousePressedLeft = true;
 			GameManager.mousePressedRight = true;
 		} else if (e.button === 2) {
-			//right click press detected
+			// right click press detected
 			GameManager.mouseDownRight = true;
 		}
 	});
 	canvas.addEventListener("mouseup", function (e) {
 		if (e.button === 0) {
 			GameManager.mouseReleasedLeft = true;
-			//we can use the same method as in mousemove to get the effective mouse position 
-			//since the mouse coordinates are returned by the event in pageX and pageY regardless of the event type
+			// we can use the same method as in mousemove to get the effective mouse position
+			// since the mouse coordinates are returned by the event in pageX and pageY regardless of the event type
 			GameManager.mouseReleasedPosLeft = getMouseDocument(e);
 			canvasRect = GameManager.drawSurface.canvas.getBoundingClientRect();
 			GameManager.mouseReleasedPosLeft.x -= canvasRect.left + window.pageXOffset;
 			GameManager.mouseReleasedPosLeft.y -= canvasRect.top + window.pageYOffset;
-			//left click release detected
+			// left click release detected
 			GameManager.mouseDownLeft = false;
 		} else if (e.button === 2) {
 			GameManager.mouseReleasedRight = true;
@@ -495,7 +495,7 @@ GameManagerInternal.prototype.initializeRygame = function (is3d) {
 			canvasRect = GameManager.drawSurface.canvas.getBoundingClientRect();
 			GameManager.mouseReleasedPosRight.x -= canvasRect.left + window.pageXOffset;
 			GameManager.mouseReleasedPosRight.y -= canvasRect.top + window.pageYOffset;
-			//right click release detected
+			// right click release detected
 			GameManager.mouseDownRight = false;
 		}
 	});
@@ -557,7 +557,7 @@ GameManagerInternal.prototype.updateObjects = function () {
  * Objects with larger depths have their surfaces drawn first on their frame.
  */
 GameManagerInternal.prototype.drawFrame = function () {
-	//re-render all layer backgrounds first. also clears their surfaces for a fresh frame if the background fills the layer surface
+	// re-render all layer backgrounds first. also clears their surfaces for a fresh frame if the background fills the layer surface
 	for (let i = this.completeLayerList.length - 1; i >= 0; i--) {
 		const layer = this.completeLayerList[i];
 		if (layer.active && (!layer.frozen)) {
@@ -569,7 +569,7 @@ GameManagerInternal.prototype.drawFrame = function () {
 		}
 	}
 
-	//render objects to frames first (objects are sorted by depth when added, so no need to do any sorting here)
+	// render objects to frames first (objects are sorted by depth when added, so no need to do any sorting here)
 	for (let i = this.renderOrderedCompleteObjectList.length - 1; i >= 0; i--) {
 		const drawObject = this.renderOrderedCompleteObjectList[i];
 		if (drawObject.renderAutomatically && drawObject.drawLayer.active && (!drawObject.drawLayer.frozen)) {
@@ -587,7 +587,7 @@ GameManagerInternal.prototype.drawFrame = function () {
 	for (let i = this.completeLayerList.length - 1; i >= 0; i--) {
 		const layer = this.completeLayerList[i];
 		if (layer.active === true) {
-			//TODO: layer resizing will occur here, if needed
+			// TODO: layer resizing will occur here, if needed
 			this.drawSurface.drawImage(layer.drawSurface.canvas, layer.x, layer.y);
 			if (layer.freezeFirstFrame) {
 				layer.freezeFirstFrame = false;
@@ -608,7 +608,7 @@ GameManagerInternal.prototype.drawFrame = function () {
  * @param x: the x coordinate at which to draw the surface
  * @param y: the y coordinate at which to draw the surface
  */
-GameManagerInternal.prototype.draw = function (surface, x, y) { //simple draw function. Copied from Layer so that the GameManager can be treated like a layer when necessary.
+GameManagerInternal.prototype.draw = function (surface, x, y) { // simple draw function. Copied from Layer so that the GameManager can be treated like a layer when necessary.
 	this.drawSurface.drawImage(surface.canvas, x, y);
 };
 
@@ -616,11 +616,11 @@ GameManagerInternal.prototype.draw = function (surface, x, y) { //simple draw fu
  * GameManagerInternal constructor: initialize variables stored and maintained by the GameManager
  */
 function GameManagerInternal() {
-	//list of image resources
+	// list of image resources
 	this.images = [];
-	//list of sound resources
+	// list of sound resources
 	this.sounds = [];
-	//list of script resources
+	// list of script resources
 	this.scriptObjects = [];
 	this.fps = 40;
 	this.keyStates = [];
@@ -633,23 +633,23 @@ function GameManagerInternal() {
 	this.mousePos = {x: 1, y: 1};
 	this.mouseDownLeft = false;
 	this.mouseDownRight = false;
-	//mousePressed is only true on the frame when the mouse is initially pressed during click. Resets to false after drawFrame is called.
+	// mousePressed is only true on the frame when the mouse is initially pressed during click. Resets to false after drawFrame is called.
 	this.mousePressedLeft = false;
 	this.mousePressedRight = false;
-	//mouseReleased is only true on the frame when the mouse is initially released during click. Resets to false after drawFrame is called.
+	// mouseReleased is only true on the frame when the mouse is initially released during click. Resets to false after drawFrame is called.
 	this.mouseReleasedLeft = false;
 	this.mouseReleasedRight = false;
 	this.mouseReleasedPosLeft = {x: 1, y: 1};
 	this.mouseReleasedPosRight = {x: 1, y: 1};
-	//this is just a default; feel free to change it at any point from the game file
+	// this is just a default; feel free to change it at any point from the game file
 	this.fullScreenKey = "F";
-	//font size in pixels - first part of html font property (formatted 'fontSizepx fontName')
+	// font size in pixels - first part of html font property (formatted 'fontSizepx fontName')
 	this.fontSize = 48;
-	//font name - second part of html font property (formatted 'fontSizepx fontName')
+	// font name - second part of html font property (formatted 'fontSizepx fontName')
 	this.fontName = "Arial";
 }
 
-//create GameManager instance in global namespace to make up for a lack of typical 'static' classes *that support inheritance*
+// create GameManager instance in global namespace to make up for a lack of typical 'static' classes *that support inheritance*
 GameManager = new GameManagerInternal();
 
 /**
@@ -823,7 +823,7 @@ Button.prototype.update = function (selectionType, openMenu) {
 		}
 	}
 
-	//if this button is not currently interactive, don't need to update anything else
+	// if this button is not currently interactive, don't need to update anything else
 	if (!this.clickable) {
 		return;
 	}
@@ -834,7 +834,7 @@ Button.prototype.update = function (selectionType, openMenu) {
 		if (this.mouseDownOnButton === true) {
 			if (collisionPoint(GameManager.mousePos.x, GameManager.mousePos.y, this, this.affectedByCamera)) {
 				if (this.runMethod != null) {
-					//button has been clicked
+					// button has been clicked
 					this.runMethod.apply(this, this.optionalArgs);
 				}
 			}
@@ -866,7 +866,7 @@ Button.prototype.updateText = function (newText, clearFirst) {
 		this.drawSurface.clearRect(0, 0, this.drawSurface.canvas.width, this.drawSurface.canvas.height);
 	}
 
-	//create brightened and darkened version of drawSurface
+	// create brightened and darkened version of drawSurface
 	this.normalSurface = this.drawSurface;
 	this.brightenedSurface = this.drawSurface == null ? null : this.image == null ?
 		createContext(this.normalSurface.canvas.width, this.normalSurface.canvas.height) : updateBrightness(this.normalSurface, brightnessShiftPercent);
@@ -900,7 +900,7 @@ Button.prototype.updateText = function (newText, clearFirst) {
 				this.rect.width = drawSurfaces[i].canvas.width;
 				changedDims = true;
 			}
-			//note that height in this instance includes space below the text, potentially making it larger than the actual render height
+			// note that height in this instance includes space below the text, potentially making it larger than the actual render height
 			if (height > drawSurfaces[i].canvas.height) {
 				drawSurfaces[i].canvas.height = height;
 				this.rect.height = drawSurfaces[i].canvas.height;
@@ -915,7 +915,7 @@ Button.prototype.updateText = function (newText, clearFirst) {
 
 			drawSurfaces[i].textBaseline = "hanging";
 			drawSurfaces[i].font = "32px " + GameManager.fontName;
-			//todo: convert to HSV, adjust brightness, then convert back to RGB, rather than just statically shifting R,G,B channels
+			// todo: convert to HSV, adjust brightness, then convert back to RGB, rather than just statically shifting R,G,B channels
 			drawSurfaces[i].fillStyle = i === 0 ? "rgb(" + Math.round(Math.max(baseR - brightnessShiftPercent * .02 * 255, 0)) + "," +
 				Math.round(Math.max(baseG - brightnessShiftPercent * .02 * 255, 0)) + "," + Math.round(Math.max(baseB - brightnessShiftPercent * .02 * 255, 0)) + ")"
 				: (i === 1 ? "rgb(" + Math.round(Math.max(baseR - brightnessShiftPercent * .01 * 255, 0)) + "," + Math.round(Math.max(baseG - brightnessShiftPercent * .01 * 255, 0)) + "," +
@@ -951,7 +951,7 @@ Button.prototype.updateText = function (newText, clearFirst) {
 function Button(x, y, updateDepth, drawDepth, image, layer, text, runMethod, affectedByCamera, renderAutomatically, selectionTypeBound, openMenuBound,
 				optionalArgs, clickable, updateAutomatically, textColor, additionalRequirement, additionalRequirementArgs) {
 	if (updateAutomatically == null) {
-		//default to false rather than true for now, as current buttons expect this functionality
+		// default to false rather than true for now, as current buttons expect this functionality
 		updateAutomatically = false;
 	}
 	if (additionalRequirementArgs == null) {
@@ -967,7 +967,7 @@ function Button(x, y, updateDepth, drawDepth, image, layer, text, runMethod, aff
 	this.optionalArgs = optionalArgs;
 	this.clickable = (clickable == null ? true : clickable);
 	this.normallyClickable = this.clickable;
-	//set default text color to an almost pure green
+	// set default text color to an almost pure green
 	this.textColor = (textColor == null ? [0, 245, 0] : textColor);
 	if (this.optionalArgs == null) {
 		this.optionalArgs = [];
@@ -1025,8 +1025,8 @@ RygameObject.prototype.render = function (destLayer) {
 		}
 		if (this.drawSurface != null) {
 			if (this.affectedByCamera === true) {
-				//move in the opposite direction of the layer camera before rendering (and deciding whether or not you're onscreen). 
-				//this should be done for gui elements as well in renderGuiElements
+				// move in the opposite direction of the layer camera before rendering (and deciding whether or not you're onscreen).
+				// this should be done for gui elements as well in renderGuiElements
 				this.x -= destLayer.cameraX;
 				this.y -= destLayer.cameraY;
 			}
@@ -1042,7 +1042,7 @@ RygameObject.prototype.render = function (destLayer) {
 				}
 			}
 			if (this.affectedByCamera === true) {
-				//move back once you're finished rendering.
+				// move back once you're finished rendering.
 				this.x += destLayer.cameraX;
 				this.y += destLayer.cameraY;
 			}
@@ -1082,7 +1082,7 @@ RygameObject.prototype.rotateAroundPoint = function (x, y, angleRadians, angleDi
  * @param clearRect: whether the current rect should be changed for the new image (true) or left the same (false)
  */
 RygameObject.prototype.changeImage = function (imageName, clearRect) {
-	//TODO: drawSurface and rect dimensions are currently left unchanged, meaning the new image may be cut off
+	// TODO: drawSurface and rect dimensions are currently left unchanged, meaning the new image may be cut off
 	this.image = GameManager.images[imageName];
 	if (clearRect) {
 		this.drawSurface.clearRect(0, 0, this.rect.width, this.rect.height);
@@ -1141,13 +1141,13 @@ RygameObject.prototype.moveDirection = function (angleDegrees, amount) {
  * @param yPrevious: our previous y coordinate that we are retreating towards
  */
 RygameObject.prototype.moveOutsideCollision = function (otherObject, xPrevious, yPrevious) {
-	//TODO: currently only accepts Rect collisions
+	// TODO: currently only accepts Rect collisions
 	let angle;
 	if (xPrevious === this.x && yPrevious === this.y) {
-		//if there was no movement since last frame we just move backwards from where we're facing instead
+		// if there was no movement since last frame we just move backwards from where we're facing instead
 		angle = 180 + this.drawAngle / Math.PI * 180;
 	} else {
-		angle = getAngle(this.x, this.y, xPrevious, yPrevious); //TODO: VERIFY THAT THIS METHOD WORKS CORRECTLY
+		angle = getAngle(this.x, this.y, xPrevious, yPrevious); // TODO: VERIFY THAT THIS METHOD WORKS CORRECTLY
 	}
 	while (collisionRect(this, otherObject)) {
 		this.moveDirection(angle, 1);
@@ -1172,7 +1172,7 @@ RygameObject.prototype.addGroupContained = function (group) {
  * kill this RygameObject
  */
 RygameObject.prototype.die = function () {
-	//don't do anything if already dead
+	// don't do anything if already dead
 	if (this.dead) {
 		return;
 	}
@@ -1239,7 +1239,7 @@ function RygameObject(x, y, updateDepth, drawDepth, image, layer, affectedByCame
 		this.drawSurface = createContext(this.image.width, this.image.height, false);
 		this.drawSurface.drawImage(this.image, 0, 0);
 	}
-	//unfortunately have to reference dimensions via drawSurface.canvas.width rather than drawSurface.width
+	// unfortunately have to reference dimensions via drawSurface.canvas.width rather than drawSurface.width
 	if (this.drawSurface != null) {
 		this.rect = new Rect(this.drawSurface.canvas.width, this.drawSurface.canvas.height);
 	} else {
@@ -1259,14 +1259,14 @@ function RygameObject(x, y, updateDepth, drawDepth, image, layer, affectedByCame
  * @returns oldContext, or a newly created context, depending on whether operateInPlace is true or false
  */
 function updateBrightness(oldContext, brightnessPercent, operateInPlace = false) {
-	//copy old canvas to new canvas, if in-place operation is not desired
+	// copy old canvas to new canvas, if in-place operation is not desired
 	const newContext = operateInPlace ? oldContext : createContext(oldContext.canvas.width, oldContext.canvas.height, false);
 	newContext.drawImage(oldContext.canvas, 0, 0);
 	newContext.globalAlpha = brightnessPercent;
 	newContext.fillStyle = brightnessPercent >= 0 ? 'rgba(225,225,225,' + (brightnessPercent * .01) + ')' : 'rgba(0,0,0,' + (-1 * (brightnessPercent * .01)) + ')';
 	newContext.fillRect(0, 0, newContext.canvas.width, newContext.canvas.height);
 
-	//set context vars back when we are done
+	// set context vars back when we are done
 	newContext.globalAlpha = oldContext.globalAlpha;
 	newContext.fillStype = oldContext.fillStyle;
 	return newContext;
