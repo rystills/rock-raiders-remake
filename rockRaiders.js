@@ -1389,10 +1389,14 @@ function drawUI() {
 	}
 
 	// draw ore and crystal text
-	GameManager.setFontSize(12);
+	GameManager.setTextAlign("center");
+	GameManager.setFontWeight("bold");
+	GameManager.setFontSize(15);
 	GameManager.drawSurface.fillStyle = "rgb(255,255,255)";
-	GameManager.drawSurface.fillText(collectedResources["ore"], GameManager.screenWidth - 60, 595);
-	GameManager.drawSurface.fillText(collectedResources["crystal"], GameManager.screenWidth - 28, 595);
+	GameManager.drawSurface.fillText(collectedResources["ore"], GameManager.screenWidth - 48, 597);
+	GameManager.drawSurface.fillText(collectedResources["crystal"], GameManager.screenWidth - 16, 597);
+	GameManager.setFontWeight("");
+	GameManager.setTextAlign("start");
 }
 
 /**

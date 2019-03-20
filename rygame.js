@@ -405,6 +405,15 @@ GameManagerInternal.prototype.drawText = function (text, x, y, centerX, centerY)
 	this.drawSurface.fillText(text, x - halfWidth, y + halfHeight);
 };
 
+GameManagerInternal.prototype.setTextAlign = function (align) {
+	this.drawSurface.textAlign = align;
+};
+
+GameManagerInternal.prototype.setFontWeight = function (weight) {
+	this.fontWeight = weight;
+	this.setFont();
+};
+
 /**
  * set the current font size
  * @param size: the desired font size
@@ -427,7 +436,7 @@ GameManagerInternal.prototype.setFontName = function (name) {
  * update the font depending on the current name and size variables
  */
 GameManagerInternal.prototype.setFont = function () {
-	this.drawSurface.font = this.fontSize + "px " + this.fontName;
+	this.drawSurface.font = this.fontWeight + " " + this.fontSize + "px " + this.fontName;
 };
 
 /**
@@ -651,9 +660,13 @@ function GameManagerInternal() {
 	this.mouseReleasedPosRight = {x: 1, y: 1};
 	// this is just a default; feel free to change it at any point from the game file
 	this.fullScreenKey = "F";
-	// font size in pixels - first part of html font property (formatted 'fontSizepx fontName')
+	// text alignment
+	this.textAlign = "";
+	// font weight - first part of html font property (formatted 'fontWeight fontSizepx fontName')
+	this.fontWeight = "";
+	// font size in pixels - second part of html font property (formatted 'fontWeight fontSizepx fontName')
 	this.fontSize = 48;
-	// font name - second part of html font property (formatted 'fontSizepx fontName')
+	// font name - third part of html font property (formatted 'fontWeight fontSizepx fontName')
 	this.fontName = "Arial";
 }
 
