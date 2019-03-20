@@ -989,7 +989,7 @@ function Raider(space) {
 	this.space = space;
 	this.setCenterX(this.space.centerX());
 	this.setCenterY(this.space.centerY());
-	this.speed = 4;
+	this.speed = 3;
 	this.drillSpeed = .4;
 	this.sweepSpeed = 2;
 	this.reinforceSpeed = 1.25;
