@@ -1765,11 +1765,11 @@ function createButtons() {
 		["vehicle"], ["small transport truck"], true, true, null, buildRequirementsMet, ["small transport truck"]));
 
 	// raider selected buttons
-	buttons.push(new Button(buttonsX, 10, 0, 0, "stop minifig button.png", gameLayer, "", stopMinifig, false, false, ["raider"]));
-	buttons.push(new Button(buttonsX, 50, 0, 0, "unload minifig button.png", gameLayer, "", unloadMinifig, false, false, ["raider"]));
-	buttons.push(new Button(buttonsX, 90, 0, 0, "getTool.png", gameLayer, "", openToolMenu, false, false, ["raider"]));
-	buttons.push(new Button(buttonsX, 130, 0, 0, "upgrade button.png", gameLayer, "", upgradeRaider, false, false, ["raider"]));
-	buttons.push(new Button(buttonsX, 170, 0, 0, "exit vehicle.png", gameLayer, "", exitVehicle, false, false, ["raider"]));
+	buttons.push(new Button(buttonsX, 10, 0, 0, "stop minifig button.png", gameLayer, "", stopMinifig, false, false, ["raider"], ["", "tool"]));
+	buttons.push(new Button(buttonsX, 50, 0, 0, "unload minifig button.png", gameLayer, "", unloadMinifig, false, false, ["raider"], ["", "tool"]));
+	buttons.push(new Button(buttonsX, 90, 0, 0, "getTool.png", gameLayer, "", openToolMenu, false, false, ["raider"], ["", "tool"]));
+	buttons.push(new Button(buttonsX, 130, 0, 0, "upgrade button.png", gameLayer, "", upgradeRaider, false, false, ["raider"], ["", "tool"]));
+	buttons.push(new Button(buttonsX, 170, 0, 0, "exit vehicle.png", gameLayer, "", exitVehicle, false, false, ["raider"], ["", "tool"]));
 
 	// get tool buttons
 	buttons.push(new Button(buttonsX - 40, 90, 0, 0, "get_Drill.png", gameLayer, "", getTool, false, false, ["raider"], ["tool"], ["drill"]));
