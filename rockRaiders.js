@@ -536,7 +536,13 @@ function createRaider() {
 	if (toolStore == null) {
 		return;
 	}
-	raiders.push(new Raider(toolStore.powerPathSpace));
+	let raider = new Raider(toolStore);
+	raider.walkPosDummy.setCenterX(toolStore.powerPathSpace.randomX());
+	raider.walkPosDummy.setCenterY(toolStore.powerPathSpace.randomY());
+	raider.currentTask = raider.walkPosDummy;
+	raider.currentObjective = raider.walkPosDummy;
+	raider.currentPath = calculatePath(terrain, toolStore, toolStore.powerPathSpace, false);
+	raiders.push(raider);
 }
 
 /**
