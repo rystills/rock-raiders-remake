@@ -502,9 +502,6 @@ function taskType(task, raider) { // optional raider flag allows us to determine
 	if (typeof task.buildable != "undefined" && task.buildable === true) {
 		return "build";
 	}
-	if (typeof task.walkable != "undefined" && task.walkable === true) {
-		return "walk";
-	}
 	if (typeof task.reinforcable != "undefined" && task.reinforcable === true) {
 		return "reinforce";
 	}
@@ -519,6 +516,9 @@ function taskType(task, raider) { // optional raider flag allows us to determine
 	}
 	if (typeof task.isBuilding != "undefined" && task.isBuilding === true && task.type === "tool store") {
 		return (raider != null && raider.getToolName != null) ? "get tool" : "upgrade";
+	}
+	if (typeof task.walkable != "undefined" && task.walkable === true) {
+		return "walk";
 	}
 }
 

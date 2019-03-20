@@ -489,6 +489,7 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 	} else if (type === "tool store") {
 		this.image = "tool store.png";
 		this.isBuilding = true;
+		this.walkable = true;
 		if (this.touched === true) {
 			const index = buildings.indexOf(this);
 			if (index === -1) {
