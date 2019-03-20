@@ -364,7 +364,7 @@ Raider.prototype.checkSetTask = function (i, mustBeHighPriority, calculatedPath)
 			}
 			// check if the task requires a tool and we can take it
 			const maxTools = 2 + this.upgradeLevel;
-			if (this.tools.length < maxTools && !this.vehicleInhibitsTask("get tool")) {
+			if (this.tools.length < maxTools && !this.vehicleInhibitsTask("get tool") && (taskType(tasksAvailable[i]) !== "drill hard" || (this.vehicle !== null && this.vehicle.canDrillHard))) {
 				const destinationSite = pathToClosestBuilding(this, "tool store");
 				// if there's no path to a tool store to get a resource with which to build, move on to the next high priority task
 				if (destinationSite != null) {
