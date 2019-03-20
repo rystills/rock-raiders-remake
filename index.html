@@ -1,89 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
-<link rel="stylesheet" type="text/css" href="styles.css">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" href="favicon.ico">
 
-    <title>Lego Rock Raiders HTML5 Remake</title>
-
-    <script type="text/javascript">
-		// comment out most of the document and replace it with offline content if running locally
-		const runMode = document.URL.slice(0, 5) === "file:" ? "local" : "web";
-		console.log("index mode: " + runMode);
-		if (runMode === "local") {
-			document.write("<!--");
-		}
-    </script>
+    <title>Rock Raiders HTML5 Remake</title>
 
     <? Bootstrap core CSS ?>
     <link href="css/bootstrap.min.css" rel="stylesheet">
-
-    <? Custom styles for this template ?>
-    <link href="css/cover.css" rel="stylesheet">
 
     <script src="js/ie-emulation-modes-warning.js"></script>
 
     <? IE10 viewport hack for Surface/desktop Windows 8 bug ?>
     <script src="js/ie10-viewport-bug-workaround.js"></script>
 
-    <!--  -->
+    <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 
-
 <body>
-<script type="text/javascript">
-	if (runMode === "local") {
-		document.write("<!--");
-	}
-</script>
 <div class="site-wrapper">
     <div class="site-wrapper-inner">
         <div class="cover-container">
-            <!--  -->
-            <div class="inner cover noselect" style="color: white; text-align: center">
-                <h1 class="cover-heading">Lego Rock Raiders HTML5 Remake</h1>
-                <p class="lead">JavaScript remake of the classic game "Lego Rock Raiders" showcasing usage of the Rygame HTML5 Port!</p>
+            <div class="inner-cover noselect">
+                <h1 class="cover-heading">Rock Raiders HTML5 Remake</h1>
+                <p class="lead">JavaScript remake of the classic game "Rock Raiders" showcasing usage of the Rygame HTML5 Port!</p>
             </div>
         </div>
-        <div id="fscontainer" class="container">
-            <div class="helper">
-                <div id="canvasDiv" align="center">
-                    <canvas id="canvas" width="800" height="600" tabindex="1" style="outline:none"></canvas>
-                </div>
-            </div>
+        <div id="fscontainer" class="container-fluid" align="center">
+            <canvas id="canvas" width="800" height="600" tabindex="1"></canvas>
         </div>
-        <script type="text/javascript">
-			if (runMode === "local") {
-				document.write("<!--");
-			}
-        </script>
     </div>
 </div>
-<!--  -->
-
 <script src="rygameAssetLoader.js"></script>
-
-<script type="text/javascript">
-	if (runMode === "local") {
-		document.write("<!--");
-	}
-</script>
-
-<? Bootstrap core JavaScript ================================================== ?>
-<? Placed at the end of the document so the pages load faster ?>
 <script src="js/jquery-3.3.1.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
-<!--  -->
-
 </body>
-
-<script type="text/javascript">
-	if (runMode === "local") {
-		document.body.style.backgroundColor = "rgb(51,51,51)";
-	}
-</script>
-
 </html>
