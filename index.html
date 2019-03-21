@@ -92,7 +92,9 @@
 <script src="js/bootstrap.min.js"></script>
 <script src="rygameAssetLoader.js"></script>
 <script>
-	$('#wadfiles_select_modal').modal();
+	startWithCachedFiles(() => {
+		$('#wadfiles_select_modal').modal();
+	});
 </script>
 </body>
 </html>

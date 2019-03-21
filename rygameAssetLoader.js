@@ -70,6 +70,8 @@ function loadSoundAsset(path, name, callback) {
  * load in the asset file, to begin the chain of asset loading
  */
 function loadAssetFile() {
+	// begin loading assets
+	startTime = new Date();
 	loadScriptAsset("assets.js", loadRygame);
 }
 
@@ -197,7 +199,7 @@ function parseWadFile(data) {
 		console.log(numberOfEntries);
 	pos = 8;
 
-	let wad = new WadHandler(buffer);
+	const wad = new WadHandler(buffer);
 
 	let bufferStart = pos;
 	for (let i = 0; i < numberOfEntries; pos++) {
@@ -263,29 +265,80 @@ function WadHandler(buffer) {
 function startGameUpload() {
 	const wad0Url = URL.createObjectURL(document.getElementById('wad0-file').files[0]);
 	const wad1Url = URL.createObjectURL(document.getElementById('wad1-file').files[0]);
-	startGame(wad0Url, wad1Url);
+	loadWadFiles(wad0Url, wad1Url);
 }
 
 /**
  * Start the game by downloading and using remotely available WAD files
  */
 function startGameUrl() {
-	startGame(document.getElementById('wad0-url').value, document.getElementById('wad1-url').value);
+	loadWadFiles(document.getElementById('wad0-url').value, document.getElementById('wad1-url').value);
 }
 
 /**
- * Private helper method, which capsules the used files and waits for them to become ready before continuing
+ * Private helper method, which combines file loading and waits for them to become ready before continuing
  * @param wad0Url Url to parse the LegoRR0.wad file from
  * @param wad1Url Url to parse the LegoRR1.wad file from
  */
-function startGame(wad0Url, wad1Url) {
-	// begin loading assets
-	startTime = new Date();
+function loadWadFiles(wad0Url, wad1Url) {
 	Promise.all([loadWadFile(wad0Url), loadWadFile(wad1Url)]).then(wadFiles => {
 		$('#wadfiles_select_modal').modal('hide');
 		wad0File = wadFiles[0];
 		wad1File = wadFiles[1];
+		storeFilesInCache();
 		loadAssetFile();
+	});
+}
+
+function openLocalCache(onopen) {
+	const request = indexedDB.open("RockRaidersRemake");
+	let db = null;
+	request.onupgradeneeded = function (event) {
+		db = event.target.result;
+		if (db.objectStoreNames.contains('wadfiles')) {
+			db.deleteObjectStore('wadfiles');
+		}
+		db.createObjectStore("wadfiles");
+	};
+	request.onsuccess = function (event) {
+		db = db ? db : event.target.result;
+		const transaction = db.transaction(["wadfiles"], "readwrite");
+		const objectStore = transaction.objectStore("wadfiles");
+		onopen(objectStore);
+	};
+}
+
+function storeFilesInCache() {
+	openLocalCache((objectStore) => {
+		objectStore.put(wad0File, "wad0");
+		objectStore.put(wad1File, "wad1");
+		console.log("Cached files");
+	});
+}
+
+function startWithCachedFiles(onerror) {
+	openLocalCache((objectStore) => {
+		const request1 = objectStore.get("wad0");
+		request1.onerror = onerror;
+		request1.onsuccess = function () {
+			if (request1.result === undefined) {
+				onerror();
+				return;
+			}
+			wad0File = new WadHandler(); // class info are runtime info and not stored in cache => use copy constructor
+			for (let prop in request1.result) wad0File[prop] = request1.result[prop];
+			const request2 = objectStore.get("wad1");
+			request2.onerror = onerror;
+			request2.onsuccess = function () {
+				if (request2.result === undefined) {
+					onerror();
+					return;
+				}
+				wad1File = new WadHandler(); // class info are runtime info and not stored in cache => use copy constructor
+				for (let prop in request2.result) wad1File[prop] = request2.result[prop];
+				loadAssetFile();
+			};
+		};
 	});
 }
 
