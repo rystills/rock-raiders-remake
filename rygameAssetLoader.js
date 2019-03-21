@@ -158,6 +158,10 @@ function loadAssetNext() {
 	}
 }
 
+/**
+ * Read WAD file as binary blob from the given URL and parse it on success
+ * @param url the url to the WAD file, can be local file url (file://...) too
+ */
 function loadWadFile(url) {
 	return new Promise(resolve => {
 		console.log("Loading wad file from " + url);
@@ -173,6 +177,11 @@ function loadWadFile(url) {
 	})
 }
 
+/**
+ * Validate and parse the given data object as binary blob of a WAD file
+ * @param data binary blob
+ * @returns {WadHandler} Returns a handler for this WAD file on success
+ */
 function parseWadFile(data) {
 	const dataView = new DataView(data);
 	const buffer = new Int8Array(data);
@@ -221,6 +230,11 @@ function parseWadFile(data) {
 	return wad;
 }
 
+/**
+ * Returns the entries content by name extracted from the managed WAD file
+ * @param entryName Entry name to be extracted
+ * @returns {string} Returns the local object url to the extracted data
+ */
 WadHandler.prototype.getEntry = function (entryName) {
 	entryName = entryName.toLowerCase();
 	for (let i = 0; i < this.entries.length; i++) {
@@ -231,11 +245,48 @@ WadHandler.prototype.getEntry = function (entryName) {
 	throw "Entry '" + entryName + "' not found in wad file";
 };
 
+/**
+ * Handles the extraction of single files from a bigger WAD data blob
+ * @param buffer A data blob which contains the raw data in one piece
+ * @constructor
+ */
 function WadHandler(buffer) {
 	this.buffer = buffer;
 	this.entries = [];
 	this.fLength = [];
 	this.fStart = [];
+}
+
+/**
+ * Start the game by using locally provided WAD files
+ */
+function startGameUpload() {
+	const wad0Url = URL.createObjectURL(document.getElementById('wad0-file').files[0]);
+	const wad1Url = URL.createObjectURL(document.getElementById('wad1-file').files[0]);
+	startGame(wad0Url, wad1Url);
+}
+
+/**
+ * Start the game by downloading and using remotely available WAD files
+ */
+function startGameUrl() {
+	startGame(document.getElementById('wad0-url').value, document.getElementById('wad1-url').value);
+}
+
+/**
+ * Private helper method, which capsules the used files and waits for them to become ready before continuing
+ * @param wad0Url Url to parse the LegoRR0.wad file from
+ * @param wad1Url Url to parse the LegoRR1.wad file from
+ */
+function startGame(wad0Url, wad1Url) {
+	// begin loading assets
+	startTime = new Date();
+	Promise.all([loadWadFile(wad0Url), loadWadFile(wad1Url)]).then(wadFiles => {
+		$('#wadfiles_select_modal').modal('hide');
+		wad0File = wadFiles[0];
+		wad1File = wadFiles[1];
+		loadAssetFile();
+	});
 }
 
 // if a script assigns a function to this variable, the function will be called when refreshing the screen after each asset load
@@ -267,13 +318,3 @@ ctx.fillText("Loading Rock Raiders...", 5, 310);
 ctx.font = "30px Arial";
 ctx.fillStyle = 'white';
 ctx.fillText("loading assets.js", 20, 580);
-
-// begin loading assets
-startTime = new Date();
-const wad0Loader = loadWadFile(document.getElementById("wad0-url").value);
-const wad1Loader = loadWadFile(document.getElementById("wad1-url").value);
-Promise.all([wad0Loader, wad1Loader]).then(wadFiles => {
-	wad0File = wadFiles[0];
-	wad1File = wadFiles[1];
-	loadAssetFile();
-});

@@ -28,27 +28,62 @@
                 <p class="lead">JavaScript remake of the classic game "Rock Raiders" showcasing usage of the Rygame HTML5 Port!</p>
             </div>
         </div>
-        <div id="fscontainer" class="container-fluid" align="center">
-            <canvas id="canvas" width="800" height="600" tabindex="1"></canvas>
-        </div>
-        <ul class="nav nav-tabs" id="wadTab" role="tablist">
-            <li class="nav-item">
-                <a class="nav-link active" id="upload-tab" data-toggle="tab" href="#upload" role="tab" aria-controls="upload" aria-selected="true">upload</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" id="url-tab" data-toggle="tab" href="#url" role="tab" aria-controls="url" aria-selected="false">url</a>
-            </li>
-        </ul>
-        <div class="tab-content" id="wadTabContent">
-            <div class="tab-pane fade show active" id="upload" role="tabpanel" aria-labelledby="upload-tab">
-                TODO provide upload form
+        <div id="fscontainer" class="container-fluid">
+            <div align="center">
+                <canvas id="canvas" width="800" height="600" tabindex="1"></canvas>
             </div>
-            <div class="tab-pane fade" id="url" role="tabpanel" aria-labelledby="url-tab">
-                TODO provide url form
-                <form class="form">
-                    <input id="wad0-url" type="url" value="/rock-raiders-remake/LegoRR0.wad">
-                    <input id="wad1-url" type="url" value="/rock-raiders-remake/LegoRR1.wad">
-                </form>
+            <div class="modal" id="wadfiles_select_modal" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Load WAD Files</h5>
+                        </div>
+                        <div class="modal-body">
+                            <p>Assets not included! In order to play the game, you have to provide a reference below to the original game files.</p>
+
+                            <ul class="nav nav-tabs" role="tablist">
+                                <li class="nav-item">
+                                    <a href="#upload-tab" class="nav-link active" id="link-upload-tab" data-toggle="tab" role="tab" aria-controls="upload-tab" aria-selected="true">Local File (Recommended)</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="#url-tab" class="nav-link" id="link-url-tab" data-toggle="tab" role="tab" aria-controls="url-tab" aria-selected="false">URL</a>
+                                </li>
+                            </ul>
+
+                            <div class="tab-content pt-3" id="upload-tab-content">
+                                <div class="tab-pane fade show active" id="upload-tab" role="tabpanel" aria-labelledby="link-upload-tab">
+                                    <form action="javascript: startGameUpload();">
+                                        <div class="form-group">
+                                            <label for="wad0-file">Select <span class="font-weight-bold">LegoRR0.wad</span> here:</label>
+                                            <input type="file" class="form-control-file" id="wad0-file" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="wad1-file">Select <span class="font-weight-bold">LegoRR1.wad</span> here:</label>
+                                            <input type="file" class="form-control-file" id="wad1-file" required>
+                                        </div>
+                                        <!-- We should add a language selector here, but maybe only after scanning the WADs... -->
+                                        <button type="submit" class="btn btn-primary float-right" id="start-upload-button">Start Game</button>
+                                    </form>
+                                </div>
+                                <div class="tab-pane fade" id="url-tab" role="tabpanel" aria-labelledby="link-url-tab">
+                                    <form action="javascript: startGameUrl();">
+                                        <div class="form-group">
+                                            <label for="wad0-url">Enter url for <span class="font-weight-bold">LegoRR0.wad</span> here:</label>
+                                            <input type="url" class="form-control" id="wad0-url" value="https://drive.google.com/open?id=11t9AJnGCWnEWlLxSsYQeB_Y4jrKfxVxQ" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="wad1-url">Enter url for <span class="font-weight-bold">LegoRR1.wad</span> here</label>
+                                            <input type="url" class="form-control" id="wad1-url" value="https://drive.google.com/open?id=11lDL8ewSIWrRVTJvoLDYF9YOx2ra1ULN" required>
+                                        </div>
+                                        <p class="font-weight-bold">This option only works, if hosted with proper CORS settings.</p>
+                                        <!-- We should add a language selector here, but maybe only after scanning the WADs... -->
+                                        <button type="submit" class="btn btn-primary float-right" id="start-url-button">Start Game</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -56,5 +91,8 @@
 <script src="js/jquery-3.3.1.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
 <script src="rygameAssetLoader.js"></script>
+<script>
+	$('#wadfiles_select_modal').modal();
+</script>
 </body>
 </html>
