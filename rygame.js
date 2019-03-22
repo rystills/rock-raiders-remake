@@ -831,7 +831,9 @@ Button.prototype.update = function (selectionType, openMenu) {
 
 	if (GameManager.mousePressedLeft === true) {
 		this.mouseDownOnButton = collisionPoint(GameManager.mousePos.x, GameManager.mousePos.y, this, this.affectedByCamera);
-	} else if (GameManager.mouseReleasedLeft === true) {
+	}
+	// mouse pressed and released events can occur in the same frame on high doses of coffee
+	if (GameManager.mouseReleasedLeft === true) {
 		if (this.mouseDownOnButton === true) {
 			if (collisionPoint(GameManager.mousePos.x, GameManager.mousePos.y, this, this.affectedByCamera)) {
 				if (this.runMethod != null) {
