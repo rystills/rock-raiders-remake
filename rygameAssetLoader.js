@@ -86,9 +86,9 @@ function loadRygame() {
 
 	// clear the lower portion of the canvas and update the loading status to display rygame.js
 	ctx.fillStyle = "black";
-	ctx.fillRect(0, 400, canvas.width, 200);
+	ctx.fillRect(0, loadingCanvas.height - 50, loadingCanvas.width, 50);
 	ctx.fillStyle = 'white';
-	ctx.fillText("loading rygame.js", 20, 580);
+	ctx.fillText("loading rygame.js", 20, loadingCanvas.height - 30);
 
 	loadScriptAsset("rygame.js", loadAssets);
 }
@@ -129,7 +129,7 @@ function loadAssetNext() {
 			overrideLoadingScreen(assetNum, GameManager.scriptObjects["assets.js"].assets.length);
 		} else {
 			ctx.fillStyle = "black";
-			ctx.fillRect(0, 400, canvas.width, 200);
+			ctx.fillRect(0, 400, loadingCanvas.width, 200);
 			ctx.fillStyle = 'white';
 			// update the loading text to the name of the next file, appending .ogg as the default extension for sound files
 			let loadString = "loading " + curAsset[2] + (curAsset[0] === "snd" ? ".ogg" : "");
@@ -137,8 +137,7 @@ function loadAssetNext() {
 			if (loadString.slice(-9) === "undefined") {
 				loadString = loadString.slice(0, -9);
 			}
-			ctx.fillText(loadString, 20, 580);
-
+			ctx.fillText(loadString, 20, loadingCanvas.height - 30);
 		}
 
 		let appendString = "";
@@ -355,19 +354,19 @@ let lastScriptName = "";
 let wad0File;
 let wad1File;
 
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
+const loadingCanvas = document.getElementById('canvas');
+const ctx = loadingCanvas.getContext('2d');
 
 // clear the screen to black
 ctx.fillStyle = "black";
-ctx.fillRect(0, 0, canvas.width, canvas.height);
+ctx.fillRect(0, 0, loadingCanvas.width, loadingCanvas.height);
 
 // draw the loading title
-ctx.font = "74px Arial";
+ctx.font = "48px Arial";
 ctx.fillStyle = 'white';
-ctx.fillText("Loading Rock Raiders...", 5, 310);
+ctx.fillText("Loading Rock Raiders...", 5, 210);
 
 // hard-code the first loading message as assets will always be stored in assets.js
 ctx.font = "30px Arial";
 ctx.fillStyle = 'white';
-ctx.fillText("loading assets.js", 20, 580);
+ctx.fillText("loading assets.js", 20, loadingCanvas.height - 30);

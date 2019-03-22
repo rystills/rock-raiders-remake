@@ -430,27 +430,23 @@ GameManagerInternal.prototype.setFont = function () {
  */
 GameManagerInternal.prototype.initializeRygame = function (is3d) {
 	// create context
-	let canvas = document.getElementById('canvas');
 	if (!is3d) {
-		this.drawSurface = canvas.getContext('2d');
+		this.drawSurface = GameManager.canvas.getContext('2d');
 	} else {
-		this.drawSurface = canvas.getContext('3d');
+		this.drawSurface = GameManager.canvas.getContext('3d');
 	}
 	// mouse code (this snippet is taken from a stackOverflow answer)
-	stylePaddingLeft = parseInt(document.defaultView.getComputedStyle(canvas, null)['paddingLeft'], 10) || 0;
-	stylePaddingTop = parseInt(document.defaultView.getComputedStyle(canvas, null)['paddingTop'], 10) || 0;
-	styleBorderLeft = parseInt(document.defaultView.getComputedStyle(canvas, null)['borderLeftWidth'], 10) || 0;
-	styleBorderTop = parseInt(document.defaultView.getComputedStyle(canvas, null)['borderTopWidth'], 10) || 0;
+	stylePaddingLeft = parseInt(document.defaultView.getComputedStyle(GameManager.canvas, null)['paddingLeft'], 10) || 0;
+	stylePaddingTop = parseInt(document.defaultView.getComputedStyle(GameManager.canvas, null)['paddingTop'], 10) || 0;
+	styleBorderLeft = parseInt(document.defaultView.getComputedStyle(GameManager.canvas, null)['borderLeftWidth'], 10) || 0;
+	styleBorderTop = parseInt(document.defaultView.getComputedStyle(GameManager.canvas, null)['borderTopWidth'], 10) || 0;
 
 	html = document.body.parentNode;
 	htmlTop = html.offsetTop;
 	htmlLeft = html.offsetLeft;
 
-	this.screenWidth = this.drawSurface.canvas.width;
-	this.screenHeight = this.drawSurface.canvas.height;
-
 	// init key events
-	canvas.addEventListener("keydown", function (e) {
+	GameManager.canvas.addEventListener("keydown", function (e) {
 		GameManager.keyStates[String.fromCharCode(e.keyCode)] = true;
 		// fullScreenKey is a property that must be set in the game itself rather than being hardcoded,
 		// as that would prevent the programmer from being able to use a key that they might need
@@ -458,19 +454,19 @@ GameManagerInternal.prototype.initializeRygame = function (is3d) {
 			goFullScreen();
 		}
 	});
-	canvas.addEventListener("keyup", function (e) {
+	GameManager.canvas.addEventListener("keyup", function (e) {
 		GameManager.keyStates[String.fromCharCode(e.keyCode)] = false;
 	});
-	canvas.addEventListener("mousemove", function (e) {
+	GameManager.canvas.addEventListener("mousemove", function (e) {
 		GameManager.mousePos = getMousePos(e);
 	});
-	canvas.addEventListener("mouseleave", function (e) {
+	GameManager.canvas.addEventListener("mouseleave", function (e) {
 		GameManager.mousePos = getMousePos(e);
 	});
-	canvas.addEventListener("mouseenter", function (e) {
+	GameManager.canvas.addEventListener("mouseenter", function (e) {
 		GameManager.mousePos = getMousePos(e);
 	});
-	canvas.addEventListener("mousedown", function (e) {
+	GameManager.canvas.addEventListener("mousedown", function (e) {
 		if (e.button === 0) {
 			// left click press detected
 			GameManager.mouseDownLeft = true;
@@ -481,7 +477,7 @@ GameManagerInternal.prototype.initializeRygame = function (is3d) {
 			GameManager.mouseDownRight = true;
 		}
 	});
-	canvas.addEventListener("mouseup", function (e) {
+	GameManager.canvas.addEventListener("mouseup", function (e) {
 		if (e.button === 0) {
 			GameManager.mouseReleasedLeft = true;
 			// we can use the same method as in mousemove to get the effective mouse position
@@ -496,7 +492,7 @@ GameManagerInternal.prototype.initializeRygame = function (is3d) {
 			GameManager.mouseDownRight = false;
 		}
 	});
-	canvas.addEventListener('contextmenu', function (e) {
+	GameManager.canvas.addEventListener('contextmenu', function (e) {
 		e.preventDefault();
 	});
 };
@@ -595,6 +591,10 @@ GameManagerInternal.prototype.drawFrame = function () {
 	this.mousePressedRight = false;
 };
 
+GameManagerInternal.prototype.getScreenZoom = function () {
+	return this.screenWidth / this.gameWidth;
+};
+
 /**
  * draws the input surface to the GameManager's drawSurface at the specified location
  * @param surface: the surface to be drawn onto the GameManager's drawSurface
@@ -620,9 +620,14 @@ function GameManagerInternal() {
 	this.completeLayerList = [];
 	this.renderOrderedCompleteObjectList = [];
 	this.updateOrderedCompleteObjectList = [];
+	this.canvas = document.getElementById('canvas');
 	this.drawSurface = null;
-	this.screenWidth = null;
-	this.screenHeight = null;
+	// native resolution of the game
+	this.gameWidth = 640;
+	this.gameHeight = 480;
+	// zoomed/shrinked screen resolution
+	this.screenWidth = this.canvas.width;
+	this.screenHeight = this.canvas.height;
 	this.mousePos = {x: 1, y: 1};
 	this.mouseDownLeft = false;
 	this.mouseDownRight = false;

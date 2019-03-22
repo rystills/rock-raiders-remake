@@ -2304,10 +2304,6 @@ function checkCloseMenu() {
  * main update loop: update the current layer and any non-automatic objects
  */
 function update() {
-	// check if canvas has been updated by the html page
-	if (GameManager.drawSurface == null) {
-		GameManager.drawSurface = document.getElementById('canvas').getContext('2d');
-	}
 	// menu update
 	if (menuLayer.active) {
 		// update music
@@ -2319,7 +2315,7 @@ function update() {
 		menuButtons.update();
 
 		// pre-render; draw menu background
-		GameManager.drawSurface.drawImage(GameManager.images["MenuBGpic.png"], 0, 0);
+		GameManager.drawSurface.drawImage(GameManager.images["MenuBGpic.png"], 0, 0, GameManager.screenWidth, GameManager.screenHeight);
 
 		// inital render; draw all rygame objects
 		GameManager.drawFrame();
