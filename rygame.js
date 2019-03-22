@@ -16,6 +16,7 @@ function goFullScreen() {
 }
 
 // mouse code - Snippet taken from StackOverflow
+// Original by https://simonsarris.com/making-html5-canvas-useful/
 let stylePaddingLeft = -1;
 let stylePaddingTop = -1;
 let styleBorderLeft = -1;
@@ -32,17 +33,13 @@ let htmlLeft = -1;
  * set to the mouse position relative to the state's canvas
  * If you wanna be super-correct this can be tricky,
  * we have to worry about padding and borders
- * takes an event and a reference to the canvas
+ * @param e: some mouse event
  */
-function getMouseDocument(e) {
-	/*return {
-	      x: e.clientX,
-	      y: e.clientY
-	    };*/
-	let element = GameManager.drawSurface, offsetX = 0, offsetY = 0, mx, my;
+function getMousePos(e) {
+	let element = e.target, offsetX = 0, offsetY = 0, mx, my;
 
 	// Compute the total offset. It's possible to cache this if you want
-	if (GameManager.drawSurface && element.offsetParent !== undefined) {
+	if (element.offsetParent !== undefined) {
 		do {
 			offsetX += element.offsetLeft;
 			offsetY += element.offsetTop;
@@ -55,8 +52,8 @@ function getMouseDocument(e) {
 	offsetX += stylePaddingLeft + styleBorderLeft + htmlLeft;
 	offsetY += stylePaddingTop + styleBorderTop + htmlTop;
 
-	mx = e.pageX - offsetX;
-	my = e.pageY - offsetY;
+	mx = (e.pageX - offsetX) / e.target.getBoundingClientRect().width * e.target.width;
+	my = (e.pageY - offsetY) / e.target.getBoundingClientRect().height * e.target.height;
 
 	// We return a simple javascript object with x and y defined
 	return {x: mx, y: my};
@@ -465,10 +462,7 @@ GameManagerInternal.prototype.initializeRygame = function (is3d) {
 		GameManager.keyStates[String.fromCharCode(e.keyCode)] = false;
 	});
 	canvas.addEventListener("mousemove", function (e) {
-		GameManager.mousePos = getMouseDocument(e);
-		const canvasRect = GameManager.drawSurface.canvas.getBoundingClientRect();
-		GameManager.mousePos.x -= canvasRect.left + window.pageXOffset;
-		GameManager.mousePos.y -= canvasRect.top + window.pageYOffset;
+		GameManager.mousePos = getMousePos(e);
 	});
 	canvas.addEventListener("mousedown", function (e) {
 		if (e.button === 0) {
@@ -486,18 +480,12 @@ GameManagerInternal.prototype.initializeRygame = function (is3d) {
 			GameManager.mouseReleasedLeft = true;
 			// we can use the same method as in mousemove to get the effective mouse position
 			// since the mouse coordinates are returned by the event in pageX and pageY regardless of the event type
-			GameManager.mouseReleasedPosLeft = getMouseDocument(e);
-			const canvasRect = GameManager.drawSurface.canvas.getBoundingClientRect();
-			GameManager.mouseReleasedPosLeft.x -= canvasRect.left + window.pageXOffset;
-			GameManager.mouseReleasedPosLeft.y -= canvasRect.top + window.pageYOffset;
+			GameManager.mouseReleasedPosLeft = getMousePos(e);
 			// left click release detected
 			GameManager.mouseDownLeft = false;
 		} else if (e.button === 2) {
 			GameManager.mouseReleasedRight = true;
-			GameManager.mouseReleasedPosRight = getMouseDocument(e);
-			const canvasRect = GameManager.drawSurface.canvas.getBoundingClientRect();
-			GameManager.mouseReleasedPosRight.x -= canvasRect.left + window.pageXOffset;
-			GameManager.mouseReleasedPosRight.y -= canvasRect.top + window.pageYOffset;
+			GameManager.mouseReleasedPosRight = getMousePos(e);
 			// right click release detected
 			GameManager.mouseDownRight = false;
 		}
