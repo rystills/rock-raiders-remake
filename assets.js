@@ -13,6 +13,8 @@ object = {
 		// ~images~
 		// menu resources
 		["wad0bmp", "Interface/FrontEnd/MenuBGpic.bmp", "MenuBGpic.png"], // main menu background
+		["wad0bmp", "Interface/FrontEnd/Menu_Font_LO.bmp", "Menu_Font_LO.bmp"], // main menu font
+		["wad0bmp", "Interface/FrontEnd/Menu_Font_HI.bmp", "Menu_Font_HI.bmp"], // (highlighted) main menu font
 
 		// level images FIXME replace with levels from wad
 		["img", "images\\level_select", "Levelpick.png"], // level select menu background

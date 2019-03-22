@@ -1951,14 +1951,81 @@ function levelIsUnlocked(levelNum) {
 	}
 }
 
+BitmapFont.prototype.createTextImage = function (text) {
+	let width = 0;
+	for (let c = 0; c < text.length; c++) {
+		width += this.letters[text.charAt(c)].width;
+	}
+	const scale = 800 / 640; // FIXME workaround. scaling should be done in total not per element
+	const surface = createContext(width * scale, this.maxCharHeight * scale, false);
+	let x = 0;
+	for (let c = 0; c < text.length; c++) {
+		const letterImg = this.letters[text.charAt(c)];
+		surface.drawImage(letterImg, x * scale, 0, letterImg.width * scale, letterImg.height * scale);
+		x += letterImg.width;
+	}
+	return surface;
+};
+
+function BitmapFont(chars, image, maxCharWidth, maxCharHeight) {
+	this.letters = [];
+	this.maxCharHeight = maxCharHeight;
+	for (let i = 0; i < chars.length; i++) {
+		const tmpContext = createContext(maxCharWidth, maxCharHeight, false);
+		tmpContext.drawImage(image, (i % 10) * maxCharWidth, Math.floor(i / 10) * maxCharHeight, maxCharWidth, maxCharHeight, 0, 0, maxCharWidth, maxCharHeight);
+		let tmpImage = tmpContext.getImageData(0, 0, maxCharWidth, maxCharHeight);
+		const imgData = tmpImage.data;
+		let actualWidth = 0;
+		for (let x = 0; x < maxCharWidth; x++) {
+			if (imgData[x * 4] === 255) { // red pixel indicates end of character
+				actualWidth = x;
+				break;
+			}
+		}
+		for (let x = 0; x < imgData.length; x += 4) {
+			if (imgData[x] + imgData[x + 1] + imgData[x + 2] === 0) {
+				imgData[x + 3] = 0; // set alpha channel to fully transparent for black pixels
+			}
+		}
+		tmpImage.data = imgData;
+		const context = createContext(actualWidth, maxCharHeight, false);
+		context.putImageData(tmpImage, 0, 0);
+		this.letters[chars[i]] = context.canvas;
+	}
+}
+
 /**
  * create all menu screen buttons once here
  */
 function createMenuButtons() {
 	// main menu buttons
-	const xPos = 320;
-	let yPos = 260;
-	menuButtons.push(new Button(xPos, yPos, 0, 0, null, menuLayer, "Select a Level", goToLevelSelect, false, true, null, null, [], true, false, [20, 245, 40]));
+	let xPos = 400;
+	let yPos = 280;
+
+	const chars = [" ", "!", "\"", "#", "$", "%", "⌵", "`", "(", ")",
+		"*", "+", ",", "-", ".", "/", "0", "1", "2", "3",
+		"4", "5", "6", "7", "8", "9", ":", ";", "<", "=",
+		">", "?", "@", "A", "B", "C", "D", "E", "F", "G",
+		"H", "I", "J", "K", "L", "M", "N", "O", "P", "Q",
+		"R", "S", "T", "U", "V", "W", "X", "Y", "Z", "[",
+		"\\", "]", "^", "_", "'", "a", "b", "c", "d", "e",
+		"f", "g", "h", "i", "j", "k", "l", "m", "n", "o",
+		"p", "q", "r", "s", "t", "u", "v", "w", "x", "y",
+		"z", "Ä", "Å", "Á", "À", "Â", "Ã", "Ą", "ä", "å",
+		"á", "à", "â", "ã", "ą", "Ë", "E̊", "É", "È", "É",
+		"Ę", "ë", "e̊", "é", "è", "e̊", "ę̊", "", "", "",
+		"", "", "", "", "", "Ö", "", "", "", "",
+		"ö", "", "", "", "", "Ü", "", "", "", "ü",
+		"", "", "", "", "", "", "", "", "", "",
+		"", "", "", "", "", "", "", "", "", "",
+		"", "", "", "", "", "", "", "Ñ", "", "ñ",
+		""
+	]; // TODO complete this character list
+	const fontLow = new BitmapFont(chars, GameManager.images["Menu_Font_LO.bmp"], 38, 43);
+	const fontHigh = new BitmapFont(chars, GameManager.images["Menu_Font_HI.bmp"], 38, 43);
+
+	menuButtons.push(new MainMenuButton(xPos, yPos, "Start Game", fontLow, fontHigh, menuLayer, goToLevelSelect));
+	xPos = 320;
 	yPos += 80;
 
 	menuButtons.push(new Button(xPos, yPos, 0, 0, null, menuLayer, "    Options:", null, false, true, null, null, [], false, false, [200, 200, 200]));

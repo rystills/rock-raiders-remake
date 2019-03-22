@@ -977,6 +977,77 @@ function Button(x, y, updateDepth, drawDepth, image, layer, text, runMethod, aff
 	this.updateText(text, false);
 }
 
+makeChild("ImageButton", "RygameObject");
+
+/**
+ * update this MainMenuButton's state based on mouse interactivity
+ */
+ImageButton.prototype.update = function () {
+	const mouseOver = collisionPoint(GameManager.mousePos.x, GameManager.mousePos.y, this, this.affectedByCamera);
+	// mouse pressed and released events can occur in the same frame on high doses of coffee
+	if (GameManager.mousePressedLeft === true) {
+		this.mouseDownOnButton = mouseOver;
+	}
+	if (GameManager.mouseReleasedLeft === true) {
+		if (this.mouseDownOnButton === true) {
+			if (mouseOver && this.runMethod != null) { // button has been clicked
+				this.runMethod.apply(this, this.optionalArgs);
+			}
+		}
+		this.mouseDownOnButton = false;
+	}
+
+	if (collisionPoint(GameManager.mousePos.x, GameManager.mousePos.y, this, this.affectedByCamera)) {
+		if (this.mouseDownOnButton) {
+			this.drawSurface = this.darkenedSurface;
+		} else {
+			this.drawSurface = this.brightenedSurface;
+		}
+	} else {
+		this.drawSurface = this.normalSurface;
+	}
+};
+
+/**
+ * A simple button class consisting of different images for each state.
+ * @param x button top left position
+ * @param y button top left position
+ * @param normalSurface normal display state of the button (also defines button size)
+ * @param brightenedSurface display state on mouse hover
+ * @param layer layer the button will be added to
+ * @param isAffectedByCamera true if the button should be scrolled with the camera
+ */
+function ImageButton(x, y, normalSurface, brightenedSurface, layer, isAffectedByCamera) {
+	RygameObject.call(this, x, y, 0, 0, null, layer, isAffectedByCamera, true, true);
+	this.normalSurface = normalSurface;
+	this.brightenedSurface = brightenedSurface;
+	this.darkenedSurface = this.normalSurface;
+	this.mouseDownOnButton = false;
+	this.rect = new Rect(this.normalSurface.canvas.width, this.normalSurface.canvas.height);
+}
+
+makeChild("MainMenuButton", "ImageButton");
+
+function MainMenuButton(centerX, centerY, text, fontNormal, fontBright, layer, runMethod) {
+	let normalSurface = fontNormal.createTextImage(text);
+	const x = centerX - normalSurface.canvas.width / 2;
+	const y = centerY - normalSurface.canvas.height / 2;
+	ImageButton.call(this, x, y, normalSurface, fontBright.createTextImage(text), layer, false);
+	this.runMethod = runMethod;
+}
+
+
+function LevelButton(x, y, normalSurface, brightenedSurface, layer, runMethod, levelName) {
+	this.normalSurface = normalSurface;
+	this.brightenedSurface = brightenedSurface;
+	this.darkenedSurface = this.normalSurface;
+	RygameObject.call(this, x, y, 0, 0, null, layer, true, true, true);
+	this.runMethod = runMethod;
+	this.mouseDownOnButton = false;
+	this.optionalArgs = [levelName];
+	this.rect = new Rect(this.normalSurface.canvas.width, this.normalSurface.canvas.height);
+}
+
 /**
  * renders this RygameObject's gui elements
  * @param destLayer: the layer on which to render the elements
