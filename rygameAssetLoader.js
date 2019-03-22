@@ -34,13 +34,35 @@ function finishLoading() {
  * @param callback: the callback function to be called once the image has finished loading
  */
 function loadImageAsset(path, name, callback) {
-	const img = document.createElement('img');
+	const img = new Image();
 
 	if (callback != null) {
 		img.onload = callback;
 	}
 
 	GameManager.images[name] = img;
+	img.src = path;
+}
+
+function loadAlphaImageAsset(path, name, callback) {
+	const img = new Image();
+
+	img.onload = function () {
+		const context = createContext(img.naturalWidth, img.naturalHeight, false);
+		context.drawImage(img, 0, 0);
+		const imgData = context.getImageData(0, 0, context.canvas.width, context.canvas.height);
+		let data = imgData.data;
+		for (let n = 0; n < data.length; n += 4) {
+			if (data[n] === 0 && data[n + 1] === 0 && data[n + 2] === 0) {
+				data[n + 3] = 0;
+			}
+		}
+		imgData.data = data;
+		context.putImageData(imgData, 0, 0);
+		GameManager.images[name] = context;
+		callback();
+	};
+
 	img.src = path;
 }
 
@@ -153,6 +175,8 @@ function loadAssetNext() {
 			loadSoundAsset(appendString + curAsset[2], curAsset[2], loadAssetNext);
 		} else if (curAsset[0] === "wad0bmp") {
 			loadImageAsset(wad0File.getEntry(curAsset[1]), curAsset[2], loadAssetNext);
+		} else if (curAsset[0] === "wad0alpha") {
+			loadAlphaImageAsset(wad0File.getEntry(curAsset[1]), curAsset[2], loadAssetNext);
 		}
 	} else {
 		finishLoading();
