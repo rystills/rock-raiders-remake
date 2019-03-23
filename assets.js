@@ -257,11 +257,12 @@ object = {
 		["img", "images\\buttons", "make Gunstation.png"], // button to select to build mining laser from building menu
 		["img", "images\\buttons", "make LargeTeleporter.png"], // button to select to build super teleport from building menu
 
-		// interface FIXME replace with wadbmp
-		["img", "images\\overlay", "CrystalSideBar.png"], // right side overlay showing crystal and ore count
-		["img", "images\\overlay", "CrystalSideBar_Ore.png"], // image representing a single piece of ore on the overlay
-		["img", "images\\overlay", "NoSmallCrystal.png"], // image representing no energy crystal on the overlay
-		["img", "images\\overlay", "SmallCrystal.png"], // image representing a single energy crystal on the overlay
+		// interface
+		["wad0alpha", "Interface/RightPanel/CrystalSideBar.bmp", "CrystalSideBar"], // right side overlay showing crystal and ore count
+		["wad0alpha", "Interface/RightPanel/CrystalSideBar_Ore.bmp", "CrystalSideBar_Ore"], // image representing a single piece of ore on the overlay
+		["wad0alpha", "Interface/RightPanel/NoSmallCrystal.bmp", "NoSmallCrystal"], // image representing no energy crystal on the overlay
+		["wad0alpha", "Interface/RightPanel/SmallCrystal.bmp", "SmallCrystal"], // image representing a single energy crystal on the overlay
+		["wad0alpha", "Interface/RightPanel/UsedCrystal.bmp", "UsedCrystal"], // image representing a single in use energy crystal on the overlay
 
 		// effects
 		["img", "images\\objects", "landslide.png"], // image that appears during a landslide

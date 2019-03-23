@@ -1358,45 +1358,55 @@ function drawUI() {
 			(" x " + selection.length)), 8, 592);
 	}
 
+	// draw crystal and ore overlay
+	const crystalSideBarImage = GameManager.getImage("CrystalSideBar").canvas;
+	GameManager.drawSurface.drawImage(crystalSideBarImage, GameManager.screenWidth - crystalSideBarImage.width, 0);
+
 	// don't draw buttons when buildingPlacer is active
 	if (!buildingPlacer.visible) {
+		let numButtons = 4; // FIXME derive number of buttons from opened menu
+		const woBack = openMenu === "" ? "WOBack" : "";
+		const imgName = "IconPanel" + numButtons.toString() + woBack;
+		let imgIconPanel = GameManager.getImage(imgName).canvas;
+		GameManager.drawSurface.drawImage(imgIconPanel, GameManager.screenWidth - 16 - imgIconPanel.width, 8);
 		// attempt to draw buttons here so that they are rendered in front of other post-render graphics
 		for (let i = 0; i < buttons.objectList.length; ++i) {
 			buttons.objectList[i].render(GameManager);
 		}
 	}
 
-	// draw crystal and ore overlay
-	GameManager.drawSurface.drawImage(GameManager.getImage("CrystalSideBar.png"), GameManager.screenWidth - 70, 0);
-
 	// draw crystals
-	let curX = GameManager.screenWidth - 20;
-	let curY = 519;
-	for (let i = 0; i < 20; ++i, curY -= 21) {
-		GameManager.drawSurface.drawImage(GameManager.getImage("NoSmallCrystal.png"), curX, curY);
+	let curX = GameManager.screenWidth - 8;
+	let curY = GameManager.screenHeight - 32;
+	const imgNoCrystal = GameManager.getImage("NoSmallCrystal").canvas;
+	const imgSmallCrystal = GameManager.getImage("SmallCrystal").canvas;
+	const imgUsedCrystal = GameManager.getImage("UsedCrystal").canvas;
+	for (let i = 0; i < 20 && curY >= -Math.max(imgNoCrystal.height, imgSmallCrystal.height, imgUsedCrystal.height); ++i) {
+		let imgCrystal = imgNoCrystal;
+		// TODO show used crystals
 		if (collectedResources["crystal"] > i) {
-			GameManager.drawSurface.drawImage(GameManager.getImage("SmallCrystal.png"), curX, curY);
+			imgCrystal = imgSmallCrystal;
 		}
+		curY -= imgCrystal.height;
+		GameManager.drawSurface.drawImage(imgCrystal, curX - imgCrystal.width / 2, curY);
 	}
 
 	// draw ore
-	curX = GameManager.screenWidth - 31;
-	curY = 533;
-	for (let i = 0; i < collectedResources["ore"]; ++i, curY -= 10) {
-		GameManager.drawSurface.drawImage(GameManager.getImage("CrystalSideBar_Ore.png"), curX, curY);
-		// don't bother drawing past offscreen
-		if (curY <= 0) {
-			break;
-		}
+	curX = GameManager.screenWidth - 21;
+	curY = GameManager.screenHeight - 42;
+	const imgOre = GameManager.getImage("CrystalSideBar_Ore").canvas;
+	for (let i = 0; i < collectedResources["ore"] && curY >= -imgOre.height; ++i) {
+		curY -= imgOre.height;
+		GameManager.drawSurface.drawImage(imgOre, curX - imgOre.width / 2, curY);
 	}
 
 	// draw ore and crystal text
 	GameManager.setTextAlign("center");
 	GameManager.setFontWeight("bold");
-	GameManager.setFontSize(15);
-	GameManager.drawSurface.fillStyle = "rgb(255,255,255)";
-	GameManager.drawSurface.fillText(collectedResources["ore"], GameManager.screenWidth - 48, 597);
-	GameManager.drawSurface.fillText(collectedResources["crystal"], GameManager.screenWidth - 16, 597);
+	GameManager.setFontSize(10);
+	GameManager.drawSurface.fillStyle = "white";
+	GameManager.drawSurface.fillText(collectedResources["ore"], GameManager.screenWidth - 39, GameManager.screenHeight - 3);
+	GameManager.drawSurface.fillText(collectedResources["crystal"], GameManager.screenWidth - 14, GameManager.screenHeight - 3);
 	GameManager.setFontWeight("");
 	GameManager.setTextAlign("start");
 }
