@@ -106,12 +106,7 @@ function loadRygame() {
 	assetObject = object;
 	this.object = null;
 
-	// clear the lower portion of the canvas and update the loading status to display rygame.js
-	ctx.fillStyle = "black";
-	ctx.fillRect(0, loadingCanvas.height - 50, loadingCanvas.width, 50);
-	ctx.fillStyle = 'white';
-	ctx.fillText("loading rygame.js", 20, loadingCanvas.height - 30);
-
+	setLoadingMessage("loading rygame.js");
 	loadScriptAsset("rygame.js", loadAssets);
 }
 
@@ -150,16 +145,13 @@ function loadAssetNext() {
 		if (overrideLoadingScreen) {
 			overrideLoadingScreen(assetNum, GameManager.scriptObjects["assets.js"].assets.length);
 		} else {
-			ctx.fillStyle = "black";
-			ctx.fillRect(0, 400, loadingCanvas.width, 200);
-			ctx.fillStyle = 'white';
 			// update the loading text to the name of the next file, appending .ogg as the default extension for sound files
 			let loadString = "loading " + curAsset[2] + (curAsset[0] === "snd" ? ".ogg" : "");
 			// remove 'undefined' from the end of the loading string if it gets appended in the browser
 			if (loadString.slice(-9) === "undefined") {
 				loadString = loadString.slice(0, -9);
 			}
-			ctx.fillText(loadString, 20, loadingCanvas.height - 30);
+			setLoadingMessage(loadString);
 		}
 
 		let appendString = "";
@@ -285,7 +277,7 @@ function WadHandler(buffer) {
 /**
  * Start the game by using locally provided WAD files
  */
-function startGameUpload() {
+function startGameFileLocal() {
 	const wad0Url = URL.createObjectURL(document.getElementById('wad0-file').files[0]);
 	const wad1Url = URL.createObjectURL(document.getElementById('wad1-file').files[0]);
 	loadWadFiles(wad0Url, wad1Url);
@@ -295,7 +287,9 @@ function startGameUpload() {
  * Start the game by downloading and using remotely available WAD files
  */
 function startGameUrl() {
-	loadWadFiles(document.getElementById('wad0-url').value, document.getElementById('wad1-url').value);
+	setLoadingMessage("Downloading WAD files... please wait", 20, loadingCanvas.height - 30);
+	const antiCorsPrefix = "https://cors-anywhere.herokuapp.com/"; // BAD IDEA! This enables MID attacks! But it's just a game... and nobody cares...
+	loadWadFiles(antiCorsPrefix + document.getElementById('wad0-url').value, antiCorsPrefix + document.getElementById('wad1-url').value);
 }
 
 /**
@@ -304,8 +298,8 @@ function startGameUrl() {
  * @param wad1Url Url to parse the LegoRR1.wad file from
  */
 function loadWadFiles(wad0Url, wad1Url) {
+	$('#wadfiles_select_modal').modal('hide');
 	Promise.all([loadWadFile(wad0Url), loadWadFile(wad1Url)]).then(wadFiles => {
-		$('#wadfiles_select_modal').modal('hide');
 		wad0File = wadFiles[0];
 		wad1File = wadFiles[1];
 		storeFilesInCache();
@@ -340,6 +334,7 @@ function storeFilesInCache() {
 }
 
 function startWithCachedFiles(onerror) {
+	setLoadingMessage("loading WAD files from cache");
 	openLocalCache((objectStore) => {
 		const request1 = objectStore.get("wad0");
 		request1.onerror = onerror;
@@ -365,6 +360,14 @@ function startWithCachedFiles(onerror) {
 	});
 }
 
+function setLoadingMessage(text) {
+	// clear the lower portion of the canvas and update the loading status to display rygame.js
+	loadingContext.fillStyle = "black";
+	loadingContext.fillRect(0, loadingCanvas.height - 70, loadingCanvas.width, 50);
+	loadingContext.fillStyle = 'white';
+	loadingContext.fillText(text, 20, loadingCanvas.height - 30);
+}
+
 // if a script assigns a function to this variable, the function will be called when refreshing the screen after each asset load
 overrideLoadingScreen = null;
 
@@ -379,18 +382,18 @@ let wad0File;
 let wad1File;
 
 const loadingCanvas = document.getElementById('canvas');
-const ctx = loadingCanvas.getContext('2d');
+const loadingContext = loadingCanvas.getContext('2d');
 
 // clear the screen to black
-ctx.fillStyle = "black";
-ctx.fillRect(0, 0, loadingCanvas.width, loadingCanvas.height);
+loadingContext.fillStyle = "black";
+loadingContext.fillRect(0, 0, loadingCanvas.width, loadingCanvas.height);
 
 // draw the loading title
-ctx.font = "48px Arial";
-ctx.fillStyle = 'white';
-ctx.fillText("Loading Rock Raiders...", 5, 210);
+loadingContext.font = "48px Arial";
+loadingContext.fillStyle = 'white';
+loadingContext.fillText("Loading Rock Raiders", 5, loadingCanvas.height - 80);
 
 // hard-code the first loading message as assets will always be stored in assets.js
-ctx.font = "30px Arial";
-ctx.fillStyle = 'white';
-ctx.fillText("loading assets.js", 20, loadingCanvas.height - 30);
+loadingContext.font = "30px Arial";
+loadingContext.fillStyle = 'white';
+loadingContext.fillText("loading", 20, loadingCanvas.height - 30);
