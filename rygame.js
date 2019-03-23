@@ -1036,17 +1036,28 @@ ImageButton.prototype.update = function () {
  * @param layer layer the button will be added to
  * @param isAffectedByCamera true if the button should be scrolled with the camera
  */
-function ImageButton(x, y, normalSurface, brightenedSurface, layer, isAffectedByCamera) {
+function ImageButton(x, y, normalSurface, brightenedSurface, layer, runMethod, isAffectedByCamera) {
 	RygameObject.call(this, x, y, 0, 0, null, layer, isAffectedByCamera, true, true);
-	this.normalSurface = normalSurface;
-	this.brightenedSurface = brightenedSurface;
+	this.normalSurface = toContext(normalSurface);
+	this.brightenedSurface = toContext(brightenedSurface);
 	this.darkenedSurface = this.normalSurface;
 	this.unavailableSurface = this.normalSurface;
+	this.runMethod = runMethod;
 	this.additionalRequirement = null;
 	this.additionalRequirementArgs = [];
 	this.clickable = true;
 	this.mouseDownOnButton = false;
 	this.rect = new Rect(this.normalSurface.canvas.width, this.normalSurface.canvas.height);
+}
+
+function toContext(imageOrContext) { // TODO Is this method should be obsolete? Load all images as contexts? Performance? One context per image or per entity?
+	if (imageOrContext instanceof HTMLImageElement) {
+		const drawSurface = createContext(imageOrContext.naturalWidth, imageOrContext.naturalHeight, false);
+		drawSurface.drawImage(imageOrContext, 0, 0);
+		return drawSurface;
+	} else {
+		return imageOrContext;
+	}
 }
 
 makeChild("MainMenuButton", "ImageButton");
@@ -1055,16 +1066,14 @@ function MainMenuButton(centerX, centerY, text, fontNormal, fontBright, layer, r
 	let normalSurface = fontNormal.createTextImage(text);
 	const x = centerX - normalSurface.canvas.width / 2;
 	const y = centerY - normalSurface.canvas.height / 2;
-	ImageButton.call(this, x, y, normalSurface, fontBright.createTextImage(text), layer, false);
-	this.runMethod = runMethod;
+	ImageButton.call(this, x, y, normalSurface, fontBright.createTextImage(text), layer, runMethod, false);
 }
 
 makeChild("LevelButton", "ImageButton");
 
-function LevelButton(x, y, normalSurface, brightenedSurface, unavailableSurface, layer, runMethod, levelName, levelNum) {
-	ImageButton.call(this, x, y, normalSurface, brightenedSurface, layer, true);
+function LevelButton(x, y, normalSurface, brightenedSurface, unavailableSurface, layer, levelName, levelNum) {
+	ImageButton.call(this, x, y, normalSurface, brightenedSurface, layer, resetLevelVars, true);
 	this.unavailableSurface = unavailableSurface;
-	this.runMethod = runMethod;
 	this.optionalArgs = [levelName];
 	this.additionalRequirement = levelIsUnlocked;
 	this.additionalRequirementArgs = [levelNum];

@@ -1831,7 +1831,7 @@ function createLevelSelectButtons() {
 			GameManager.getImage("G" + levelImageName),
 			GameManager.getImage(levelImageName),
 			GameManager.getImage(levelImageName + "G"),
-			levelSelectLayer, resetLevelVars, GameManager.scriptObjects["levelList.js"].levels[i], i));
+			levelSelectLayer, GameManager.scriptObjects["levelList.js"].levels[i], i));
 	}
 
 	// back button
