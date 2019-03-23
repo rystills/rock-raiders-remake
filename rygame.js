@@ -464,6 +464,12 @@ GameManagerInternal.prototype.initializeRygame = function (is3d) {
 	canvas.addEventListener("mousemove", function (e) {
 		GameManager.mousePos = getMousePos(e);
 	});
+	canvas.addEventListener("mouseleave", function (e) {
+		GameManager.mousePos = getMousePos(e);
+	});
+	canvas.addEventListener("mouseenter", function (e) {
+		GameManager.mousePos = getMousePos(e);
+	});
 	canvas.addEventListener("mousedown", function (e) {
 		if (e.button === 0) {
 			// left click press detected
