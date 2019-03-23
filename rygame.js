@@ -1034,9 +1034,10 @@ ImageButton.prototype.update = function () {
  * @param normalSurface normal display state of the button (also defines button size)
  * @param brightenedSurface display state on mouse hover
  * @param layer layer the button will be added to
+ * @param runMethod the function to call when the button is clicked
  * @param isAffectedByCamera true if the button should be scrolled with the camera
  */
-function ImageButton(x, y, normalSurface, brightenedSurface, layer, runMethod, isAffectedByCamera) {
+function ImageButton(x, y, normalSurface, brightenedSurface, layer, runMethod = null, isAffectedByCamera = false) {
 	RygameObject.call(this, x, y, 0, 0, null, layer, isAffectedByCamera, true, true);
 	this.normalSurface = toContext(normalSurface);
 	this.brightenedSurface = toContext(brightenedSurface);

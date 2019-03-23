@@ -1835,8 +1835,10 @@ function createLevelSelectButtons() {
 	}
 
 	// back button
-	levelSelectUIButtons.push(new Button(7, GameManager.gameHeight - 37 - 7, 0, 0, "LP_Normal.bmp", levelSelectLayer, "", returnToMainMenu, false, false, null, null, [true], true, false));
-	levelSelectUIButtons.objectList[0].visible = false;
+	let levelSelectBackButton = new ImageButton(6, GameManager.gameHeight - 44, GameManager.getImage("LP_Normal.bmp"),
+		GameManager.getImage("LP_Glow.bmp"), levelSelectLayer, returnToMainMenu, false);
+	levelSelectBackButton.darkenedSurface = toContext(GameManager.getImage("LP_Dull.bmp"));
+	levelSelectUIButtons.push(levelSelectBackButton);
 }
 
 /**
