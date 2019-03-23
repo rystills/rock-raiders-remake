@@ -1347,12 +1347,12 @@ function drawBuildingSiteMaterials() {
  * draw all UI components
  */
 function drawUI() {
-	GameManager.setFontSize(36);
 	let selectionString = selectionType;
 	if (powerPathSpaceTypes.indexOf(selectionString) !== -1) {
 		selectionString = "power path";
 	}
-	if (selectionType != null) {
+	if (selectionType != null && this.debug) {
+		GameManager.setFontSize(36);
 		GameManager.drawSurface.fillText("Selection Type: " + selectionString + (selection.length === 1 ?
 			(selection[0].isBuilding === true && selection[0].touched === true ? " lvl " + selection[0].upgradeLevel : "") :
 			(" x " + selection.length)), 8, 592);
