@@ -15,42 +15,112 @@ object = {
 		["wad0bmp", "Interface/FrontEnd/MenuBGpic.bmp", "MenuBGpic.png"], // main menu background
 		["wad0bmp", "Interface/FrontEnd/Menu_Font_LO.bmp", "Menu_Font_LO.bmp"], // main menu font
 		["wad0bmp", "Interface/FrontEnd/Menu_Font_HI.bmp", "Menu_Font_HI.bmp"], // (highlighted) main menu font
+		["wad0bmp", "Interface/Frontend/LP_Normal.bmp", "LP_Normal.bmp"], // back button in level select view
+		["wad0bmp", "Interface/Frontend/LP_Glow.bmp", "LP_Glow.bmp"], // back button in level select view (hovered)
+		["wad0bmp", "Interface/Frontend/LP_Dull.bmp", "LP_Dull.bmp"], // back button in level select view (pressed)
+		["wad0alpha", "Interface/Frontend/LowerPanel.bmp", "LowerPanel.bmp"], // lower panel in level select view
 
-		// level images FIXME replace with levels from wad
-		["img", "images\\level_select", "Levelpick.png"], // level select menu background
-		["img", "images\\level_select", "Tutorial01.png"], // tutorial 1 image
-		["img", "images\\level_select", "Tutorial02.png"], // tutorial 2 image
-		["img", "images\\level_select", "Tutorial03.png"], // tutorial 3 image
-		["img", "images\\level_select", "Tutorial04.png"], // tutorial 4 image
-		["img", "images\\level_select", "Tutorial05.png"], // tutorial 5 image
-		["img", "images\\level_select", "Tutorial06.png"], // tutorial 6 image
-		["img", "images\\level_select", "Tutorial07.png"], // tutorial 7 image
-		["img", "images\\level_select", "Tutorial08.png"], // tutorial 8 image
-		["img", "images\\level_select", "Level01.png"], // level 1 image
-		["img", "images\\level_select", "Level02.png"], // level 2 image
-		["img", "images\\level_select", "Level03.png"], // level 3 image
-		["img", "images\\level_select", "Level04.png"], // level 4 image
-		["img", "images\\level_select", "Level05.png"], // level 5 image
-		["img", "images\\level_select", "Level06.png"], // level 6 image
-		["img", "images\\level_select", "Level07.png"], // level 7 image
-		["img", "images\\level_select", "Level08.png"], // level 8 image
-		["img", "images\\level_select", "Level09.png"], // level 9 image
-		["img", "images\\level_select", "Level10.png"], // level 10 image
-		["img", "images\\level_select", "Level11.png"], // level 11 image
-		["img", "images\\level_select", "Level12.png"], // level 12 image
-		["img", "images\\level_select", "Level13.png"], // level 13 image
-		["img", "images\\level_select", "Level14.png"], // level 14 image
-		["img", "images\\level_select", "Level15.png"], // level 15 image
-		["img", "images\\level_select", "Level16.png"], // level 16 image
-		["img", "images\\level_select", "Level17.png"], // level 17 image
-		["img", "images\\level_select", "Level18.png"], // level 18 image
-		["img", "images\\level_select", "Level19.png"], // level 19 image
-		["img", "images\\level_select", "Level20.png"], // level 20 image
-		["img", "images\\level_select", "Level21.png"], // level 21 image
-		["img", "images\\level_select", "Level22.png"], // level 22 image
-		["img", "images\\level_select", "Level23.png"], // level 23 image
-		["img", "images\\level_select", "Level24.png"], // level 24 image
-		["img", "images\\level_select", "Level25.png"], // level 25 image
+		// level images
+		["wad0bmp", "Interface/LEVELPICKER/Levelpick.bmp", "Levelpick.png"], // level select menu background
+		["wad0alpha", "Levels/TutorialLevels/GTutorial01.bmp", "GTutorial01"], // tutorial 1 image
+		["wad0alpha", "Levels/TutorialLevels/Tutorial01.bmp", "Tutorial01"],
+		["wad0alpha", "Levels/TutorialLevels/Tutorial01G.bmp", "Tutorial01G"],
+		["wad0alpha", "Levels/TutorialLevels/GTutorial02.bmp", "GTutorial02"], // tutorial 2 image
+		["wad0alpha", "Levels/TutorialLevels/Tutorial02.bmp", "Tutorial02"],
+		["wad0alpha", "Levels/TutorialLevels/Tutorial02G.bmp", "Tutorial02G"],
+		["wad0alpha", "Levels/TutorialLevels/GTutorial03.bmp", "GTutorial03"], // tutorial 3 image
+		["wad0alpha", "Levels/TutorialLevels/Tutorial03.bmp", "Tutorial03"],
+		["wad0alpha", "Levels/TutorialLevels/Tutorial03G.bmp", "Tutorial03G"],
+		["wad0alpha", "Levels/TutorialLevels/GTutorial04.bmp", "GTutorial04"], // tutorial 4 image
+		["wad0alpha", "Levels/TutorialLevels/Tutorial04.bmp", "Tutorial04"],
+		["wad0alpha", "Levels/TutorialLevels/Tutorial04G.bmp", "Tutorial04G"],
+		["wad0alpha", "Levels/TutorialLevels/GTutorial05.bmp", "GTutorial05"], // tutorial 5 image
+		["wad0alpha", "Levels/TutorialLevels/Tutorial05.bmp", "Tutorial05"],
+		["wad0alpha", "Levels/TutorialLevels/Tutorial05G.bmp", "Tutorial05G"],
+		["wad0alpha", "Levels/TutorialLevels/GTutorial06.bmp", "GTutorial06"], // tutorial 6 image
+		["wad0alpha", "Levels/TutorialLevels/Tutorial06.bmp", "Tutorial06"],
+		["wad0alpha", "Levels/TutorialLevels/Tutorial06G.bmp", "Tutorial06G"],
+		["wad0alpha", "Levels/TutorialLevels/GTutorial07.bmp", "GTutorial07"], // tutorial 7 image
+		["wad0alpha", "Levels/TutorialLevels/Tutorial07.bmp", "Tutorial07"],
+		["wad0alpha", "Levels/TutorialLevels/Tutorial07G.bmp", "Tutorial07G"],
+		["wad0alpha", "Levels/TutorialLevels/GTutorial08.bmp", "GTutorial08"], // tutorial 8 image
+		["wad0alpha", "Levels/TutorialLevels/Tutorial08.bmp", "Tutorial08"],
+		["wad0alpha", "Levels/TutorialLevels/Tutorial08G.bmp", "Tutorial08G"],
+		["wad0alpha", "Levels/GameLevels/GLevel01.bmp", "GLevel01"], // level 1 image
+		["wad0alpha", "Levels/GameLevels/Level01.bmp", "Level01"],
+		["wad0alpha", "Levels/GameLevels/Level01G.bmp", "Level01G"],
+		["wad0alpha", "Levels/GameLevels/GLevel02.bmp", "GLevel02"], // level 2 image
+		["wad0alpha", "Levels/GameLevels/Level02.bmp", "Level02"],
+		["wad0alpha", "Levels/GameLevels/Level02G.bmp", "Level02G"],
+		["wad0alpha", "Levels/GameLevels/GLevel03.bmp", "GLevel03"], // level 3 image
+		["wad0alpha", "Levels/GameLevels/Level03.bmp", "Level03"],
+		["wad0alpha", "Levels/GameLevels/Level03G.bmp", "Level03G"],
+		["wad0alpha", "Levels/GameLevels/GLevel04.bmp", "GLevel04"], // level 4 image
+		["wad0alpha", "Levels/GameLevels/Level04.bmp", "Level04"],
+		["wad0alpha", "Levels/GameLevels/Level04G.bmp", "Level04G"],
+		["wad0alpha", "Levels/GameLevels/GLevel05.bmp", "GLevel05"], // level 5 image
+		["wad0alpha", "Levels/GameLevels/Level05.bmp", "Level05"],
+		["wad0alpha", "Levels/GameLevels/Level05G.bmp", "Level05G"],
+		["wad0alpha", "Levels/GameLevels/GLevel06.bmp", "GLevel06"], // level 6 image
+		["wad0alpha", "Levels/GameLevels/Level06.bmp", "Level06"],
+		["wad0alpha", "Levels/GameLevels/Level06G.bmp", "Level06G"],
+		["wad0alpha", "Levels/GameLevels/GLevel07.bmp", "GLevel07"], // level 7 image
+		["wad0alpha", "Levels/GameLevels/Level07.bmp", "Level07"],
+		["wad0alpha", "Levels/GameLevels/Level07G.bmp", "Level07G"],
+		["wad0alpha", "Levels/GameLevels/GLevel08.bmp", "GLevel08"], // level 8 image
+		["wad0alpha", "Levels/GameLevels/Level08.bmp", "Level08"],
+		["wad0alpha", "Levels/GameLevels/Level08G.bmp", "Level08G"],
+		["wad0alpha", "Levels/GameLevels/GLevel09.bmp", "GLevel09"], // level 9 image
+		["wad0alpha", "Levels/GameLevels/Level09.bmp", "Level09"],
+		["wad0alpha", "Levels/GameLevels/Level09G.bmp", "Level09G"],
+		["wad0alpha", "Levels/GameLevels/GLevel10.bmp", "GLevel10"], // level 10 image
+		["wad0alpha", "Levels/GameLevels/Level10.bmp", "Level10"],
+		["wad0alpha", "Levels/GameLevels/Level10G.bmp", "Level10G"],
+		["wad0alpha", "Levels/GameLevels/GLevel11.bmp", "GLevel11"], // level 11 image
+		["wad0alpha", "Levels/GameLevels/Level11.bmp", "Level11"],
+		["wad0alpha", "Levels/GameLevels/Level11G.bmp", "Level11G"],
+		["wad0alpha", "Levels/GameLevels/GLevel12.bmp", "GLevel12"], // level 12 image
+		["wad0alpha", "Levels/GameLevels/Level12.bmp", "Level12"],
+		["wad0alpha", "Levels/GameLevels/Level12G.bmp", "Level12G"],
+		["wad0alpha", "Levels/GameLevels/GLevel13.bmp", "GLevel13"], // level 13 image
+		["wad0alpha", "Levels/GameLevels/Level13.bmp", "Level13"],
+		["wad0alpha", "Levels/GameLevels/Level13G.bmp", "Level13G"],
+		["wad0alpha", "Levels/GameLevels/GLevel14.bmp", "GLevel14"], // level 14 image
+		["wad0alpha", "Levels/GameLevels/Level14.bmp", "Level14"],
+		["wad0alpha", "Levels/GameLevels/Level14G.bmp", "Level14G"],
+		["wad0alpha", "Levels/GameLevels/GLevel15.bmp", "GLevel15"], // level 15 image
+		["wad0alpha", "Levels/GameLevels/Level15.bmp", "Level15"],
+		["wad0alpha", "Levels/GameLevels/Level15G.bmp", "Level15G"],
+		["wad0alpha", "Levels/GameLevels/GLevel16.bmp", "GLevel16"], // level 16 image
+		["wad0alpha", "Levels/GameLevels/Level16.bmp", "Level16"],
+		["wad0alpha", "Levels/GameLevels/Level16G.bmp", "Level16G"],
+		["wad0alpha", "Levels/GameLevels/GLevel17.bmp", "GLevel17"], // level 17 image
+		["wad0alpha", "Levels/GameLevels/Level17.bmp", "Level17"],
+		["wad0alpha", "Levels/GameLevels/Level17G.bmp", "Level17G"],
+		["wad0alpha", "Levels/GameLevels/GLevel18.bmp", "GLevel18"], // level 18 image
+		["wad0alpha", "Levels/GameLevels/Level18.bmp", "Level18"],
+		["wad0alpha", "Levels/GameLevels/Level18G.bmp", "Level18G"],
+		["wad0alpha", "Levels/GameLevels/GLevel19.bmp", "GLevel19"], // level 19 image
+		["wad0alpha", "Levels/GameLevels/Level19.bmp", "Level19"],
+		["wad0alpha", "Levels/GameLevels/Level19G.bmp", "Level19G"],
+		["wad0alpha", "Levels/GameLevels/GLevel20.bmp", "GLevel20"], // level 20 image
+		["wad0alpha", "Levels/GameLevels/Level20.bmp", "Level20"],
+		["wad0alpha", "Levels/GameLevels/Level20G.bmp", "Level20G"],
+		["wad0alpha", "Levels/GameLevels/GLevel21.bmp", "GLevel21"], // level 21 image
+		["wad0alpha", "Levels/GameLevels/Level21.bmp", "Level21"],
+		["wad0alpha", "Levels/GameLevels/Level21G.bmp", "Level21G"],
+		["wad0alpha", "Levels/GameLevels/GLevel22.bmp", "GLevel22"], // level 22 image
+		["wad0alpha", "Levels/GameLevels/Level22.bmp", "Level22"],
+		["wad0alpha", "Levels/GameLevels/Level22G.bmp", "Level22G"],
+		["wad0alpha", "Levels/GameLevels/GLevel23.bmp", "GLevel23"], // level 23 image
+		["wad0alpha", "Levels/GameLevels/Level23.bmp", "Level23"],
+		["wad0alpha", "Levels/GameLevels/Level23G.bmp", "Level23G"],
+		["wad0alpha", "Levels/GameLevels/GLevel24.bmp", "GLevel24"], // level 24 image
+		["wad0alpha", "Levels/GameLevels/Level24.bmp", "Level24"],
+		["wad0alpha", "Levels/GameLevels/Level24G.bmp", "Level24G"],
+		["wad0alpha", "Levels/GameLevels/GLevel25.bmp", "GLevel25"], // level 25 image
+		["wad0alpha", "Levels/GameLevels/Level25.bmp", "Level25"],
+		["wad0alpha", "Levels/GameLevels/Level25G.bmp", "Level25G"],
 
 		// collectables
 		["img", "images\\objects", "ore.png"], // ore

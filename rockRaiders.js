@@ -1192,7 +1192,7 @@ function stopMinifig(raider) {
 /**
  * scroll the level select screen vertically if mouse is panned or keyboard is pressed
  */
-function checkScrollLevelSelect() {
+function checkScrollLevelSelect(levelpickHeight) {
 	let pannedKeyboard = false;
 	// can we scroll using the arrow keys?
 	if (keyboardPanning) {
@@ -1206,18 +1206,20 @@ function checkScrollLevelSelect() {
 	}
 	// can we scroll by moving your mouse to the edge of the screen?
 	if (mousePanning && !pannedKeyboard) {
-		if (GameManager.mousePos.y < scrollDistance) {
-			levelSelectLayer.cameraY -= scrollSpeed;
-		} else if (GameManager.mousePos.y > GameManager.screenHeight - scrollDistance) {
-			levelSelectLayer.cameraY += scrollSpeed;
+		const heightWithoutLowerPanel = 8 * GameManager.screenHeight / 9;
+		const mouseY = Math.min(Math.max(0, GameManager.mousePos.y), heightWithoutLowerPanel);
+		if (mouseY < heightWithoutLowerPanel / 3) {
+			levelSelectLayer.cameraY -= scrollSpeed * (1 - 3 * mouseY / heightWithoutLowerPanel);
+		} else if (mouseY > 2 * heightWithoutLowerPanel / 3) {
+			levelSelectLayer.cameraY -= scrollSpeed * (2 - 3 * mouseY / heightWithoutLowerPanel);
 		}
 	}
 
 	// keep level select camera in bounds
 	if (levelSelectLayer.cameraY < 0) {
 		levelSelectLayer.cameraY = 0;
-	} else if (levelSelectLayer.cameraY > (3163 - GameManager.screenHeight)) { // level select image is 3163 pixels tall
-		levelSelectLayer.cameraY = 3163 - GameManager.screenHeight;
+	} else if (levelSelectLayer.cameraY > (levelpickHeight - GameManager.screenHeight)) {
+		levelSelectLayer.cameraY = levelpickHeight - GameManager.screenHeight;
 	}
 }
 
@@ -1555,8 +1557,8 @@ function drawAwaitingStartInstructions() {
 		const awaitingText = "Press Enter to Begin";
 		const textWidth = GameManager.drawSurface.measureText(awaitingText).width;
 		const textHeight = getHeightFromFont(GameManager.drawSurface.font);
-		GameManager.drawSurface.fillText(awaitingText, GameManager.drawSurface.canvas.width / 2 - textWidth / 2,
-			GameManager.drawSurface.canvas.height / 2 + textHeight / 2);
+		GameManager.drawSurface.fillText(awaitingText, GameManager.screenWidth / 2 - textWidth / 2,
+			GameManager.screenHeight / 2 + textHeight / 2);
 	}
 }
 
@@ -1581,8 +1583,8 @@ function drawPauseInstructions() {
 		const pausedText = "Paused";
 		const textWidth = GameManager.drawSurface.measureText(pausedText).width;
 		const textHeight = getHeightFromFont(GameManager.drawSurface.font);
-		GameManager.drawSurface.fillText(pausedText, GameManager.drawSurface.canvas.width / 2 - textWidth / 2,
-			GameManager.drawSurface.canvas.height / 2 - 150 + textHeight / 2);
+		GameManager.drawSurface.fillText(pausedText, GameManager.screenWidth / 2 - textWidth / 2,
+			GameManager.screenHeight / 2 - 150 + textHeight / 2);
 
 		// attempt to draw buttons here so that they are rendered in front of other post-render graphics
 		for (let i = 0; i < pauseButtons.objectList.length; ++i) {
@@ -1823,15 +1825,17 @@ function createButtons() {
 function createLevelSelectButtons() {
 	// level select buttons
 	for (let i = 0; i < GameManager.scriptObjects["levelList.js"].levels.length; ++i) {
-		levelSelectButtons.push(new Button(GameManager.scriptObjects["levelList.js"].levelPositions[i][0],
-			GameManager.scriptObjects["levelList.js"].levelPositions[i][1], 0, 0,
-			GameManager.scriptObjects["levelList.js"].levelImages[i], levelSelectLayer, "",
-			resetLevelVars, true, true, null, null, [GameManager.scriptObjects["levelList.js"].levels[i]], true, false, null, levelIsUnlocked, [i]));
-		levelSelectButtons.objectList[i].visible = false;
+		const levelImageName = GameManager.scriptObjects["levelList.js"].levelImages[i].split('.').slice(0, -1).join('.');
+		let levelPosition = GameManager.scriptObjects["levelList.js"].levelPositions[i];
+		levelSelectButtons.push(new LevelButton(levelPosition[0], levelPosition[1],
+			GameManager.images["G" + levelImageName],
+			GameManager.images[levelImageName],
+			GameManager.images[levelImageName + "G"],
+			levelSelectLayer, resetLevelVars, GameManager.scriptObjects["levelList.js"].levels[i], i));
 	}
 
 	// back button
-	levelSelectUIButtons.push(new Button(0, GameManager.screenHeight - 40, 0, 0, "cancel selection button.png", levelSelectLayer, "", returnToMainMenu, false, false, null, null, [true], true, false));
+	levelSelectUIButtons.push(new Button(7, GameManager.gameHeight - 37 - 7, 0, 0, "LP_Normal.bmp", levelSelectLayer, "", returnToMainMenu, false, false, null, null, [true], true, false));
 	levelSelectUIButtons.objectList[0].visible = false;
 }
 
@@ -2052,6 +2056,7 @@ function createMenuButtons() {
 function goToLevelSelect() {
 	menuLayer.active = false;
 	levelSelectLayer.active = true;
+	levelSelectLayer.cameraY = 0;
 }
 
 /**
@@ -2135,7 +2140,7 @@ function checkHighlightedLevel() {
 		}
 		if (collisionPoint(GameManager.mousePos.x, GameManager.mousePos.y, levelSelectButtons.objectList[i], levelSelectButtons.objectList[i].affectedByCamera)) {
 			GameManager.drawSurface.fillStyle = "rgb(65, 218, 255)";
-			GameManager.setFontSize(36);
+			GameManager.setFontSize(24);
 
 			// grab score, and format score string if valid
 			let highlightedLevelScore = getLevelScore(i);
@@ -2149,8 +2154,7 @@ function checkHighlightedLevel() {
 			let highlightedLevelName = GameManager.scriptObjects["Info_" + GameManager.scriptObjects["levelList.js"].levels[i] + ".js"].name + highlightedLevelScore;
 			const textWidth = GameManager.drawSurface.measureText(highlightedLevelName).width;
 			const textHeight = getHeightFromFont(GameManager.drawSurface.font);
-			GameManager.drawSurface.fillText(highlightedLevelName, GameManager.drawSurface.canvas.width / 2 - textWidth / 2,
-				GameManager.drawSurface.canvas.height - 8);
+			GameManager.drawSurface.fillText(highlightedLevelName, GameManager.screenWidth / 2 - textWidth / 2, 19 * GameManager.screenHeight / 20);
 		}
 	}
 }
@@ -2243,9 +2247,9 @@ function initGlobals() {
 	// should the game render any active debug info?
 	debug = getValue("debug") === "true";
 
-	gameLayer = new Layer(0, 0, 1, 1, GameManager.screenWidth, GameManager.screenHeight);
 	menuLayer = new Layer(0, 0, 1, 1, GameManager.screenWidth, GameManager.screenHeight, true);
 	levelSelectLayer = new Layer(0, 0, 1, 1, GameManager.screenWidth, GameManager.screenHeight);
+	gameLayer = new Layer(0, 0, 1, 1, GameManager.screenWidth, GameManager.screenHeight);
 	scoreScreenLayer = new Layer(0, 0, 1, 1, GameManager.screenWidth, GameManager.screenHeight);
 	musicPlayer = new MusicPlayer();
 	buttons = new ObjectGroup();
@@ -2394,8 +2398,14 @@ function update() {
 		musicPlayer.trackNum = 0;
 		musicPlayer.update();
 
+		let levelpickImage = GameManager.images["Levelpick.png"];
+		let levelpickHeight = levelpickImage.height * GameManager.getScreenZoom();
+
 		// update input
-		checkScrollLevelSelect();
+		checkScrollLevelSelect(levelpickHeight);
+
+		// draw level select image scrolled according to current scroll value (in front of buttons to hide overlaid pixels when highlighted or darkened)
+		GameManager.drawSurface.drawImage(levelpickImage, 0, -levelSelectLayer.cameraY, GameManager.screenWidth, levelpickHeight);
 
 		// update objects
 		GameManager.updateObjects();
@@ -2404,8 +2414,7 @@ function update() {
 		// inital render; draw all rygame objects
 		GameManager.drawFrame();
 
-		// draw level select imaged scrolled according to current scroll value (in front of buttons to hide overlaid pixels when highlighted or darkened)
-		GameManager.drawSurface.drawImage(GameManager.images["Levelpick.png"], 0, -levelSelectLayer.cameraY);
+		GameManager.drawSurface.drawImage(GameManager.images["LowerPanel.bmp"].canvas, 0, 0, GameManager.screenWidth, GameManager.screenHeight);
 
 		// draw ui buttons on top
 		drawLevelSelectUIButtons();

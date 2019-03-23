@@ -976,6 +976,21 @@ makeChild("ImageButton", "RygameObject");
  * update this MainMenuButton's state based on mouse interactivity
  */
 ImageButton.prototype.update = function () {
+	if (this.additionalRequirement != null) {
+		if (!(this.additionalRequirement.apply(this, this.additionalRequirementArgs))) {
+			this.clickable = false;
+			this.drawSurface = this.unavailableSurface;
+		} else {
+			this.clickable = true;
+
+		}
+	}
+
+	// if this button is not currently interactive, don't need to update anything else
+	if (!this.clickable) {
+		return;
+	}
+
 	const mouseOver = collisionPoint(GameManager.mousePos.x, GameManager.mousePos.y, this, this.affectedByCamera);
 	// mouse pressed and released events can occur in the same frame on high doses of coffee
 	if (GameManager.mousePressedLeft === true) {
@@ -1015,6 +1030,10 @@ function ImageButton(x, y, normalSurface, brightenedSurface, layer, isAffectedBy
 	this.normalSurface = normalSurface;
 	this.brightenedSurface = brightenedSurface;
 	this.darkenedSurface = this.normalSurface;
+	this.unavailableSurface = this.normalSurface;
+	this.additionalRequirement = null;
+	this.additionalRequirementArgs = [];
+	this.clickable = true;
 	this.mouseDownOnButton = false;
 	this.rect = new Rect(this.normalSurface.canvas.width, this.normalSurface.canvas.height);
 }
@@ -1029,16 +1048,15 @@ function MainMenuButton(centerX, centerY, text, fontNormal, fontBright, layer, r
 	this.runMethod = runMethod;
 }
 
+makeChild("LevelButton", "ImageButton");
 
-function LevelButton(x, y, normalSurface, brightenedSurface, layer, runMethod, levelName) {
-	this.normalSurface = normalSurface;
-	this.brightenedSurface = brightenedSurface;
-	this.darkenedSurface = this.normalSurface;
-	RygameObject.call(this, x, y, 0, 0, null, layer, true, true, true);
+function LevelButton(x, y, normalSurface, brightenedSurface, unavailableSurface, layer, runMethod, levelName, levelNum) {
+	ImageButton.call(this, x, y, normalSurface, brightenedSurface, layer, true);
+	this.unavailableSurface = unavailableSurface;
 	this.runMethod = runMethod;
-	this.mouseDownOnButton = false;
 	this.optionalArgs = [levelName];
-	this.rect = new Rect(this.normalSurface.canvas.width, this.normalSurface.canvas.height);
+	this.additionalRequirement = levelIsUnlocked;
+	this.additionalRequirementArgs = [levelNum];
 }
 
 /**
