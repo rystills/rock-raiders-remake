@@ -364,7 +364,7 @@ Raider.prototype.checkSetTask = function (i, mustBeHighPriority, calculatedPath)
 			}
 			// check if the task requires a tool and we can take it
 			const maxTools = 2 + this.upgradeLevel;
-			if (this.tools.length < maxTools && !this.vehicleInhibitsTask("get tool")) {
+			if (this.tools.length < maxTools && !this.vehicleInhibitsTask("get tool") && (taskType(tasksAvailable[i]) !== "drill hard" || (this.vehicle !== null && this.vehicle.canDrillHard))) {
 				const destinationSite = pathToClosestBuilding(this, "tool store");
 				// if there's no path to a tool store to get a resource with which to build, move on to the next high priority task
 				if (destinationSite != null) {
@@ -799,7 +799,7 @@ Raider.prototype.workOnCurrentTask = function () {
 						this.clearTask();
 					}
 				} else if (taskType === "reinforce") {
-					this.currentTask.updateReinforcePercent(this.reinforceSpeed * this.currentTask.reinforceSpeedModifier, this);
+					this.currentTask.updateReinforcePercent(this.reinforceSpeed * this.currentTask.reinforceSpeedModifier);
 					this.busy = true;
 					if (this.currentTask.reinforcePercent >= 100) {
 						this.currentTask.reinforcePercent = 100;
@@ -989,7 +989,7 @@ function Raider(space) {
 	this.space = space;
 	this.setCenterX(this.space.centerX());
 	this.setCenterY(this.space.centerY());
-	this.speed = 4;
+	this.speed = 3;
 	this.drillSpeed = .4;
 	this.sweepSpeed = 2;
 	this.reinforceSpeed = 1.25;

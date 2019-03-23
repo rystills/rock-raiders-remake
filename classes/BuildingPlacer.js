@@ -279,7 +279,7 @@ function BuildingPlacer(buildingType, isHelper, xOffset, yOffset, parentBuilder)
 	this.validSurface.fillRect(0, 0, this.drawSurface.canvas.width, this.drawSurface.canvas.height);
 
 	this.visible = false;
-	this.isHelper = (isHelper === true ? true : false);
+	this.isHelper = (isHelper === true);
 	this.xOffset = xOffset;
 	this.yOffset = yOffset;
 	this.children = [];

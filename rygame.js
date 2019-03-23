@@ -16,6 +16,7 @@ function goFullScreen() {
 }
 
 // mouse code - Snippet taken from StackOverflow
+// Original by https://simonsarris.com/making-html5-canvas-useful/
 let stylePaddingLeft = -1;
 let stylePaddingTop = -1;
 let styleBorderLeft = -1;
@@ -32,17 +33,13 @@ let htmlLeft = -1;
  * set to the mouse position relative to the state's canvas
  * If you wanna be super-correct this can be tricky,
  * we have to worry about padding and borders
- * takes an event and a reference to the canvas
+ * @param e: some mouse event
  */
-function getMouseDocument(e) {
-	/*return {
-	      x: e.clientX,
-	      y: e.clientY
-	    };*/
-	let element = GameManager.drawSurface, offsetX = 0, offsetY = 0, mx, my;
+function getMousePos(e) {
+	let element = e.target, offsetX = 0, offsetY = 0, mx, my;
 
 	// Compute the total offset. It's possible to cache this if you want
-	if (GameManager.drawSurface && element.offsetParent !== undefined) {
+	if (element.offsetParent !== undefined) {
 		do {
 			offsetX += element.offsetLeft;
 			offsetY += element.offsetTop;
@@ -55,8 +52,8 @@ function getMouseDocument(e) {
 	offsetX += stylePaddingLeft + styleBorderLeft + htmlLeft;
 	offsetY += stylePaddingTop + styleBorderTop + htmlTop;
 
-	mx = e.pageX - offsetX;
-	my = e.pageY - offsetY;
+	mx = (e.pageX - offsetX) / e.target.getBoundingClientRect().width * e.target.width;
+	my = (e.pageY - offsetY) / e.target.getBoundingClientRect().height * e.target.height;
 
 	// We return a simple javascript object with x and y defined
 	return {x: mx, y: my};
@@ -146,17 +143,6 @@ function pnpoly(nvert, pointList, testX, testY) {
 }
 
 /**
- * Load an image.
- * @param   {String} imageSrc Path to the image, including the image name.
- * @returns {Object} <img> element.
- */
-function loadImage(imageSrc) {
-	const image = document.createElement("img");
-	image.src = imageSrc;
-	return image;
-}
-
-/**
  * get the height portion of the passed in font (note that this measures to the top, not to the ascent)
  * @param font: the font from which we wish to extract the height
  * @returns number the font height as an int
@@ -234,7 +220,7 @@ function binarySearch(a, x, key, leftMost, lo, hi) {
  * @param width: the desired width of the new context
  * @param height: the desired height of the new context
  * @param is3d: whether the canvas is 3d (true) or 2d (false)
- * @returns the newly created canvas
+ * @returns RenderingContext the newly created canvas
  */
 function createContext(width, height, is3d) {
 	const canvas = document.createElement("canvas");
@@ -476,13 +462,13 @@ GameManagerInternal.prototype.initializeRygame = function (is3d) {
 		GameManager.keyStates[String.fromCharCode(e.keyCode)] = false;
 	});
 	canvas.addEventListener("mousemove", function (e) {
-		if (GameManager.drawSurface == null) {
-			return;
-		}
-		GameManager.mousePos = getMouseDocument(e);
-		canvasRect = GameManager.drawSurface.canvas.getBoundingClientRect();
-		GameManager.mousePos.x -= canvasRect.left + window.pageXOffset;
-		GameManager.mousePos.y -= canvasRect.top + window.pageYOffset;
+		GameManager.mousePos = getMousePos(e);
+	});
+	canvas.addEventListener("mouseleave", function (e) {
+		GameManager.mousePos = getMousePos(e);
+	});
+	canvas.addEventListener("mouseenter", function (e) {
+		GameManager.mousePos = getMousePos(e);
 	});
 	canvas.addEventListener("mousedown", function (e) {
 		if (e.button === 0) {
@@ -500,18 +486,12 @@ GameManagerInternal.prototype.initializeRygame = function (is3d) {
 			GameManager.mouseReleasedLeft = true;
 			// we can use the same method as in mousemove to get the effective mouse position
 			// since the mouse coordinates are returned by the event in pageX and pageY regardless of the event type
-			GameManager.mouseReleasedPosLeft = getMouseDocument(e);
-			canvasRect = GameManager.drawSurface.canvas.getBoundingClientRect();
-			GameManager.mouseReleasedPosLeft.x -= canvasRect.left + window.pageXOffset;
-			GameManager.mouseReleasedPosLeft.y -= canvasRect.top + window.pageYOffset;
+			GameManager.mouseReleasedPosLeft = getMousePos(e);
 			// left click release detected
 			GameManager.mouseDownLeft = false;
 		} else if (e.button === 2) {
 			GameManager.mouseReleasedRight = true;
-			GameManager.mouseReleasedPosRight = getMouseDocument(e);
-			canvasRect = GameManager.drawSurface.canvas.getBoundingClientRect();
-			GameManager.mouseReleasedPosRight.x -= canvasRect.left + window.pageXOffset;
-			GameManager.mouseReleasedPosRight.y -= canvasRect.top + window.pageYOffset;
+			GameManager.mouseReleasedPosRight = getMousePos(e);
 			// right click release detected
 			GameManager.mouseDownRight = false;
 		}
@@ -606,10 +586,6 @@ GameManagerInternal.prototype.drawFrame = function () {
 		if (layer.active === true) {
 			// TODO: layer resizing will occur here, if needed
 			this.drawSurface.drawImage(layer.drawSurface.canvas, layer.x, layer.y);
-			if (layer.freezeFirstFrame) {
-				layer.freezeFirstFrame = false;
-				layer.frozen = true;
-			}
 		}
 	}
 
@@ -777,7 +753,6 @@ function Layer(x, y, updateDepth, drawDepth, width, height, startActive) {
 	this.drawSurface = createContext(this.width, this.height, false);
 	this.active = startActive === true;
 	this.frozen = false;
-	this.freezeFirstFrame = false;
 	this.background = null;
 	this.cameraX = 0;
 	this.cameraY = 0;
@@ -790,7 +765,6 @@ function Layer(x, y, updateDepth, drawDepth, width, height, startActive) {
  * Rect constructor: create a new Rect instance with the specified width and height
  * @param width: the width of our new Rect
  * @param height: the height of our new Rect
- * @returns
  */
 function Rect(width, height) {
 	this.width = width;
@@ -851,7 +825,9 @@ Button.prototype.update = function (selectionType, openMenu) {
 
 	if (GameManager.mousePressedLeft === true) {
 		this.mouseDownOnButton = collisionPoint(GameManager.mousePos.x, GameManager.mousePos.y, this, this.affectedByCamera);
-	} else if (GameManager.mouseReleasedLeft === true) {
+	}
+	// mouse pressed and released events can occur in the same frame on high doses of coffee
+	if (GameManager.mouseReleasedLeft === true) {
 		if (this.mouseDownOnButton === true) {
 			if (collisionPoint(GameManager.mousePos.x, GameManager.mousePos.y, this, this.affectedByCamera)) {
 				if (this.runMethod != null) {
@@ -870,7 +846,6 @@ Button.prototype.update = function (selectionType, openMenu) {
 			this.drawSurface = this.brightenedSurface;
 		}
 	}
-
 };
 
 /**
