@@ -211,6 +211,7 @@ object = {
 		["wad0bmp", "Interface/Menus/UnloadMinifigure.bmp", "unload minifig button.png"], // unload minifig button (drops held object)
 		["wad0bmp", "Interface/Menus/STOPeverything.bmp", "stop minifig button.png"], // stop minifig button (stops any performed task)
 		["wad0bmp", "Interface/Menus/Upgrade.bmp", "upgrade button.png"], // button to upgrade a raider or building
+		["wad0bmp", "Interface/Menus/telepbuilding.bmp", "telepbuilding"], // button to upgrade a raider or building
 		["wad0bmp", "Interface/Menus/building.bmp", "open building menu button.png"], // button to open up the building menu
 		["wad0bmp", "Interface/Menus/BIGvehicle.bmp", "open large vehicle menu button.png"], // button to open up the large vehicle menu
 		["wad0bmp", "Interface/Menus/SMvehicle.bmp", "open small vehicle menu button.png"], // button to open up the small vehicle menu
@@ -263,6 +264,24 @@ object = {
 		["wad0alpha", "Interface/RightPanel/NoSmallCrystal.bmp", "NoSmallCrystal"], // image representing no energy crystal on the overlay
 		["wad0alpha", "Interface/RightPanel/SmallCrystal.bmp", "SmallCrystal"], // image representing a single energy crystal on the overlay
 		["wad0alpha", "Interface/RightPanel/UsedCrystal.bmp", "UsedCrystal"], // image representing a single in use energy crystal on the overlay
+
+		["wad0alpha", "Interface/IconPanel/IconPanel1.bmp", "IconPanel1"], // top right menu with space for 1 item and back button
+		["wad0alpha", "Interface/IconPanel/IconPanel2.bmp", "IconPanel2"], // top right menu with space for 2 items and back button
+		["wad0alpha", "Interface/IconPanel/IconPanel3.bmp", "IconPanel3"], // top right menu with space for 3 items and back button
+		["wad0alpha", "Interface/IconPanel/IconPanel3WOBack.bmp", "IconPanel3WOBack"], // top right menu with space for 3 items without back button
+		["wad0alpha", "Interface/IconPanel/IconPanel4.bmp", "IconPanel4"], // top right menu with space for 4 items and back button
+		["wad0alpha", "Interface/IconPanel/IconPanel4WOBack.bmp", "IconPanel4WOBack"], // top right menu with space for 4 items without back button
+		["wad0alpha", "Interface/IconPanel/IconPanel5.bmp", "IconPanel5"], // top right menu with space for 5 items and back button
+		["wad0alpha", "Interface/IconPanel/IconPanel6.bmp", "IconPanel6"], // top right menu with space for 6 items and back button
+		["wad0alpha", "Interface/IconPanel/IconPanel7.bmp", "IconPanel7"], // top right menu with space for 7 items and back button
+		["wad0alpha", "Interface/IconPanel/IconPanel8.bmp", "IconPanel8"], // top right menu with space for 8 items and back button
+		["wad0alpha", "Interface/IconPanel/IconPanel9.bmp", "IconPanel9"], // top right menu with space for 9 items and back button
+		["wad0alpha", "Interface/IconPanel/IconPanel10.bmp", "IconPanel10"], // top right menu with space for 10 items and back button
+		["wad0alpha", "Interface/IconPanel/IconPanel11.bmp", "IconPanel11"], // top right menu with space for 11 items and back button
+		["wad0alpha", "Interface/IconPanel/IconPanel11.bmp", "IconPanel12"], // same as IconPanel4 possibly obsolete
+
+		["wad0alpha", "Interface/IconPanel/Back_HL.bmp", "Back_HL"], // back button image used in top right icon panel
+		["wad0alpha", "Interface/IconPanel/Back_PR.bmp", "Back_PR"], // back button image used in top right icon panel
 
 		// effects
 		["img", "images\\objects", "landslide.png"], // image that appears during a landslide

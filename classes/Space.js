@@ -198,11 +198,15 @@ Space.prototype.getAdjacentSpaces = function () {
 	return adjacentSpaces;
 };
 
+Space.prototype.isUpgradeable = function() {
+	return this.upgradeLevel < 2 && collectedResources["ore"] >= 5;
+};
+
 /**
  * increase this Space's upgrade level, if it is a building
  */
 Space.prototype.upgrade = function () {
-	if (this.upgradeLevel < 2 && collectedResources["ore"] >= 5) {
+	if (this.isUpgradeable()) {
 		this.upgradeLevel += 1;
 		collectedResources["ore"] -= 5;
 	}
