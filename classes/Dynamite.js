@@ -65,7 +65,7 @@ Dynamite.prototype.detonate = function () {
 	}
 	const centX = this.centerX();
 	const centY = this.centerY();
-	this.image = GameManager.images["dynamite explosion.png"];
+	this.image = GameManager.getImage("dynamite explosion.png");
 	this.drawSurface = createContext(this.image.width, this.image.height, false);
 	this.drawSurface.drawImage(this.image, 0, 0);
 	this.rect = new Rect(this.drawSurface.canvas.width, this.drawSurface.canvas.height);

@@ -598,6 +598,17 @@ GameManagerInternal.prototype.draw = function (surface, x, y) { // simple draw f
 	this.drawSurface.drawImage(surface.canvas, x, y);
 };
 
+GameManagerInternal.prototype.getImage = function (imageName) {
+	if (!imageName || imageName.length === 0) {
+		throw "imageName must not be undefined, null or empty - was " + imageName;
+	} else if (!(imageName in this.images) || this.images[imageName] === undefined || this.images[imageName] === null) {
+		// TODO return some placeholder image for more stability
+		throw "Image '" + imageName + "' unknown";
+	} else {
+		return this.images[imageName];
+	}
+};
+
 /**
  * GameManagerInternal constructor: initialize variables stored and maintained by the GameManager
  */
@@ -1166,7 +1177,7 @@ RygameObject.prototype.rotateAroundPoint = function (x, y, angleRadians, angleDi
  */
 RygameObject.prototype.changeImage = function (imageName, clearRect) {
 	// TODO: drawSurface and rect dimensions are currently left unchanged, meaning the new image may be cut off
-	this.image = GameManager.images[imageName];
+	this.image = GameManager.getImage(imageName);
 	if (clearRect) {
 		this.drawSurface.clearRect(0, 0, this.rect.width, this.rect.height);
 	}
@@ -1318,7 +1329,7 @@ function RygameObject(x, y, updateDepth, drawDepth, image, layer, affectedByCame
 	this.drawSurface = null;
 	this.image = null;
 	if (image != null) {
-		this.image = GameManager.images[image];
+		this.image = GameManager.getImage(image);
 		this.drawSurface = createContext(this.image.width, this.image.height, false);
 		this.drawSurface.drawImage(this.image, 0, 0);
 	}

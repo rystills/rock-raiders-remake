@@ -1367,15 +1367,15 @@ function drawUI() {
 	}
 
 	// draw crystal and ore overlay
-	GameManager.drawSurface.drawImage(GameManager.images["CrystalSideBar.png"], GameManager.screenWidth - 70, 0);
+	GameManager.drawSurface.drawImage(GameManager.getImage("CrystalSideBar.png"), GameManager.screenWidth - 70, 0);
 
 	// draw crystals
 	let curX = GameManager.screenWidth - 20;
 	let curY = 519;
 	for (let i = 0; i < 20; ++i, curY -= 21) {
-		GameManager.drawSurface.drawImage(GameManager.images["NoSmallCrystal.png"], curX, curY);
+		GameManager.drawSurface.drawImage(GameManager.getImage("NoSmallCrystal.png"), curX, curY);
 		if (collectedResources["crystal"] > i) {
-			GameManager.drawSurface.drawImage(GameManager.images["SmallCrystal.png"], curX, curY);
+			GameManager.drawSurface.drawImage(GameManager.getImage("SmallCrystal.png"), curX, curY);
 		}
 	}
 
@@ -1383,7 +1383,7 @@ function drawUI() {
 	curX = GameManager.screenWidth - 31;
 	curY = 533;
 	for (let i = 0; i < collectedResources["ore"]; ++i, curY -= 10) {
-		GameManager.drawSurface.drawImage(GameManager.images["CrystalSideBar_Ore.png"], curX, curY);
+		GameManager.drawSurface.drawImage(GameManager.getImage("CrystalSideBar_Ore.png"), curX, curY);
 		// don't bother drawing past offscreen
 		if (curY <= 0) {
 			break;
@@ -1419,13 +1419,13 @@ function drawRaiderInfo() {
 		return;
 	}
 	// draw held items
-	const heldWidth = GameManager.images["have am nothing.png"].width;
-	const heldHeight = GameManager.images["have am nothing.png"].height;
+	const heldWidth = GameManager.getImage("have am nothing.png").width;
+	const heldHeight = GameManager.getImage("have am nothing.png").height;
 	for (let i = 0; i < selection.length; ++i) {
 		const maxTools = 2 + selection[i].upgradeLevel;
 		for (let j = 0; j < maxTools; ++j) {
 			const curImageName = selection[i].tools.length > j ? "have " + selection[i].tools[j] + ".png" : "have am nothing.png";
-			GameManager.drawSurface.drawImage(GameManager.images[curImageName],
+			GameManager.drawSurface.drawImage(GameManager.getImage(curImageName),
 				selection[i].centerX() - (heldWidth * maxTools) / 2 + (heldWidth * j) - selection[i].drawLayer.cameraX,
 				selection[i].y - 28 - heldHeight - selection[i].drawLayer.cameraY);
 		}
@@ -1438,7 +1438,7 @@ function drawRaiderInfo() {
 	for (let i = 0; i < selection.length; ++i) {
 		for (let j = 0; j < 6; ++j) {
 			const curImageName = selection[i][skills[j][0]] ? skills[j][1] : "have am nothing.png";
-			GameManager.drawSurface.drawImage(GameManager.images[curImageName],
+			GameManager.drawSurface.drawImage(GameManager.getImage(curImageName),
 				selection[i].centerX() - (heldWidth * maxSkills) / 2 + (heldWidth * j) - selection[i].drawLayer.cameraX,
 				selection[i].y - 28 - selection[i].drawLayer.cameraY);
 		}
@@ -1828,9 +1828,9 @@ function createLevelSelectButtons() {
 		const levelImageName = GameManager.scriptObjects["levelList.js"].levelImages[i].split('.').slice(0, -1).join('.');
 		let levelPosition = GameManager.scriptObjects["levelList.js"].levelPositions[i];
 		levelSelectButtons.push(new LevelButton(levelPosition[0], levelPosition[1],
-			GameManager.images["G" + levelImageName],
-			GameManager.images[levelImageName],
-			GameManager.images[levelImageName + "G"],
+			GameManager.getImage("G" + levelImageName),
+			GameManager.getImage(levelImageName),
+			GameManager.getImage(levelImageName + "G"),
 			levelSelectLayer, resetLevelVars, GameManager.scriptObjects["levelList.js"].levels[i], i));
 	}
 
@@ -2025,8 +2025,8 @@ function createMenuButtons() {
 		"", "", "", "", "", "", "", "Ñ", "", "ñ",
 		""
 	]; // TODO complete this character list
-	const fontLow = new BitmapFont(chars, GameManager.images["Menu_Font_LO.bmp"], 38, 43);
-	const fontHigh = new BitmapFont(chars, GameManager.images["Menu_Font_HI.bmp"], 38, 43);
+	const fontLow = new BitmapFont(chars, GameManager.getImage("Menu_Font_LO.bmp"), 38, 43);
+	const fontHigh = new BitmapFont(chars, GameManager.getImage("Menu_Font_HI.bmp"), 38, 43);
 
 	menuButtons.push(new MainMenuButton(xPos, yPos, "Start Game", fontLow, fontHigh, menuLayer, goToLevelSelect));
 	xPos = 250;
@@ -2386,7 +2386,7 @@ function update() {
 		menuButtons.update();
 
 		// pre-render; draw menu background
-		GameManager.drawSurface.drawImage(GameManager.images["MenuBGpic.png"], 0, 0, GameManager.screenWidth, GameManager.screenHeight);
+		GameManager.drawSurface.drawImage(GameManager.getImage("MenuBGpic.png"), 0, 0, GameManager.screenWidth, GameManager.screenHeight);
 
 		// inital render; draw all rygame objects
 		GameManager.drawFrame();
@@ -2398,7 +2398,7 @@ function update() {
 		musicPlayer.trackNum = 0;
 		musicPlayer.update();
 
-		let levelpickImage = GameManager.images["Levelpick.png"];
+		let levelpickImage = GameManager.getImage("Levelpick.png");
 		let levelpickHeight = levelpickImage.height * GameManager.getScreenZoom();
 
 		// update input
@@ -2414,7 +2414,7 @@ function update() {
 		// inital render; draw all rygame objects
 		GameManager.drawFrame();
 
-		GameManager.drawSurface.drawImage(GameManager.images["LowerPanel.bmp"].canvas, 0, 0, GameManager.screenWidth, GameManager.screenHeight);
+		GameManager.drawSurface.drawImage(GameManager.getImage("LowerPanel.bmp").canvas, 0, 0, GameManager.screenWidth, GameManager.screenHeight);
 
 		// draw ui buttons on top
 		drawLevelSelectUIButtons();
