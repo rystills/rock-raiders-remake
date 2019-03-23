@@ -126,7 +126,7 @@ function loadAssets() {
  * @returns
  */
 function loadAssetNext() {
-	if (assetNum !== -1) {
+	if (assetNum !== -1 && this.debug) {
 		console.log("RyConsole: '" + GameManager.scriptObjects["assets.js"].assets[assetNum][2] +
 			"' successfully loaded from directory '" + GameManager.scriptObjects["assets.js"].assets[assetNum][1] + "' as type '" +
 			GameManager.scriptObjects["assets.js"].assets[assetNum][0] + "'");
