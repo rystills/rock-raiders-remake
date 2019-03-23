@@ -122,6 +122,9 @@ object = {
 		["wad0alpha", "Levels/GameLevels/Level25.bmp", "Level25"],
 		["wad0alpha", "Levels/GameLevels/Level25G.bmp", "Level25G"],
 
+		// pointers/cursors
+		["wad0alpha", "Interface/Pointers/Aclosed.bmp", "Aclosed.bmp"],
+
 		// collectables
 		["img", "images\\objects", "ore.png"], // ore
 		["img", "images\\objects", "energy crystal.png"], // energy crystal

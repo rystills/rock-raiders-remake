@@ -356,6 +356,13 @@ function makeChild(objectName, parentName) {
 	eval(objectName + ".prototype = Object.create(" + parentName + ".prototype);" + objectName + ".prototype.constructor = " + objectName + ";");
 }
 
+GameManagerInternal.prototype.setCursor = function (cursorImageName) {
+	if (cursorImageName === undefined || cursorImageName === null) {
+		cursorImageName = "Aclosed.bmp";
+	}
+	GameManager.canvas.style.cursor = "url('" + GameManager.getImage(cursorImageName).canvas.toDataURL() + "'), auto"; // auto is fallback here
+};
+
 GameManagerInternal.prototype.createSound = function (soundName) {
 	if (this.sounds[soundName] !== undefined) {
 		return this.sounds[soundName].cloneNode();
@@ -437,6 +444,8 @@ GameManagerInternal.prototype.initializeRygame = function (is3d) {
 	html = document.body.parentNode;
 	htmlTop = html.offsetTop;
 	htmlLeft = html.offsetLeft;
+
+	GameManager.setCursor();
 
 	// init key events
 	GameManager.canvas.addEventListener("keydown", function (e) {
