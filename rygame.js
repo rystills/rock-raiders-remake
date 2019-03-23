@@ -794,15 +794,15 @@ makeChild("Button", "RygameObject");
 /**
  * update this Button's state based on mouse interactivity
  * @param selectionType: the current active UI selection
- * @param openMenu: the currently open menu, if any
+ * @param currentlyOpenIconPanel: the currently open menu, if any
  */
-Button.prototype.update = function (selectionType, openMenu) {
-	if (openMenu == null) {
-		openMenu = "";
+Button.prototype.update = function (selectionType, currentlyOpenIconPanel) {
+	if (currentlyOpenIconPanel == null) {
+		currentlyOpenIconPanel = "";
 	}
 	if (this.selectionTypeBound != null) {
 		if (this.selectionTypeBound.indexOf(selectionType) === -1) {
-			if (!(this.selectionTypeBound.length === 0 && (selectionType != null || openMenu !== ""))) {
+			if (!(this.selectionTypeBound.length === 0 && (selectionType != null || currentlyOpenIconPanel !== ""))) {
 				this.visible = false;
 				return;
 			}
@@ -812,13 +812,13 @@ Button.prototype.update = function (selectionType, openMenu) {
 		return;
 	}
 	if (this.openMenuBound != null) {
-		if (this.openMenuBound.indexOf(openMenu) === -1) {
-			if (!(this.openMenuBound.length === 0 && (selectionType != null || openMenu !== ""))) {
+		if (this.openMenuBound.indexOf(currentlyOpenIconPanel) === -1) {
+			if (!(this.openMenuBound.length === 0 && (selectionType != null || currentlyOpenIconPanel !== ""))) {
 				this.visible = false;
 				return;
 			}
 		}
-	} else if (openMenu !== "") {
+	} else if (currentlyOpenIconPanel !== "") {
 		this.visible = false;
 		return;
 	}
@@ -1057,7 +1057,13 @@ function ImageButton(x, y, normalSurface, brightenedSurface, layer, runMethod = 
 	this.additionalRequirementArgs = [];
 	this.clickable = true;
 	this.mouseDownOnButton = false;
-	this.rect = new Rect(this.normalSurface.canvas.width, this.normalSurface.canvas.height);
+	if (this.normalSurface) {
+		this.rect = new Rect(this.normalSurface.canvas.width, this.normalSurface.canvas.height);
+	} else if (this.brightenedSurface) {
+		this.rect = new Rect(this.brightenedSurface.canvas.width, this.brightenedSurface.canvas.height);
+	} else if (this.darkenedSurface) {
+		this.rect = new Rect(this.darkenedSurface.canvas.width, this.darkenedSurface.canvas.height);
+	}
 }
 
 function toContext(imageOrContext) { // TODO Is this method should be obsolete? Load all images as contexts? Performance? One context per image or per entity?
@@ -1081,9 +1087,10 @@ function MainMenuButton(centerX, centerY, text, fontNormal, fontBright, layer, r
 
 makeChild("LevelButton", "ImageButton");
 
-function LevelButton(x, y, normalSurface, brightenedSurface, unavailableSurface, layer, levelName, levelNum) {
-	ImageButton.call(this, x, y, normalSurface, brightenedSurface, layer, resetLevelVars, true);
-	this.unavailableSurface = unavailableSurface;
+function LevelButton(x, y, levelImageName, layer, levelName, levelNum) {
+	ImageButton.call(this, x, y, GameManager.getImage("G" + levelImageName),
+		GameManager.getImage(levelImageName), layer, resetLevelVars, true);
+	this.unavailableSurface = GameManager.getImage(levelImageName + "G");
 	this.optionalArgs = [levelName];
 	this.additionalRequirement = levelIsUnlocked;
 	this.additionalRequirementArgs = [levelNum];

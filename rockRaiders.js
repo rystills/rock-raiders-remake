@@ -574,7 +574,7 @@ function createVehicle(vehicleType) {
 function cancelSelection() {
 	selection = [];
 	selectionType = null;
-	openMenu = "";
+	activeIconPanel = "";
 }
 
 function setSelectionByMouseCursor() {
@@ -626,8 +626,8 @@ function checkUpdateClickSelection() {
 	if (GameManager.mouseReleasedLeft && !mousePressIsSelection) {
 		setSelectionByMouseCursor();
 		// automatically close tool menu if a raider is no longer selected
-		if (selectionType !== "raider" && openMenu === "tool") {
-			openMenu = "";
+		if (selectionType !== "raider" && activeIconPanel === "tool") {
+			activeIconPanel = "";
 		}
 	}
 }
@@ -1365,7 +1365,7 @@ function drawUI() {
 	// don't draw buttons when buildingPlacer is active
 	if (!buildingPlacer.visible) {
 		let numButtons = 4; // FIXME derive number of buttons from opened menu
-		const woBack = openMenu === "" ? "WOBack" : "";
+		const woBack = activeIconPanel === "" ? "WOBack" : "";
 		const imgName = "IconPanel" + numButtons.toString() + woBack;
 		let imgIconPanel = GameManager.getImage(imgName).canvas;
 		GameManager.drawSurface.drawImage(imgIconPanel, GameManager.screenWidth - 16 - imgIconPanel.width, 8);
@@ -1622,12 +1622,12 @@ function mouseOverGUI() {
  * open or close the buildings menu
  */
 function openBuildingMenu() {
-	if (openMenu === "building") {
-		openMenu = "";
+	if (activeIconPanel === "building") {
+		activeIconPanel = "";
 	} else {
-		// this clears selection and sets openMenu to ""
+		// this clears selection and sets activeIconPanel to ""
 		cancelSelection();
-		openMenu = "building";
+		activeIconPanel = "building";
 	}
 }
 
@@ -1635,12 +1635,12 @@ function openBuildingMenu() {
  * open or close the vehicles menu
  */
 function openVehicleMenu() {
-	if (openMenu === "vehicle") {
-		openMenu = "";
+	if (activeIconPanel === "vehicle") {
+		activeIconPanel = "";
 	} else {
-		// this clears selection and sets openMenu to ""
+		// this clears selection and sets activeIconPanel to ""
 		cancelSelection();
-		openMenu = "vehicle";
+		activeIconPanel = "vehicle";
 	}
 }
 
@@ -1660,10 +1660,10 @@ function exitVehicle() {
  */
 function openToolMenu() {
 	if (selectionType === "raider") {
-		if (openMenu === "tool") {
-			openMenu = "";
+		if (activeIconPanel === "tool") {
+			activeIconPanel = "";
 		} else {
-			openMenu = "tool";
+			activeIconPanel = "tool";
 		}
 	}
 }
@@ -1837,10 +1837,7 @@ function createLevelSelectButtons() {
 	for (let i = 0; i < GameManager.scriptObjects["levelList.js"].levels.length; ++i) {
 		const levelImageName = GameManager.scriptObjects["levelList.js"].levelImages[i].split('.').slice(0, -1).join('.');
 		let levelPosition = GameManager.scriptObjects["levelList.js"].levelPositions[i];
-		levelSelectButtons.push(new LevelButton(levelPosition[0], levelPosition[1],
-			GameManager.getImage("G" + levelImageName),
-			GameManager.getImage(levelImageName),
-			GameManager.getImage(levelImageName + "G"),
+		levelSelectButtons.push(new LevelButton(levelPosition[0], levelPosition[1], levelImageName,
 			levelSelectLayer, GameManager.scriptObjects["levelList.js"].levels[i], i));
 	}
 
@@ -2195,7 +2192,7 @@ function resetLevelVars(name) {
 	selection = [];
 	mousePressStartPos = {x: 1, y: 1};
 	mousePressIsSelection = false;
-	openMenu = "";
+	activeIconPanel = "";
 	lastLevelScore = 0;
 	selectionType = null;
 	for (let i = 0; i < terrain.length; ++i) {
@@ -2377,8 +2374,8 @@ function showScoreScreen() {
  */
 function checkCloseMenu() {
 	if (selection.length !== 0) {
-		if (openMenu === "building" || openMenu === "vehicle") {
-			openMenu = "";
+		if (activeIconPanel === "building" || activeIconPanel === "vehicle") {
+			activeIconPanel = "";
 		}
 	}
 }
@@ -2486,7 +2483,7 @@ function update() {
 
 				// don't update buttons when buildingPlacer is active
 				if (!buildingPlacer.visible) {
-					buttons.update([selectionType, openMenu]);
+					buttons.update([selectionType, activeIconPanel]);
 					checkCloseMenu();
 				}
 
