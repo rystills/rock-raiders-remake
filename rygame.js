@@ -1,18 +1,11 @@
 /**
  * Full screen the game.
  * Snippet taken from StackOverflow.
- * TODO: Currently operates differently between browsers. fullscreen behavior should be made browser independent if possible.
  */
 function goFullScreen() {
-	const canvas = GameManager.drawSurface.canvas;
-	if (canvas.requestFullScreen) {
-		canvas.requestFullScreen();
-	} else if (canvas.webkitRequestFullScreen) {
-		canvas.webkitRequestFullScreen();
-	} else if (canvas.mozRequestFullScreen) {
-		// we must use a container element to emulate webkit style fullscreen in firefox
-		document.getElementById("fscontainer").mozRequestFullScreen();
-	}
+	const el = GameManager.drawSurface.canvas;
+	const rfs = el.requestFullscreen || el.webkitRequestFullScreen || el.mozRequestFullScreen || el.msRequestFullscreen;
+	rfs.call(el);
 }
 
 // mouse code - Snippet taken from StackOverflow

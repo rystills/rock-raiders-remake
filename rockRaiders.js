@@ -1999,8 +1999,8 @@ function BitmapFont(chars, image, maxCharWidth, maxCharHeight) {
  */
 function createMenuButtons() {
 	// main menu buttons
-	let xPos = 400;
-	let yPos = 280;
+	let xPos = 320;
+	let yPos = 240;
 
 	const chars = [" ", "!", "\"", "#", "$", "%", "⌵", "`", "(", ")",
 		"*", "+", ",", "-", ".", "/", "0", "1", "2", "3",
@@ -2025,8 +2025,8 @@ function createMenuButtons() {
 	const fontHigh = new BitmapFont(chars, GameManager.images["Menu_Font_HI.bmp"], 38, 43);
 
 	menuButtons.push(new MainMenuButton(xPos, yPos, "Start Game", fontLow, fontHigh, menuLayer, goToLevelSelect));
-	xPos = 320;
-	yPos += 80;
+	xPos = 250;
+	yPos += 20;
 
 	menuButtons.push(new Button(xPos, yPos, 0, 0, null, menuLayer, "    Options:", null, false, true, null, null, [], false, false, [200, 200, 200]));
 	yPos += 40;
