@@ -791,7 +791,7 @@ function checkAssignSelectionTask() {
 			let taskWasAvailable = false;
 			const baseSelectedTask = taskType(selectedTask);
 			for (let i = 0; i < selection.length; i++) {
-				selectedTaskType = baseSelectedTask;
+				let selectedTaskType = baseSelectedTask;
 				// treat build commands as walk unless the raider is holding something that the building site needs
 				if (selectedTaskType === "build") {
 					if (selection[i].holding.length === 0) {
