@@ -1851,10 +1851,10 @@ function createButtons() {
 			"super teleport", "mining laser", "upgrade station", "ore refinery"]));
 
 	pauseButtons.push(new Button(100, gameLayer.height / 2 - 50, 0, 0, null, gameLayer, "Continue", unpauseGame, false, false));
-	pauseButtons.push(new Button(100, gameLayer.height / 2 + 50, 0, 0, null, gameLayer, "Return to Main Menu", returnToMainMenu, false, false));
+	pauseButtons.push(new Button(100, gameLayer.height / 2 + 50, 0, 0, null, gameLayer, "Abort Mission", showScoreScreen, false, false, null, null, [false]));
 
 	scoreScreenButtons.push(new Button(200, 135, 0, 0, null, scoreScreenLayer, "Score: 0", null, false, true, null, null, [], false));
-	scoreScreenButtons.push(new Button(20, 200, 0, 0, null, scoreScreenLayer, "Return to Main Menu", returnToMainMenu, false, true));
+	scoreScreenButtons.push(new Button(20, 200, 0, 0, null, scoreScreenLayer, "Continue", goToLevelSelect, false, true));
 }
 
 /**
@@ -2065,7 +2065,7 @@ function createMenuButtons() {
 	const fontLow = new BitmapFont(chars, GameManager.getImage("Menu_Font_LO.bmp"), 38, 43);
 	const fontHigh = new BitmapFont(chars, GameManager.getImage("Menu_Font_HI.bmp"), 38, 43);
 
-	menuButtons.push(new MainMenuButton(xPos, yPos, "Start Game", fontLow, fontHigh, menuLayer, goToLevelSelect));
+	menuButtons.push(new MainMenuButton(xPos, yPos, "Start Game", fontLow, fontHigh, menuLayer, goToLevelSelect, [true]));
 	xPos = 250;
 	yPos += 20;
 
@@ -2090,10 +2090,14 @@ function createMenuButtons() {
 /**
  * switch to the level select layer
  */
-function goToLevelSelect() {
+function goToLevelSelect(resetCamera) {
 	menuLayer.active = false;
 	levelSelectLayer.active = true;
-	levelSelectLayer.cameraY = 0;
+	scoreScreenLayer.active = false;
+	gameLayer.active = false;
+	if (resetCamera) {
+		levelSelectLayer.cameraY = 0;
+	}
 }
 
 /**
@@ -2212,6 +2216,7 @@ function stopAllSounds() {
 function resetLevelVars(name) {
 	menuLayer.active = false;
 	levelSelectLayer.active = false;
+	scoreScreenLayer.active = false;
 	gameLayer.active = true;
 	musicPlayer.changeLevels();
 	collectedResources = {"ore": 0, "crystal": 0};
@@ -2356,7 +2361,7 @@ function checkAccomplishedObjective() {
 		}
 	}
 	if (won) {
-		showScoreScreen();
+		showScoreScreen(true);
 	}
 }
 
@@ -2386,14 +2391,18 @@ function getLevelScore(level) {
 /**
  * switch to the score-screen layer
  */
-function showScoreScreen() {
-	gameLayer.active = false;
+function showScoreScreen(completedMission) {
+	menuLayer.active = false;
+	levelSelectLayer.active = false;
 	scoreScreenLayer.active = true;
+	gameLayer.active = false;
 	musicPlayer.changeLevels();
 	stopAllSounds();
-	lastLevelScore = calculateLevelScore();
-	setLevelScore(lastLevelScore);
-	scoreScreenButtons.objectList[0].updateText(scoreScreenButtons.objectList[0].text.split(":")[0] + ": " + lastLevelScore);
+	if (completedMission) {
+		lastLevelScore = calculateLevelScore();
+		setLevelScore(lastLevelScore);
+		scoreScreenButtons.objectList[0].updateText(scoreScreenButtons.objectList[0].text.split(":")[0] + ": " + lastLevelScore);
+	}
 }
 
 /**
