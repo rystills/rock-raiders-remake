@@ -1757,6 +1757,9 @@ function createButtons() {
 	// if selectionTypeBound is an empty list, the button will be visible for all selections except when selection == null
 	const iconPanelBackButton = new ImageButton(buttonsX - 31, 22, null, GameManager.getImage("Back_HL"), gameLayer, cancelSelection);
 	iconPanelBackButton.darkenedSurface = GameManager.getImage("Back_PR");
+	iconPanelBackButton.additionalRequirement = function () {
+		return !(activeIconPanel === "" && (selection === undefined || selection.length <= 0));
+	};
 	buttons.push(iconPanelBackButton);
 	// 6 pixel boundary between general purpose buttons and selection specific buttons
 
