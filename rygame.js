@@ -732,6 +732,10 @@ ObjectGroup.prototype.update = function (optionalArgs) {
 	}
 };
 
+ObjectGroup.prototype.size = function () {
+	return this.objectList.length;
+};
+
 /**
  * ObjectGroup constructor: initializes an empty object list
  */
