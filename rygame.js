@@ -1057,6 +1057,7 @@ function ImageButton(x, y, normalSurface, brightenedSurface, layer, runMethod = 
 	this.darkenedSurface = this.normalSurface;
 	this.unavailableSurface = this.normalSurface;
 	this.runMethod = runMethod;
+	this.optionalArgs = null;
 	this.additionalRequirement = null;
 	this.additionalRequirementArgs = [];
 	this.clickable = true;
@@ -1078,26 +1079,6 @@ function toContext(imageOrContext) { // TODO Is this method should be obsolete? 
 	} else {
 		return imageOrContext;
 	}
-}
-
-makeChild("MainMenuButton", "ImageButton");
-
-function MainMenuButton(centerX, centerY, text, fontNormal, fontBright, layer, runMethod) {
-	let normalSurface = fontNormal.createTextImage(text);
-	const x = centerX - normalSurface.canvas.width / 2;
-	const y = centerY - normalSurface.canvas.height / 2;
-	ImageButton.call(this, x, y, normalSurface, fontBright.createTextImage(text), layer, runMethod, false);
-}
-
-makeChild("LevelButton", "ImageButton");
-
-function LevelButton(x, y, levelImageName, layer, levelName, levelNum) {
-	ImageButton.call(this, x, y, GameManager.getImage("G" + levelImageName),
-		GameManager.getImage(levelImageName), layer, resetLevelVars, true);
-	this.unavailableSurface = GameManager.getImage(levelImageName + "G");
-	this.optionalArgs = [levelName];
-	this.additionalRequirement = levelIsUnlocked;
-	this.additionalRequirementArgs = [levelNum];
 }
 
 /**

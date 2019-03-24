@@ -317,6 +317,9 @@ object = {
 		["js", "classes\\vehicles", "SmallDigger.js"], // small digger class
 		["js", "classes\\vehicles", "SmallTransportTruck.js"], // small transport truck class
 
+		// gui elements
+		["js", "gui", "MainMenu.js"], // GUI elements used in the main menu
+
 		// level data list files
 		["js", "levels", "levels.js"], // list of names of playable levels, to be used by the main menu for level selection
 
