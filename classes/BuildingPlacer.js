@@ -26,12 +26,12 @@ BuildingPlacer.prototype.update = function () {
 			this.children[i].drawSurface = this.children[i].invalidSurface;
 			this.children[i].updatePosition();
 		}
-		var currentSpace = this.getCurrentSpace();
+		const currentSpace = this.getCurrentSpace();
 		if (currentSpace == null) {
 			return;
 		}
-		var positionValid = this.positionValid(currentSpace);
-		var childPositionsValid = true;
+		const positionValid = this.positionValid(currentSpace);
+		let childPositionsValid = true;
 		for (let i = 0; i < this.children.length; ++i) {
 			if (!this.children[i].positionValid(this.children[i].getCurrentSpace())) {
 				childPositionsValid = false;
@@ -136,7 +136,7 @@ BuildingPlacer.prototype.stop = function () {
 /**
  * check whether or not the placer is currently in a position that allows for building placement
  * @param space: the space over which the building placer is currently hovering
- * @returns whether the building placer is in a valid position (true) or not (false)
+ * @returns boolean whether the building placer is in a valid position (true) or not (false)
  */
 BuildingPlacer.prototype.positionValid = function (space) {
 	// this should only happen when we are hovering out of bounds
@@ -171,7 +171,7 @@ BuildingPlacer.prototype.positionValid = function (space) {
 /**
  * check whether or not the building placer is currently touching a power path
  * @param space: the space over which the placer is currently hovering
- * @returns whether the building placer is touching a power path (true) or not (false)
+ * @returns boolean whether the building placer is touching a power path (true) or not (false)
  */
 BuildingPlacer.prototype.touchingPowerPath = function (space) {
 	if (adjacentSpace(terrain, space.listX, space.listY, "up").type === "power path") {
@@ -235,8 +235,8 @@ BuildingPlacer.prototype.placeBuilding = function (space) {
  * @returns the space in the level terrain corresponding to the building placer's current location
  */
 BuildingPlacer.prototype.getCurrentSpace = function () {
-	var yCoord = Math.floor((this.y + gameLayer.cameraY) / tileSize);
-	var xCoord = Math.floor((this.x + gameLayer.cameraX) / tileSize);
+	const yCoord = Math.floor((this.y + gameLayer.cameraY) / tileSize);
+	const xCoord = Math.floor((this.x + gameLayer.cameraX) / tileSize);
 	// check bounds before attempting to access terrain Space
 	if (Math.min(yCoord, xCoord) < 0 || yCoord >= terrain.length || terrain.length === 0 || xCoord >= terrain[yCoord].length) {
 		return null;

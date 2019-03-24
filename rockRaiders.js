@@ -80,7 +80,6 @@ function updateSoundPositions(obj) {
 			obj.soundList[i].volume = vol;
 		}
 	}
-
 }
 
 /**
@@ -1135,23 +1134,8 @@ function togglePauseGame() {
 	paused = !paused;
 }
 
-function pauseGame() {
-	paused = true;
-}
-
 function unpauseGame() {
 	paused = false;
-}
-
-/**
- * switch to the input level name, and load that level via resetLevelVars
- * @param levelName: the name of the level to switch to
- */
-function changeLevels(levelName) {
-	if (levelName == null) {
-		levelName = "03";
-	}
-	resetLevelVars(levelName);
 }
 
 /**
@@ -2359,8 +2343,8 @@ function initGlobals() {
  * check if the current level objective has been accomplished. If it has, transition to the score screen.
  */
 function checkAccomplishedObjective() {
-	won = false;
-	objective = GameManager.scriptObjects["Info_" + levelName + ".js"].objective;
+	let won = false;
+	const objective = GameManager.scriptObjects["Info_" + levelName + ".js"].objective;
 	if (objective[0] === "collect") {
 		won = (collectedResources[objective[1][0]] >= parseInt(objective[1][1]));
 	} else if (objective[0] === "build") {
@@ -2371,7 +2355,6 @@ function checkAccomplishedObjective() {
 			}
 		}
 	}
-
 	if (won) {
 		showScoreScreen();
 	}
@@ -2485,7 +2468,7 @@ function update() {
 		scoreScreenButtons.update();
 
 		// pre-render; draw solid background
-		GameManager.drawSurface.fillStyle = "rgb(28,108,108)"; // turqoise background color
+		GameManager.drawSurface.fillStyle = "rgb(28,108,108)"; // turquoise background color
 		GameManager.drawSurface.fillRect(0, 0, GameManager.screenWidth, GameManager.screenHeight);
 
 		// inital render; draw all rygame objects
@@ -2571,15 +2554,12 @@ GameManager.initializeRygame(0);
 
 initGlobals();
 
+// to load a level for testing append ?level=03 to the URL, like localhost/index.html?level=03
 const url = new URL(window.location.href);
 const levelFromUrl = url.searchParams.get("level");
 if (levelFromUrl != null) {
-	changeLevels(levelFromUrl);
+	resetLevelVars(levelFromUrl);
 	awaitingStart = false;
 }
-
-// to auto load a level for testing use the following lines
-// changeLevels("02");
-// awaitingStart = false;
 
 _intervalId = setInterval(update, 1000 / GameManager.fps); // set refresh rate to desired fps
