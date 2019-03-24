@@ -1376,3 +1376,17 @@ function updateBrightness(oldContext, brightnessPercent, operateInPlace = false)
 	newContext.fillStype = oldContext.fillStyle;
 	return newContext;
 }
+
+function warnMissionAbort(event) {
+	// TODO somehow notify the user that the mission is aborted, since custom messages are not supported anymore, think of something else
+	event.preventDefault();
+	event.returnValue = '';
+}
+
+function blockPageExit() {
+	window.addEventListener("beforeunload", warnMissionAbort);
+}
+
+function unblockPageExit() {
+	window.removeEventListener("beforeunload", warnMissionAbort);
+}

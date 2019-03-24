@@ -2214,6 +2214,9 @@ function stopAllSounds() {
  * @param name: the name of the level to switch to
  */
 function resetLevelVars(name) {
+	if (devMode !== "true") {
+		blockPageExit();
+	}
 	menuLayer.active = false;
 	levelSelectLayer.active = false;
 	scoreScreenLayer.active = false;
@@ -2398,6 +2401,9 @@ function showScoreScreen(completedMission) {
 	gameLayer.active = false;
 	musicPlayer.changeLevels();
 	stopAllSounds();
+	if (devMode !== "true") {
+		unblockPageExit();
+	}
 	if (completedMission) {
 		lastLevelScore = calculateLevelScore();
 		setLevelScore(lastLevelScore);
@@ -2563,12 +2569,15 @@ GameManager.initializeRygame(0);
 
 initGlobals();
 
-// to load a level for testing append ?level=03 to the URL, like localhost/index.html?level=03
+// to instant load a level append ?devmode=true&level=03 to the URL
 const url = new URL(window.location.href);
+const devMode = url.searchParams.get("devmode");
 const levelFromUrl = url.searchParams.get("level");
-if (levelFromUrl != null) {
-	resetLevelVars(levelFromUrl);
-	awaitingStart = false;
+if (devMode === "true") {
+	if (levelFromUrl) {
+		resetLevelVars(levelFromUrl);
+		awaitingStart = false;
+	}
 }
 
 _intervalId = setInterval(update, 1000 / GameManager.fps); // set refresh rate to desired fps
