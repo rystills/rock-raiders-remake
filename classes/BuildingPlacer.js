@@ -261,7 +261,7 @@ function BuildingPlacer(buildingType, isHelper, xOffset, yOffset, parentBuilder)
 	}
 	this.parentBuilder = parentBuilder;
 	// update after Space, and draw in front of space
-	RygameObject.call(this, 0, 0, 1000000, 10000, null, gameLayer, false);
+	RygameObject.call(this, 0, 0, 1000000, drawDepthBuildingPlacier, null, gameLayer, false);
 	this.buildingType = buildingType;
 
 	this.drawSurface = createContext(tileSize, tileSize, false);

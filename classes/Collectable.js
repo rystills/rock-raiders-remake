@@ -16,7 +16,7 @@ function Collectable(space, type, x = null, y = null) {
 	} else if (this.type === "crystal") {
 		this.image = "energy crystal.png";
 	}
-	RygameObject.call(this, 0, 0, 10, 10, this.image, gameLayer);
+	RygameObject.call(this, 0, 0, 10, drawDepthCollectables, this.image, gameLayer);
 	this.space = space;
 
 	this.space.contains.push(this);

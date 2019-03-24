@@ -28,7 +28,7 @@ LandSlide.prototype.update = function () {
  */
 function LandSlide(space) {
 	this.image = "landslide.png";
-	RygameObject.call(this, 0, 0, 10, 10, this.image, gameLayer);
+	RygameObject.call(this, 0, 0, 10, drawDepthLandslide, this.image, gameLayer);
 	this.setCenterX(space.centerX());
 	this.setCenterY(space.centerY());
 	this.maxLife = 81;

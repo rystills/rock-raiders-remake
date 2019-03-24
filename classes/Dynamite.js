@@ -82,7 +82,7 @@ function Dynamite(space) {
 	this.grabPercent = 0;
 	this.image = "dynamite.png";
 	this.type = "dynamite";
-	RygameObject.call(this, 0, 0, 10, 10, this.image, gameLayer);
+	RygameObject.call(this, 0, 0, 10, drawDepthCollectables, this.image, gameLayer);
 	this.space = space;
 	this.maxEffectTimer = 30;
 	this.igniteTimer = 200;

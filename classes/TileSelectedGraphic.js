@@ -53,7 +53,7 @@ TileSelectedGraphic.prototype.withinLayerBounds = function () {
  */
 function TileSelectedGraphic() {
 	// default to a render depth between Space and BuildingPlacer
-	RygameObject.call(this, 0, 0, 500000, 5000, null, gameLayer);
+	RygameObject.call(this, 0, 0, 500000, drawDepthSelectedSpace, null, gameLayer);
 
 	this.drawSurface = createContext(tileSize, tileSize, false);
 	this.rect.width = tileSize;

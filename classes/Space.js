@@ -833,7 +833,7 @@ function Space(type, listX, listY, height, parentSpace) {
 
 	this.setTypeProperties(this.type, true, null, null, null, null, null, parentSpace);
 
-	RygameObject.call(this, listY * tileSize, listX * tileSize, 100000, 100000, this.image, gameLayer);
+	RygameObject.call(this, listY * tileSize, listX * tileSize, 100000, drawDepthTerrain, this.image, gameLayer);
 	// set the height alpha now since the first time we setTypeProperties we don't have a drawSurface yet to alpha adjust
 	this.adjustHeightAlpha();
 	this.updateTouched(false);
@@ -875,7 +875,7 @@ function Space(type, listX, listY, height, parentSpace) {
 		}
 	}
 	// dummy used to identify dynamite tasks
-	this.dynamiteDummy = this.isWall ? new RygameObject(0, 0, -99999, 0, null, this.drawLayer, true, false, true) : null;
+	this.dynamiteDummy = this.isWall ? new RygameObject(0, 0, -99999, drawDepthCollectables, null, this.drawLayer, true, false, true) : null;
 	if (this.dynamiteDummy != null) {
 		// workaround so the engine treats this dummy as a space that can be blown up when determining what type of task it is
 		this.dynamiteDummy.dynamitable = true;

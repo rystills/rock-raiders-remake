@@ -1,4 +1,31 @@
 /**
+ * Object update and rendering weights
+ *
+ * These values are coded into entities to determine the rendering order higher values are rendered first and covered by other objects with lower values
+ *
+ */
+const drawDepthTerrain = 1000;
+const drawDepthSelectedSpace = 950;
+const drawDepthBuildingPlacier = 900;
+
+const drawDepthCollectables = 800;
+const drawDepthSelectedCollectables = 790;
+const drawDepthSlimes = 775;
+const drawDepthRaider = 750;
+const drawDepthVehicle = 725;
+const drawDepthMonster = 700;
+
+const drawDepthLandslide = 600;
+const drawDepthHealthBar = 500;
+
+const drawDepthGuiBackground = 400;
+const drawDepthGuiBitmaps = 450; // like collected crystals/ore
+const drawDepthGuiTexts = 400; // like crystal/ore amount
+
+const drawDepthPauseBackground = 300;
+const drawDepthPauseButtons = 250;
+
+/**
  * output the terrain 2d-array to the console
  * @param terrain: a 2d-array representing the terrain (note that terrain is formatted as [y][x])
  */
@@ -650,11 +677,11 @@ function checkUpdateSelectionType() {
 	}
 	if (selection[0] instanceof Space) {
 		selectionType = selection[0].touched === true ? selection[0].type : "Hidden";
-		tileSelectedGraphic.drawDepth = 5000; // put tile selection graphic between space and collectable
+		tileSelectedGraphic.drawDepth = drawDepthSelectedSpace; // put tile selection graphic between space and collectable
 		GameManager.refreshObject(tileSelectedGraphic);
 	}
 	if (selection[0] instanceof Collectable || selection[0] instanceof Vehicle) {
-		tileSelectedGraphic.drawDepth = 5; // put tile selection graphic in front of collectable
+		tileSelectedGraphic.drawDepth = drawDepthSelectedCollectables; // put tile selection graphic in front of collectable
 		GameManager.refreshObject(tileSelectedGraphic);
 		// manually update vehicle selection to raider riding it, if it has a driver
 		for (let i = 0; i < raiders.objectList.length; ++i) {
@@ -1815,7 +1842,7 @@ function createButtons() {
 	// floor Space selected buttons
 	buttons.push(new Button(buttonsX, 17, 0, 0, "build power path button.png", gameLayer, "", buildPowerPath, false, false, ["ground"]));
 	const digupPathButton = new Button(buttonsX, 57, 0, 0, "diguppath", gameLayer, "", null, false, false, ["ground", "power path"]);
-	digupPathButton.additionalRequirement = function() {
+	digupPathButton.additionalRequirement = function () {
 		return selectionType === "power path";
 	};
 	buttons.push(digupPathButton);
