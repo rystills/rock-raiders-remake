@@ -206,8 +206,7 @@ object = {
 		["wad0bmp", "Interface/Menus/Reinforce.bmp", "Reinforce.png"], // button to instruct a raider to reinforce a wall
 		["wad0bmp", "Interface/Menus/ClearRubble.bmp", "clear rubble button.png"], // button to instruct a raider to clear rubble
 		["wad0bmp", "Interface/Menus/buildpath.bmp", "build power path button.png"], // button to instruct a raider to build a power path
-		// FIXME back_hl is not the right one
-		["wad0bmp", "Interface/IconPanel/Back_HL.bmp", "cancel selection button.png"], // cancel selection button
+		["wad0bmp", "Interface/Menus/diguppath.bmp", "diguppath"], // button to destroy a power path
 		["wad0bmp", "Interface/Menus/UnloadMinifigure.bmp", "unload minifig button.png"], // unload minifig button (drops held object)
 		["wad0bmp", "Interface/Menus/STOPeverything.bmp", "stop minifig button.png"], // stop minifig button (stops any performed task)
 		["wad0bmp", "Interface/Menus/Upgrade.bmp", "upgrade button.png"], // button to upgrade a raider or building

@@ -1813,8 +1813,12 @@ function createButtons() {
 		["dirt", "loose rock", "hard rock", "ore seam", "energy crystal seam"]));
 
 	// floor Space selected buttons
-	buttons.push(new Button(buttonsX, 17, 0, 0, "build power path button.png", gameLayer, "", buildPowerPath, false, false,
-		["ground"]));
+	buttons.push(new Button(buttonsX, 17, 0, 0, "build power path button.png", gameLayer, "", buildPowerPath, false, false, ["ground"]));
+	const digupPathButton = new Button(buttonsX, 57, 0, 0, "diguppath", gameLayer, "", null, false, false, ["ground", "power path"]);
+	digupPathButton.additionalRequirement = function() {
+		return selectionType === "power path";
+	};
+	buttons.push(digupPathButton);
 
 	// rubble selection buttons
 	buttons.push(new Button(buttonsX, 17, 0, 0, "clear rubble button.png", gameLayer, "", clearRubble, false, false,
@@ -1824,7 +1828,7 @@ function createButtons() {
 	buttons.push(new Button(buttonsX, 17, 0, 0, "upgrade button.png", gameLayer, "", upgradeBuilding, false, false,
 		["tool store", "teleport pad", "power station", "docks", "geological center", "support station",
 			"super teleport", "mining laser", "upgrade station", "ore refinery"], null, null, true, true, null, function () {
-			if (selectionType) {
+			if (selection) {
 				for (let c = 0; c < selection.length; c++) {
 					if (selection[c].isUpgradeable()) return true;
 				}
