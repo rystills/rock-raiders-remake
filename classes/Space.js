@@ -57,20 +57,6 @@ spaceTypes = {
 };
 
 /**
- * turn this space into a ground tile
- */
-Space.prototype.makeFloor = function () {
-	this.setTypeProperties("ground", this.image === "ground.png");
-};
-
-/**
- * custom toString: indicate Space class and x,y coords
- */
-Space.prototype.toString = function () {
-	return "Space [" + this.x + ", " + this.y + "]";
-};
-
-/**
  * increase this space's drill percent. if the space is a seam, create the respective collectable type after each 20% drilling mark
  * @param drillPercentIncrease: how much more of this space has just been drilled
  * @param dropSpace: the space onto which any collectables that fell out of this space should land, if it is a seam
