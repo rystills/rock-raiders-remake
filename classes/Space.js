@@ -198,7 +198,7 @@ Space.prototype.getAdjacentSpaces = function () {
 	return adjacentSpaces;
 };
 
-Space.prototype.isUpgradeable = function() {
+Space.prototype.isUpgradeable = function () {
 	return this.upgradeLevel < 2 && collectedResources["ore"] >= 5;
 };
 
