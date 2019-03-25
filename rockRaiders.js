@@ -2000,12 +2000,11 @@ BitmapFont.prototype.createTextImage = function (text) {
 	for (let c = 0; c < text.length; c++) {
 		width += this.letters[text.charAt(c)].width;
 	}
-	const scale = 800 / 640; // FIXME workaround. scaling should be done in total not per element
-	const surface = createContext(width * scale, this.maxCharHeight * scale, false);
+	const surface = createContext(width, this.maxCharHeight, false);
 	let x = 0;
 	for (let c = 0; c < text.length; c++) {
 		const letterImg = this.letters[text.charAt(c)];
-		surface.drawImage(letterImg, x * scale, 0, letterImg.width * scale, letterImg.height * scale);
+		surface.drawImage(letterImg, x, 0, letterImg.width, letterImg.height);
 		x += letterImg.width;
 	}
 	return surface;
