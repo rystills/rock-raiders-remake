@@ -1192,7 +1192,7 @@ RygameObject.prototype.changeImage = function (imageName, clearRect) {
 	if (clearRect) {
 		this.drawSurface.clearRect(0, 0, this.rect.width, this.rect.height);
 	}
-	this.drawSurface.drawImage(this.image, 0, 0);
+	this.drawSurface.drawImage(this.image, 0, 0, this.rect.width, this.rect.height);
 };
 
 /**

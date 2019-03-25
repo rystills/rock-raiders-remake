@@ -156,26 +156,38 @@ object = {
 		["wad0bmp", "Interface/Icons/WalkerDigger.bmp", "make WalkerDigger.png"], // make granite grinder button
 
 		// spaces
-		["img", "images\\spaces", "ground.png"], // ground
-		["img", "images\\spaces", "building power path.png"], // power path that is part of a building
-		["img", "images\\spaces", "power path building site.png"], // building site for a lone (non-building) power path
-		["img", "images\\spaces", "power path.png"], // power path created by the player (not part of a building)
-		["img", "images\\spaces", "lava.png"], // lava
-		["img", "images\\spaces", "water.png"], // water
-		["img", "images\\spaces", "energy crystal seam.png"], // energy crystal seam
-		["img", "images\\spaces", "ore seam.png"], // ore seam
-		["img", "images\\spaces", "recharge seam.png"], // recharge seam
-		["img", "images\\spaces", "dirt.png"], // dirt
-		["img", "images\\spaces", "loose rock.png"], // loose rock
-		["img", "images\\spaces", "hard rock.png"], // hard rock
-		["img", "images\\spaces", "solid rock.png"], // solid rock
-		["img", "images\\spaces", "rubble 1.png"], // rubble swept 0 times. 4 sweeps required to clear fully
-		["img", "images\\spaces", "rubble 2.png"], // rubble swept 1 time. 3 sweeps required to clear fully
-		["img", "images\\spaces", "rubble 3.png"], // rubble swept 2 times. 2 sweeps required to clear fully
-		["img", "images\\spaces", "rubble 4.png"], // rubble swept 3 times. 1 sweep required to clear fully
+		["wad0bmp", "World/WorldTextures/RockSplit/ROCK00.BMP", "ground.png"], // ground
+		["wad0bmp", "World/WorldTextures/RockSplit/ROCK76.BMP", "building power path.png"], // power path that is part of a building
+		["wad0bmp", "World/WorldTextures/RockSplit/Rock61.bmp", "power path building site.png"], // building site for a lone (non-building) power path
+		["wad0bmp", "World/WorldTextures/RockSplit/Rock60.bmp", "power path.png"], // all sides power path created by the player (not part of a building)
+		["wad0bmp", "World/WorldTextures/RockSplit/ROCK46.BMP", "lava.png"], // lava
+		["wad0bmp", "World/WorldTextures/RockSplit/Rock45.bmp", "water.png"], // water
+		["wad0bmp", "World/WorldTextures/RockSplit/Rock20.bmp", "energy crystal seam.png"], // energy crystal seam
+		["wad0bmp", "World/WorldTextures/RockSplit/Rock40.bmp", "ore seam.png"], // ore seam
+		["wad0bmp", "World/WorldTextures/RockSplit/Rock67.bmp", "recharge seam.png"], // recharge seam
+		["wad0bmp", "World/WorldTextures/RockSplit/ROCK01.BMP", "ROCK01"], // dirt
+		["wad0bmp", "World/WorldTextures/RockSplit/ROCK02.BMP", "ROCK02"], // gravel
+		["wad0bmp", "World/WorldTextures/RockSplit/ROCK03.BMP", "ROCK03"], // loose rock
+		["wad0bmp", "World/WorldTextures/RockSplit/ROCK04.BMP", "ROCK04"], // hard rock
+		["wad0bmp", "World/WorldTextures/RockSplit/ROCK05.BMP", "ROCK05"], // solid rock
+		["wad0bmp", "World/WorldTextures/RockSplit/ROCK31.BMP", "ROCK31"], // dirt corner inverted
+		["wad0bmp", "World/WorldTextures/RockSplit/ROCK32.BMP", "ROCK32"], // gravel corner inverted
+		["wad0bmp", "World/WorldTextures/RockSplit/ROCK33.BMP", "ROCK33"], // loose rock corner inverted
+		["wad0bmp", "World/WorldTextures/RockSplit/ROCK34.BMP", "ROCK34"], // hard rock corner inverted
+		["wad0bmp", "World/WorldTextures/RockSplit/ROCK35.BMP", "ROCK35"], // solid rock corner inverted
+		["wad0bmp", "World/WorldTextures/RockSplit/ROCK51.BMP", "ROCK51"], // dirt corner
+		["wad0bmp", "World/WorldTextures/RockSplit/ROCK52.BMP", "ROCK52"], // gravel corner
+		["wad0bmp", "World/WorldTextures/RockSplit/ROCK53.BMP", "ROCK53"], // loose rock corner
+		["wad0bmp", "World/WorldTextures/RockSplit/ROCK54.BMP", "ROCK54"], // hard rock corner
+		["wad0bmp", "World/WorldTextures/RockSplit/ROCK55.BMP", "ROCK55"], // solid rock corner
+		["wad0bmp", "World/WorldTextures/RockSplit/ROCK10.BMP", "rubble 1.png"], // rubble swept 0 times. 4 sweeps required to clear fully
+		["wad0bmp", "World/WorldTextures/RockSplit/Rock11.bmp", "rubble 2.png"], // rubble swept 1 time. 3 sweeps required to clear fully
+		["wad0bmp", "World/WorldTextures/RockSplit/Rock12.bmp", "rubble 3.png"], // rubble swept 2 times. 2 sweeps required to clear fully
+		["wad0bmp", "World/WorldTextures/RockSplit/Rock13.bmp", "rubble 4.png"], // rubble swept 3 times. 1 sweep required to clear fully
 		["img", "images\\spaces", "building site.png"], // building site
-		["img", "images\\spaces", "SlimySlugHole.png"], // hole out of which slimy slugs can emerge
-		["img", "images\\spaces", "reinforcement.png"], // reinforcement overlay for reinforced walls
+		["wad0bmp", "World/WorldTextures/RockSplit/Rock30.bmp", "SlimySlugHole.png"], // hole out of which slimy slugs can emerge
+		["wad0bmp", "World/WorldTextures/RockSplit/rock24.bmp", "hard rock reinforcement.png"], // reinforcement overlay for reinforced walls
+		["wad0bmp", "World/WorldTextures/RockSplit/ROCK70.BMP", "rock70"], // rock theme non touched cover
 
 		// buildings
 		["img", "images\\buildings", "teleport pad.png"], // teleport pad

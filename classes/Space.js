@@ -262,6 +262,52 @@ Space.prototype.sweep = function () {
 	}
 };
 
+Space.prototype.setRockImage = function (themeName, matIndex) {
+	const walls = [[false, false, false], [false, false, false], [false, false, false]];
+	let wallsCount = 0;
+	for (let y = -1; y <= 1; y++) {
+		for (let x = -1; x <= 1; x++) {
+			const neighborSpace = adjacentSpaceXY(terrain, this.listX, this.listY, x, y);
+			if (neighborSpace && neighborSpace.isWall) {
+				walls[y + 1][x + 1] = true; // somehow coords are mixed up...
+				wallsCount += 1;
+			}
+		}
+	}
+	let shapeIndex = 0;
+	if (!walls[0][1] && !walls[0][2] && !walls[1][2]) {
+		this.drawAngle = 0.5 * Math.PI; // 0 = lower right, 0.5 = lower left, ...
+		shapeIndex = 5; // corner
+	} else if (!walls[0][1] && !walls[0][0] && !walls[1][0]) {
+		this.drawAngle = Math.PI;
+		shapeIndex = 5;
+	} else if (!walls[1][0] && !walls[2][0] && !walls[2][1]) {
+		this.drawAngle = -0.5 * Math.PI;
+		shapeIndex = 5;
+	} else if (!walls[2][1] && !walls[2][2] && !walls[1][2]) {
+		this.drawAngle = 0;
+		shapeIndex = 5;
+	} else if (wallsCount === 7) {
+		shapeIndex = 3; // inverted corner
+		if (!walls[0][0]) {
+			this.drawAngle = Math.PI;
+		} else if (!walls[2][0]) {
+			this.drawAngle = -0.5 * Math.PI;
+		} else if (!walls[0][2]) {
+			this.drawAngle = 0.5 * Math.PI;
+		}
+	} else { // even part
+		if (!walls[1][0]) { // top missing
+			this.drawAngle = Math.PI;
+		} else if (!walls[0][1]) { // left missing
+			this.drawAngle = 0.5 * Math.PI;
+		} else if (!walls[2][1]) { // right missing
+			this.drawAngle = -0.5 * Math.PI;
+		}
+	}
+	this.image = themeName + shapeIndex.toString() + matIndex.toString();
+};
+
 /**
  * custom die code: kill children before calling base class die
  */
@@ -364,15 +410,20 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 		this.walkable = true;
 		this.speedModifier = 1.5;
 	} else if (type === "solid rock") {
-		this.image = "solid rock.png";
+		this.setRockImage("ROCK", 5);
 		this.isWall = true;
 	} else if (type === "hard rock") {
-		this.image = "hard rock.png";
+		this.setRockImage("ROCK", 4);
 		this.isWall = true;
 		this.explodable = true;
 		this.drillHardable = true;
+	} else if (type === "loose rock") {
+		this.setRockImage("ROCK", 3);
+		this.drillable = true;
+		this.isWall = true;
+		// FIXME What about "Geröll"?
 	} else if (type === "dirt") {
-		this.image = "dirt.png";
+		this.setRockImage("ROCK", 1);
 		this.drillable = true;
 		this.isWall = true;
 	} else if (type === "lava") {
@@ -391,10 +442,6 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 		this.drillSpeedModifier = .2;
 	} else if (type === "recharge seam") {
 		this.image = "recharge seam.png";
-		this.isWall = true;
-	} else if (type === "loose rock") {
-		this.image = "loose rock.png";
-		this.drillable = true;
 		this.isWall = true;
 	} else if (type.slice(0, 6) === "rubble") {
 		if (type === "rubble 1") {
@@ -552,17 +599,7 @@ Space.prototype.updateTouched = function (touched) {
 
 	// if this space has not yet been revealed then we want it to appear as solid rock, but we leave this.image alone to keep track of its actual image.
 	if (this.touched === false && maskUntouchedSpaces === true) {
-		if (this.image !== "solid rock.png") {
-			this.changeImage("solid rock.png");
-			if (this.drawSurface != null) {
-				this.drawSurface.beginPath();
-				this.drawSurface.globalAlpha = 0.5;
-				this.drawSurface.fillStyle = "rgb(0,0,0)";
-				this.drawSurface.fillRect(0, 0, this.rect.width, this.rect.height);
-				this.drawSurface.stroke();
-				this.drawSurface.globalAlpha = 1;
-			}
-		}
+		this.changeImage("rock70");
 	} else {
 		// we never actually modified this.image so we should just be able to use it
 		this.setTypeProperties(this.type);
@@ -787,6 +824,8 @@ Space.prototype.update = function () {
  * @param parentSpace: the space of which this is a child, if specified
  */
 function Space(type, listX, listY, height, parentSpace) {
+	this.listX = listX;
+	this.listY = listY;
 	// convert basic types from the numbers used in the level files to easily readable strings
 	this.height = height;
 	this.childSpaces = [];
@@ -837,8 +876,6 @@ function Space(type, listX, listY, height, parentSpace) {
 	// set the height alpha now since the first time we setTypeProperties we don't have a drawSurface yet to alpha adjust
 	this.adjustHeightAlpha();
 	this.updateTouched(false);
-	this.listX = listX;
-	this.listY = listY;
 	this.powerPathSpace = null;
 	this.upgradeLevel = 0;
 	// contained ore and crystals are defined by the cryore map and set immediately after Space creation
@@ -853,7 +890,7 @@ function Space(type, listX, listY, height, parentSpace) {
 	this.contains = new ObjectGroup();
 	this.reinforced = false;
 	// dummy used to identify reinforce tasks
-	this.reinforceDummy = this.isWall ? new RygameObject(0, 0, -99999, 99999, "reinforcement.png", this.drawLayer, true, false, true) : null;
+	this.reinforceDummy = this.isWall ? new RygameObject(0, 0, -99999, 99999, "hard rock reinforcement.png", this.drawLayer, true, false, true) : null;
 	if (this.reinforceDummy != null) {
 		// workaround so the engine treats this dummy as a reinforcable space when determining what type of task it is
 		this.reinforceDummy.reinforcable = true;
