@@ -1755,7 +1755,7 @@ function createButtons() {
 	buttons.push(new Button(buttonsX, 137, 0, 0, "open large vehicle menu button.png", gameLayer, "", null, false, false));
 
 	// if selectionTypeBound is an empty list, the button will be visible for all selections except when selection == null
-	const iconPanelBackButton = new ImageButton(buttonsX - 31, 22, null, GameManager.getImage("Back_HL"), gameLayer, cancelSelection);
+	const iconPanelBackButton = new ImageButton(buttonsX - 31, 22, 0, null, GameManager.getImage("Back_HL"), gameLayer, cancelSelection);
 	iconPanelBackButton.darkenedSurface = GameManager.getImage("Back_PR");
 	iconPanelBackButton.additionalRequirement = function () {
 		return !(activeIconPanel === "" && (selection === undefined || selection.length <= 0));
@@ -1873,10 +1873,9 @@ function createLevelSelectButtons() {
 	}
 
 	// back button
-	let levelSelectBackButton = new ImageButton(6, GameManager.gameHeight - 44, GameManager.getImage("LP_Normal.bmp"),
-		GameManager.getImage("LP_Glow.bmp"), levelSelectLayer, returnToMainMenu, false);
+	let levelSelectBackButton = new ImageButton(6, GameManager.gameHeight - 44, 0, GameManager.getImage("LP_Normal.bmp"),
+		GameManager.getImage("LP_Glow.bmp"), levelSelectLayer, returnToMainMenu, [true], false);
 	levelSelectBackButton.darkenedSurface = toContext(GameManager.getImage("LP_Dull.bmp"));
-	levelSelectBackButton.optionalArgs = [true];
 	levelSelectUIButtons.push(levelSelectBackButton);
 }
 

@@ -1044,20 +1044,22 @@ ImageButton.prototype.update = function () {
  * A simple button class consisting of different images for each state.
  * @param x button top left position
  * @param y button top left position
+ * @param drawDepth: the depth at which this object is drawn (smaller depths update sooner)
  * @param normalSurface normal display state of the button (also defines button size)
  * @param brightenedSurface display state on mouse hover
  * @param layer layer the button will be added to
  * @param runMethod the function to call when the button is clicked
+ * @param optionalArgs: a list of optional arguments to be passed in to this ImageButton's runMethod
  * @param isAffectedByCamera true if the button should be scrolled with the camera
  */
-function ImageButton(x, y, normalSurface, brightenedSurface, layer, runMethod = null, isAffectedByCamera = false) {
-	RygameObject.call(this, x, y, 0, 0, null, layer, isAffectedByCamera, true, true);
+function ImageButton(x, y, drawDepth, normalSurface, brightenedSurface, layer, runMethod = null, optionalArgs = null, isAffectedByCamera = false) {
+	RygameObject.call(this, x, y, 0, drawDepth, null, layer, isAffectedByCamera, true, true);
 	this.normalSurface = toContext(normalSurface);
 	this.brightenedSurface = toContext(brightenedSurface);
 	this.darkenedSurface = this.normalSurface;
 	this.unavailableSurface = this.normalSurface;
 	this.runMethod = runMethod;
-	this.optionalArgs = null;
+	this.optionalArgs = optionalArgs;
 	this.additionalRequirement = null;
 	this.additionalRequirementArgs = [];
 	this.clickable = true;
