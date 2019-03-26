@@ -2108,14 +2108,6 @@ function goToLevelSelect(resetCamera) {
 }
 
 /**
- * dummy function to always disable buttons when applied as an additional requirement
- * @returns boolean false
- */
-function grayedOut() {
-	return false;
-}
-
-/**
  * toggle the global setting for whether or not the mouse may scroll the screen by pointing at the edges (both the variable and the HTML5 local var)
  * @param buttonIndex: the index of the 'edge panning' button in the menuButtons list
  */
@@ -2158,6 +2150,9 @@ function clearData() {
 	for (let i = 0; i < GameManager.scriptObjects["levelList.js"].levels.length; ++i) {
 		localStorage.removeItem(GameManager.scriptObjects["levelList.js"].levels[i]);
 	}
+	localStorage.removeItem("fog");
+	localStorage.removeItem("mousePanning");
+	localStorage.removeItem("debug");
 }
 
 /**
@@ -2221,7 +2216,7 @@ function stopAllSounds() {
  * @param name: the name of the level to switch to
  */
 function resetLevelVars(name) {
-	if (devMode !== "true") {
+	if (!GameManager.devMode) {
 		blockPageExit();
 	}
 	menuLayer.active = false;
@@ -2275,10 +2270,12 @@ function setValue(name, value) {
 /**
  * get HTML5 local storage variable value
  * @param name: the name of the local storage variable whose value we want
+ * @param valueDefault: An optional default value
  * @returns string the value stored in the local storage variable with the input name
  */
-function getValue(name) {
-	return localStorage.getItem(name);
+function getValue(name, valueDefault) {
+	const val = localStorage.getItem(name);
+	return val !== null || !(valueDefault) ? val : valueDefault;
 }
 
 /**
@@ -2293,7 +2290,7 @@ function initGlobals() {
 	// if true, this creates the "fog of war" type effect where unrevealed Spaces appear as solid rock (should only be set to false for debugging purposes)
 	maskUntouchedSpaces = getValue("fog") !== "false";
 	// can we scroll the screen using the mouse?
-	mousePanning = getValue("mousePanning") === "true";
+	mousePanning = getValue("mousePanning", !GameManager.devMode);
 	// can we scroll the screen using the arrow keys?
 	keyboardPanning = true;
 	// should the game render any active debug info?
@@ -2408,7 +2405,7 @@ function showScoreScreen(completedMission) {
 	gameLayer.active = false;
 	musicPlayer.changeLevels();
 	stopAllSounds();
-	if (devMode !== "true") {
+	if (!GameManager.devMode) {
 		unblockPageExit();
 	}
 	if (completedMission) {
@@ -2504,7 +2501,7 @@ function update() {
 	else if (gameLayer.active) {
 		if (awaitingStart) {
 			// enter key pressed
-			if (GameManager.keyStates[String.fromCharCode(13)]) {
+			if (GameManager.keyStates[String.fromCharCode(13)] || GameManager.keyStates[" "] || GameManager.mouseReleasedLeft) {
 				awaitingStart = false;
 				// update music
 				musicPlayer.playRandomSong();
@@ -2565,6 +2562,11 @@ function update() {
 	}
 }
 
+// to instant load a level append ?devmode=true&level=03 to the URL
+const url = new URL(window.location.href);
+GameManager.devMode = url.searchParams.get("devmode") === "true";
+const levelFromUrl = url.searchParams.get("level");
+
 // split level data files (combined for faster loading)
 Object.keys(GameManager.scriptObjects["levels.js"]).forEach(function (key) {
 	GameManager.scriptObjects[key] = GameManager.scriptObjects["levels.js"][key];
@@ -2576,11 +2578,7 @@ GameManager.initializeRygame(0);
 
 initGlobals();
 
-// to instant load a level append ?devmode=true&level=03 to the URL
-const url = new URL(window.location.href);
-const devMode = url.searchParams.get("devmode");
-const levelFromUrl = url.searchParams.get("level");
-if (devMode === "true") {
+if (GameManager.devMode) {
 	if (levelFromUrl) {
 		resetLevelVars(levelFromUrl);
 		awaitingStart = false;

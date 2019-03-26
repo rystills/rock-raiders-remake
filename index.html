@@ -11,10 +11,10 @@
     <? Bootstrap core CSS ?>
     <link href="css/bootstrap.min.css" rel="stylesheet">
 
-    <script src="js/ie-emulation-modes-warning.js"></script>
+<!--    <script src="js/ie-emulation-modes-warning.js"></script>-->
 
-    <? IE10 viewport hack for Surface/desktop Windows 8 bug ?>
-    <script src="js/ie10-viewport-bug-workaround.js"></script>
+<!--    <? IE10 viewport hack for Surface/desktop Windows 8 bug ?>-->
+<!--    <script src="js/ie10-viewport-bug-workaround.js"></script>-->
 
     <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
@@ -35,7 +35,7 @@
                     <button class="resize-canvas" data-width="640" data-height="480">640 x 480</button>
                     <button class="resize-canvas" data-width="800" data-height="600">800 x 600</button>
                     <button class="resize-canvas" data-width="1024" data-height="768">1024 x 768</button>
-                    <button onclick="goFullScreen()">Fullscreen</button>
+                    <button class="fullscreen-canvas">Fullscreen</button>
                 </div>
             </div>
             <div class="modal" id="wadfiles_select_modal" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
@@ -98,10 +98,14 @@
 <script src="js/bootstrap.min.js"></script>
 <script src="rygameAssetLoader.js"></script>
 <script>
+	const canvas = $('#canvas');
 	$('.resize-canvas').on('click', (event) => {
-		let canvas = $('#canvas');
 		canvas.width(event.target.dataset.width);
 		canvas.height(event.target.dataset.height);
+	});
+	$('.fullscreen-canvas').on('click', () => {
+		const canvasNative = canvas.get(0);
+		(canvasNative.requestFullscreen || canvasNative.webkitRequestFullScreen || canvasNative.mozRequestFullScreen || canvasNative.msRequestFullscreen).call(canvasNative);
 	});
 	startWithCachedFiles(() => {
 		setLoadingMessage("WAD files not found in cache");

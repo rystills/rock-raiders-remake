@@ -3,7 +3,7 @@
  * Snippet taken from StackOverflow.
  */
 function goFullScreen() {
-	const el = GameManager.drawSurface.canvas;
+	const el = document.getElementById("canvas");
 	const rfs = el.requestFullscreen || el.webkitRequestFullScreen || el.mozRequestFullScreen || el.msRequestFullscreen;
 	rfs.call(el);
 }
@@ -559,7 +559,7 @@ GameManagerInternal.prototype.drawFrame = function () {
 			if (layer.background == null) {
 				layer.drawSurface.clearRect(0, 0, layer.width, layer.height);
 			} else {
-				layer.drawSurface.drawImage(layer.background.canvas, 0, 0);
+				layer.drawSurface.drawImage(layer.background, 0, -layer.cameraY);
 			}
 		}
 	}

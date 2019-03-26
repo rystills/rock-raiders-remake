@@ -407,7 +407,6 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 		this.setRockImage("ROCK", 3);
 		this.drillable = true;
 		this.isWall = true;
-		// FIXME What about "Geröll"?
 	} else if (type === "dirt") {
 		this.setRockImage("ROCK", 1);
 		this.drillable = true;
