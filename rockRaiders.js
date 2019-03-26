@@ -1857,7 +1857,7 @@ function createButtons() {
 	pauseButtons.push(new Button(100, gameLayer.height / 2 + 50, 0, 0, null, gameLayer, "Abort Mission", showScoreScreen, false, false, null, null, [false]));
 
 	scoreScreenButtons.push(new Button(200, 135, 0, 0, null, scoreScreenLayer, "Score: 0", null, false, true, null, null, [], false));
-	scoreScreenButtons.push(new Button(20, 200, 0, 0, null, scoreScreenLayer, "Continue", goToLevelSelect, false, true));
+	scoreScreenButtons.push(new Button(20, 200, 0, 0, null, scoreScreenLayer, "Continue", goToLevelSelect, false, true, null, null, [false, false]));
 }
 
 /**
@@ -1876,6 +1876,7 @@ function createLevelSelectButtons() {
 	let levelSelectBackButton = new ImageButton(6, GameManager.gameHeight - 44, GameManager.getImage("LP_Normal.bmp"),
 		GameManager.getImage("LP_Glow.bmp"), levelSelectLayer, returnToMainMenu, false);
 	levelSelectBackButton.darkenedSurface = toContext(GameManager.getImage("LP_Dull.bmp"));
+	levelSelectBackButton.optionalArgs = [true];
 	levelSelectUIButtons.push(levelSelectBackButton);
 }
 
@@ -2067,7 +2068,7 @@ function createMenuButtons() {
 	const fontLow = new BitmapFont(chars, GameManager.getImage("Menu_Font_LO.bmp"), 38, 43);
 	const fontHigh = new BitmapFont(chars, GameManager.getImage("Menu_Font_HI.bmp"), 38, 43);
 
-	menuButtons.push(new MainMenuButton(xPos, yPos, "Start Game", fontLow, fontHigh, menuLayer, goToLevelSelect, [true]));
+	menuButtons.push(new MainMenuButton(xPos, yPos, "Start Game", fontLow, fontHigh, menuLayer, goToLevelSelect, [true, true]));
 	xPos = 250;
 	yPos += 20;
 
@@ -2092,18 +2093,17 @@ function createMenuButtons() {
 /**
  * switch to the level select layer
  */
-function goToLevelSelect(resetCamera) {
-	//turn off score screen music if it's currently playing
-	if (musicPlayer.trackNum == -1) {
-		GameManager.sounds["score screen"].pause();
-		GameManager.sounds["score screen"].currentTime = 0;
-	}
+function goToLevelSelect(resetCamera, keepMusic) {
 	menuLayer.active = false;
 	levelSelectLayer.active = true;
 	scoreScreenLayer.active = false;
 	gameLayer.active = false;
 	if (resetCamera) {
 		levelSelectLayer.cameraY = 0;
+	}
+	if (!keepMusic) {
+		musicPlayer.changeTrack("menu theme");
+		stopAllSounds();
 	}
 }
 
@@ -2158,14 +2158,14 @@ function clearData() {
 /**
  * switch layers to the main menu, stopping all sounds and toggling all game-variables off
  */
-function returnToMainMenu(keepMusic = true) {
+function returnToMainMenu(keepMusic = false) {
 	// toggle game and menu layers and swap music tracks, as well as update level score strings if coming from score screen
 	menuLayer.active = true;
 	levelSelectLayer.active = false;
 	scoreScreenLayer.active = false;
 	gameLayer.active = false;
 	if (!keepMusic) {
-		musicPlayer.changeLevels();
+		musicPlayer.changeTrack("menu theme");
 		stopAllSounds();
 	}
 	buildingPlacer.stop();
@@ -2223,7 +2223,7 @@ function resetLevelVars(name) {
 	levelSelectLayer.active = false;
 	scoreScreenLayer.active = false;
 	gameLayer.active = true;
-	musicPlayer.changeLevels();
+	musicPlayer.changeTrack();
 	collectedResources = {"ore": 0, "crystal": 0};
 	reservedResources = {"ore": 0, "crystal": 0};
 	selectionRectCoords = {x1: null, y1: null};
@@ -2301,6 +2301,7 @@ function initGlobals() {
 	gameLayer = new Layer(0, 0, 1, 1, GameManager.screenWidth, GameManager.screenHeight);
 	scoreScreenLayer = new Layer(0, 0, 1, 1, GameManager.screenWidth, GameManager.screenHeight);
 	musicPlayer = new MusicPlayer();
+	musicPlayer.changeTrack("menu theme");
 	buttons = new ObjectGroup();
 	pauseButtons = new ObjectGroup();
 	menuButtons = new ObjectGroup();
@@ -2403,7 +2404,7 @@ function showScoreScreen(completedMission) {
 	levelSelectLayer.active = false;
 	scoreScreenLayer.active = true;
 	gameLayer.active = false;
-	musicPlayer.changeLevels();
+	musicPlayer.changeTrack("score screen");
 	stopAllSounds();
 	if (!GameManager.devMode) {
 		unblockPageExit();
@@ -2432,10 +2433,6 @@ function checkCloseMenu() {
 function update() {
 	// menu update
 	if (menuLayer.active) {
-		// update music
-		musicPlayer.trackNum = 0;
-		musicPlayer.update();
-
 		// update objects
 		GameManager.updateObjects();
 		menuButtons.update();
@@ -2449,10 +2446,6 @@ function update() {
 
 	// level select update
 	else if (levelSelectLayer.active) {
-		// update music
-		musicPlayer.trackNum = 0;
-		musicPlayer.update();
-
 		let levelpickImage = GameManager.getImage("Levelpick.png");
 		let levelpickHeight = levelpickImage.height * GameManager.getScreenZoom();
 
@@ -2478,10 +2471,6 @@ function update() {
 
 	// score screen update
 	else if (scoreScreenLayer.active) {
-		// update music
-		musicPlayer.trackNum = -1;
-		musicPlayer.update();
-
 		// update objects
 		GameManager.updateObjects();
 		scoreScreenButtons.update();
@@ -2503,12 +2492,8 @@ function update() {
 			// enter key pressed
 			if (GameManager.keyStates[String.fromCharCode(13)] || GameManager.keyStates[" "] || GameManager.mouseReleasedLeft) {
 				awaitingStart = false;
-				// update music
-				musicPlayer.playRandomSong();
 			}
 		} else {
-			// update music regardless of game state
-			musicPlayer.update();
 			checkTogglePause();
 			if (!paused) {
 				// update input

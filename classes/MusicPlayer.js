@@ -1,47 +1,64 @@
 /**
  * play one of the three in-game tracks at random
  */
-MusicPlayer.prototype.playRandomSong = function () {
-	// don't do anything if we are already playing a song
-	if (this.trackNum === 0 || GameManager.sounds["song" + this.trackNum + "-reduced noise"].paused) {
-		var newTrackNum = this.trackNum;
-		while (newTrackNum === this.trackNum) {
-			this.trackNum = randomInt(1, 3);
-		}
-		GameManager.sounds["song" + this.trackNum + "-reduced noise"].play().catch(error => {});
+MusicPlayer.prototype.startRandomTrack = function () {
+	// select next random track
+	this.currentRandomTrack = (this.currentRandomTrack + randomInt(1, this.numberOfRandomTracks - 1)) % this.numberOfRandomTracks;
+	const that = this;
+	this.startTrack("song" + (this.currentRandomTrack + 1) + "-reduced noise", function () {
+		that.startRandomTrack();
+	});
+};
+
+/**
+ * Convenience function for better error handling. Starts playing a sound from beginning.
+ * @param trackName A HTML audio element to start playing
+ * @param onendedCallback Callback that is triggered if the selected track ends, useful for endless loops
+ */
+MusicPlayer.prototype.startTrack = function (trackName, onendedCallback) {
+	if (typeof (trackName) === 'string' || trackName instanceof String) {
+		this.lastTrackName = trackName;
+	}
+	if (this.lastTrackName) {
+		const track = GameManager.sounds[this.lastTrackName];
+		track.currentTime = 0;
+		track.addEventListener("ended", onendedCallback);
+		// at least Chromium throws an error, if the user didn't interact with the site, before play() is called
+		const that = this;
+		track.play().catch(function () {
+			setTimeout(that.startTrack, 2000); // retry again in 2 seconds
+		});
 	}
 };
 
 /**
- * update the music player, changing tracks when necessary and choosing a new in-game theme once the previous song ends
+ * Convenience function for better state handling. Stops playing a sound and resets its state.
+ * @param sound A HTML audio element to stop from playing
  */
-MusicPlayer.prototype.update = function () {
-	if (this.trackNum === 0) {
-		if (GameManager.sounds["menu theme"].paused) {
-			GameManager.sounds["menu theme"].play().catch(error => {});
-		}
-	} else if (this.trackNum === -1) {
-		if (GameManager.sounds["score screen"].paused) {
-			GameManager.sounds["score screen"].play().catch(error => {});
-		}
-	} else if (GameManager.sounds["song" + this.trackNum + "-reduced noise"].paused) {
-		this.playRandomSong();
+MusicPlayer.prototype.stopTrack = function (sound) {
+	if (sound) {
+		sound.pause();
+		sound.currentTime = 0;
+		sound.ended = true;
 	}
+	this.lastTrackName = undefined;
 };
 
 /**
- * stop the currently playing music as the game transitions to a new level
+ * Stops the currently playing track and starts a new one.
+ * @param trackName: The sound track to play. No name means random
  */
-MusicPlayer.prototype.changeLevels = function () {
-	if (this.trackNum === 0) {
-		GameManager.sounds["menu theme"].pause();
-		GameManager.sounds["menu theme"].currentTime = 0;
-	} else if (this.trackNum === -1) {
-		GameManager.sounds["score screen"].pause();
-		GameManager.sounds["score screen"].currentTime = 0;
+MusicPlayer.prototype.changeTrack = function (trackName) {
+	if (this.lastTrackName) { // currently playing a track? Stop it!
+		this.stopTrack(GameManager.sounds[this.lastTrackName]);
+	}
+	if (trackName) {
+		const that = this;
+		this.startTrack(trackName, function repeat() {
+			that.startTrack(trackName, repeat);
+		});
 	} else {
-		GameManager.sounds["song" + this.trackNum + "-reduced noise"].pause();
-		GameManager.sounds["song" + this.trackNum + "-reduced noise"].currentTime = 0;
+		this.startRandomTrack();
 	}
 };
 
@@ -49,5 +66,7 @@ MusicPlayer.prototype.changeLevels = function () {
  * MusicPlayer constructor: start the track number at 0 (main menu music)
  */
 function MusicPlayer() {
-	this.trackNum = 0;
+	this.numberOfRandomTracks = 3;
+	this.currentRandomTrack = 0;
+	this.lastTrackName = undefined;
 }
