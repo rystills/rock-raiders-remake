@@ -2093,6 +2093,11 @@ function createMenuButtons() {
  * switch to the level select layer
  */
 function goToLevelSelect(resetCamera) {
+	//turn off score screen music if it's currently playing
+	if (musicPlayer.trackNum == -1) {
+		GameManager.sounds["score screen"].pause();
+		GameManager.sounds["score screen"].currentTime = 0;
+	}
 	menuLayer.active = false;
 	levelSelectLayer.active = true;
 	scoreScreenLayer.active = false;
@@ -2158,7 +2163,7 @@ function clearData() {
 /**
  * switch layers to the main menu, stopping all sounds and toggling all game-variables off
  */
-function returnToMainMenu(keepMusic = false) {
+function returnToMainMenu(keepMusic = true) {
 	// toggle game and menu layers and swap music tracks, as well as update level score strings if coming from score screen
 	menuLayer.active = true;
 	levelSelectLayer.active = false;
