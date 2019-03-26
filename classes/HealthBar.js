@@ -43,7 +43,7 @@ function HealthBar(raider, barWidth, barHeight, barBorderSize) {
 		barBorderSize = 1;
 	}
 	// set update depth very high and render depth very low, so that healthbars draw in front and update late
-	RygameObject.call(this, 0, 0, 100000, -100000, null, gameLayer);
+	RygameObject.call(this, 0, 0, 100000, drawDepthHealthBar, null, gameLayer);
 	this.raider = raider;
 	this.prevHp = raider.hp;
 	this.barWidth = barWidth;

@@ -1,18 +1,11 @@
 /**
  * Full screen the game.
  * Snippet taken from StackOverflow.
- * TODO: Currently operates differently between browsers. fullscreen behavior should be made browser independent if possible.
  */
 function goFullScreen() {
-	const canvas = GameManager.drawSurface.canvas;
-	if (canvas.requestFullScreen) {
-		canvas.requestFullScreen();
-	} else if (canvas.webkitRequestFullScreen) {
-		canvas.webkitRequestFullScreen();
-	} else if (canvas.mozRequestFullScreen) {
-		// we must use a container element to emulate webkit style fullscreen in firefox
-		document.getElementById("fscontainer").mozRequestFullScreen();
-	}
+	const el = GameManager.drawSurface.canvas;
+	const rfs = el.requestFullscreen || el.webkitRequestFullScreen || el.mozRequestFullScreen || el.msRequestFullscreen;
+	rfs.call(el);
 }
 
 // mouse code - Snippet taken from StackOverflow
@@ -363,6 +356,13 @@ function makeChild(objectName, parentName) {
 	eval(objectName + ".prototype = Object.create(" + parentName + ".prototype);" + objectName + ".prototype.constructor = " + objectName + ";");
 }
 
+GameManagerInternal.prototype.setCursor = function (cursorImageName) {
+	if (cursorImageName === undefined || cursorImageName === null) {
+		cursorImageName = "Aclosed.bmp";
+	}
+	GameManager.canvas.style.cursor = "url('" + GameManager.getImage(cursorImageName).canvas.toDataURL() + "'), auto"; // auto is fallback here
+};
+
 GameManagerInternal.prototype.createSound = function (soundName) {
 	if (this.sounds[soundName] !== undefined) {
 		return this.sounds[soundName].cloneNode();
@@ -430,27 +430,25 @@ GameManagerInternal.prototype.setFont = function () {
  */
 GameManagerInternal.prototype.initializeRygame = function (is3d) {
 	// create context
-	let canvas = document.getElementById('canvas');
 	if (!is3d) {
-		this.drawSurface = canvas.getContext('2d');
+		this.drawSurface = GameManager.canvas.getContext('2d');
 	} else {
-		this.drawSurface = canvas.getContext('3d');
+		this.drawSurface = GameManager.canvas.getContext('3d');
 	}
 	// mouse code (this snippet is taken from a stackOverflow answer)
-	stylePaddingLeft = parseInt(document.defaultView.getComputedStyle(canvas, null)['paddingLeft'], 10) || 0;
-	stylePaddingTop = parseInt(document.defaultView.getComputedStyle(canvas, null)['paddingTop'], 10) || 0;
-	styleBorderLeft = parseInt(document.defaultView.getComputedStyle(canvas, null)['borderLeftWidth'], 10) || 0;
-	styleBorderTop = parseInt(document.defaultView.getComputedStyle(canvas, null)['borderTopWidth'], 10) || 0;
+	stylePaddingLeft = parseInt(document.defaultView.getComputedStyle(GameManager.canvas, null)['paddingLeft'], 10) || 0;
+	stylePaddingTop = parseInt(document.defaultView.getComputedStyle(GameManager.canvas, null)['paddingTop'], 10) || 0;
+	styleBorderLeft = parseInt(document.defaultView.getComputedStyle(GameManager.canvas, null)['borderLeftWidth'], 10) || 0;
+	styleBorderTop = parseInt(document.defaultView.getComputedStyle(GameManager.canvas, null)['borderTopWidth'], 10) || 0;
 
 	html = document.body.parentNode;
 	htmlTop = html.offsetTop;
 	htmlLeft = html.offsetLeft;
 
-	this.screenWidth = this.drawSurface.canvas.width;
-	this.screenHeight = this.drawSurface.canvas.height;
+	GameManager.setCursor();
 
 	// init key events
-	canvas.addEventListener("keydown", function (e) {
+	GameManager.canvas.addEventListener("keydown", function (e) {
 		GameManager.keyStates[String.fromCharCode(e.keyCode)] = true;
 		// fullScreenKey is a property that must be set in the game itself rather than being hardcoded,
 		// as that would prevent the programmer from being able to use a key that they might need
@@ -458,19 +456,19 @@ GameManagerInternal.prototype.initializeRygame = function (is3d) {
 			goFullScreen();
 		}
 	});
-	canvas.addEventListener("keyup", function (e) {
+	GameManager.canvas.addEventListener("keyup", function (e) {
 		GameManager.keyStates[String.fromCharCode(e.keyCode)] = false;
 	});
-	canvas.addEventListener("mousemove", function (e) {
+	GameManager.canvas.addEventListener("mousemove", function (e) {
 		GameManager.mousePos = getMousePos(e);
 	});
-	canvas.addEventListener("mouseleave", function (e) {
+	GameManager.canvas.addEventListener("mouseleave", function (e) {
 		GameManager.mousePos = getMousePos(e);
 	});
-	canvas.addEventListener("mouseenter", function (e) {
+	GameManager.canvas.addEventListener("mouseenter", function (e) {
 		GameManager.mousePos = getMousePos(e);
 	});
-	canvas.addEventListener("mousedown", function (e) {
+	GameManager.canvas.addEventListener("mousedown", function (e) {
 		if (e.button === 0) {
 			// left click press detected
 			GameManager.mouseDownLeft = true;
@@ -481,7 +479,7 @@ GameManagerInternal.prototype.initializeRygame = function (is3d) {
 			GameManager.mouseDownRight = true;
 		}
 	});
-	canvas.addEventListener("mouseup", function (e) {
+	GameManager.canvas.addEventListener("mouseup", function (e) {
 		if (e.button === 0) {
 			GameManager.mouseReleasedLeft = true;
 			// we can use the same method as in mousemove to get the effective mouse position
@@ -496,7 +494,7 @@ GameManagerInternal.prototype.initializeRygame = function (is3d) {
 			GameManager.mouseDownRight = false;
 		}
 	});
-	canvas.addEventListener('contextmenu', function (e) {
+	GameManager.canvas.addEventListener('contextmenu', function (e) {
 		e.preventDefault();
 	});
 };
@@ -595,6 +593,10 @@ GameManagerInternal.prototype.drawFrame = function () {
 	this.mousePressedRight = false;
 };
 
+GameManagerInternal.prototype.getScreenZoom = function () {
+	return this.screenWidth / this.gameWidth;
+};
+
 /**
  * draws the input surface to the GameManager's drawSurface at the specified location
  * @param surface: the surface to be drawn onto the GameManager's drawSurface
@@ -603,6 +605,17 @@ GameManagerInternal.prototype.drawFrame = function () {
  */
 GameManagerInternal.prototype.draw = function (surface, x, y) { // simple draw function. Copied from Layer so that the GameManager can be treated like a layer when necessary.
 	this.drawSurface.drawImage(surface.canvas, x, y);
+};
+
+GameManagerInternal.prototype.getImage = function (imageName) {
+	if (!imageName || imageName.length === 0) {
+		throw "imageName must not be undefined, null or empty - was " + imageName;
+	} else if (!(imageName in this.images) || this.images[imageName] === undefined || this.images[imageName] === null) {
+		// TODO return some placeholder image for more stability
+		throw "Image '" + imageName + "' unknown";
+	} else {
+		return this.images[imageName];
+	}
 };
 
 /**
@@ -620,9 +633,14 @@ function GameManagerInternal() {
 	this.completeLayerList = [];
 	this.renderOrderedCompleteObjectList = [];
 	this.updateOrderedCompleteObjectList = [];
+	this.canvas = document.getElementById('canvas');
 	this.drawSurface = null;
-	this.screenWidth = null;
-	this.screenHeight = null;
+	// native resolution of the game
+	this.gameWidth = 640;
+	this.gameHeight = 480;
+	// zoomed/shrinked screen resolution
+	this.screenWidth = this.canvas.width;
+	this.screenHeight = this.canvas.height;
 	this.mousePos = {x: 1, y: 1};
 	this.mouseDownLeft = false;
 	this.mouseDownRight = false;
@@ -714,6 +732,10 @@ ObjectGroup.prototype.update = function (optionalArgs) {
 	}
 };
 
+ObjectGroup.prototype.size = function () {
+	return this.objectList.length;
+};
+
 /**
  * ObjectGroup constructor: initializes an empty object list
  */
@@ -776,15 +798,15 @@ makeChild("Button", "RygameObject");
 /**
  * update this Button's state based on mouse interactivity
  * @param selectionType: the current active UI selection
- * @param openMenu: the currently open menu, if any
+ * @param currentlyOpenIconPanel: the currently open menu, if any
  */
-Button.prototype.update = function (selectionType, openMenu) {
-	if (openMenu == null) {
-		openMenu = "";
+Button.prototype.update = function (selectionType, currentlyOpenIconPanel) {
+	if (currentlyOpenIconPanel == null) {
+		currentlyOpenIconPanel = "";
 	}
 	if (this.selectionTypeBound != null) {
 		if (this.selectionTypeBound.indexOf(selectionType) === -1) {
-			if (!(this.selectionTypeBound.length === 0 && (selectionType != null || openMenu !== ""))) {
+			if (!(this.selectionTypeBound.length === 0 && (selectionType != null || currentlyOpenIconPanel !== ""))) {
 				this.visible = false;
 				return;
 			}
@@ -794,13 +816,13 @@ Button.prototype.update = function (selectionType, openMenu) {
 		return;
 	}
 	if (this.openMenuBound != null) {
-		if (this.openMenuBound.indexOf(openMenu) === -1) {
-			if (!(this.openMenuBound.length === 0 && (selectionType != null || openMenu !== ""))) {
+		if (this.openMenuBound.indexOf(currentlyOpenIconPanel) === -1) {
+			if (!(this.openMenuBound.length === 0 && (selectionType != null || currentlyOpenIconPanel !== ""))) {
 				this.visible = false;
 				return;
 			}
 		}
-	} else if (openMenu !== "") {
+	} else if (currentlyOpenIconPanel !== "") {
 		this.visible = false;
 		return;
 	}
@@ -972,6 +994,93 @@ function Button(x, y, updateDepth, drawDepth, image, layer, text, runMethod, aff
 	this.updateText(text, false);
 }
 
+makeChild("ImageButton", "RygameObject");
+
+/**
+ * update this MainMenuButton's state based on mouse interactivity
+ */
+ImageButton.prototype.update = function () {
+	if (this.additionalRequirement != null) {
+		if (!(this.additionalRequirement.apply(this, this.additionalRequirementArgs))) {
+			this.clickable = false;
+			this.drawSurface = this.unavailableSurface;
+		} else {
+			this.clickable = true;
+
+		}
+	}
+
+	// if this button is not currently interactive, don't need to update anything else
+	if (!this.clickable) {
+		return;
+	}
+
+	const mouseOver = collisionPoint(GameManager.mousePos.x, GameManager.mousePos.y, this, this.affectedByCamera);
+	// mouse pressed and released events can occur in the same frame on high doses of coffee
+	if (GameManager.mousePressedLeft === true) {
+		this.mouseDownOnButton = mouseOver;
+	}
+	if (GameManager.mouseReleasedLeft === true) {
+		if (this.mouseDownOnButton === true) {
+			if (mouseOver && this.runMethod != null) { // button has been clicked
+				this.runMethod.apply(this, this.optionalArgs);
+			}
+		}
+		this.mouseDownOnButton = false;
+	}
+
+	if (collisionPoint(GameManager.mousePos.x, GameManager.mousePos.y, this, this.affectedByCamera)) {
+		if (this.mouseDownOnButton) {
+			this.drawSurface = this.darkenedSurface;
+		} else {
+			this.drawSurface = this.brightenedSurface;
+		}
+	} else {
+		this.drawSurface = this.normalSurface;
+	}
+};
+
+/**
+ * A simple button class consisting of different images for each state.
+ * @param x button top left position
+ * @param y button top left position
+ * @param normalSurface normal display state of the button (also defines button size)
+ * @param brightenedSurface display state on mouse hover
+ * @param layer layer the button will be added to
+ * @param runMethod the function to call when the button is clicked
+ * @param isAffectedByCamera true if the button should be scrolled with the camera
+ */
+function ImageButton(x, y, normalSurface, brightenedSurface, layer, runMethod = null, isAffectedByCamera = false) {
+	RygameObject.call(this, x, y, 0, 0, null, layer, isAffectedByCamera, true, true);
+	this.normalSurface = toContext(normalSurface);
+	this.brightenedSurface = toContext(brightenedSurface);
+	this.darkenedSurface = this.normalSurface;
+	this.unavailableSurface = this.normalSurface;
+	this.runMethod = runMethod;
+	this.optionalArgs = null;
+	this.additionalRequirement = null;
+	this.additionalRequirementArgs = [];
+	this.clickable = true;
+	this.mouseDownOnButton = false;
+	if (this.normalSurface) {
+		this.rect = new Rect(this.normalSurface.canvas.width, this.normalSurface.canvas.height);
+	} else if (this.brightenedSurface) {
+		this.rect = new Rect(this.brightenedSurface.canvas.width, this.brightenedSurface.canvas.height);
+	} else if (this.darkenedSurface) {
+		this.rect = new Rect(this.darkenedSurface.canvas.width, this.darkenedSurface.canvas.height);
+	}
+}
+
+function toContext(imageOrContext) { // TODO Is this method should be obsolete? Load all images as contexts? Performance? One context per image or per entity?
+	if (imageOrContext instanceof HTMLImageElement) {
+		const drawSurface = createContext(imageOrContext.naturalWidth, imageOrContext.naturalHeight, false);
+		drawSurface.drawImage(imageOrContext, 0, 0);
+		return drawSurface;
+	} else {
+		return imageOrContext;
+	}
+}
+
 /**
  * renders this RygameObject's gui elements
  * @param destLayer: the layer on which to render the elements
@@ -1079,11 +1188,11 @@ RygameObject.prototype.rotateAroundPoint = function (x, y, angleRadians, angleDi
  */
 RygameObject.prototype.changeImage = function (imageName, clearRect) {
 	// TODO: drawSurface and rect dimensions are currently left unchanged, meaning the new image may be cut off
-	this.image = GameManager.images[imageName];
+	this.image = GameManager.getImage(imageName);
 	if (clearRect) {
 		this.drawSurface.clearRect(0, 0, this.rect.width, this.rect.height);
 	}
-	this.drawSurface.drawImage(this.image, 0, 0);
+	this.drawSurface.drawImage(this.image, 0, 0, this.rect.width, this.rect.height);
 };
 
 /**
@@ -1231,7 +1340,7 @@ function RygameObject(x, y, updateDepth, drawDepth, image, layer, affectedByCame
 	this.drawSurface = null;
 	this.image = null;
 	if (image != null) {
-		this.image = GameManager.images[image];
+		this.image = GameManager.getImage(image);
 		this.drawSurface = createContext(this.image.width, this.image.height, false);
 		this.drawSurface.drawImage(this.image, 0, 0);
 	}
@@ -1266,4 +1375,18 @@ function updateBrightness(oldContext, brightnessPercent, operateInPlace = false)
 	newContext.globalAlpha = oldContext.globalAlpha;
 	newContext.fillStype = oldContext.fillStyle;
 	return newContext;
+}
+
+function warnMissionAbort(event) {
+	// TODO somehow notify the user that the mission is aborted, since custom messages are not supported anymore, think of something else
+	event.preventDefault();
+	event.returnValue = '';
+}
+
+function blockPageExit() {
+	window.addEventListener("beforeunload", warnMissionAbort);
+}
+
+function unblockPageExit() {
+	window.removeEventListener("beforeunload", warnMissionAbort);
 }

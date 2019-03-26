@@ -1,4 +1,31 @@
 /**
+ * Object update and rendering weights
+ *
+ * These values are coded into entities to determine the rendering order higher values are rendered first and covered by other objects with lower values
+ *
+ */
+const drawDepthTerrain = 1000;
+const drawDepthSelectedSpace = 950;
+const drawDepthBuildingPlacier = 900;
+
+const drawDepthCollectables = 800;
+const drawDepthSelectedCollectables = 790;
+const drawDepthSlimes = 775;
+const drawDepthRaider = 750;
+const drawDepthVehicle = 725;
+const drawDepthMonster = 700;
+
+const drawDepthLandslide = 600;
+const drawDepthHealthBar = 500;
+
+const drawDepthGuiBackground = 400;
+const drawDepthGuiBitmaps = 450; // like collected crystals/ore
+const drawDepthGuiTexts = 400; // like crystal/ore amount
+
+const drawDepthPauseBackground = 300;
+const drawDepthPauseButtons = 250;
+
+/**
  * output the terrain 2d-array to the console
  * @param terrain: a 2d-array representing the terrain (note that terrain is formatted as [y][x])
  */
@@ -53,7 +80,6 @@ function updateSoundPositions(obj) {
 			obj.soundList[i].volume = vol;
 		}
 	}
-
 }
 
 /**
@@ -574,7 +600,7 @@ function createVehicle(vehicleType) {
 function cancelSelection() {
 	selection = [];
 	selectionType = null;
-	openMenu = "";
+	activeIconPanel = "";
 }
 
 function setSelectionByMouseCursor() {
@@ -626,8 +652,8 @@ function checkUpdateClickSelection() {
 	if (GameManager.mouseReleasedLeft && !mousePressIsSelection) {
 		setSelectionByMouseCursor();
 		// automatically close tool menu if a raider is no longer selected
-		if (selectionType !== "raider" && openMenu === "tool") {
-			openMenu = "";
+		if (selectionType !== "raider" && activeIconPanel === "tool") {
+			activeIconPanel = "";
 		}
 	}
 }
@@ -650,11 +676,11 @@ function checkUpdateSelectionType() {
 	}
 	if (selection[0] instanceof Space) {
 		selectionType = selection[0].touched === true ? selection[0].type : "Hidden";
-		tileSelectedGraphic.drawDepth = 5000; // put tile selection graphic between space and collectable
+		tileSelectedGraphic.drawDepth = drawDepthSelectedSpace; // put tile selection graphic between space and collectable
 		GameManager.refreshObject(tileSelectedGraphic);
 	}
 	if (selection[0] instanceof Collectable || selection[0] instanceof Vehicle) {
-		tileSelectedGraphic.drawDepth = 5; // put tile selection graphic in front of collectable
+		tileSelectedGraphic.drawDepth = drawDepthSelectedCollectables; // put tile selection graphic in front of collectable
 		GameManager.refreshObject(tileSelectedGraphic);
 		// manually update vehicle selection to raider riding it, if it has a driver
 		for (let i = 0; i < raiders.objectList.length; ++i) {
@@ -791,7 +817,7 @@ function checkAssignSelectionTask() {
 			let taskWasAvailable = false;
 			const baseSelectedTask = taskType(selectedTask);
 			for (let i = 0; i < selection.length; i++) {
-				selectedTaskType = baseSelectedTask;
+				let selectedTaskType = baseSelectedTask;
 				// treat build commands as walk unless the raider is holding something that the building site needs
 				if (selectedTaskType === "build") {
 					if (selection[i].holding.length === 0) {
@@ -1027,7 +1053,6 @@ function upgradeBuilding() {
 	for (let i = 0; i < selection.length; ++i) {
 		selection[i].upgrade();
 	}
-	cancelSelection();
 }
 
 /**
@@ -1109,23 +1134,8 @@ function togglePauseGame() {
 	paused = !paused;
 }
 
-function pauseGame() {
-	paused = true;
-}
-
 function unpauseGame() {
 	paused = false;
-}
-
-/**
- * switch to the input level name, and load that level via resetLevelVars
- * @param levelName: the name of the level to switch to
- */
-function changeLevels(levelName) {
-	if (levelName == null) {
-		levelName = "03";
-	}
-	resetLevelVars(levelName);
 }
 
 /**
@@ -1192,7 +1202,7 @@ function stopMinifig(raider) {
 /**
  * scroll the level select screen vertically if mouse is panned or keyboard is pressed
  */
-function checkScrollLevelSelect() {
+function checkScrollLevelSelect(levelpickHeight) {
 	let pannedKeyboard = false;
 	// can we scroll using the arrow keys?
 	if (keyboardPanning) {
@@ -1206,18 +1216,20 @@ function checkScrollLevelSelect() {
 	}
 	// can we scroll by moving your mouse to the edge of the screen?
 	if (mousePanning && !pannedKeyboard) {
-		if (GameManager.mousePos.y < scrollDistance) {
-			levelSelectLayer.cameraY -= scrollSpeed;
-		} else if (GameManager.mousePos.y > GameManager.screenHeight - scrollDistance) {
-			levelSelectLayer.cameraY += scrollSpeed;
+		const heightWithoutLowerPanel = 8 * GameManager.screenHeight / 9;
+		const mouseY = Math.min(Math.max(0, GameManager.mousePos.y), heightWithoutLowerPanel);
+		if (mouseY < heightWithoutLowerPanel / 3) {
+			levelSelectLayer.cameraY -= scrollSpeed * (1 - 3 * mouseY / heightWithoutLowerPanel);
+		} else if (mouseY > 2 * heightWithoutLowerPanel / 3) {
+			levelSelectLayer.cameraY -= scrollSpeed * (2 - 3 * mouseY / heightWithoutLowerPanel);
 		}
 	}
 
 	// keep level select camera in bounds
 	if (levelSelectLayer.cameraY < 0) {
 		levelSelectLayer.cameraY = 0;
-	} else if (levelSelectLayer.cameraY > (3163 - GameManager.screenHeight)) { // level select image is 3163 pixels tall
-		levelSelectLayer.cameraY = 3163 - GameManager.screenHeight;
+	} else if (levelSelectLayer.cameraY > (levelpickHeight - GameManager.screenHeight)) {
+		levelSelectLayer.cameraY = levelpickHeight - GameManager.screenHeight;
 	}
 }
 
@@ -1345,56 +1357,66 @@ function drawBuildingSiteMaterials() {
  * draw all UI components
  */
 function drawUI() {
-	GameManager.setFontSize(36);
 	let selectionString = selectionType;
 	if (powerPathSpaceTypes.indexOf(selectionString) !== -1) {
 		selectionString = "power path";
 	}
-	if (selectionType != null) {
+	if (selectionType != null && this.debug) {
+		GameManager.setFontSize(36);
 		GameManager.drawSurface.fillText("Selection Type: " + selectionString + (selection.length === 1 ?
 			(selection[0].isBuilding === true && selection[0].touched === true ? " lvl " + selection[0].upgradeLevel : "") :
 			(" x " + selection.length)), 8, 592);
 	}
 
+	// draw crystal and ore overlay
+	const crystalSideBarImage = GameManager.getImage("CrystalSideBar").canvas;
+	GameManager.drawSurface.drawImage(crystalSideBarImage, GameManager.screenWidth - crystalSideBarImage.width, 0);
+
 	// don't draw buttons when buildingPlacer is active
 	if (!buildingPlacer.visible) {
+		let numButtons = (activeIconPanel === "" && (selection === undefined || selection.length <= 0)) ? 4 : 2; // FIXME derive number of buttons from opened menu
+		const woBack = (activeIconPanel === "" && (selection === undefined || selection.length <= 0)) ? "WOBack" : "";
+		const imgName = "IconPanel" + numButtons.toString() + woBack;
+		let imgIconPanel = GameManager.getImage(imgName).canvas;
+		GameManager.drawSurface.drawImage(imgIconPanel, GameManager.screenWidth - 16 - imgIconPanel.width, 8);
 		// attempt to draw buttons here so that they are rendered in front of other post-render graphics
 		for (let i = 0; i < buttons.objectList.length; ++i) {
 			buttons.objectList[i].render(GameManager);
 		}
 	}
 
-	// draw crystal and ore overlay
-	GameManager.drawSurface.drawImage(GameManager.images["CrystalSideBar.png"], GameManager.screenWidth - 70, 0);
-
 	// draw crystals
-	let curX = GameManager.screenWidth - 20;
-	let curY = 519;
-	for (let i = 0; i < 20; ++i, curY -= 21) {
-		GameManager.drawSurface.drawImage(GameManager.images["NoSmallCrystal.png"], curX, curY);
+	let curX = GameManager.screenWidth - 8;
+	let curY = GameManager.screenHeight - 32;
+	const imgNoCrystal = GameManager.getImage("NoSmallCrystal").canvas;
+	const imgSmallCrystal = GameManager.getImage("SmallCrystal").canvas;
+	const imgUsedCrystal = GameManager.getImage("UsedCrystal").canvas;
+	for (let i = 0; i < 20 && curY >= -Math.max(imgNoCrystal.height, imgSmallCrystal.height, imgUsedCrystal.height); ++i) {
+		let imgCrystal = imgNoCrystal;
+		// TODO show used crystals
 		if (collectedResources["crystal"] > i) {
-			GameManager.drawSurface.drawImage(GameManager.images["SmallCrystal.png"], curX, curY);
+			imgCrystal = imgSmallCrystal;
 		}
+		curY -= imgCrystal.height;
+		GameManager.drawSurface.drawImage(imgCrystal, curX - imgCrystal.width / 2, curY);
 	}
 
 	// draw ore
-	curX = GameManager.screenWidth - 31;
-	curY = 533;
-	for (let i = 0; i < collectedResources["ore"]; ++i, curY -= 10) {
-		GameManager.drawSurface.drawImage(GameManager.images["CrystalSideBar_Ore.png"], curX, curY);
-		// don't bother drawing past offscreen
-		if (curY <= 0) {
-			break;
-		}
+	curX = GameManager.screenWidth - 21;
+	curY = GameManager.screenHeight - 42;
+	const imgOre = GameManager.getImage("CrystalSideBar_Ore").canvas;
+	for (let i = 0; i < collectedResources["ore"] && curY >= -imgOre.height; ++i) {
+		curY -= imgOre.height;
+		GameManager.drawSurface.drawImage(imgOre, curX - imgOre.width / 2, curY);
 	}
 
 	// draw ore and crystal text
 	GameManager.setTextAlign("center");
 	GameManager.setFontWeight("bold");
-	GameManager.setFontSize(15);
-	GameManager.drawSurface.fillStyle = "rgb(255,255,255)";
-	GameManager.drawSurface.fillText(collectedResources["ore"], GameManager.screenWidth - 48, 597);
-	GameManager.drawSurface.fillText(collectedResources["crystal"], GameManager.screenWidth - 16, 597);
+	GameManager.setFontSize(10);
+	GameManager.drawSurface.fillStyle = "white";
+	GameManager.drawSurface.fillText(collectedResources["ore"], GameManager.screenWidth - 39, GameManager.screenHeight - 3);
+	GameManager.drawSurface.fillText(collectedResources["crystal"], GameManager.screenWidth - 14, GameManager.screenHeight - 3);
 	GameManager.setFontWeight("");
 	GameManager.setTextAlign("start");
 }
@@ -1417,13 +1439,13 @@ function drawRaiderInfo() {
 		return;
 	}
 	// draw held items
-	const heldWidth = GameManager.images["have am nothing.png"].width;
-	const heldHeight = GameManager.images["have am nothing.png"].height;
+	const heldWidth = GameManager.getImage("have am nothing.png").width;
+	const heldHeight = GameManager.getImage("have am nothing.png").height;
 	for (let i = 0; i < selection.length; ++i) {
 		const maxTools = 2 + selection[i].upgradeLevel;
 		for (let j = 0; j < maxTools; ++j) {
 			const curImageName = selection[i].tools.length > j ? "have " + selection[i].tools[j] + ".png" : "have am nothing.png";
-			GameManager.drawSurface.drawImage(GameManager.images[curImageName],
+			GameManager.drawSurface.drawImage(GameManager.getImage(curImageName),
 				selection[i].centerX() - (heldWidth * maxTools) / 2 + (heldWidth * j) - selection[i].drawLayer.cameraX,
 				selection[i].y - 28 - heldHeight - selection[i].drawLayer.cameraY);
 		}
@@ -1436,7 +1458,7 @@ function drawRaiderInfo() {
 	for (let i = 0; i < selection.length; ++i) {
 		for (let j = 0; j < 6; ++j) {
 			const curImageName = selection[i][skills[j][0]] ? skills[j][1] : "have am nothing.png";
-			GameManager.drawSurface.drawImage(GameManager.images[curImageName],
+			GameManager.drawSurface.drawImage(GameManager.getImage(curImageName),
 				selection[i].centerX() - (heldWidth * maxSkills) / 2 + (heldWidth * j) - selection[i].drawLayer.cameraX,
 				selection[i].y - 28 - selection[i].drawLayer.cameraY);
 		}
@@ -1555,8 +1577,8 @@ function drawAwaitingStartInstructions() {
 		const awaitingText = "Press Enter to Begin";
 		const textWidth = GameManager.drawSurface.measureText(awaitingText).width;
 		const textHeight = getHeightFromFont(GameManager.drawSurface.font);
-		GameManager.drawSurface.fillText(awaitingText, GameManager.drawSurface.canvas.width / 2 - textWidth / 2,
-			GameManager.drawSurface.canvas.height / 2 + textHeight / 2);
+		GameManager.drawSurface.fillText(awaitingText, GameManager.screenWidth / 2 - textWidth / 2,
+			GameManager.screenHeight / 2 + textHeight / 2);
 	}
 }
 
@@ -1581,8 +1603,8 @@ function drawPauseInstructions() {
 		const pausedText = "Paused";
 		const textWidth = GameManager.drawSurface.measureText(pausedText).width;
 		const textHeight = getHeightFromFont(GameManager.drawSurface.font);
-		GameManager.drawSurface.fillText(pausedText, GameManager.drawSurface.canvas.width / 2 - textWidth / 2,
-			GameManager.drawSurface.canvas.height / 2 - 150 + textHeight / 2);
+		GameManager.drawSurface.fillText(pausedText, GameManager.screenWidth / 2 - textWidth / 2,
+			GameManager.screenHeight / 2 - 150 + textHeight / 2);
 
 		// attempt to draw buttons here so that they are rendered in front of other post-render graphics
 		for (let i = 0; i < pauseButtons.objectList.length; ++i) {
@@ -1610,12 +1632,12 @@ function mouseOverGUI() {
  * open or close the buildings menu
  */
 function openBuildingMenu() {
-	if (openMenu === "building") {
-		openMenu = "";
+	if (activeIconPanel === "building") {
+		activeIconPanel = "";
 	} else {
-		// this clears selection and sets openMenu to ""
+		// this clears selection and sets activeIconPanel to ""
 		cancelSelection();
-		openMenu = "building";
+		activeIconPanel = "building";
 	}
 }
 
@@ -1623,12 +1645,12 @@ function openBuildingMenu() {
  * open or close the vehicles menu
  */
 function openVehicleMenu() {
-	if (openMenu === "vehicle") {
-		openMenu = "";
+	if (activeIconPanel === "vehicle") {
+		activeIconPanel = "";
 	} else {
-		// this clears selection and sets openMenu to ""
+		// this clears selection and sets activeIconPanel to ""
 		cancelSelection();
-		openMenu = "vehicle";
+		activeIconPanel = "vehicle";
 	}
 }
 
@@ -1648,10 +1670,10 @@ function exitVehicle() {
  */
 function openToolMenu() {
 	if (selectionType === "raider") {
-		if (openMenu === "tool") {
-			openMenu = "";
+		if (activeIconPanel === "tool") {
+			activeIconPanel = "";
 		} else {
-			openMenu = "tool";
+			activeIconPanel = "tool";
 		}
 	}
 }
@@ -1724,97 +1746,118 @@ function startBuildingPlacer(buildingType) {
  * create all in-game buttons once here
  */
 function createButtons() {
-	const buttonsX = gameLayer.width - 80;
+	const buttonsX = gameLayer.width - 76;
+	// FIXME organize buttons as menus, use ImageButton with original bitmaps
 	// base level buttons
-	buttons.push(new Button(buttonsX, 10, 0, 0, "teleport raider button.png", gameLayer, "", createRaider, false, false));
-	buttons.push(new Button(buttonsX, 50, 0, 0, "open building menu button.png", gameLayer, "", openBuildingMenu, false, false));
-	buttons.push(new Button(buttonsX, 90, 0, 0, "open small vehicle menu button.png", gameLayer, "", openVehicleMenu, false, false));
+	buttons.push(new Button(buttonsX, 17, 0, 0, "teleport raider button.png", gameLayer, "", createRaider, false, false));
+	buttons.push(new Button(buttonsX, 57, 0, 0, "open building menu button.png", gameLayer, "", openBuildingMenu, false, false));
+	buttons.push(new Button(buttonsX, 97, 0, 0, "open small vehicle menu button.png", gameLayer, "", openVehicleMenu, false, false));
+	buttons.push(new Button(buttonsX, 137, 0, 0, "open large vehicle menu button.png", gameLayer, "", null, false, false));
 
 	// if selectionTypeBound is an empty list, the button will be visible for all selections except when selection == null
-	buttons.push(new Button(buttonsX - 40, 10, 0, 0, "cancel selection button.png", gameLayer, "", cancelSelection, false, false, [], []));
+	const iconPanelBackButton = new ImageButton(buttonsX - 31, 22, null, GameManager.getImage("Back_HL"), gameLayer, cancelSelection);
+	iconPanelBackButton.darkenedSurface = GameManager.getImage("Back_PR");
+	iconPanelBackButton.additionalRequirement = function () {
+		return !(activeIconPanel === "" && (selection === undefined || selection.length <= 0));
+	};
+	buttons.push(iconPanelBackButton);
 	// 6 pixel boundary between general purpose buttons and selection specific buttons
 
 	// building menu open buttons
-	buttons.push(new Button(buttonsX, 10, 0, 0, "make ToolStation.png", gameLayer, "", startBuildingPlacer, false, false, null,
+	buttons.push(new Button(buttonsX, 17, 0, 0, "make ToolStation.png", gameLayer, "", startBuildingPlacer, false, false, null,
 		["building"], ["tool store"], true, true, null, buildRequirementsMet, ["tool store"]));
-	buttons.push(new Button(buttonsX, 50, 0, 0, "make SMteleport.png", gameLayer, "", startBuildingPlacer, false, false, null,
+	buttons.push(new Button(buttonsX, 57, 0, 0, "make SMteleport.png", gameLayer, "", startBuildingPlacer, false, false, null,
 		["building"], ["teleport pad"], true, true, null, buildRequirementsMet, ["teleport pad"]));
-	buttons.push(new Button(buttonsX, 90, 0, 0, "make docks.png", gameLayer, "", startBuildingPlacer, false, false, null,
+	buttons.push(new Button(buttonsX, 97, 0, 0, "make docks.png", gameLayer, "", startBuildingPlacer, false, false, null,
 		["building"], ["docks"], true, true, null, buildRequirementsMet, ["docks"]));
-	buttons.push(new Button(buttonsX, 130, 0, 0, "make PowerStation.png", gameLayer, "", startBuildingPlacer, false, false, null,
+	buttons.push(new Button(buttonsX, 137, 0, 0, "make PowerStation.png", gameLayer, "", startBuildingPlacer, false, false, null,
 		["building"], ["power station"], true, true, null, buildRequirementsMet, ["power station"]));
-	buttons.push(new Button(buttonsX, 170, 0, 0, "make barracks.png", gameLayer, "", startBuildingPlacer, false, false, null,
+	buttons.push(new Button(buttonsX, 177, 0, 0, "make barracks.png", gameLayer, "", startBuildingPlacer, false, false, null,
 		["building"], ["support station"], true, true, null, buildRequirementsMet, ["support station"]));
-	buttons.push(new Button(buttonsX, 210, 0, 0, "make Upgrade.png", gameLayer, "", startBuildingPlacer, false, false, null,
+	buttons.push(new Button(buttonsX, 217, 0, 0, "make Upgrade.png", gameLayer, "", startBuildingPlacer, false, false, null,
 		["building"], ["upgrade station"], true, true, null, buildRequirementsMet, ["upgrade station"]));
-	buttons.push(new Button(buttonsX, 250, 0, 0, "make Geo.png", gameLayer, "", startBuildingPlacer, false, false, null,
+	buttons.push(new Button(buttonsX, 257, 0, 0, "make Geo.png", gameLayer, "", startBuildingPlacer, false, false, null,
 		["building"], ["geological center"], true, true, null, buildRequirementsMet, ["geological center"]));
-	buttons.push(new Button(buttonsX, 290, 0, 0, "make Orerefinery.png", gameLayer, "", startBuildingPlacer, false, false, null,
+	buttons.push(new Button(buttonsX, 297, 0, 0, "make Orerefinery.png", gameLayer, "", startBuildingPlacer, false, false, null,
 		["building"], ["ore refinery"], true, true, null, buildRequirementsMet, ["ore refinery"]));
-	buttons.push(new Button(buttonsX, 330, 0, 0, "make Gunstation.png", gameLayer, "", startBuildingPlacer, false, false, null,
+	buttons.push(new Button(buttonsX, 337, 0, 0, "make Gunstation.png", gameLayer, "", startBuildingPlacer, false, false, null,
 		["building"], ["mining laser"], true, true, null, buildRequirementsMet, ["mining laser"]));
-	buttons.push(new Button(buttonsX, 370, 0, 0, "make LargeTeleporter.png", gameLayer, "", startBuildingPlacer, false, false, null,
+	buttons.push(new Button(buttonsX, 377, 0, 0, "make LargeTeleporter.png", gameLayer, "", startBuildingPlacer, false, false, null,
 		["building"], ["super teleport"], true, true, null, buildRequirementsMet, ["super teleport"]));
 
 	// vehicle menu open buttons
-	buttons.push(new Button(buttonsX, 10, 0, 0, "make hoverboard.png", gameLayer, "", createVehicle, false, false, null,
+	buttons.push(new Button(buttonsX, 17, 0, 0, "make hoverboard.png", gameLayer, "", createVehicle, false, false, null,
 		["vehicle"], ["hover scout"], true, true, null, buildRequirementsMet, ["hover scout"]));
-	buttons.push(new Button(buttonsX, 50, 0, 0, "make SmallDigger.png", gameLayer, "", createVehicle, false, false, null,
+	buttons.push(new Button(buttonsX, 57, 0, 0, "make SmallDigger.png", gameLayer, "", createVehicle, false, false, null,
 		["vehicle"], ["small digger"], true, true, null, buildRequirementsMet, ["small digger"]));
-	buttons.push(new Button(buttonsX, 90, 0, 0, "make SmallTruck.png", gameLayer, "", createVehicle, false, false, null,
+	buttons.push(new Button(buttonsX, 97, 0, 0, "make SmallTruck.png", gameLayer, "", createVehicle, false, false, null,
 		["vehicle"], ["small transport truck"], true, true, null, buildRequirementsMet, ["small transport truck"]));
 
 	// raider selected buttons
-	buttons.push(new Button(buttonsX, 10, 0, 0, "stop minifig button.png", gameLayer, "", stopMinifig, false, false, ["raider"], ["", "tool"]));
-	buttons.push(new Button(buttonsX, 50, 0, 0, "unload minifig button.png", gameLayer, "", unloadMinifig, false, false, ["raider"], ["", "tool"]));
-	buttons.push(new Button(buttonsX, 90, 0, 0, "getTool.png", gameLayer, "", openToolMenu, false, false, ["raider"], ["", "tool"]));
-	buttons.push(new Button(buttonsX, 130, 0, 0, "upgrade button.png", gameLayer, "", upgradeRaider, false, false, ["raider"], ["", "tool"]));
-	buttons.push(new Button(buttonsX, 170, 0, 0, "exit vehicle.png", gameLayer, "", exitVehicle, false, false, ["raider"], ["", "tool"]));
+	buttons.push(new Button(buttonsX, 17, 0, 0, "stop minifig button.png", gameLayer, "", stopMinifig, false, false, ["raider"], ["", "tool"]));
+	buttons.push(new Button(buttonsX, 57, 0, 0, "unload minifig button.png", gameLayer, "", unloadMinifig, false, false, ["raider"], ["", "tool"]));
+	buttons.push(new Button(buttonsX, 97, 0, 0, "getTool.png", gameLayer, "", openToolMenu, false, false, ["raider"], ["", "tool"]));
+	buttons.push(new Button(buttonsX, 137, 0, 0, "upgrade button.png", gameLayer, "", upgradeRaider, false, false, ["raider"], ["", "tool"]));
+	buttons.push(new Button(buttonsX, 177, 0, 0, "exit vehicle.png", gameLayer, "", exitVehicle, false, false, ["raider"], ["", "tool"]));
 
 	// get tool buttons
-	buttons.push(new Button(buttonsX - 40, 90, 0, 0, "get_Drill.png", gameLayer, "", getTool, false, false, ["raider"], ["tool"], ["drill"]));
-	buttons.push(new Button(buttonsX - 80, 90, 0, 0, "get_Hammer.png", gameLayer, "", getTool, false, false, ["raider"], ["tool"], ["hammer"]));
-	buttons.push(new Button(buttonsX - 120, 90, 0, 0, "get_Shovel.png", gameLayer, "", getTool, false, false, ["raider"], ["tool"], ["shovel"]));
-	buttons.push(new Button(buttonsX - 160, 90, 0, 0, "get_Wrench.png", gameLayer, "", getTool, false, false, ["raider"], ["tool"], ["wrench"]));
-	buttons.push(new Button(buttonsX - 200, 90, 0, 0, "get_Freezer.png", gameLayer, "", getTool, false, false, ["raider"], ["tool"], ["freezer"]));
-	buttons.push(new Button(buttonsX - 240, 90, 0, 0, "get_Pusher.png", gameLayer, "", getTool, false, false, ["raider"], ["tool"], ["pusher"]));
-	buttons.push(new Button(buttonsX - 280, 90, 0, 0, "get_Laser.png", gameLayer, "", getTool, false, false, ["raider"], ["tool"], ["laser"]));
-	buttons.push(new Button(buttonsX - 320, 90, 0, 0, "get_Sonic_Blaster.png", gameLayer, "", getTool, false, false, ["raider"], ["tool"], ["blaster"]));
+	buttons.push(new Button(buttonsX - 40, 97, 0, 0, "get_Drill.png", gameLayer, "", getTool, false, false, ["raider"], ["tool"], ["drill"]));
+	buttons.push(new Button(buttonsX - 80, 97, 0, 0, "get_Hammer.png", gameLayer, "", getTool, false, false, ["raider"], ["tool"], ["hammer"]));
+	buttons.push(new Button(buttonsX - 120, 97, 0, 0, "get_Shovel.png", gameLayer, "", getTool, false, false, ["raider"], ["tool"], ["shovel"]));
+	buttons.push(new Button(buttonsX - 160, 97, 0, 0, "get_Wrench.png", gameLayer, "", getTool, false, false, ["raider"], ["tool"], ["wrench"]));
+	buttons.push(new Button(buttonsX - 200, 97, 0, 0, "get_Freezer.png", gameLayer, "", getTool, false, false, ["raider"], ["tool"], ["freezer"]));
+	buttons.push(new Button(buttonsX - 240, 97, 0, 0, "get_Pusher.png", gameLayer, "", getTool, false, false, ["raider"], ["tool"], ["pusher"]));
+	buttons.push(new Button(buttonsX - 280, 97, 0, 0, "get_Laser.png", gameLayer, "", getTool, false, false, ["raider"], ["tool"], ["laser"]));
+	buttons.push(new Button(buttonsX - 320, 97, 0, 0, "get_Sonic_Blaster.png", gameLayer, "", getTool, false, false, ["raider"], ["tool"], ["blaster"]));
 
 	// item selected buttons
-	buttons.push(new Button(86, 0, 0, 0, "grab item button.png", gameLayer, "", grabItem, false, false,
+	buttons.push(new Button(buttonsX, 17, 0, 0, "grab item button.png", gameLayer, "", grabItem, false, false,
 		["ore", "crystal"]));
 
 	// drillable wall selected buttons
-	buttons.push(new Button(buttonsX, 10, 0, 0, "drill wall button.png", gameLayer, "", drillWall, false, false,
+	buttons.push(new Button(buttonsX, 17, 0, 0, "drill wall button.png", gameLayer, "", drillWall, false, false,
 		["dirt", "loose rock", "ore seam", "energy crystal seam", "hard rock"]));
 
 	// re-inforcable wall selected
-	buttons.push(new Button(buttonsX, 50, 0, 0, "Reinforce.png", gameLayer, "", reinforceWall, false, false,
+	buttons.push(new Button(buttonsX, 57, 0, 0, "Reinforce.png", gameLayer, "", reinforceWall, false, false,
 		["dirt", "loose rock", "hard rock", "ore seam", "energy crystal seam"]));
 
 	// dynamitable wall selected buttons
-	buttons.push(new Button(buttonsX, 90, 0, 0, "use dynamite.png", gameLayer, "", dynamiteWall, false, false,
+	buttons.push(new Button(buttonsX, 97, 0, 0, "use dynamite.png", gameLayer, "", dynamiteWall, false, false,
 		["dirt", "loose rock", "hard rock", "ore seam", "energy crystal seam"]));
 
 	// floor Space selected buttons
-	buttons.push(new Button(buttonsX, 10, 0, 0, "build power path button.png", gameLayer, "", buildPowerPath, false, false,
-		["ground"]));
+	buttons.push(new Button(buttonsX, 17, 0, 0, "build power path button.png", gameLayer, "", buildPowerPath, false, false, ["ground"]));
+	const digupPathButton = new Button(buttonsX, 57, 0, 0, "diguppath", gameLayer, "", null, false, false, ["ground", "power path"]);
+	digupPathButton.additionalRequirement = function () {
+		return selectionType === "power path";
+	};
+	buttons.push(digupPathButton);
 
 	// rubble selection buttons
-	buttons.push(new Button(buttonsX, 10, 0, 0, "clear rubble button.png", gameLayer, "", clearRubble, false, false,
+	buttons.push(new Button(buttonsX, 17, 0, 0, "clear rubble button.png", gameLayer, "", clearRubble, false, false,
 		["rubble 1", "rubble 2", "rubble 3", "rubble 4"]));
 
 	// building selection buttons
-	buttons.push(new Button(buttonsX, 10, 0, 0, "upgrade button.png", gameLayer, "", upgradeBuilding, false, false,
+	buttons.push(new Button(buttonsX, 17, 0, 0, "upgrade button.png", gameLayer, "", upgradeBuilding, false, false,
+		["tool store", "teleport pad", "power station", "docks", "geological center", "support station",
+			"super teleport", "mining laser", "upgrade station", "ore refinery"], null, null, true, true, null, function () {
+			if (selection) {
+				for (let c = 0; c < selection.length; c++) {
+					if (selection[c].isUpgradeable()) return true;
+				}
+			}
+			return false;
+		}));
+	buttons.push(new Button(buttonsX, 57, 0, 0, "telepbuilding", gameLayer, "", null, false, false,
 		["tool store", "teleport pad", "power station", "docks", "geological center", "support station",
 			"super teleport", "mining laser", "upgrade station", "ore refinery"]));
 
 	pauseButtons.push(new Button(100, gameLayer.height / 2 - 50, 0, 0, null, gameLayer, "Continue", unpauseGame, false, false));
-	pauseButtons.push(new Button(100, gameLayer.height / 2 + 50, 0, 0, null, gameLayer, "Return to Main Menu", returnToMainMenu, false, false));
+	pauseButtons.push(new Button(100, gameLayer.height / 2 + 50, 0, 0, null, gameLayer, "Abort Mission", showScoreScreen, false, false, null, null, [false]));
 
 	scoreScreenButtons.push(new Button(200, 135, 0, 0, null, scoreScreenLayer, "Score: 0", null, false, true, null, null, [], false));
-	scoreScreenButtons.push(new Button(20, 200, 0, 0, null, scoreScreenLayer, "Return to Main Menu", returnToMainMenu, false, true));
+	scoreScreenButtons.push(new Button(20, 200, 0, 0, null, scoreScreenLayer, "Continue", goToLevelSelect, false, true));
 }
 
 /**
@@ -1823,16 +1866,17 @@ function createButtons() {
 function createLevelSelectButtons() {
 	// level select buttons
 	for (let i = 0; i < GameManager.scriptObjects["levelList.js"].levels.length; ++i) {
-		levelSelectButtons.push(new Button(GameManager.scriptObjects["levelList.js"].levelPositions[i][0],
-			GameManager.scriptObjects["levelList.js"].levelPositions[i][1], 0, 0,
-			GameManager.scriptObjects["levelList.js"].levelImages[i], levelSelectLayer, "",
-			resetLevelVars, true, true, null, null, [GameManager.scriptObjects["levelList.js"].levels[i]], true, false, null, levelIsUnlocked, [i]));
-		levelSelectButtons.objectList[i].visible = false;
+		const levelImageName = GameManager.scriptObjects["levelList.js"].levelImages[i].split('.').slice(0, -1).join('.');
+		let levelPosition = GameManager.scriptObjects["levelList.js"].levelPositions[i];
+		levelSelectButtons.push(new LevelButton(levelPosition[0], levelPosition[1], levelImageName,
+			levelSelectLayer, GameManager.scriptObjects["levelList.js"].levels[i], i));
 	}
 
 	// back button
-	levelSelectUIButtons.push(new Button(0, GameManager.screenHeight - 40, 0, 0, "cancel selection button.png", levelSelectLayer, "", returnToMainMenu, false, false, null, null, [true], true, false));
-	levelSelectUIButtons.objectList[0].visible = false;
+	let levelSelectBackButton = new ImageButton(6, GameManager.gameHeight - 44, GameManager.getImage("LP_Normal.bmp"),
+		GameManager.getImage("LP_Glow.bmp"), levelSelectLayer, returnToMainMenu, false);
+	levelSelectBackButton.darkenedSurface = toContext(GameManager.getImage("LP_Dull.bmp"));
+	levelSelectUIButtons.push(levelSelectBackButton);
 }
 
 /**
@@ -1951,15 +1995,81 @@ function levelIsUnlocked(levelNum) {
 	}
 }
 
+BitmapFont.prototype.createTextImage = function (text) {
+	let width = 0;
+	for (let c = 0; c < text.length; c++) {
+		width += this.letters[text.charAt(c)].width;
+	}
+	const surface = createContext(width, this.maxCharHeight, false);
+	let x = 0;
+	for (let c = 0; c < text.length; c++) {
+		const letterImg = this.letters[text.charAt(c)];
+		surface.drawImage(letterImg, x, 0, letterImg.width, letterImg.height);
+		x += letterImg.width;
+	}
+	return surface;
+};
+
+function BitmapFont(chars, image, maxCharWidth, maxCharHeight) {
+	this.letters = [];
+	this.maxCharHeight = maxCharHeight;
+	for (let i = 0; i < chars.length; i++) {
+		const tmpContext = createContext(maxCharWidth, maxCharHeight, false);
+		tmpContext.drawImage(image, (i % 10) * maxCharWidth, Math.floor(i / 10) * maxCharHeight, maxCharWidth, maxCharHeight, 0, 0, maxCharWidth, maxCharHeight);
+		let tmpImage = tmpContext.getImageData(0, 0, maxCharWidth, maxCharHeight);
+		const imgData = tmpImage.data;
+		let actualWidth = 0;
+		for (let x = 0; x < maxCharWidth; x++) {
+			if (imgData[x * 4] === 255) { // red pixel indicates end of character
+				actualWidth = x;
+				break;
+			}
+		}
+		for (let x = 0; x < imgData.length; x += 4) {
+			if (imgData[x] + imgData[x + 1] + imgData[x + 2] === 0) {
+				imgData[x + 3] = 0; // set alpha channel to fully transparent for black pixels
+			}
+		}
+		tmpImage.data = imgData;
+		const context = createContext(actualWidth, maxCharHeight, false);
+		context.putImageData(tmpImage, 0, 0);
+		this.letters[chars[i]] = context.canvas;
+	}
+}
+
 /**
  * create all menu screen buttons once here
  */
 function createMenuButtons() {
 	// main menu buttons
-	const xPos = 320;
-	let yPos = 260;
-	menuButtons.push(new Button(xPos, yPos, 0, 0, null, menuLayer, "Select a Level", goToLevelSelect, false, true, null, null, [], true, false, [20, 245, 40]));
-	yPos += 80;
+	let xPos = 320;
+	let yPos = 240;
+
+	const chars = [" ", "!", "\"", "#", "$", "%", "⌵", "`", "(", ")",
+		"*", "+", ",", "-", ".", "/", "0", "1", "2", "3",
+		"4", "5", "6", "7", "8", "9", ":", ";", "<", "=",
+		">", "?", "@", "A", "B", "C", "D", "E", "F", "G",
+		"H", "I", "J", "K", "L", "M", "N", "O", "P", "Q",
+		"R", "S", "T", "U", "V", "W", "X", "Y", "Z", "[",
+		"\\", "]", "^", "_", "'", "a", "b", "c", "d", "e",
+		"f", "g", "h", "i", "j", "k", "l", "m", "n", "o",
+		"p", "q", "r", "s", "t", "u", "v", "w", "x", "y",
+		"z", "Ä", "Å", "Á", "À", "Â", "Ã", "Ą", "ä", "å",
+		"á", "à", "â", "ã", "ą", "Ë", "E̊", "É", "È", "É",
+		"Ę", "ë", "e̊", "é", "è", "e̊", "ę̊", "", "", "",
+		"", "", "", "", "", "Ö", "", "", "", "",
+		"ö", "", "", "", "", "Ü", "", "", "", "ü",
+		"", "", "", "", "", "", "", "", "", "",
+		"", "", "", "", "", "", "", "", "", "",
+		"", "", "", "", "", "", "", "Ñ", "", "ñ",
+		""
+	]; // TODO complete this character list
+	const fontLow = new BitmapFont(chars, GameManager.getImage("Menu_Font_LO.bmp"), 38, 43);
+	const fontHigh = new BitmapFont(chars, GameManager.getImage("Menu_Font_HI.bmp"), 38, 43);
+
+	menuButtons.push(new MainMenuButton(xPos, yPos, "Start Game", fontLow, fontHigh, menuLayer, goToLevelSelect, [true]));
+	xPos = 250;
+	yPos += 20;
 
 	menuButtons.push(new Button(xPos, yPos, 0, 0, null, menuLayer, "    Options:", null, false, true, null, null, [], false, false, [200, 200, 200]));
 	yPos += 40;
@@ -1982,9 +2092,14 @@ function createMenuButtons() {
 /**
  * switch to the level select layer
  */
-function goToLevelSelect() {
+function goToLevelSelect(resetCamera) {
 	menuLayer.active = false;
 	levelSelectLayer.active = true;
+	scoreScreenLayer.active = false;
+	gameLayer.active = false;
+	if (resetCamera) {
+		levelSelectLayer.cameraY = 0;
+	}
 }
 
 /**
@@ -2068,7 +2183,7 @@ function checkHighlightedLevel() {
 		}
 		if (collisionPoint(GameManager.mousePos.x, GameManager.mousePos.y, levelSelectButtons.objectList[i], levelSelectButtons.objectList[i].affectedByCamera)) {
 			GameManager.drawSurface.fillStyle = "rgb(65, 218, 255)";
-			GameManager.setFontSize(36);
+			GameManager.setFontSize(24);
 
 			// grab score, and format score string if valid
 			let highlightedLevelScore = getLevelScore(i);
@@ -2082,8 +2197,7 @@ function checkHighlightedLevel() {
 			let highlightedLevelName = GameManager.scriptObjects["Info_" + GameManager.scriptObjects["levelList.js"].levels[i] + ".js"].name + highlightedLevelScore;
 			const textWidth = GameManager.drawSurface.measureText(highlightedLevelName).width;
 			const textHeight = getHeightFromFont(GameManager.drawSurface.font);
-			GameManager.drawSurface.fillText(highlightedLevelName, GameManager.drawSurface.canvas.width / 2 - textWidth / 2,
-				GameManager.drawSurface.canvas.height - 8);
+			GameManager.drawSurface.fillText(highlightedLevelName, GameManager.screenWidth / 2 - textWidth / 2, 19 * GameManager.screenHeight / 20);
 		}
 	}
 }
@@ -2102,8 +2216,12 @@ function stopAllSounds() {
  * @param name: the name of the level to switch to
  */
 function resetLevelVars(name) {
+	if (devMode !== "true") {
+		blockPageExit();
+	}
 	menuLayer.active = false;
 	levelSelectLayer.active = false;
+	scoreScreenLayer.active = false;
 	gameLayer.active = true;
 	musicPlayer.changeLevels();
 	collectedResources = {"ore": 0, "crystal": 0};
@@ -2112,7 +2230,7 @@ function resetLevelVars(name) {
 	selection = [];
 	mousePressStartPos = {x: 1, y: 1};
 	mousePressIsSelection = false;
-	openMenu = "";
+	activeIconPanel = "";
 	lastLevelScore = 0;
 	selectionType = null;
 	for (let i = 0; i < terrain.length; ++i) {
@@ -2176,9 +2294,9 @@ function initGlobals() {
 	// should the game render any active debug info?
 	debug = getValue("debug") === "true";
 
-	gameLayer = new Layer(0, 0, 1, 1, GameManager.screenWidth, GameManager.screenHeight);
 	menuLayer = new Layer(0, 0, 1, 1, GameManager.screenWidth, GameManager.screenHeight, true);
 	levelSelectLayer = new Layer(0, 0, 1, 1, GameManager.screenWidth, GameManager.screenHeight);
+	gameLayer = new Layer(0, 0, 1, 1, GameManager.screenWidth, GameManager.screenHeight);
 	scoreScreenLayer = new Layer(0, 0, 1, 1, GameManager.screenWidth, GameManager.screenHeight);
 	musicPlayer = new MusicPlayer();
 	buttons = new ObjectGroup();
@@ -2235,8 +2353,8 @@ function initGlobals() {
  * check if the current level objective has been accomplished. If it has, transition to the score screen.
  */
 function checkAccomplishedObjective() {
-	won = false;
-	objective = GameManager.scriptObjects["Info_" + levelName + ".js"].objective;
+	let won = false;
+	const objective = GameManager.scriptObjects["Info_" + levelName + ".js"].objective;
 	if (objective[0] === "collect") {
 		won = (collectedResources[objective[1][0]] >= parseInt(objective[1][1]));
 	} else if (objective[0] === "build") {
@@ -2247,9 +2365,8 @@ function checkAccomplishedObjective() {
 			}
 		}
 	}
-
 	if (won) {
-		showScoreScreen();
+		showScoreScreen(true);
 	}
 }
 
@@ -2279,14 +2396,21 @@ function getLevelScore(level) {
 /**
  * switch to the score-screen layer
  */
-function showScoreScreen() {
-	gameLayer.active = false;
+function showScoreScreen(completedMission) {
+	menuLayer.active = false;
+	levelSelectLayer.active = false;
 	scoreScreenLayer.active = true;
+	gameLayer.active = false;
 	musicPlayer.changeLevels();
 	stopAllSounds();
-	lastLevelScore = calculateLevelScore();
-	setLevelScore(lastLevelScore);
-	scoreScreenButtons.objectList[0].updateText(scoreScreenButtons.objectList[0].text.split(":")[0] + ": " + lastLevelScore);
+	if (devMode !== "true") {
+		unblockPageExit();
+	}
+	if (completedMission) {
+		lastLevelScore = calculateLevelScore();
+		setLevelScore(lastLevelScore);
+		scoreScreenButtons.objectList[0].updateText(scoreScreenButtons.objectList[0].text.split(":")[0] + ": " + lastLevelScore);
+	}
 }
 
 /**
@@ -2294,8 +2418,8 @@ function showScoreScreen() {
  */
 function checkCloseMenu() {
 	if (selection.length !== 0) {
-		if (openMenu === "building" || openMenu === "vehicle") {
-			openMenu = "";
+		if (activeIconPanel === "building" || activeIconPanel === "vehicle") {
+			activeIconPanel = "";
 		}
 	}
 }
@@ -2304,10 +2428,6 @@ function checkCloseMenu() {
  * main update loop: update the current layer and any non-automatic objects
  */
 function update() {
-	// check if canvas has been updated by the html page
-	if (GameManager.drawSurface == null) {
-		GameManager.drawSurface = document.getElementById('canvas').getContext('2d');
-	}
 	// menu update
 	if (menuLayer.active) {
 		// update music
@@ -2319,7 +2439,7 @@ function update() {
 		menuButtons.update();
 
 		// pre-render; draw menu background
-		GameManager.drawSurface.drawImage(GameManager.images["MenuBGpic.png"], 0, 0);
+		GameManager.drawSurface.drawImage(GameManager.getImage("MenuBGpic.png"), 0, 0, GameManager.screenWidth, GameManager.screenHeight);
 
 		// inital render; draw all rygame objects
 		GameManager.drawFrame();
@@ -2331,8 +2451,14 @@ function update() {
 		musicPlayer.trackNum = 0;
 		musicPlayer.update();
 
+		let levelpickImage = GameManager.getImage("Levelpick.png");
+		let levelpickHeight = levelpickImage.height * GameManager.getScreenZoom();
+
 		// update input
-		checkScrollLevelSelect();
+		checkScrollLevelSelect(levelpickHeight);
+
+		// draw level select image scrolled according to current scroll value (in front of buttons to hide overlaid pixels when highlighted or darkened)
+		GameManager.drawSurface.drawImage(levelpickImage, 0, -levelSelectLayer.cameraY, GameManager.screenWidth, levelpickHeight);
 
 		// update objects
 		GameManager.updateObjects();
@@ -2341,8 +2467,7 @@ function update() {
 		// inital render; draw all rygame objects
 		GameManager.drawFrame();
 
-		// draw level select imaged scrolled according to current scroll value (in front of buttons to hide overlaid pixels when highlighted or darkened)
-		GameManager.drawSurface.drawImage(GameManager.images["Levelpick.png"], 0, -levelSelectLayer.cameraY);
+		GameManager.drawSurface.drawImage(GameManager.getImage("LowerPanel.bmp").canvas, 0, 0, GameManager.screenWidth, GameManager.screenHeight);
 
 		// draw ui buttons on top
 		drawLevelSelectUIButtons();
@@ -2360,7 +2485,7 @@ function update() {
 		scoreScreenButtons.update();
 
 		// pre-render; draw solid background
-		GameManager.drawSurface.fillStyle = "rgb(28,108,108)"; // turqoise background color
+		GameManager.drawSurface.fillStyle = "rgb(28,108,108)"; // turquoise background color
 		GameManager.drawSurface.fillRect(0, 0, GameManager.screenWidth, GameManager.screenHeight);
 
 		// inital render; draw all rygame objects
@@ -2402,7 +2527,7 @@ function update() {
 
 				// don't update buttons when buildingPlacer is active
 				if (!buildingPlacer.visible) {
-					buttons.update([selectionType, openMenu]);
+					buttons.update([selectionType, activeIconPanel]);
 					checkCloseMenu();
 				}
 
@@ -2446,15 +2571,15 @@ GameManager.initializeRygame(0);
 
 initGlobals();
 
+// to instant load a level append ?devmode=true&level=03 to the URL
 const url = new URL(window.location.href);
+const devMode = url.searchParams.get("devmode");
 const levelFromUrl = url.searchParams.get("level");
-if (levelFromUrl != null) {
-	changeLevels(levelFromUrl);
-	awaitingStart = false;
+if (devMode === "true") {
+	if (levelFromUrl) {
+		resetLevelVars(levelFromUrl);
+		awaitingStart = false;
+	}
 }
-
-// to auto load a level for testing use the following lines
-// changeLevels("02");
-// awaitingStart = false;
 
 _intervalId = setInterval(update, 1000 / GameManager.fps); // set refresh rate to desired fps
