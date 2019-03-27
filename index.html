@@ -29,6 +29,7 @@
                 <button class="resize-canvas" data-width="640" data-height="480">640 x 480</button>
                 <button class="resize-canvas" data-width="800" data-height="600">800 x 600</button>
                 <button class="resize-canvas" data-width="1024" data-height="768">1024 x 768</button>
+                <button class="fullwindow-button">Fullwindow</button>
                 <button class="fullscreen-button">Fullscreen</button>
             </div>
             <div class="modal" id="wadfiles_select_modal" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
@@ -92,13 +93,42 @@
 <script src="rygameAssetLoader.js"></script>
 <script>
 	const canvas = $('#rygameCanvas');
+
+	function toggleFullwindowMode(state) {
+		localStorage.setItem('fullwindowMode', state);
+		$('.cover-container').toggle(!!!state);
+		$('.screensize-buttons').toggle(!!!state);
+		if (!!state) {
+			canvas.width(window.innerHeight * 1.33333);
+			canvas.height(window.innerHeight);
+		}
+	}
+
+	toggleFullwindowMode(localStorage.getItem('fullwindowMode') === 'true');
+
 	$('.resize-canvas').on('click', (event) => {
 		canvas.width(event.target.dataset.width);
 		canvas.height(event.target.dataset.height);
 	});
+	$('.fullwindow-button').on('click', () => {
+		toggleFullwindowMode(true);
+		canvas.width(window.innerHeight * 1.33333);
+		canvas.height(window.innerHeight);
+	});
 	$('.fullscreen-button').on('click', () => {
 		const canvasNative = canvas.get(0);
 		(canvasNative.requestFullscreen || canvasNative.webkitRequestFullScreen || canvasNative.mozRequestFullScreen || canvasNative.msRequestFullscreen).call(canvasNative);
+	});
+	window.addEventListener('resize', () => {
+		if (localStorage.getItem('fullwindowMode') === 'true') {
+			canvas.width(window.innerHeight * 1.33333);
+			canvas.height(window.innerHeight);
+		}
+	});
+	window.addEventListener('keydown', e => {
+		if (e.key === 'Escape' && e.target !== canvas.get(0)) {
+			toggleFullwindowMode(false);
+		}
 	});
 	startWithCachedFiles(() => {
 		setLoadingMessage("WAD files not found in cache");
