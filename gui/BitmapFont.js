@@ -64,9 +64,9 @@ function BitmapFont(fontImageName, cols = 10, rows = 19) { // font images always
 		if (actualWidth > 0) {
 			context = createContext(actualWidth, this.charHeight, false);
 			context.putImageData(imgData, 0, 0);
-			this.letters[chars[i]] = context.canvas;
 		} else {
-			// TODO use placeholder image to improve stability
+			context = createDummyImage(maxCharWidth, this.charHeight);
 		}
+		this.letters[chars[i]] = context.canvas;
 	}
 }

@@ -229,6 +229,26 @@ function createContext(width, height, is3d) {
 }
 
 /**
+ * This method is intended to increase stability by providing an (ugly) placeholder image in case the right one is missing
+ * @param width: expected width of the original image
+ * @param height: expected height of the original image
+ */
+function createDummyImage(width, height) {
+	const result = createContext(width, height, false);
+	for (let y = 0; y < height; y += 16) {
+		for (let x = 0; x < width; x += 16) {
+			if (x / 16 % 2 === y / 16 % 2) {
+				result.fillStyle = "rgb(0,255,255)";
+			} else {
+				result.fillStyle = "rgb(255,0,255)";
+			}
+			result.fillRect(x, y, 16, 16);
+		}
+	}
+	return result;
+}
+
+/**
  * calculate the 4 points that define the input object's rotated rect
  * @param object: the object whose rect we should calcualte the rotated bounding points of
  * @param includeTouching: whether or not the points should be slightly extended to cover 'touching' but not overlapping objects
@@ -613,11 +633,13 @@ GameManagerInternal.prototype.draw = function (surface, x, y) { // simple draw f
 GameManagerInternal.prototype.getImage = function (imageName) {
 	if (!imageName || imageName.length === 0) {
 		throw "imageName must not be undefined, null or empty - was " + imageName;
-	} else if (!(imageName in this.images) || this.images[imageName] === undefined || this.images[imageName] === null) {
-		// TODO return some placeholder image for more stability
-		throw "Image '" + imageName + "' unknown";
 	} else {
-		return this.images[imageName];
+		const lImageName = imageName.toLowerCase();
+		if (!(lImageName in this.images) || this.images[lImageName] === undefined || this.images[lImageName] === null) {
+			console.error("Image '" + imageName + "' unknown! Using placeholder image instead");
+			this.images[lImageName] = createDummyImage(64, 64);
+		}
+		return this.images[lImageName];
 	}
 };
 
