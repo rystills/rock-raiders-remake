@@ -216,13 +216,16 @@ function binarySearch(a, x, key, leftMost, lo, hi) {
  * @returns RenderingContext the newly created canvas
  */
 function createContext(width, height, is3d) {
+	if (width < 1 || height < 1) {
+		throw "Can't create context with size " + width + " x " + height;
+	}
 	const canvas = document.createElement("canvas");
 	canvas.setAttribute('width', width);
 	canvas.setAttribute('height', height);
-	if (!is3d) {
-		return canvas.getContext('2d');
-	}
-	return canvas.getContext('3d');
+	const context = canvas.getContext(is3d ? '3d' : '2d');
+	context.width = width;
+	context.height = height;
+	return context;
 }
 
 /**
@@ -779,7 +782,7 @@ function Layer(x, y, updateDepth, drawDepth, width, height, startActive) {
 	this.cameraX = 0;
 	this.cameraY = 0;
 	this.drawAngle = 0;
-	this.rect = new Rect(this.drawSurface.canvas.width, this.drawSurface.canvas.height);
+	this.rect = new Rect(this.drawSurface.width, this.drawSurface.height);
 	GameManager.addLayer(this);
 }
 
@@ -881,27 +884,27 @@ Button.prototype.updateText = function (newText, clearFirst) {
 		clearFirst = true;
 	}
 	if (clearFirst && this.drawSurface != null) {
-		this.drawSurface.clearRect(0, 0, this.drawSurface.canvas.width, this.drawSurface.canvas.height);
+		this.drawSurface.clearRect(0, 0, this.drawSurface.width, this.drawSurface.height);
 	}
 
 	// create brightened and darkened version of drawSurface
 	this.normalSurface = this.drawSurface;
 	this.brightenedSurface = this.drawSurface == null ? null : this.image == null ?
-		createContext(this.normalSurface.canvas.width, this.normalSurface.canvas.height) : updateBrightness(this.normalSurface, brightnessShiftPercent);
+		createContext(this.normalSurface.width, this.normalSurface.height) : updateBrightness(this.normalSurface, brightnessShiftPercent);
 	this.darkenedSurface = this.drawSurface == null ? null : this.image == null ?
-		createContext(this.normalSurface.canvas.width, this.normalSurface.canvas.height) : updateBrightness(this.normalSurface, -brightnessShiftPercent);
+		createContext(this.normalSurface.width, this.normalSurface.height) : updateBrightness(this.normalSurface, -brightnessShiftPercent);
 	this.unavailableSurface = this.drawSurface == null ? null : this.image == null ?
-		createContext(this.normalSurface.canvas.width, this.normalSurface.canvas.height) : updateBrightness(this.normalSurface, -brightnessShiftPercent * 2);
+		createContext(this.normalSurface.width, this.normalSurface.height) : updateBrightness(this.normalSurface, -brightnessShiftPercent * 2);
 
 	this.text = newText;
 	if (this.text !== "") {
 		let changedDims = false;
 		if (this.drawSurface == null) {
-			this.drawSurface = createContext(0, 0, false);
+			this.drawSurface = createContext(1, 1, false);
 			this.normalSurface = this.drawSurface;
-			this.brightenedSurface = createContext(0, 0, false);
-			this.darkenedSurface = createContext(0, 0, false);
-			this.unavailableSurface = createContext(0, 0, false);
+			this.brightenedSurface = createContext(1, 1, false);
+			this.darkenedSurface = createContext(1, 1, false);
+			this.unavailableSurface = createContext(1, 1, false);
 		}
 		const drawSurfaces = [this.unavailableSurface, this.darkenedSurface, this.normalSurface, this.brightenedSurface];
 		const baseR = this.textColor[0];
@@ -913,22 +916,23 @@ Button.prototype.updateText = function (newText, clearFirst) {
 
 			const height = parseInt(drawSurfaces[i].font.split(' ')[0].replace('px', ''));
 			const textDims = drawSurfaces[i].measureText(this.text);
-			if (textDims.width > drawSurfaces[i].canvas.width) {
+			if (textDims.width > drawSurfaces[i].width) {
 				drawSurfaces[i].canvas.width = textDims.width;
-				this.rect.width = drawSurfaces[i].canvas.width;
+				drawSurfaces[i].width = textDims.width;
+				this.rect.width = drawSurfaces[i].width;
 				changedDims = true;
 			}
 			// note that height in this instance includes space below the text, potentially making it larger than the actual render height
-			if (height > drawSurfaces[i].canvas.height) {
+			if (height > drawSurfaces[i].height) {
 				drawSurfaces[i].canvas.height = height;
-				this.rect.height = drawSurfaces[i].canvas.height;
+				drawSurfaces[i].height = height;
+				this.rect.height = drawSurfaces[i].height;
 				changedDims = true;
 			}
 			if (changedDims && this.image != null) {
-				drawSurfaces[i].clearRect(0, 0, drawSurfaces[i].canvas.width, drawSurfaces[i].canvas.height);
+				drawSurfaces[i].clearRect(0, 0, drawSurfaces[i].width, drawSurfaces[i].height);
 				drawSurfaces[i].drawImage(this.image, 0, 0);
 				updateBrightness(drawSurfaces[i], brightnessShiftPercent, true);
-
 			}
 
 			drawSurfaces[i].textBaseline = "hanging";
@@ -1065,11 +1069,11 @@ function ImageButton(x, y, drawDepth, normalSurface, brightenedSurface, layer, r
 	this.clickable = true;
 	this.mouseDownOnButton = false;
 	if (this.normalSurface) {
-		this.rect = new Rect(this.normalSurface.canvas.width, this.normalSurface.canvas.height);
+		this.rect = new Rect(this.normalSurface.width, this.normalSurface.height);
 	} else if (this.brightenedSurface) {
-		this.rect = new Rect(this.brightenedSurface.canvas.width, this.brightenedSurface.canvas.height);
+		this.rect = new Rect(this.brightenedSurface.width, this.brightenedSurface.height);
 	} else if (this.darkenedSurface) {
-		this.rect = new Rect(this.darkenedSurface.canvas.width, this.darkenedSurface.canvas.height);
+		this.rect = new Rect(this.darkenedSurface.width, this.darkenedSurface.height);
 	}
 }
 
@@ -1346,9 +1350,8 @@ function RygameObject(x, y, updateDepth, drawDepth, image, layer, affectedByCame
 		this.drawSurface = createContext(this.image.width, this.image.height, false);
 		this.drawSurface.drawImage(this.image, 0, 0);
 	}
-	// unfortunately have to reference dimensions via drawSurface.canvas.width rather than drawSurface.width
 	if (this.drawSurface != null) {
-		this.rect = new Rect(this.drawSurface.canvas.width, this.drawSurface.canvas.height);
+		this.rect = new Rect(this.drawSurface.width, this.drawSurface.height);
 	} else {
 		this.rect = new Rect(0, 0);
 	}
@@ -1367,11 +1370,11 @@ function RygameObject(x, y, updateDepth, drawDepth, image, layer, affectedByCame
  */
 function updateBrightness(oldContext, brightnessPercent, operateInPlace = false) {
 	// copy old canvas to new canvas, if in-place operation is not desired
-	const newContext = operateInPlace ? oldContext : createContext(oldContext.canvas.width, oldContext.canvas.height, false);
+	const newContext = operateInPlace ? oldContext : createContext(oldContext.width, oldContext.height, false);
 	newContext.drawImage(oldContext.canvas, 0, 0);
 	newContext.globalAlpha = brightnessPercent;
 	newContext.fillStyle = brightnessPercent >= 0 ? 'rgba(225,225,225,' + (brightnessPercent * .01) + ')' : 'rgba(0,0,0,' + (-1 * (brightnessPercent * .01)) + ')';
-	newContext.fillRect(0, 0, newContext.canvas.width, newContext.canvas.height);
+	newContext.fillRect(0, 0, newContext.width, newContext.height);
 
 	// set context vars back when we are done
 	newContext.globalAlpha = oldContext.globalAlpha;

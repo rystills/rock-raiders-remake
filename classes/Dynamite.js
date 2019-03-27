@@ -68,7 +68,7 @@ Dynamite.prototype.detonate = function () {
 	this.image = GameManager.getImage("dynamite explosion.png");
 	this.drawSurface = createContext(this.image.width, this.image.height, false);
 	this.drawSurface.drawImage(this.image, 0, 0);
-	this.rect = new Rect(this.drawSurface.canvas.width, this.drawSurface.canvas.height);
+	this.rect = new Rect(this.drawSurface.width, this.drawSurface.height);
 	this.setCenterX(centX);
 	this.setCenterY(centY);
 	this.effectTimer = this.maxEffectTimer;

@@ -50,7 +50,7 @@ function loadAlphaImageAsset(path, name, callback) {
 	img.onload = function () {
 		const context = createContext(img.naturalWidth, img.naturalHeight, false);
 		context.drawImage(img, 0, 0);
-		const imgData = context.getImageData(0, 0, context.canvas.width, context.canvas.height);
+		const imgData = context.getImageData(0, 0, context.width, context.height);
 		for (let n = 0; n < imgData.data.length; n += 4) {
 			if (imgData.data[n] <= 2 && imgData.data[n + 1] <= 2 && imgData.data[n + 2] <= 2) { // some bitmaps contain 2/2/2 as "black" alpha background
 				imgData.data[n + 3] = 0;

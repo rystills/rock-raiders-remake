@@ -37,12 +37,12 @@ function BitmapFont(fontImageName, cols = 10, rows = 19) { // font images always
 	]; // TODO complete this character list
 
 	const imgFont = GameManager.getImage(fontImageName);
-	const maxCharWidth = imgFont.canvas.width / cols;
-	this.charHeight = imgFont.canvas.height / rows;
+	const maxCharWidth = imgFont.width / cols;
+	this.charHeight = imgFont.height / rows;
 
 	function getActualCharacterWidth(imgData) {
-		for (let y = 0; y < imgFont.canvas.height / rows; y++) { // find non-empty row first
-			let rowPixelIndex = y * 4 * imgFont.canvas.width;
+		for (let y = 0; y < imgFont.height / rows; y++) { // find non-empty row first
+			let rowPixelIndex = y * 4 * imgFont.width;
 			if (imgData.data[rowPixelIndex] !== 255 && imgData.data[rowPixelIndex + 2] !== 255) { // red/blue pixels indicate end of character
 				for (let x = 0; x < maxCharWidth; x++) {
 					let colPixelIndex = x * 4;
