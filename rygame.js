@@ -381,7 +381,7 @@ function makeChild(objectName, parentName) {
 
 GameManagerInternal.prototype.setCursor = function (cursorImageName) {
 	if (cursorImageName === undefined || cursorImageName === null) {
-		cursorImageName = "Aclosed.bmp";
+		cursorImageName = "Interface/Pointers/Aclosed.bmp";
 	}
 	GameManager.canvas.style.cursor = "url('" + GameManager.getImage(cursorImageName).canvas.toDataURL() + "'), auto"; // auto is fallback here
 };

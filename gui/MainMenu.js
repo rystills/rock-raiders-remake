@@ -10,9 +10,10 @@ function MainMenuButton(centerX, centerY, text, fontNormal, fontBright, layer, r
 makeChild("LevelButton", "ImageButton");
 
 function LevelButton(x, y, levelImageName, layer, levelName, levelNum) {
-	ImageButton.call(this, x, y, 0, GameManager.getImage("G" + levelImageName),
-		GameManager.getImage(levelImageName), layer, resetLevelVars, [levelName], true);
-	this.unavailableSurface = GameManager.getImage(levelImageName + "G");
+	const path = levelImageName.startsWith("Tutorial") ? "Levels/TutorialLevels/" : "Levels/GameLevels/";
+	ImageButton.call(this, x, y, 0, GameManager.getImage(path + "G" + levelImageName + ".bmp"),
+		GameManager.getImage(path + levelImageName + ".bmp"), layer, resetLevelVars, [levelName], true);
+	this.unavailableSurface = GameManager.getImage(path + levelImageName + "G.bmp");
 	this.additionalRequirement = levelIsUnlocked;
 	this.additionalRequirementArgs = [levelNum];
 }

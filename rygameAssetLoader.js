@@ -162,13 +162,15 @@ function loadAssetNext() {
 			lastScriptName = curAsset[2];
 			loadScriptAsset(appendString + curAsset[2], loadAssetNext);
 		} else if (curAsset[0] === "img") {
-			loadImageAsset(appendString + curAsset[2], curAsset[2], loadAssetNext);
+			loadImageAsset(appendString + curAsset[2], curAsset[2].toLowerCase(), loadAssetNext);
 		} else if (curAsset[0] === "snd") {
 			loadSoundAsset(appendString + curAsset[2], curAsset[2], loadAssetNext);
 		} else if (curAsset[0] === "wad0bmp") {
-			loadImageAsset(wad0File.getEntry(curAsset[1]), curAsset[2], loadAssetNext);
+			loadImageAsset(wad0File.getEntry(curAsset[1]), curAsset[1].toLowerCase(), loadAssetNext);
 		} else if (curAsset[0] === "wad0alpha") {
-			loadAlphaImageAsset(wad0File.getEntry(curAsset[1]), curAsset[2], loadAssetNext);
+			loadAlphaImageAsset(wad0File.getEntry(curAsset[1]), curAsset[1].toLowerCase(), loadAssetNext);
+		} else if (curAsset[0] === "wad1txt") {
+			loadConfigurationAsset(wad1File.getEntry(curAsset[1]), curAsset[1], loadAssetNext);
 		}
 	} else {
 		finishLoading();
