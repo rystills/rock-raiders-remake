@@ -13,8 +13,8 @@ object = {
 		// ~images~
 		// menu resources
 		["wad0bmp", "Interface/FrontEnd/MenuBGpic.bmp", "MenuBGpic.png"], // main menu background
-		["wad0bmp", "Interface/FrontEnd/Menu_Font_LO.bmp", "Menu_Font_LO.bmp"], // main menu font
-		["wad0bmp", "Interface/FrontEnd/Menu_Font_HI.bmp", "Menu_Font_HI.bmp"], // (highlighted) main menu font
+		["wad0alpha", "Interface/FrontEnd/Menu_Font_LO.bmp", "Menu_Font_LO.bmp"], // main menu font
+		["wad0alpha", "Interface/FrontEnd/Menu_Font_HI.bmp", "Menu_Font_HI.bmp"], // (highlighted) main menu font
 		["wad0bmp", "Interface/Frontend/LP_Normal.bmp", "LP_Normal.bmp"], // back button in level select view
 		["wad0bmp", "Interface/Frontend/LP_Glow.bmp", "LP_Glow.bmp"], // back button in level select view (hovered)
 		["wad0bmp", "Interface/Frontend/LP_Dull.bmp", "LP_Dull.bmp"], // back button in level select view (pressed)
@@ -330,6 +330,7 @@ object = {
 		["js", "classes\\vehicles", "SmallTransportTruck.js"], // small transport truck class
 
 		// gui elements
+		["js", "gui", "BitmapFont.js"],
 		["js", "gui", "MainMenu.js"], // GUI elements used in the main menu
 
 		// level data list files
