@@ -38,13 +38,20 @@
 
 body {
     margin: 0;
-    background-color: rgb(51,51,51);
-}
-
-#canvas {
-    outline: none;
+    background-color: rgb(51, 51, 51);
 }
 
 #fscontainer {
     padding: 0;
+}
+
+#rygameCanvas {
+    outline: none;
+    display: block;
+    margin: 0 auto;
+}
+
+.screensize-buttons {
+    text-align: center;
+    margin: 1em;
 }

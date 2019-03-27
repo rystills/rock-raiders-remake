@@ -268,7 +268,7 @@ function BuildingPlacer(buildingType, isHelper, xOffset, yOffset, parentBuilder)
 	this.drawSurface.globalAlpha = .25;
 	this.drawSurface.fillStyle = "rgb(255,0,0)";
 	// red semi-transparent overlay
-	this.drawSurface.fillRect(0, 0, this.drawSurface.canvas.width, this.drawSurface.canvas.height);
+	this.drawSurface.fillRect(0, 0, this.drawSurface.width, this.drawSurface.height);
 	this.invalidSurface = this.drawSurface;
 	this.validSurface = createContext(tileSize, tileSize, false);
 	this.validSurface.globalAlpha = .25;
@@ -276,7 +276,7 @@ function BuildingPlacer(buildingType, isHelper, xOffset, yOffset, parentBuilder)
 	this.validSurface.fillStyle = (buildingType === "power path" || buildingType === "building power path" ||
 	buildingType === "power station powerPath" ? "rgb(200,255,0)" : "rgb(0,255,0)");
 	// green semi-transparent overlay
-	this.validSurface.fillRect(0, 0, this.drawSurface.canvas.width, this.drawSurface.canvas.height);
+	this.validSurface.fillRect(0, 0, this.drawSurface.width, this.drawSurface.height);
 
 	this.visible = false;
 	this.isHelper = (isHelper === true);

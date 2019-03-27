@@ -6,124 +6,126 @@
 object = {
 	assets: [
 		// loading screen resources
-		["wad0bmp", "Languages/Loading.bmp", "loading screen.png"], // loading screen image
-		["wad0bmp", "Interface/FrontEnd/gradient.bmp", "loading bar.png"], // loading bar container image
+		["wad0bmp", "Languages/Loading.bmp"], // loading screen image
+		["wad0bmp", "Interface/FrontEnd/gradient.bmp"], // loading bar container image
 		["js", "", "loadingScreenOverride.js"], // script to override loading screen to Rock Raiders loading screen
 
 		// ~images~
 		// menu resources
-		["wad0bmp", "Interface/FrontEnd/MenuBGpic.bmp", "MenuBGpic.png"], // main menu background
-		["wad0bmp", "Interface/FrontEnd/Menu_Font_LO.bmp", "Menu_Font_LO.bmp"], // main menu font
-		["wad0bmp", "Interface/FrontEnd/Menu_Font_HI.bmp", "Menu_Font_HI.bmp"], // (highlighted) main menu font
-		["wad0bmp", "Interface/Frontend/LP_Normal.bmp", "LP_Normal.bmp"], // back button in level select view
-		["wad0bmp", "Interface/Frontend/LP_Glow.bmp", "LP_Glow.bmp"], // back button in level select view (hovered)
-		["wad0bmp", "Interface/Frontend/LP_Dull.bmp", "LP_Dull.bmp"], // back button in level select view (pressed)
-		["wad0alpha", "Interface/Frontend/LowerPanel.bmp", "LowerPanel.bmp"], // lower panel in level select view
+		["wad0bmp", "Interface/FrontEnd/MenuBGpic.bmp"], // main menu background
+		["wad0alpha", "Interface/FrontEnd/Menu_Font_LO.bmp"], // main menu font
+		["wad0alpha", "Interface/FrontEnd/Menu_Font_HI.bmp"], // (highlighted) main menu font
+		["wad0alpha", "Interface/Fonts/Font5_Hi.bmp"],
+		["wad0bmp", "Interface/Frontend/LP_Normal.bmp"], // back button in level select view
+		["wad0bmp", "Interface/Frontend/LP_Glow.bmp"], // back button in level select view (hovered)
+		["wad0bmp", "Interface/Frontend/LP_Dull.bmp"], // back button in level select view (pressed)
+		["wad0alpha", "Interface/Frontend/LowerPanel.bmp"], // lower panel in level select view
 
 		// level images
-		["wad0bmp", "Interface/LEVELPICKER/Levelpick.bmp", "Levelpick.png"], // level select menu background
-		["wad0alpha", "Levels/TutorialLevels/GTutorial01.bmp", "GTutorial01"], // tutorial 1 image
-		["wad0alpha", "Levels/TutorialLevels/Tutorial01.bmp", "Tutorial01"],
-		["wad0alpha", "Levels/TutorialLevels/Tutorial01G.bmp", "Tutorial01G"],
-		["wad0alpha", "Levels/TutorialLevels/GTutorial02.bmp", "GTutorial02"], // tutorial 2 image
-		["wad0alpha", "Levels/TutorialLevels/Tutorial02.bmp", "Tutorial02"],
-		["wad0alpha", "Levels/TutorialLevels/Tutorial02G.bmp", "Tutorial02G"],
-		["wad0alpha", "Levels/TutorialLevels/GTutorial03.bmp", "GTutorial03"], // tutorial 3 image
-		["wad0alpha", "Levels/TutorialLevels/Tutorial03.bmp", "Tutorial03"],
-		["wad0alpha", "Levels/TutorialLevels/Tutorial03G.bmp", "Tutorial03G"],
-		["wad0alpha", "Levels/TutorialLevels/GTutorial04.bmp", "GTutorial04"], // tutorial 4 image
-		["wad0alpha", "Levels/TutorialLevels/Tutorial04.bmp", "Tutorial04"],
-		["wad0alpha", "Levels/TutorialLevels/Tutorial04G.bmp", "Tutorial04G"],
-		["wad0alpha", "Levels/TutorialLevels/GTutorial05.bmp", "GTutorial05"], // tutorial 5 image
-		["wad0alpha", "Levels/TutorialLevels/Tutorial05.bmp", "Tutorial05"],
-		["wad0alpha", "Levels/TutorialLevels/Tutorial05G.bmp", "Tutorial05G"],
-		["wad0alpha", "Levels/TutorialLevels/GTutorial06.bmp", "GTutorial06"], // tutorial 6 image
-		["wad0alpha", "Levels/TutorialLevels/Tutorial06.bmp", "Tutorial06"],
-		["wad0alpha", "Levels/TutorialLevels/Tutorial06G.bmp", "Tutorial06G"],
-		["wad0alpha", "Levels/TutorialLevels/GTutorial07.bmp", "GTutorial07"], // tutorial 7 image
-		["wad0alpha", "Levels/TutorialLevels/Tutorial07.bmp", "Tutorial07"],
-		["wad0alpha", "Levels/TutorialLevels/Tutorial07G.bmp", "Tutorial07G"],
-		["wad0alpha", "Levels/TutorialLevels/GTutorial08.bmp", "GTutorial08"], // tutorial 8 image
-		["wad0alpha", "Levels/TutorialLevels/Tutorial08.bmp", "Tutorial08"],
-		["wad0alpha", "Levels/TutorialLevels/Tutorial08G.bmp", "Tutorial08G"],
-		["wad0alpha", "Levels/GameLevels/GLevel01.bmp", "GLevel01"], // level 1 image
-		["wad0alpha", "Levels/GameLevels/Level01.bmp", "Level01"],
-		["wad0alpha", "Levels/GameLevels/Level01G.bmp", "Level01G"],
-		["wad0alpha", "Levels/GameLevels/GLevel02.bmp", "GLevel02"], // level 2 image
-		["wad0alpha", "Levels/GameLevels/Level02.bmp", "Level02"],
-		["wad0alpha", "Levels/GameLevels/Level02G.bmp", "Level02G"],
-		["wad0alpha", "Levels/GameLevels/GLevel03.bmp", "GLevel03"], // level 3 image
-		["wad0alpha", "Levels/GameLevels/Level03.bmp", "Level03"],
-		["wad0alpha", "Levels/GameLevels/Level03G.bmp", "Level03G"],
-		["wad0alpha", "Levels/GameLevels/GLevel04.bmp", "GLevel04"], // level 4 image
-		["wad0alpha", "Levels/GameLevels/Level04.bmp", "Level04"],
-		["wad0alpha", "Levels/GameLevels/Level04G.bmp", "Level04G"],
-		["wad0alpha", "Levels/GameLevels/GLevel05.bmp", "GLevel05"], // level 5 image
-		["wad0alpha", "Levels/GameLevels/Level05.bmp", "Level05"],
-		["wad0alpha", "Levels/GameLevels/Level05G.bmp", "Level05G"],
-		["wad0alpha", "Levels/GameLevels/GLevel06.bmp", "GLevel06"], // level 6 image
-		["wad0alpha", "Levels/GameLevels/Level06.bmp", "Level06"],
-		["wad0alpha", "Levels/GameLevels/Level06G.bmp", "Level06G"],
-		["wad0alpha", "Levels/GameLevels/GLevel07.bmp", "GLevel07"], // level 7 image
-		["wad0alpha", "Levels/GameLevels/Level07.bmp", "Level07"],
-		["wad0alpha", "Levels/GameLevels/Level07G.bmp", "Level07G"],
-		["wad0alpha", "Levels/GameLevels/GLevel08.bmp", "GLevel08"], // level 8 image
-		["wad0alpha", "Levels/GameLevels/Level08.bmp", "Level08"],
-		["wad0alpha", "Levels/GameLevels/Level08G.bmp", "Level08G"],
-		["wad0alpha", "Levels/GameLevels/GLevel09.bmp", "GLevel09"], // level 9 image
-		["wad0alpha", "Levels/GameLevels/Level09.bmp", "Level09"],
-		["wad0alpha", "Levels/GameLevels/Level09G.bmp", "Level09G"],
-		["wad0alpha", "Levels/GameLevels/GLevel10.bmp", "GLevel10"], // level 10 image
-		["wad0alpha", "Levels/GameLevels/Level10.bmp", "Level10"],
-		["wad0alpha", "Levels/GameLevels/Level10G.bmp", "Level10G"],
-		["wad0alpha", "Levels/GameLevels/GLevel11.bmp", "GLevel11"], // level 11 image
-		["wad0alpha", "Levels/GameLevels/Level11.bmp", "Level11"],
-		["wad0alpha", "Levels/GameLevels/Level11G.bmp", "Level11G"],
-		["wad0alpha", "Levels/GameLevels/GLevel12.bmp", "GLevel12"], // level 12 image
-		["wad0alpha", "Levels/GameLevels/Level12.bmp", "Level12"],
-		["wad0alpha", "Levels/GameLevels/Level12G.bmp", "Level12G"],
-		["wad0alpha", "Levels/GameLevels/GLevel13.bmp", "GLevel13"], // level 13 image
-		["wad0alpha", "Levels/GameLevels/Level13.bmp", "Level13"],
-		["wad0alpha", "Levels/GameLevels/Level13G.bmp", "Level13G"],
-		["wad0alpha", "Levels/GameLevels/GLevel14.bmp", "GLevel14"], // level 14 image
-		["wad0alpha", "Levels/GameLevels/Level14.bmp", "Level14"],
-		["wad0alpha", "Levels/GameLevels/Level14G.bmp", "Level14G"],
-		["wad0alpha", "Levels/GameLevels/GLevel15.bmp", "GLevel15"], // level 15 image
-		["wad0alpha", "Levels/GameLevels/Level15.bmp", "Level15"],
-		["wad0alpha", "Levels/GameLevels/Level15G.bmp", "Level15G"],
-		["wad0alpha", "Levels/GameLevels/GLevel16.bmp", "GLevel16"], // level 16 image
-		["wad0alpha", "Levels/GameLevels/Level16.bmp", "Level16"],
-		["wad0alpha", "Levels/GameLevels/Level16G.bmp", "Level16G"],
-		["wad0alpha", "Levels/GameLevels/GLevel17.bmp", "GLevel17"], // level 17 image
-		["wad0alpha", "Levels/GameLevels/Level17.bmp", "Level17"],
-		["wad0alpha", "Levels/GameLevels/Level17G.bmp", "Level17G"],
-		["wad0alpha", "Levels/GameLevels/GLevel18.bmp", "GLevel18"], // level 18 image
-		["wad0alpha", "Levels/GameLevels/Level18.bmp", "Level18"],
-		["wad0alpha", "Levels/GameLevels/Level18G.bmp", "Level18G"],
-		["wad0alpha", "Levels/GameLevels/GLevel19.bmp", "GLevel19"], // level 19 image
-		["wad0alpha", "Levels/GameLevels/Level19.bmp", "Level19"],
-		["wad0alpha", "Levels/GameLevels/Level19G.bmp", "Level19G"],
-		["wad0alpha", "Levels/GameLevels/GLevel20.bmp", "GLevel20"], // level 20 image
-		["wad0alpha", "Levels/GameLevels/Level20.bmp", "Level20"],
-		["wad0alpha", "Levels/GameLevels/Level20G.bmp", "Level20G"],
-		["wad0alpha", "Levels/GameLevels/GLevel21.bmp", "GLevel21"], // level 21 image
-		["wad0alpha", "Levels/GameLevels/Level21.bmp", "Level21"],
-		["wad0alpha", "Levels/GameLevels/Level21G.bmp", "Level21G"],
-		["wad0alpha", "Levels/GameLevels/GLevel22.bmp", "GLevel22"], // level 22 image
-		["wad0alpha", "Levels/GameLevels/Level22.bmp", "Level22"],
-		["wad0alpha", "Levels/GameLevels/Level22G.bmp", "Level22G"],
-		["wad0alpha", "Levels/GameLevels/GLevel23.bmp", "GLevel23"], // level 23 image
-		["wad0alpha", "Levels/GameLevels/Level23.bmp", "Level23"],
-		["wad0alpha", "Levels/GameLevels/Level23G.bmp", "Level23G"],
-		["wad0alpha", "Levels/GameLevels/GLevel24.bmp", "GLevel24"], // level 24 image
-		["wad0alpha", "Levels/GameLevels/Level24.bmp", "Level24"],
-		["wad0alpha", "Levels/GameLevels/Level24G.bmp", "Level24G"],
-		["wad0alpha", "Levels/GameLevels/GLevel25.bmp", "GLevel25"], // level 25 image
-		["wad0alpha", "Levels/GameLevels/Level25.bmp", "Level25"],
-		["wad0alpha", "Levels/GameLevels/Level25G.bmp", "Level25G"],
+		["wad0bmp", "Interface/LEVELPICKER/Levelpick.bmp"], // level select menu background
+		["wad0bmp", "Interface/LEVELPICKER/LevelpickT.bmp"], // tutorial level select menu background
+		["wad0alpha", "Levels/TutorialLevels/GTutorial01.bmp"], // tutorial 1 image
+		["wad0alpha", "Levels/TutorialLevels/Tutorial01.bmp"],
+		["wad0alpha", "Levels/TutorialLevels/Tutorial01G.bmp"],
+		["wad0alpha", "Levels/TutorialLevels/GTutorial02.bmp"], // tutorial 2 image
+		["wad0alpha", "Levels/TutorialLevels/Tutorial02.bmp"],
+		["wad0alpha", "Levels/TutorialLevels/Tutorial02G.bmp"],
+		["wad0alpha", "Levels/TutorialLevels/GTutorial03.bmp"], // tutorial 3 image
+		["wad0alpha", "Levels/TutorialLevels/Tutorial03.bmp"],
+		["wad0alpha", "Levels/TutorialLevels/Tutorial03G.bmp"],
+		["wad0alpha", "Levels/TutorialLevels/GTutorial04.bmp"], // tutorial 4 image
+		["wad0alpha", "Levels/TutorialLevels/Tutorial04.bmp"],
+		["wad0alpha", "Levels/TutorialLevels/Tutorial04G.bmp"],
+		["wad0alpha", "Levels/TutorialLevels/GTutorial05.bmp"], // tutorial 5 image
+		["wad0alpha", "Levels/TutorialLevels/Tutorial05.bmp"],
+		["wad0alpha", "Levels/TutorialLevels/Tutorial05G.bmp"],
+		["wad0alpha", "Levels/TutorialLevels/GTutorial06.bmp"], // tutorial 6 image
+		["wad0alpha", "Levels/TutorialLevels/Tutorial06.bmp"],
+		["wad0alpha", "Levels/TutorialLevels/Tutorial06G.bmp"],
+		["wad0alpha", "Levels/TutorialLevels/GTutorial07.bmp"], // tutorial 7 image
+		["wad0alpha", "Levels/TutorialLevels/Tutorial07.bmp"],
+		["wad0alpha", "Levels/TutorialLevels/Tutorial07G.bmp"],
+		["wad0alpha", "Levels/TutorialLevels/GTutorial08.bmp"], // tutorial 8 image
+		["wad0alpha", "Levels/TutorialLevels/Tutorial08.bmp"],
+		["wad0alpha", "Levels/TutorialLevels/Tutorial08G.bmp"],
+		["wad0alpha", "Levels/GameLevels/GLevel01.bmp"], // level 1 image
+		["wad0alpha", "Levels/GameLevels/Level01.bmp"],
+		["wad0alpha", "Levels/GameLevels/Level01G.bmp"],
+		["wad0alpha", "Levels/GameLevels/GLevel02.bmp"], // level 2 image
+		["wad0alpha", "Levels/GameLevels/Level02.bmp"],
+		["wad0alpha", "Levels/GameLevels/Level02G.bmp"],
+		["wad0alpha", "Levels/GameLevels/GLevel03.bmp"], // level 3 image
+		["wad0alpha", "Levels/GameLevels/Level03.bmp"],
+		["wad0alpha", "Levels/GameLevels/Level03G.bmp"],
+		["wad0alpha", "Levels/GameLevels/GLevel04.bmp"], // level 4 image
+		["wad0alpha", "Levels/GameLevels/Level04.bmp"],
+		["wad0alpha", "Levels/GameLevels/Level04G.bmp"],
+		["wad0alpha", "Levels/GameLevels/GLevel05.bmp"], // level 5 image
+		["wad0alpha", "Levels/GameLevels/Level05.bmp"],
+		["wad0alpha", "Levels/GameLevels/Level05G.bmp"],
+		["wad0alpha", "Levels/GameLevels/GLevel06.bmp"], // level 6 image
+		["wad0alpha", "Levels/GameLevels/Level06.bmp"],
+		["wad0alpha", "Levels/GameLevels/Level06G.bmp"],
+		["wad0alpha", "Levels/GameLevels/GLevel07.bmp"], // level 7 image
+		["wad0alpha", "Levels/GameLevels/Level07.bmp"],
+		["wad0alpha", "Levels/GameLevels/Level07G.bmp"],
+		["wad0alpha", "Levels/GameLevels/GLevel08.bmp"], // level 8 image
+		["wad0alpha", "Levels/GameLevels/Level08.bmp"],
+		["wad0alpha", "Levels/GameLevels/Level08G.bmp"],
+		["wad0alpha", "Levels/GameLevels/GLevel09.bmp"], // level 9 image
+		["wad0alpha", "Levels/GameLevels/Level09.bmp"],
+		["wad0alpha", "Levels/GameLevels/Level09G.bmp"],
+		["wad0alpha", "Levels/GameLevels/GLevel10.bmp"], // level 10 image
+		["wad0alpha", "Levels/GameLevels/Level10.bmp"],
+		["wad0alpha", "Levels/GameLevels/Level10G.bmp"],
+		["wad0alpha", "Levels/GameLevels/GLevel11.bmp"], // level 11 image
+		["wad0alpha", "Levels/GameLevels/Level11.bmp"],
+		["wad0alpha", "Levels/GameLevels/Level11G.bmp"],
+		["wad0alpha", "Levels/GameLevels/GLevel12.bmp"], // level 12 image
+		["wad0alpha", "Levels/GameLevels/Level12.bmp"],
+		["wad0alpha", "Levels/GameLevels/Level12G.bmp"],
+		["wad0alpha", "Levels/GameLevels/GLevel13.bmp"], // level 13 image
+		["wad0alpha", "Levels/GameLevels/Level13.bmp"],
+		["wad0alpha", "Levels/GameLevels/Level13G.bmp"],
+		["wad0alpha", "Levels/GameLevels/GLevel14.bmp"], // level 14 image
+		["wad0alpha", "Levels/GameLevels/Level14.bmp"],
+		["wad0alpha", "Levels/GameLevels/Level14G.bmp"],
+		["wad0alpha", "Levels/GameLevels/GLevel15.bmp"], // level 15 image
+		["wad0alpha", "Levels/GameLevels/Level15.bmp"],
+		["wad0alpha", "Levels/GameLevels/Level15G.bmp"],
+		["wad0alpha", "Levels/GameLevels/GLevel16.bmp"], // level 16 image
+		["wad0alpha", "Levels/GameLevels/Level16.bmp"],
+		["wad0alpha", "Levels/GameLevels/Level16G.bmp"],
+		["wad0alpha", "Levels/GameLevels/GLevel17.bmp"], // level 17 image
+		["wad0alpha", "Levels/GameLevels/Level17.bmp"],
+		["wad0alpha", "Levels/GameLevels/Level17G.bmp"],
+		["wad0alpha", "Levels/GameLevels/GLevel18.bmp"], // level 18 image
+		["wad0alpha", "Levels/GameLevels/Level18.bmp"],
+		["wad0alpha", "Levels/GameLevels/Level18G.bmp"],
+		["wad0alpha", "Levels/GameLevels/GLevel19.bmp"], // level 19 image
+		["wad0alpha", "Levels/GameLevels/Level19.bmp"],
+		["wad0alpha", "Levels/GameLevels/Level19G.bmp"],
+		["wad0alpha", "Levels/GameLevels/GLevel20.bmp"], // level 20 image
+		["wad0alpha", "Levels/GameLevels/Level20.bmp"],
+		["wad0alpha", "Levels/GameLevels/Level20G.bmp"],
+		["wad0alpha", "Levels/GameLevels/GLevel21.bmp"], // level 21 image
+		["wad0alpha", "Levels/GameLevels/Level21.bmp"],
+		["wad0alpha", "Levels/GameLevels/Level21G.bmp"],
+		["wad0alpha", "Levels/GameLevels/GLevel22.bmp"], // level 22 image
+		["wad0alpha", "Levels/GameLevels/Level22.bmp"],
+		["wad0alpha", "Levels/GameLevels/Level22G.bmp"],
+		["wad0alpha", "Levels/GameLevels/GLevel23.bmp"], // level 23 image
+		["wad0alpha", "Levels/GameLevels/Level23.bmp"],
+		["wad0alpha", "Levels/GameLevels/Level23G.bmp"],
+		["wad0alpha", "Levels/GameLevels/GLevel24.bmp"], // level 24 image
+		["wad0alpha", "Levels/GameLevels/Level24.bmp"],
+		["wad0alpha", "Levels/GameLevels/Level24G.bmp"],
+		["wad0alpha", "Levels/GameLevels/GLevel25.bmp"], // level 25 image
+		["wad0alpha", "Levels/GameLevels/Level25.bmp"],
+		["wad0alpha", "Levels/GameLevels/Level25G.bmp"],
 
 		// pointers/cursors
-		["wad0alpha", "Interface/Pointers/Aclosed.bmp", "Aclosed.bmp"],
+		["wad0alpha", "Interface/Pointers/Aclosed.bmp"],
 
 		// collectables
 		["img", "images\\objects", "ore.png"], // ore
@@ -141,53 +143,53 @@ object = {
 		["img", "images\\effects", "dynamite explosion.png"], // explosion created by a dynamite blast
 
 		// small vehicle buttons
-		["wad0bmp", "Interface/Icons/hoverboard.bmp", "make hoverboard.png"], // make hoverscout button
-		["wad0bmp", "Interface/Icons/SmallCat.bmp", "make SmallCat.png"], // make rapid rider button
-		["wad0bmp", "Interface/Icons/SmallDigger.bmp", "make SmallDigger.png"], // make small digger button
-		["wad0bmp", "Interface/Icons/SmallHeli.bmp", "make SmallHeli.png"], // make tunnel scout button
-		["wad0bmp", "Interface/Icons/SmallMWP.bmp", "make SmallMWP.png"], // make small mobile laser cutter button
-		["wad0bmp", "Interface/Icons/SmallTruck.bmp", "make SmallTruck.png"], // make small transport truck button
+		["wad0bmp", "Interface/Icons/hoverboard.bmp"], // make hoverscout button
+		["wad0bmp", "Interface/Icons/SmallCat.bmp"], // make rapid rider button
+		["wad0bmp", "Interface/Icons/SmallDigger.bmp"], // make small digger button
+		["wad0bmp", "Interface/Icons/SmallHeli.bmp"], // make tunnel scout button
+		["wad0bmp", "Interface/Icons/SmallMWP.bmp"], // make small mobile laser cutter button
+		["wad0bmp", "Interface/Icons/SmallTruck.bmp"], // make small transport truck button
 
 		// large vehicle buttons
-		["wad0bmp", "Interface/Icons/Bulldozer.bmp", "make Bulldozer.png"], // make loader dozer button
-		["wad0bmp", "Interface/Icons/LargeCatamaran.bmp", "make LargeCatamaran.png"], // make cargo carrier button
-		["wad0bmp", "Interface/Icons/largeDigger.bmp", "make largeDigger.png"], // make large digger button
-		["wad0bmp", "Interface/Icons/LargeMWP.bmp", "make LargeMWP.png"], // make large mobile laser cutter button
-		["wad0bmp", "Interface/Icons/WalkerDigger.bmp", "make WalkerDigger.png"], // make granite grinder button
+		["wad0bmp", "Interface/Icons/Bulldozer.bmp"], // make loader dozer button
+		["wad0bmp", "Interface/Icons/LargeCatamaran.bmp"], // make cargo carrier button
+		["wad0bmp", "Interface/Icons/largeDigger.bmp"], // make large digger button
+		["wad0bmp", "Interface/Icons/LargeMWP.bmp"], // make large mobile laser cutter button
+		["wad0bmp", "Interface/Icons/WalkerDigger.bmp"], // make granite grinder button
 
 		// spaces
-		["wad0bmp", "World/WorldTextures/RockSplit/ROCK00.BMP", "ground.png"], // ground
-		["wad0bmp", "World/WorldTextures/RockSplit/ROCK76.BMP", "building power path.png"], // power path that is part of a building
-		["wad0bmp", "World/WorldTextures/RockSplit/Rock61.bmp", "power path building site.png"], // building site for a lone (non-building) power path
-		["wad0bmp", "World/WorldTextures/RockSplit/Rock60.bmp", "power path.png"], // all sides power path created by the player (not part of a building)
-		["wad0bmp", "World/WorldTextures/RockSplit/ROCK46.BMP", "lava.png"], // lava
-		["wad0bmp", "World/WorldTextures/RockSplit/Rock45.bmp", "water.png"], // water
-		["wad0bmp", "World/WorldTextures/RockSplit/Rock20.bmp", "energy crystal seam.png"], // energy crystal seam
-		["wad0bmp", "World/WorldTextures/RockSplit/Rock40.bmp", "ore seam.png"], // ore seam
-		["wad0bmp", "World/WorldTextures/RockSplit/Rock67.bmp", "recharge seam.png"], // recharge seam
-		["wad0bmp", "World/WorldTextures/RockSplit/ROCK01.BMP", "ROCK01"], // dirt
-		["wad0bmp", "World/WorldTextures/RockSplit/ROCK02.BMP", "ROCK02"], // gravel
-		["wad0bmp", "World/WorldTextures/RockSplit/ROCK03.BMP", "ROCK03"], // loose rock
-		["wad0bmp", "World/WorldTextures/RockSplit/ROCK04.BMP", "ROCK04"], // hard rock
-		["wad0bmp", "World/WorldTextures/RockSplit/ROCK05.BMP", "ROCK05"], // solid rock
-		["wad0bmp", "World/WorldTextures/RockSplit/ROCK31.BMP", "ROCK31"], // dirt corner inverted
-		["wad0bmp", "World/WorldTextures/RockSplit/ROCK32.BMP", "ROCK32"], // gravel corner inverted
-		["wad0bmp", "World/WorldTextures/RockSplit/ROCK33.BMP", "ROCK33"], // loose rock corner inverted
-		["wad0bmp", "World/WorldTextures/RockSplit/ROCK34.BMP", "ROCK34"], // hard rock corner inverted
-		["wad0bmp", "World/WorldTextures/RockSplit/ROCK35.BMP", "ROCK35"], // solid rock corner inverted
-		["wad0bmp", "World/WorldTextures/RockSplit/ROCK51.BMP", "ROCK51"], // dirt corner
-		["wad0bmp", "World/WorldTextures/RockSplit/ROCK52.BMP", "ROCK52"], // gravel corner
-		["wad0bmp", "World/WorldTextures/RockSplit/ROCK53.BMP", "ROCK53"], // loose rock corner
-		["wad0bmp", "World/WorldTextures/RockSplit/ROCK54.BMP", "ROCK54"], // hard rock corner
-		["wad0bmp", "World/WorldTextures/RockSplit/ROCK55.BMP", "ROCK55"], // solid rock corner
-		["wad0bmp", "World/WorldTextures/RockSplit/ROCK10.BMP", "rubble 1.png"], // rubble swept 0 times. 4 sweeps required to clear fully
-		["wad0bmp", "World/WorldTextures/RockSplit/Rock11.bmp", "rubble 2.png"], // rubble swept 1 time. 3 sweeps required to clear fully
-		["wad0bmp", "World/WorldTextures/RockSplit/Rock12.bmp", "rubble 3.png"], // rubble swept 2 times. 2 sweeps required to clear fully
-		["wad0bmp", "World/WorldTextures/RockSplit/Rock13.bmp", "rubble 4.png"], // rubble swept 3 times. 1 sweep required to clear fully
+		["wad0bmp", "World/WorldTextures/RockSplit/ROCK00.BMP"], // ground
+		["wad0bmp", "World/WorldTextures/RockSplit/ROCK76.BMP"], // power path that is part of a building
+		["wad0bmp", "World/WorldTextures/RockSplit/Rock61.bmp"], // building site for a lone (non-building) power path
+		["wad0bmp", "World/WorldTextures/RockSplit/Rock60.bmp"], // all sides power path created by the player (not part of a building)
+		["wad0bmp", "World/WorldTextures/RockSplit/ROCK46.BMP"], // lava
+		["wad0bmp", "World/WorldTextures/RockSplit/Rock45.bmp"], // water
+		["wad0bmp", "World/WorldTextures/RockSplit/Rock20.bmp"], // energy crystal seam
+		["wad0bmp", "World/WorldTextures/RockSplit/Rock40.bmp"], // ore seam
+		["wad0bmp", "World/WorldTextures/RockSplit/Rock67.bmp"], // recharge seam
+		["wad0bmp", "World/WorldTextures/RockSplit/ROCK01.BMP"], // dirt
+		["wad0bmp", "World/WorldTextures/RockSplit/ROCK02.BMP"], // gravel
+		["wad0bmp", "World/WorldTextures/RockSplit/ROCK03.BMP"], // loose rock
+		["wad0bmp", "World/WorldTextures/RockSplit/ROCK04.BMP"], // hard rock
+		["wad0bmp", "World/WorldTextures/RockSplit/ROCK05.BMP"], // solid rock
+		["wad0bmp", "World/WorldTextures/RockSplit/ROCK31.BMP"], // dirt corner inverted
+		["wad0bmp", "World/WorldTextures/RockSplit/ROCK32.BMP"], // gravel corner inverted
+		["wad0bmp", "World/WorldTextures/RockSplit/ROCK33.BMP"], // loose rock corner inverted
+		["wad0bmp", "World/WorldTextures/RockSplit/ROCK34.BMP"], // hard rock corner inverted
+		["wad0bmp", "World/WorldTextures/RockSplit/ROCK35.BMP"], // solid rock corner inverted
+		["wad0bmp", "World/WorldTextures/RockSplit/ROCK51.BMP"], // dirt corner
+		["wad0bmp", "World/WorldTextures/RockSplit/ROCK52.BMP"], // gravel corner
+		["wad0bmp", "World/WorldTextures/RockSplit/ROCK53.BMP"], // loose rock corner
+		["wad0bmp", "World/WorldTextures/RockSplit/ROCK54.BMP"], // hard rock corner
+		["wad0bmp", "World/WorldTextures/RockSplit/ROCK55.BMP"], // solid rock corner
+		["wad0bmp", "World/WorldTextures/RockSplit/ROCK10.BMP"], // rubble swept 0 times. 4 sweeps required to clear fully
+		["wad0bmp", "World/WorldTextures/RockSplit/Rock11.bmp"], // rubble swept 1 time. 3 sweeps required to clear fully
+		["wad0bmp", "World/WorldTextures/RockSplit/Rock12.bmp"], // rubble swept 2 times. 2 sweeps required to clear fully
+		["wad0bmp", "World/WorldTextures/RockSplit/Rock13.bmp"], // rubble swept 3 times. 1 sweep required to clear fully
 		["img", "images\\spaces", "building site.png"], // building site
-		["wad0bmp", "World/WorldTextures/RockSplit/Rock30.bmp", "SlimySlugHole.png"], // hole out of which slimy slugs can emerge
-		["wad0bmp", "World/WorldTextures/RockSplit/rock24.bmp", "hard rock reinforcement.png"], // reinforcement overlay for reinforced walls
-		["wad0bmp", "World/WorldTextures/RockSplit/ROCK70.BMP", "rock70"], // rock theme non touched cover
+		["wad0bmp", "World/WorldTextures/RockSplit/Rock30.bmp"], // hole out of which slimy slugs can emerge
+		["wad0bmp", "World/WorldTextures/RockSplit/rock24.bmp"], // reinforcement overlay for reinforced walls
+		["wad0bmp", "World/WorldTextures/RockSplit/ROCK70.BMP"], // rock theme non touched cover
 
 		// buildings
 		["img", "images\\buildings", "teleport pad.png"], // teleport pad
@@ -212,22 +214,22 @@ object = {
 		["img", "images\\objects", "raider.png"], // rock raider
 
 		// buttons
-		["wad0bmp", "Interface/Icons/minifigures.bmp", "teleport raider button.png"], // teleport rock raider button
-		["wad0bmp", "Interface/Menus/MF_Pickup.bmp", "grab item button.png"], // button to instruct a raider to pick up item (collectable, dynamite, etc..)
-		["wad0bmp", "Interface/Menus/drill.bmp", "drill wall button.png"], // button to instruct a raider to drill a wall
-		["wad0bmp", "Interface/Menus/Reinforce.bmp", "Reinforce.png"], // button to instruct a raider to reinforce a wall
-		["wad0bmp", "Interface/Menus/ClearRubble.bmp", "clear rubble button.png"], // button to instruct a raider to clear rubble
-		["wad0bmp", "Interface/Menus/buildpath.bmp", "build power path button.png"], // button to instruct a raider to build a power path
-		["wad0bmp", "Interface/Menus/diguppath.bmp", "diguppath"], // button to destroy a power path
-		["wad0bmp", "Interface/Menus/UnloadMinifigure.bmp", "unload minifig button.png"], // unload minifig button (drops held object)
-		["wad0bmp", "Interface/Menus/STOPeverything.bmp", "stop minifig button.png"], // stop minifig button (stops any performed task)
-		["wad0bmp", "Interface/Menus/Upgrade.bmp", "upgrade button.png"], // button to upgrade a raider or building
-		["wad0bmp", "Interface/Menus/telepbuilding.bmp", "telepbuilding"], // button to upgrade a raider or building
-		["wad0bmp", "Interface/Menus/building.bmp", "open building menu button.png"], // button to open up the building menu
-		["wad0bmp", "Interface/Menus/BIGvehicle.bmp", "open large vehicle menu button.png"], // button to open up the large vehicle menu
-		["wad0bmp", "Interface/Menus/SMvehicle.bmp", "open small vehicle menu button.png"], // button to open up the small vehicle menu
-		["wad0bmp", "Interface/Menus/dynamite.bmp", "use dynamite.png"], // button to instruct a raider to blow up a wall using dynamite
-		["wad0bmp", "Interface/Menus/exit.bmp", "exit vehicle.png"], // button to instruct a raider to exit the current vehicle
+		["wad0bmp", "Interface/Icons/minifigures.bmp"], // teleport rock raider button
+		["wad0bmp", "Interface/Menus/MF_Pickup.bmp"], // button to instruct a raider to pick up item (collectable, dynamite, etc..)
+		["wad0bmp", "Interface/Menus/drill.bmp"], // button to instruct a raider to drill a wall
+		["wad0bmp", "Interface/Menus/Reinforce.bmp"], // button to instruct a raider to reinforce a wall
+		["wad0bmp", "Interface/Menus/ClearRubble.bmp"], // button to instruct a raider to clear rubble
+		["wad0bmp", "Interface/Menus/buildpath.bmp"], // button to instruct a raider to build a power path
+		["wad0bmp", "Interface/Menus/diguppath.bmp"], // button to destroy a power path
+		["wad0bmp", "Interface/Menus/UnloadMinifigure.bmp"], // unload minifig button (drops held object)
+		["wad0bmp", "Interface/Menus/STOPeverything.bmp"], // stop minifig button (stops any performed task)
+		["wad0bmp", "Interface/Menus/Upgrade.bmp"], // button to upgrade a raider or building
+		["wad0bmp", "Interface/Menus/telepbuilding.bmp"], // button to upgrade a raider or building
+		["wad0bmp", "Interface/Menus/building.bmp"], // button to open up the building menu
+		["wad0bmp", "Interface/Menus/BIGvehicle.bmp"], // button to open up the large vehicle menu
+		["wad0bmp", "Interface/Menus/SMvehicle.bmp"], // button to open up the small vehicle menu
+		["wad0bmp", "Interface/Menus/dynamite.bmp"], // button to instruct a raider to blow up a wall using dynamite
+		["wad0bmp", "Interface/Menus/exit.bmp"], // button to instruct a raider to exit the current vehicle
 
 		// grab item buttons FIXME replace with wadbmp
 		["img", "images\\buttons", "getTool.png"], // button to open the 'get tool' raider submenu
@@ -270,29 +272,29 @@ object = {
 		["img", "images\\buttons", "make LargeTeleporter.png"], // button to select to build super teleport from building menu
 
 		// interface
-		["wad0alpha", "Interface/RightPanel/CrystalSideBar.bmp", "CrystalSideBar"], // right side overlay showing crystal and ore count
-		["wad0alpha", "Interface/RightPanel/CrystalSideBar_Ore.bmp", "CrystalSideBar_Ore"], // image representing a single piece of ore on the overlay
-		["wad0alpha", "Interface/RightPanel/NoSmallCrystal.bmp", "NoSmallCrystal"], // image representing no energy crystal on the overlay
-		["wad0alpha", "Interface/RightPanel/SmallCrystal.bmp", "SmallCrystal"], // image representing a single energy crystal on the overlay
-		["wad0alpha", "Interface/RightPanel/UsedCrystal.bmp", "UsedCrystal"], // image representing a single in use energy crystal on the overlay
+		["wad0alpha", "Interface/RightPanel/CrystalSideBar.bmp"], // right side overlay showing crystal and ore count
+		["wad0alpha", "Interface/RightPanel/CrystalSideBar_Ore.bmp"], // image representing a single piece of ore on the overlay
+		["wad0alpha", "Interface/RightPanel/NoSmallCrystal.bmp"], // image representing no energy crystal on the overlay
+		["wad0alpha", "Interface/RightPanel/SmallCrystal.bmp"], // image representing a single energy crystal on the overlay
+		["wad0alpha", "Interface/RightPanel/UsedCrystal.bmp"], // image representing a single in use energy crystal on the overlay
 
-		["wad0alpha", "Interface/IconPanel/IconPanel1.bmp", "IconPanel1"], // top right menu with space for 1 item and back button
-		["wad0alpha", "Interface/IconPanel/IconPanel2.bmp", "IconPanel2"], // top right menu with space for 2 items and back button
-		["wad0alpha", "Interface/IconPanel/IconPanel3.bmp", "IconPanel3"], // top right menu with space for 3 items and back button
-		["wad0alpha", "Interface/IconPanel/IconPanel3WOBack.bmp", "IconPanel3WOBack"], // top right menu with space for 3 items without back button
-		["wad0alpha", "Interface/IconPanel/IconPanel4.bmp", "IconPanel4"], // top right menu with space for 4 items and back button
-		["wad0alpha", "Interface/IconPanel/IconPanel4WOBack.bmp", "IconPanel4WOBack"], // top right menu with space for 4 items without back button
-		["wad0alpha", "Interface/IconPanel/IconPanel5.bmp", "IconPanel5"], // top right menu with space for 5 items and back button
-		["wad0alpha", "Interface/IconPanel/IconPanel6.bmp", "IconPanel6"], // top right menu with space for 6 items and back button
-		["wad0alpha", "Interface/IconPanel/IconPanel7.bmp", "IconPanel7"], // top right menu with space for 7 items and back button
-		["wad0alpha", "Interface/IconPanel/IconPanel8.bmp", "IconPanel8"], // top right menu with space for 8 items and back button
-		["wad0alpha", "Interface/IconPanel/IconPanel9.bmp", "IconPanel9"], // top right menu with space for 9 items and back button
-		["wad0alpha", "Interface/IconPanel/IconPanel10.bmp", "IconPanel10"], // top right menu with space for 10 items and back button
-		["wad0alpha", "Interface/IconPanel/IconPanel11.bmp", "IconPanel11"], // top right menu with space for 11 items and back button
-		["wad0alpha", "Interface/IconPanel/IconPanel11.bmp", "IconPanel12"], // same as IconPanel4 possibly obsolete
+		["wad0alpha", "Interface/IconPanel/IconPanel1.bmp"], // top right menu with space for 1 item and back button
+		["wad0alpha", "Interface/IconPanel/IconPanel2.bmp"], // top right menu with space for 2 items and back button
+		["wad0alpha", "Interface/IconPanel/IconPanel3.bmp"], // top right menu with space for 3 items and back button
+		["wad0alpha", "Interface/IconPanel/IconPanel3WOBack.bmp"], // top right menu with space for 3 items without back button
+		["wad0alpha", "Interface/IconPanel/IconPanel4.bmp"], // top right menu with space for 4 items and back button
+		["wad0alpha", "Interface/IconPanel/IconPanel4WOBack.bmp"], // top right menu with space for 4 items without back button
+		["wad0alpha", "Interface/IconPanel/IconPanel5.bmp"], // top right menu with space for 5 items and back button
+		["wad0alpha", "Interface/IconPanel/IconPanel6.bmp"], // top right menu with space for 6 items and back button
+		["wad0alpha", "Interface/IconPanel/IconPanel7.bmp"], // top right menu with space for 7 items and back button
+		["wad0alpha", "Interface/IconPanel/IconPanel8.bmp"], // top right menu with space for 8 items and back button
+		["wad0alpha", "Interface/IconPanel/IconPanel9.bmp"], // top right menu with space for 9 items and back button
+		["wad0alpha", "Interface/IconPanel/IconPanel10.bmp"], // top right menu with space for 10 items and back button
+		["wad0alpha", "Interface/IconPanel/IconPanel11.bmp"], // top right menu with space for 11 items and back button
+		["wad0alpha", "Interface/IconPanel/IconPanel11.bmp"], // same as IconPanel4 possibly obsolete
 
-		["wad0alpha", "Interface/IconPanel/Back_HL.bmp", "Back_HL"], // back button image used in top right icon panel
-		["wad0alpha", "Interface/IconPanel/Back_PR.bmp", "Back_PR"], // back button image used in top right icon panel
+		["wad0alpha", "Interface/IconPanel/Back_HL.bmp"], // back button image used in top right icon panel
+		["wad0alpha", "Interface/IconPanel/Back_PR.bmp"], // back button image used in top right icon panel
 
 		// effects
 		["img", "images\\objects", "landslide.png"], // image that appears during a landslide
@@ -330,6 +332,7 @@ object = {
 		["js", "classes\\vehicles", "SmallTransportTruck.js"], // small transport truck class
 
 		// gui elements
+		["js", "gui", "BitmapFont.js"],
 		["js", "gui", "MainMenu.js"], // GUI elements used in the main menu
 
 		// level data list files

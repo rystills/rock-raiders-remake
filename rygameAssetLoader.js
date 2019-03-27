@@ -36,9 +36,14 @@ function finishLoading() {
 function loadImageAsset(path, name, callback) {
 	const img = new Image();
 
-	if (callback != null) {
-		img.onload = callback;
-	}
+	img.onload = function () {
+		const context = createContext(img.naturalWidth, img.naturalHeight, false);
+		context.drawImage(img, 0, 0);
+		GameManager.images[name] = context;
+		if (callback != null) {
+			callback();
+		}
+	};
 
 	GameManager.images[name] = img;
 	img.src = path;
@@ -50,17 +55,17 @@ function loadAlphaImageAsset(path, name, callback) {
 	img.onload = function () {
 		const context = createContext(img.naturalWidth, img.naturalHeight, false);
 		context.drawImage(img, 0, 0);
-		const imgData = context.getImageData(0, 0, context.canvas.width, context.canvas.height);
-		let data = imgData.data;
-		for (let n = 0; n < data.length; n += 4) {
-			if (data[n] === 0 && data[n + 1] === 0 && data[n + 2] === 0) {
-				data[n + 3] = 0;
+		const imgData = context.getImageData(0, 0, context.width, context.height);
+		for (let n = 0; n < imgData.data.length; n += 4) {
+			if (imgData.data[n] <= 2 && imgData.data[n + 1] <= 2 && imgData.data[n + 2] <= 2) { // some bitmaps contain 2/2/2 as "black" alpha background
+				imgData.data[n + 3] = 0;
 			}
 		}
-		imgData.data = data;
 		context.putImageData(imgData, 0, 0);
 		GameManager.images[name] = context;
-		callback();
+		if (callback != null) {
+			callback();
+		}
 	};
 
 	img.src = path;
@@ -162,13 +167,15 @@ function loadAssetNext() {
 			lastScriptName = curAsset[2];
 			loadScriptAsset(appendString + curAsset[2], loadAssetNext);
 		} else if (curAsset[0] === "img") {
-			loadImageAsset(appendString + curAsset[2], curAsset[2], loadAssetNext);
+			loadImageAsset(appendString + curAsset[2], curAsset[2].toLowerCase(), loadAssetNext);
 		} else if (curAsset[0] === "snd") {
 			loadSoundAsset(appendString + curAsset[2], curAsset[2], loadAssetNext);
 		} else if (curAsset[0] === "wad0bmp") {
-			loadImageAsset(wad0File.getEntry(curAsset[1]), curAsset[2], loadAssetNext);
+			loadImageAsset(wad0File.getEntry(curAsset[1]), curAsset[1].toLowerCase(), loadAssetNext);
 		} else if (curAsset[0] === "wad0alpha") {
-			loadAlphaImageAsset(wad0File.getEntry(curAsset[1]), curAsset[2], loadAssetNext);
+			loadAlphaImageAsset(wad0File.getEntry(curAsset[1]), curAsset[1].toLowerCase(), loadAssetNext);
+		} else if (curAsset[0] === "wad1txt") {
+			loadConfigurationAsset(wad1File.getEntry(curAsset[1]), curAsset[1], loadAssetNext);
 		}
 	} else {
 		finishLoading();
@@ -381,7 +388,7 @@ let lastScriptName = "";
 let wad0File;
 let wad1File;
 
-const loadingCanvas = document.getElementById('canvas');
+const loadingCanvas = document.getElementById('rygameCanvas');
 const loadingContext = loadingCanvas.getContext('2d');
 
 // clear the screen to black

@@ -1369,14 +1369,14 @@ function drawUI() {
 	}
 
 	// draw crystal and ore overlay
-	const crystalSideBarImage = GameManager.getImage("CrystalSideBar").canvas;
+	const crystalSideBarImage = GameManager.getImage("Interface/RightPanel/CrystalSideBar.bmp").canvas;
 	GameManager.drawSurface.drawImage(crystalSideBarImage, GameManager.screenWidth - crystalSideBarImage.width, 0);
 
 	// don't draw buttons when buildingPlacer is active
 	if (!buildingPlacer.visible) {
 		let numButtons = (activeIconPanel === "" && (selection === undefined || selection.length <= 0)) ? 4 : 2; // FIXME derive number of buttons from opened menu
 		const woBack = (activeIconPanel === "" && (selection === undefined || selection.length <= 0)) ? "WOBack" : "";
-		const imgName = "IconPanel" + numButtons.toString() + woBack;
+		const imgName = "Interface/IconPanel/IconPanel" + numButtons.toString() + woBack + ".bmp";
 		let imgIconPanel = GameManager.getImage(imgName).canvas;
 		GameManager.drawSurface.drawImage(imgIconPanel, GameManager.screenWidth - 16 - imgIconPanel.width, 8);
 		// attempt to draw buttons here so that they are rendered in front of other post-render graphics
@@ -1388,9 +1388,9 @@ function drawUI() {
 	// draw crystals
 	let curX = GameManager.screenWidth - 8;
 	let curY = GameManager.screenHeight - 32;
-	const imgNoCrystal = GameManager.getImage("NoSmallCrystal").canvas;
-	const imgSmallCrystal = GameManager.getImage("SmallCrystal").canvas;
-	const imgUsedCrystal = GameManager.getImage("UsedCrystal").canvas;
+	const imgNoCrystal = GameManager.getImage("Interface/RightPanel/NoSmallCrystal.bmp").canvas;
+	const imgSmallCrystal = GameManager.getImage("Interface/RightPanel/SmallCrystal.bmp").canvas;
+	const imgUsedCrystal = GameManager.getImage("Interface/RightPanel/UsedCrystal.bmp").canvas;
 	for (let i = 0; i < 20 && curY >= -Math.max(imgNoCrystal.height, imgSmallCrystal.height, imgUsedCrystal.height); ++i) {
 		let imgCrystal = imgNoCrystal;
 		// TODO show used crystals
@@ -1404,7 +1404,7 @@ function drawUI() {
 	// draw ore
 	curX = GameManager.screenWidth - 21;
 	curY = GameManager.screenHeight - 42;
-	const imgOre = GameManager.getImage("CrystalSideBar_Ore").canvas;
+	const imgOre = GameManager.getImage("Interface/RightPanel/CrystalSideBar_Ore.bmp").canvas;
 	for (let i = 0; i < collectedResources["ore"] && curY >= -imgOre.height; ++i) {
 		curY -= imgOre.height;
 		GameManager.drawSurface.drawImage(imgOre, curX - imgOre.width / 2, curY);
@@ -1445,7 +1445,7 @@ function drawRaiderInfo() {
 		const maxTools = 2 + selection[i].upgradeLevel;
 		for (let j = 0; j < maxTools; ++j) {
 			const curImageName = selection[i].tools.length > j ? "have " + selection[i].tools[j] + ".png" : "have am nothing.png";
-			GameManager.drawSurface.drawImage(GameManager.getImage(curImageName),
+			GameManager.drawSurface.drawImage(GameManager.getImage(curImageName).canvas,
 				selection[i].centerX() - (heldWidth * maxTools) / 2 + (heldWidth * j) - selection[i].drawLayer.cameraX,
 				selection[i].y - 28 - heldHeight - selection[i].drawLayer.cameraY);
 		}
@@ -1458,7 +1458,7 @@ function drawRaiderInfo() {
 	for (let i = 0; i < selection.length; ++i) {
 		for (let j = 0; j < 6; ++j) {
 			const curImageName = selection[i][skills[j][0]] ? skills[j][1] : "have am nothing.png";
-			GameManager.drawSurface.drawImage(GameManager.getImage(curImageName),
+			GameManager.drawSurface.drawImage(GameManager.getImage(curImageName).canvas,
 				selection[i].centerX() - (heldWidth * maxSkills) / 2 + (heldWidth * j) - selection[i].drawLayer.cameraX,
 				selection[i].y - 28 - selection[i].drawLayer.cameraY);
 		}
@@ -1749,14 +1749,14 @@ function createButtons() {
 	const buttonsX = gameLayer.width - 76;
 	// FIXME organize buttons as menus, use ImageButton with original bitmaps
 	// base level buttons
-	buttons.push(new Button(buttonsX, 17, 0, 0, "teleport raider button.png", gameLayer, "", createRaider, false, false));
-	buttons.push(new Button(buttonsX, 57, 0, 0, "open building menu button.png", gameLayer, "", openBuildingMenu, false, false));
-	buttons.push(new Button(buttonsX, 97, 0, 0, "open small vehicle menu button.png", gameLayer, "", openVehicleMenu, false, false));
-	buttons.push(new Button(buttonsX, 137, 0, 0, "open large vehicle menu button.png", gameLayer, "", null, false, false));
+	buttons.push(new Button(buttonsX, 17, 0, 0, "Interface/Icons/minifigures.bmp", gameLayer, "", createRaider, false, false));
+	buttons.push(new Button(buttonsX, 57, 0, 0, "Interface/Menus/building.bmp", gameLayer, "", openBuildingMenu, false, false));
+	buttons.push(new Button(buttonsX, 97, 0, 0, "Interface/Menus/SMvehicle.bmp", gameLayer, "", openVehicleMenu, false, false));
+	buttons.push(new Button(buttonsX, 137, 0, 0, "Interface/Menus/BIGvehicle.bmp", gameLayer, "", null, false, false));
 
 	// if selectionTypeBound is an empty list, the button will be visible for all selections except when selection == null
-	const iconPanelBackButton = new ImageButton(buttonsX - 31, 22, null, GameManager.getImage("Back_HL"), gameLayer, cancelSelection);
-	iconPanelBackButton.darkenedSurface = GameManager.getImage("Back_PR");
+	const iconPanelBackButton = new ImageButton(buttonsX - 31, 22, 0, null, GameManager.getImage("Interface/IconPanel/Back_HL.bmp"), gameLayer, cancelSelection);
+	iconPanelBackButton.darkenedSurface = GameManager.getImage("Interface/IconPanel/Back_PR.bmp");
 	iconPanelBackButton.additionalRequirement = function () {
 		return !(activeIconPanel === "" && (selection === undefined || selection.length <= 0));
 	};
@@ -1786,19 +1786,19 @@ function createButtons() {
 		["building"], ["super teleport"], true, true, null, buildRequirementsMet, ["super teleport"]));
 
 	// vehicle menu open buttons
-	buttons.push(new Button(buttonsX, 17, 0, 0, "make hoverboard.png", gameLayer, "", createVehicle, false, false, null,
+	buttons.push(new Button(buttonsX, 17, 0, 0, "Interface/Icons/hoverboard.bmp", gameLayer, "", createVehicle, false, false, null,
 		["vehicle"], ["hover scout"], true, true, null, buildRequirementsMet, ["hover scout"]));
-	buttons.push(new Button(buttonsX, 57, 0, 0, "make SmallDigger.png", gameLayer, "", createVehicle, false, false, null,
+	buttons.push(new Button(buttonsX, 57, 0, 0, "Interface/Icons/SmallDigger.bmp", gameLayer, "", createVehicle, false, false, null,
 		["vehicle"], ["small digger"], true, true, null, buildRequirementsMet, ["small digger"]));
-	buttons.push(new Button(buttonsX, 97, 0, 0, "make SmallTruck.png", gameLayer, "", createVehicle, false, false, null,
+	buttons.push(new Button(buttonsX, 97, 0, 0, "Interface/Icons/SmallTruck.bmp", gameLayer, "", createVehicle, false, false, null,
 		["vehicle"], ["small transport truck"], true, true, null, buildRequirementsMet, ["small transport truck"]));
 
 	// raider selected buttons
-	buttons.push(new Button(buttonsX, 17, 0, 0, "stop minifig button.png", gameLayer, "", stopMinifig, false, false, ["raider"], ["", "tool"]));
-	buttons.push(new Button(buttonsX, 57, 0, 0, "unload minifig button.png", gameLayer, "", unloadMinifig, false, false, ["raider"], ["", "tool"]));
+	buttons.push(new Button(buttonsX, 17, 0, 0, "Interface/Menus/STOPeverything.bmp", gameLayer, "", stopMinifig, false, false, ["raider"], ["", "tool"]));
+	buttons.push(new Button(buttonsX, 57, 0, 0, "Interface/Menus/UnloadMinifigure.bmp", gameLayer, "", unloadMinifig, false, false, ["raider"], ["", "tool"]));
 	buttons.push(new Button(buttonsX, 97, 0, 0, "getTool.png", gameLayer, "", openToolMenu, false, false, ["raider"], ["", "tool"]));
-	buttons.push(new Button(buttonsX, 137, 0, 0, "upgrade button.png", gameLayer, "", upgradeRaider, false, false, ["raider"], ["", "tool"]));
-	buttons.push(new Button(buttonsX, 177, 0, 0, "exit vehicle.png", gameLayer, "", exitVehicle, false, false, ["raider"], ["", "tool"]));
+	buttons.push(new Button(buttonsX, 137, 0, 0, "Interface/Menus/Upgrade.bmp", gameLayer, "", upgradeRaider, false, false, ["raider"], ["", "tool"]));
+	buttons.push(new Button(buttonsX, 177, 0, 0, "Interface/Menus/exit.bmp", gameLayer, "", exitVehicle, false, false, ["raider"], ["", "tool"]));
 
 	// get tool buttons
 	buttons.push(new Button(buttonsX - 40, 97, 0, 0, "get_Drill.png", gameLayer, "", getTool, false, false, ["raider"], ["tool"], ["drill"]));
@@ -1811,35 +1811,35 @@ function createButtons() {
 	buttons.push(new Button(buttonsX - 320, 97, 0, 0, "get_Sonic_Blaster.png", gameLayer, "", getTool, false, false, ["raider"], ["tool"], ["blaster"]));
 
 	// item selected buttons
-	buttons.push(new Button(buttonsX, 17, 0, 0, "grab item button.png", gameLayer, "", grabItem, false, false,
+	buttons.push(new Button(buttonsX, 17, 0, 0, "Interface/Menus/MF_Pickup.bmp", gameLayer, "", grabItem, false, false,
 		["ore", "crystal"]));
 
 	// drillable wall selected buttons
-	buttons.push(new Button(buttonsX, 17, 0, 0, "drill wall button.png", gameLayer, "", drillWall, false, false,
+	buttons.push(new Button(buttonsX, 17, 0, 0, "Interface/Menus/drill.bmp", gameLayer, "", drillWall, false, false,
 		["dirt", "loose rock", "ore seam", "energy crystal seam", "hard rock"]));
 
 	// re-inforcable wall selected
-	buttons.push(new Button(buttonsX, 57, 0, 0, "Reinforce.png", gameLayer, "", reinforceWall, false, false,
+	buttons.push(new Button(buttonsX, 57, 0, 0, "Interface/Menus/Reinforce.bmp", gameLayer, "", reinforceWall, false, false,
 		["dirt", "loose rock", "hard rock", "ore seam", "energy crystal seam"]));
 
 	// dynamitable wall selected buttons
-	buttons.push(new Button(buttonsX, 97, 0, 0, "use dynamite.png", gameLayer, "", dynamiteWall, false, false,
+	buttons.push(new Button(buttonsX, 97, 0, 0, "Interface/Menus/dynamite.bmp", gameLayer, "", dynamiteWall, false, false,
 		["dirt", "loose rock", "hard rock", "ore seam", "energy crystal seam"]));
 
 	// floor Space selected buttons
-	buttons.push(new Button(buttonsX, 17, 0, 0, "build power path button.png", gameLayer, "", buildPowerPath, false, false, ["ground"]));
-	const digupPathButton = new Button(buttonsX, 57, 0, 0, "diguppath", gameLayer, "", null, false, false, ["ground", "power path"]);
+	buttons.push(new Button(buttonsX, 17, 0, 0, "Interface/Menus/buildpath.bmp", gameLayer, "", buildPowerPath, false, false, ["ground"]));
+	const digupPathButton = new Button(buttonsX, 57, 0, 0, "Interface/Menus/diguppath.bmp", gameLayer, "", null, false, false, ["ground", "power path"]);
 	digupPathButton.additionalRequirement = function () {
 		return selectionType === "power path";
 	};
 	buttons.push(digupPathButton);
 
 	// rubble selection buttons
-	buttons.push(new Button(buttonsX, 17, 0, 0, "clear rubble button.png", gameLayer, "", clearRubble, false, false,
+	buttons.push(new Button(buttonsX, 17, 0, 0, "Interface/Menus/ClearRubble.bmp", gameLayer, "", clearRubble, false, false,
 		["rubble 1", "rubble 2", "rubble 3", "rubble 4"]));
 
 	// building selection buttons
-	buttons.push(new Button(buttonsX, 17, 0, 0, "upgrade button.png", gameLayer, "", upgradeBuilding, false, false,
+	buttons.push(new Button(buttonsX, 17, 0, 0, "Interface/Menus/Upgrade.bmp", gameLayer, "", upgradeBuilding, false, false,
 		["tool store", "teleport pad", "power station", "docks", "geological center", "support station",
 			"super teleport", "mining laser", "upgrade station", "ore refinery"], null, null, true, true, null, function () {
 			if (selection) {
@@ -1849,7 +1849,7 @@ function createButtons() {
 			}
 			return false;
 		}));
-	buttons.push(new Button(buttonsX, 57, 0, 0, "telepbuilding", gameLayer, "", null, false, false,
+	buttons.push(new Button(buttonsX, 57, 0, 0, "Interface/Menus/telepbuilding.bmp", gameLayer, "", null, false, false,
 		["tool store", "teleport pad", "power station", "docks", "geological center", "support station",
 			"super teleport", "mining laser", "upgrade station", "ore refinery"]));
 
@@ -1857,7 +1857,7 @@ function createButtons() {
 	pauseButtons.push(new Button(100, gameLayer.height / 2 + 50, 0, 0, null, gameLayer, "Abort Mission", showScoreScreen, false, false, null, null, [false]));
 
 	scoreScreenButtons.push(new Button(200, 135, 0, 0, null, scoreScreenLayer, "Score: 0", null, false, true, null, null, [], false));
-	scoreScreenButtons.push(new Button(20, 200, 0, 0, null, scoreScreenLayer, "Continue", goToLevelSelect, false, true));
+	scoreScreenButtons.push(new Button(20, 200, 0, 0, null, scoreScreenLayer, "Continue", goToLevelSelect, false, true, null, null, [false, false]));
 }
 
 /**
@@ -1873,9 +1873,9 @@ function createLevelSelectButtons() {
 	}
 
 	// back button
-	let levelSelectBackButton = new ImageButton(6, GameManager.gameHeight - 44, GameManager.getImage("LP_Normal.bmp"),
-		GameManager.getImage("LP_Glow.bmp"), levelSelectLayer, returnToMainMenu, false);
-	levelSelectBackButton.darkenedSurface = toContext(GameManager.getImage("LP_Dull.bmp"));
+	let levelSelectBackButton = new ImageButton(6, GameManager.gameHeight - 44, 0, GameManager.getImage("Interface/Frontend/LP_Normal.bmp"),
+		GameManager.getImage("Interface/Frontend/LP_Glow.bmp"), levelSelectLayer, returnToMainMenu, [true], false);
+	levelSelectBackButton.darkenedSurface = GameManager.getImage("Interface/Frontend/LP_Dull.bmp");
 	levelSelectUIButtons.push(levelSelectBackButton);
 }
 
@@ -1995,48 +1995,6 @@ function levelIsUnlocked(levelNum) {
 	}
 }
 
-BitmapFont.prototype.createTextImage = function (text) {
-	let width = 0;
-	for (let c = 0; c < text.length; c++) {
-		width += this.letters[text.charAt(c)].width;
-	}
-	const surface = createContext(width, this.maxCharHeight, false);
-	let x = 0;
-	for (let c = 0; c < text.length; c++) {
-		const letterImg = this.letters[text.charAt(c)];
-		surface.drawImage(letterImg, x, 0, letterImg.width, letterImg.height);
-		x += letterImg.width;
-	}
-	return surface;
-};
-
-function BitmapFont(chars, image, maxCharWidth, maxCharHeight) {
-	this.letters = [];
-	this.maxCharHeight = maxCharHeight;
-	for (let i = 0; i < chars.length; i++) {
-		const tmpContext = createContext(maxCharWidth, maxCharHeight, false);
-		tmpContext.drawImage(image, (i % 10) * maxCharWidth, Math.floor(i / 10) * maxCharHeight, maxCharWidth, maxCharHeight, 0, 0, maxCharWidth, maxCharHeight);
-		let tmpImage = tmpContext.getImageData(0, 0, maxCharWidth, maxCharHeight);
-		const imgData = tmpImage.data;
-		let actualWidth = 0;
-		for (let x = 0; x < maxCharWidth; x++) {
-			if (imgData[x * 4] === 255) { // red pixel indicates end of character
-				actualWidth = x;
-				break;
-			}
-		}
-		for (let x = 0; x < imgData.length; x += 4) {
-			if (imgData[x] + imgData[x + 1] + imgData[x + 2] === 0) {
-				imgData[x + 3] = 0; // set alpha channel to fully transparent for black pixels
-			}
-		}
-		tmpImage.data = imgData;
-		const context = createContext(actualWidth, maxCharHeight, false);
-		context.putImageData(tmpImage, 0, 0);
-		this.letters[chars[i]] = context.canvas;
-	}
-}
-
 /**
  * create all menu screen buttons once here
  */
@@ -2045,29 +2003,10 @@ function createMenuButtons() {
 	let xPos = 320;
 	let yPos = 240;
 
-	const chars = [" ", "!", "\"", "#", "$", "%", "⌵", "`", "(", ")",
-		"*", "+", ",", "-", ".", "/", "0", "1", "2", "3",
-		"4", "5", "6", "7", "8", "9", ":", ";", "<", "=",
-		">", "?", "@", "A", "B", "C", "D", "E", "F", "G",
-		"H", "I", "J", "K", "L", "M", "N", "O", "P", "Q",
-		"R", "S", "T", "U", "V", "W", "X", "Y", "Z", "[",
-		"\\", "]", "^", "_", "'", "a", "b", "c", "d", "e",
-		"f", "g", "h", "i", "j", "k", "l", "m", "n", "o",
-		"p", "q", "r", "s", "t", "u", "v", "w", "x", "y",
-		"z", "Ä", "Å", "Á", "À", "Â", "Ã", "Ą", "ä", "å",
-		"á", "à", "â", "ã", "ą", "Ë", "E̊", "É", "È", "É",
-		"Ę", "ë", "e̊", "é", "è", "e̊", "ę̊", "", "", "",
-		"", "", "", "", "", "Ö", "", "", "", "",
-		"ö", "", "", "", "", "Ü", "", "", "", "ü",
-		"", "", "", "", "", "", "", "", "", "",
-		"", "", "", "", "", "", "", "", "", "",
-		"", "", "", "", "", "", "", "Ñ", "", "ñ",
-		""
-	]; // TODO complete this character list
-	const fontLow = new BitmapFont(chars, GameManager.getImage("Menu_Font_LO.bmp"), 38, 43);
-	const fontHigh = new BitmapFont(chars, GameManager.getImage("Menu_Font_HI.bmp"), 38, 43);
+	const fontLow = new BitmapFont("Interface/FrontEnd/Menu_Font_LO.bmp");
+	const fontHigh = new BitmapFont("Interface/FrontEnd/Menu_Font_HI.bmp");
 
-	menuButtons.push(new MainMenuButton(xPos, yPos, "Start Game", fontLow, fontHigh, menuLayer, goToLevelSelect, [true]));
+	menuButtons.push(new MainMenuButton(xPos, yPos, "Start Game", fontLow, fontHigh, menuLayer, goToLevelSelect, [true, true]));
 	xPos = 250;
 	yPos += 20;
 
@@ -2092,12 +2031,7 @@ function createMenuButtons() {
 /**
  * switch to the level select layer
  */
-function goToLevelSelect(resetCamera) {
-	//turn off score screen music if it's currently playing
-	if (musicPlayer.trackNum == -1) {
-		GameManager.sounds["score screen"].pause();
-		GameManager.sounds["score screen"].currentTime = 0;
-	}
+function goToLevelSelect(resetCamera, keepMusic) {
 	menuLayer.active = false;
 	levelSelectLayer.active = true;
 	scoreScreenLayer.active = false;
@@ -2105,14 +2039,10 @@ function goToLevelSelect(resetCamera) {
 	if (resetCamera) {
 		levelSelectLayer.cameraY = 0;
 	}
-}
-
-/**
- * dummy function to always disable buttons when applied as an additional requirement
- * @returns boolean false
- */
-function grayedOut() {
-	return false;
+	if (!keepMusic) {
+		musicPlayer.changeTrack("menu theme");
+		stopAllSounds();
+	}
 }
 
 /**
@@ -2158,19 +2088,22 @@ function clearData() {
 	for (let i = 0; i < GameManager.scriptObjects["levelList.js"].levels.length; ++i) {
 		localStorage.removeItem(GameManager.scriptObjects["levelList.js"].levels[i]);
 	}
+	localStorage.removeItem("fog");
+	localStorage.removeItem("mousePanning");
+	localStorage.removeItem("debug");
 }
 
 /**
  * switch layers to the main menu, stopping all sounds and toggling all game-variables off
  */
-function returnToMainMenu(keepMusic = true) {
+function returnToMainMenu(keepMusic = false) {
 	// toggle game and menu layers and swap music tracks, as well as update level score strings if coming from score screen
 	menuLayer.active = true;
 	levelSelectLayer.active = false;
 	scoreScreenLayer.active = false;
 	gameLayer.active = false;
 	if (!keepMusic) {
-		musicPlayer.changeLevels();
+		musicPlayer.changeTrack("menu theme");
 		stopAllSounds();
 	}
 	buildingPlacer.stop();
@@ -2221,14 +2154,14 @@ function stopAllSounds() {
  * @param name: the name of the level to switch to
  */
 function resetLevelVars(name) {
-	if (devMode !== "true") {
+	if (!GameManager.devMode) {
 		blockPageExit();
 	}
 	menuLayer.active = false;
 	levelSelectLayer.active = false;
 	scoreScreenLayer.active = false;
 	gameLayer.active = true;
-	musicPlayer.changeLevels();
+	musicPlayer.changeTrack();
 	collectedResources = {"ore": 0, "crystal": 0};
 	reservedResources = {"ore": 0, "crystal": 0};
 	selectionRectCoords = {x1: null, y1: null};
@@ -2275,10 +2208,12 @@ function setValue(name, value) {
 /**
  * get HTML5 local storage variable value
  * @param name: the name of the local storage variable whose value we want
+ * @param valueDefault: An optional default value
  * @returns string the value stored in the local storage variable with the input name
  */
-function getValue(name) {
-	return localStorage.getItem(name);
+function getValue(name, valueDefault) {
+	const val = localStorage.getItem(name);
+	return val !== null || !(valueDefault) ? val : valueDefault;
 }
 
 /**
@@ -2293,7 +2228,7 @@ function initGlobals() {
 	// if true, this creates the "fog of war" type effect where unrevealed Spaces appear as solid rock (should only be set to false for debugging purposes)
 	maskUntouchedSpaces = getValue("fog") !== "false";
 	// can we scroll the screen using the mouse?
-	mousePanning = getValue("mousePanning") === "true";
+	mousePanning = getValue("mousePanning", !GameManager.devMode);
 	// can we scroll the screen using the arrow keys?
 	keyboardPanning = true;
 	// should the game render any active debug info?
@@ -2304,6 +2239,7 @@ function initGlobals() {
 	gameLayer = new Layer(0, 0, 1, 1, GameManager.screenWidth, GameManager.screenHeight);
 	scoreScreenLayer = new Layer(0, 0, 1, 1, GameManager.screenWidth, GameManager.screenHeight);
 	musicPlayer = new MusicPlayer();
+	musicPlayer.changeTrack("menu theme");
 	buttons = new ObjectGroup();
 	pauseButtons = new ObjectGroup();
 	menuButtons = new ObjectGroup();
@@ -2406,9 +2342,9 @@ function showScoreScreen(completedMission) {
 	levelSelectLayer.active = false;
 	scoreScreenLayer.active = true;
 	gameLayer.active = false;
-	musicPlayer.changeLevels();
+	musicPlayer.changeTrack("score screen");
 	stopAllSounds();
-	if (devMode !== "true") {
+	if (!GameManager.devMode) {
 		unblockPageExit();
 	}
 	if (completedMission) {
@@ -2435,16 +2371,12 @@ function checkCloseMenu() {
 function update() {
 	// menu update
 	if (menuLayer.active) {
-		// update music
-		musicPlayer.trackNum = 0;
-		musicPlayer.update();
-
 		// update objects
 		GameManager.updateObjects();
 		menuButtons.update();
 
 		// pre-render; draw menu background
-		GameManager.drawSurface.drawImage(GameManager.getImage("MenuBGpic.png"), 0, 0, GameManager.screenWidth, GameManager.screenHeight);
+		GameManager.drawSurface.drawImage(GameManager.getImage("Interface/FrontEnd/MenuBGpic.bmp").canvas, 0, 0, GameManager.screenWidth, GameManager.screenHeight);
 
 		// inital render; draw all rygame objects
 		GameManager.drawFrame();
@@ -2452,18 +2384,14 @@ function update() {
 
 	// level select update
 	else if (levelSelectLayer.active) {
-		// update music
-		musicPlayer.trackNum = 0;
-		musicPlayer.update();
-
-		let levelpickImage = GameManager.getImage("Levelpick.png");
+		let levelpickImage = GameManager.getImage("Interface/LEVELPICKER/Levelpick.bmp");
 		let levelpickHeight = levelpickImage.height * GameManager.getScreenZoom();
 
 		// update input
 		checkScrollLevelSelect(levelpickHeight);
 
 		// draw level select image scrolled according to current scroll value (in front of buttons to hide overlaid pixels when highlighted or darkened)
-		GameManager.drawSurface.drawImage(levelpickImage, 0, -levelSelectLayer.cameraY, GameManager.screenWidth, levelpickHeight);
+		GameManager.drawSurface.drawImage(levelpickImage.canvas, 0, -levelSelectLayer.cameraY, GameManager.screenWidth, levelpickHeight);
 
 		// update objects
 		GameManager.updateObjects();
@@ -2472,7 +2400,7 @@ function update() {
 		// inital render; draw all rygame objects
 		GameManager.drawFrame();
 
-		GameManager.drawSurface.drawImage(GameManager.getImage("LowerPanel.bmp").canvas, 0, 0, GameManager.screenWidth, GameManager.screenHeight);
+		GameManager.drawSurface.drawImage(GameManager.getImage("Interface/Frontend/LowerPanel.bmp").canvas, 0, 0, GameManager.screenWidth, GameManager.screenHeight);
 
 		// draw ui buttons on top
 		drawLevelSelectUIButtons();
@@ -2481,10 +2409,6 @@ function update() {
 
 	// score screen update
 	else if (scoreScreenLayer.active) {
-		// update music
-		musicPlayer.trackNum = -1;
-		musicPlayer.update();
-
 		// update objects
 		GameManager.updateObjects();
 		scoreScreenButtons.update();
@@ -2504,14 +2428,10 @@ function update() {
 	else if (gameLayer.active) {
 		if (awaitingStart) {
 			// enter key pressed
-			if (GameManager.keyStates[String.fromCharCode(13)]) {
+			if (GameManager.keyStates[String.fromCharCode(13)] || GameManager.keyStates[" "] || GameManager.mouseReleasedLeft) {
 				awaitingStart = false;
-				// update music
-				musicPlayer.playRandomSong();
 			}
 		} else {
-			// update music regardless of game state
-			musicPlayer.update();
 			checkTogglePause();
 			if (!paused) {
 				// update input
@@ -2565,6 +2485,11 @@ function update() {
 	}
 }
 
+// to instant load a level append ?devmode=true&level=03 to the URL
+const url = new URL(window.location.href);
+GameManager.devMode = url.searchParams.get("devmode") === "true";
+const levelFromUrl = url.searchParams.get("level");
+
 // split level data files (combined for faster loading)
 Object.keys(GameManager.scriptObjects["levels.js"]).forEach(function (key) {
 	GameManager.scriptObjects[key] = GameManager.scriptObjects["levels.js"][key];
@@ -2576,11 +2501,7 @@ GameManager.initializeRygame(0);
 
 initGlobals();
 
-// to instant load a level append ?devmode=true&level=03 to the URL
-const url = new URL(window.location.href);
-const devMode = url.searchParams.get("devmode");
-const levelFromUrl = url.searchParams.get("level");
-if (devMode === "true") {
+if (GameManager.devMode) {
 	if (levelFromUrl) {
 		resetLevelVars(levelFromUrl);
 		awaitingStart = false;
