@@ -643,6 +643,19 @@ GameManagerInternal.prototype.getImage = function (imageName) {
 	}
 };
 
+GameManagerInternal.prototype.getFont = function (fontName) {
+	if (!fontName || fontName.length === 0) {
+		throw "fontName must not be undefined, null or empty - was " + fontName;
+	} else {
+		const lFontName = fontName.toLowerCase();
+		if (!(lFontName in this.fonts) || this.fonts[lFontName] === undefined || this.fonts[lFontName] === null) {
+			console.error("Font '" + fontName + "' unknown! Using static placeholder font image instead");
+			this.fonts[lFontName] = new DummyFont();
+		}
+		return this.fonts[lFontName];
+	}
+};
+
 /**
  * GameManagerInternal constructor: initialize variables stored and maintained by the GameManager
  */
@@ -654,6 +667,8 @@ function GameManagerInternal() {
 	this.sounds = [];
 	// list of script resources
 	this.scriptObjects = [];
+	// list of bitmap fonts
+	this.fonts = [];
 	this.fps = 40;
 	this.keyStates = [];
 	this.completeLayerList = [];

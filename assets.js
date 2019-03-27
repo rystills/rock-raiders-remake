@@ -9,13 +9,14 @@ object = {
 		["wad0bmp", "Languages/Loading.bmp"], // loading screen image
 		["wad0bmp", "Interface/FrontEnd/gradient.bmp"], // loading bar container image
 		["js", "", "loadingScreenOverride.js"], // script to override loading screen to Rock Raiders loading screen
+		["js", "gui", "BitmapFont.js"], // important, must be loaded before creating UI elements
 
 		// ~images~
 		// menu resources
 		["wad0bmp", "Interface/FrontEnd/MenuBGpic.bmp"], // main menu background
-		["wad0alpha", "Interface/FrontEnd/Menu_Font_LO.bmp"], // main menu font
-		["wad0alpha", "Interface/FrontEnd/Menu_Font_HI.bmp"], // (highlighted) main menu font
-		["wad0alpha", "Interface/Fonts/Font5_Hi.bmp"],
+		["wad0font", "Interface/FrontEnd/Menu_Font_LO.bmp"], // main menu font
+		["wad0font", "Interface/FrontEnd/Menu_Font_HI.bmp"], // (highlighted) main menu font
+		["wad0font", "Interface/Fonts/Font5_Hi.bmp"],
 		["wad0bmp", "Interface/Frontend/LP_Normal.bmp"], // back button in level select view
 		["wad0bmp", "Interface/Frontend/LP_Glow.bmp"], // back button in level select view (hovered)
 		["wad0bmp", "Interface/Frontend/LP_Dull.bmp"], // back button in level select view (pressed)
@@ -332,7 +333,6 @@ object = {
 		["js", "classes\\vehicles", "SmallTransportTruck.js"], // small transport truck class
 
 		// gui elements
-		["js", "gui", "BitmapFont.js"],
 		["js", "gui", "MainMenu.js"], // GUI elements used in the main menu
 
 		["wad1txt", "Lego.cfg", "Lego.cfg"], // configuration file with all parameters

@@ -49,6 +49,12 @@ function loadImageAsset(path, name, callback) {
 	img.src = path;
 }
 
+/**
+ * Adds an alpha channel to the bitmap by setting alpha to 0 for all black pixels
+ * @param path
+ * @param name
+ * @param callback
+ */
 function loadAlphaImageAsset(path, name, callback) {
 	const img = new Image();
 
@@ -57,12 +63,40 @@ function loadAlphaImageAsset(path, name, callback) {
 		context.drawImage(img, 0, 0);
 		const imgData = context.getImageData(0, 0, context.width, context.height);
 		for (let n = 0; n < imgData.data.length; n += 4) {
-			if (imgData.data[n] <= 2 && imgData.data[n + 1] <= 2 && imgData.data[n + 2] <= 2) { // some bitmaps contain 2/2/2 as "black" alpha background
+			if (imgData.data[n] <= 2 && imgData.data[n + 1] <= 2 && imgData.data[n + 2] <= 2) { // Interface/Reward/RSoxygen.bmp uses 2/2/2 as "black" alpha background
 				imgData.data[n + 3] = 0;
 			}
 		}
 		context.putImageData(imgData, 0, 0);
 		GameManager.images[name] = context;
+		if (callback != null) {
+			callback();
+		}
+	};
+
+	img.src = path;
+}
+
+/**
+ * Adds an alpha channel to the image by setting alpha to 0 for all pixels, which have the same color as the pixel at position 0,0
+ * @param path
+ * @param name
+ * @param callback
+ */
+function loadFontImageAsset(path, name, callback) {
+	const img = new Image();
+
+	img.onload = function () {
+		const context = createContext(img.naturalWidth, img.naturalHeight, false);
+		context.drawImage(img, 0, 0);
+		const imgData = context.getImageData(0, 0, context.width, context.height);
+		for (let n = 0; n < imgData.data.length; n += 4) {
+			if (imgData.data[n] === imgData.data[0] && imgData.data[n + 1] === imgData.data[1] && imgData.data[n + 2] === imgData.data[2]) {
+				imgData.data[n + 3] = 0;
+			}
+		}
+		context.putImageData(imgData, 0, 0);
+		GameManager.fonts[name] = new BitmapFont(context);
 		if (callback != null) {
 			callback();
 		}
@@ -259,6 +293,8 @@ function loadAssetNext() {
 			loadImageAsset(wad0File.getEntry(curAsset[1]), curAsset[1].toLowerCase(), loadAssetNext);
 		} else if (curAsset[0] === "wad0alpha") {
 			loadAlphaImageAsset(wad0File.getEntry(curAsset[1]), curAsset[1].toLowerCase(), loadAssetNext);
+		} else if (curAsset[0] === "wad0font") {
+			loadFontImageAsset(wad0File.getEntry(curAsset[1]), curAsset[1].toLowerCase(), loadAssetNext);
 		} else if (curAsset[0] === "wad1txt") {
 			loadConfigurationAsset(wad1File.getEntry(curAsset[1]), curAsset[1], loadAssetNext);
 		}

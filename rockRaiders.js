@@ -2003,8 +2003,8 @@ function createMenuButtons() {
 	let xPos = 320;
 	let yPos = 240;
 
-	const fontLow = new BitmapFont("Interface/FrontEnd/Menu_Font_LO.bmp");
-	const fontHigh = new BitmapFont("Interface/FrontEnd/Menu_Font_HI.bmp");
+	const fontLow = GameManager.getFont("Interface/FrontEnd/Menu_Font_LO.bmp");
+	const fontHigh = GameManager.getFont("Interface/FrontEnd/Menu_Font_HI.bmp");
 
 	menuButtons.push(new MainMenuButton(xPos, yPos, "Start Game", fontLow, fontHigh, menuLayer, goToLevelSelect, [true, true]));
 	xPos = 250;
