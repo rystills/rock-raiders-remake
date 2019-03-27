@@ -8,7 +8,7 @@ LandSlide.prototype.update = function () {
 	// update effect transparency to create a fade-out
 	this.drawSurface.clearRect(0, 0, this.image.width, this.image.height);
 	this.drawSurface.globalAlpha = this.life / this.maxLife;
-	this.drawSurface.drawImage(this.image, 0, 0);
+	this.drawSurface.drawImage(this.image.canvas, 0, 0);
 	// deal damage to raiders in 5 intervals over lifespan (every 10 frames)
 	if (this.life % 10 === 0) {
 		for (let i = 0; i < raiders.objectList.length; ++i) {

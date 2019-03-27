@@ -36,9 +36,14 @@ function finishLoading() {
 function loadImageAsset(path, name, callback) {
 	const img = new Image();
 
-	if (callback != null) {
-		img.onload = callback;
-	}
+	img.onload = function () {
+		const context = createContext(img.naturalWidth, img.naturalHeight, false);
+		context.drawImage(img, 0, 0);
+		GameManager.images[name] = context;
+		if (callback != null) {
+			callback();
+		}
+	};
 
 	GameManager.images[name] = img;
 	img.src = path;

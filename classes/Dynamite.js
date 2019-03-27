@@ -38,7 +38,7 @@ Dynamite.prototype.update = function () {
 			// update effect transparency to create a fade-out
 			this.drawSurface.clearRect(0, 0, this.image.width, this.image.height);
 			this.drawSurface.globalAlpha = this.effectTimer / this.maxEffectTimer;
-			this.drawSurface.drawImage(this.image, 0, 0);
+			this.drawSurface.drawImage(this.image.canvas, 0, 0);
 			if (this.effectTimer === 0) {
 				this.die();
 			}
@@ -67,7 +67,7 @@ Dynamite.prototype.detonate = function () {
 	const centY = this.centerY();
 	this.image = GameManager.getImage("dynamite explosion.png");
 	this.drawSurface = createContext(this.image.width, this.image.height, false);
-	this.drawSurface.drawImage(this.image, 0, 0);
+	this.drawSurface.drawImage(this.image.canvas, 0, 0);
 	this.rect = new Rect(this.drawSurface.width, this.drawSurface.height);
 	this.setCenterX(centX);
 	this.setCenterY(centY);

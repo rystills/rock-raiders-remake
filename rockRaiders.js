@@ -1445,7 +1445,7 @@ function drawRaiderInfo() {
 		const maxTools = 2 + selection[i].upgradeLevel;
 		for (let j = 0; j < maxTools; ++j) {
 			const curImageName = selection[i].tools.length > j ? "have " + selection[i].tools[j] + ".png" : "have am nothing.png";
-			GameManager.drawSurface.drawImage(GameManager.getImage(curImageName),
+			GameManager.drawSurface.drawImage(GameManager.getImage(curImageName).canvas,
 				selection[i].centerX() - (heldWidth * maxTools) / 2 + (heldWidth * j) - selection[i].drawLayer.cameraX,
 				selection[i].y - 28 - heldHeight - selection[i].drawLayer.cameraY);
 		}
@@ -1458,7 +1458,7 @@ function drawRaiderInfo() {
 	for (let i = 0; i < selection.length; ++i) {
 		for (let j = 0; j < 6; ++j) {
 			const curImageName = selection[i][skills[j][0]] ? skills[j][1] : "have am nothing.png";
-			GameManager.drawSurface.drawImage(GameManager.getImage(curImageName),
+			GameManager.drawSurface.drawImage(GameManager.getImage(curImageName).canvas,
 				selection[i].centerX() - (heldWidth * maxSkills) / 2 + (heldWidth * j) - selection[i].drawLayer.cameraX,
 				selection[i].y - 28 - selection[i].drawLayer.cameraY);
 		}
@@ -1875,7 +1875,7 @@ function createLevelSelectButtons() {
 	// back button
 	let levelSelectBackButton = new ImageButton(6, GameManager.gameHeight - 44, 0, GameManager.getImage("Interface/Frontend/LP_Normal.bmp"),
 		GameManager.getImage("Interface/Frontend/LP_Glow.bmp"), levelSelectLayer, returnToMainMenu, [true], false);
-	levelSelectBackButton.darkenedSurface = toContext(GameManager.getImage("Interface/Frontend/LP_Dull.bmp"));
+	levelSelectBackButton.darkenedSurface = GameManager.getImage("Interface/Frontend/LP_Dull.bmp");
 	levelSelectUIButtons.push(levelSelectBackButton);
 }
 
@@ -2376,7 +2376,7 @@ function update() {
 		menuButtons.update();
 
 		// pre-render; draw menu background
-		GameManager.drawSurface.drawImage(GameManager.getImage("Interface/FrontEnd/MenuBGpic.bmp"), 0, 0, GameManager.screenWidth, GameManager.screenHeight);
+		GameManager.drawSurface.drawImage(GameManager.getImage("Interface/FrontEnd/MenuBGpic.bmp").canvas, 0, 0, GameManager.screenWidth, GameManager.screenHeight);
 
 		// inital render; draw all rygame objects
 		GameManager.drawFrame();
@@ -2391,7 +2391,7 @@ function update() {
 		checkScrollLevelSelect(levelpickHeight);
 
 		// draw level select image scrolled according to current scroll value (in front of buttons to hide overlaid pixels when highlighted or darkened)
-		GameManager.drawSurface.drawImage(levelpickImage, 0, -levelSelectLayer.cameraY, GameManager.screenWidth, levelpickHeight);
+		GameManager.drawSurface.drawImage(levelpickImage.canvas, 0, -levelSelectLayer.cameraY, GameManager.screenWidth, levelpickHeight);
 
 		// update objects
 		GameManager.updateObjects();

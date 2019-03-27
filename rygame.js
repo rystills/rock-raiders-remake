@@ -582,7 +582,7 @@ GameManagerInternal.prototype.drawFrame = function () {
 			if (layer.background == null) {
 				layer.drawSurface.clearRect(0, 0, layer.width, layer.height);
 			} else {
-				layer.drawSurface.drawImage(layer.background, 0, -layer.cameraY);
+				layer.drawSurface.drawImage(layer.background.canvas, 0, -layer.cameraY);
 			}
 		}
 	}
@@ -953,7 +953,7 @@ Button.prototype.updateText = function (newText, clearFirst) {
 			}
 			if (changedDims && this.image != null) {
 				drawSurfaces[i].clearRect(0, 0, drawSurfaces[i].width, drawSurfaces[i].height);
-				drawSurfaces[i].drawImage(this.image, 0, 0);
+				drawSurfaces[i].drawImage(this.image.canvas, 0, 0);
 				updateBrightness(drawSurfaces[i], brightnessShiftPercent, true);
 			}
 
@@ -1080,8 +1080,8 @@ ImageButton.prototype.update = function () {
  */
 function ImageButton(x, y, drawDepth, normalSurface, brightenedSurface, layer, runMethod = null, optionalArgs = null, isAffectedByCamera = false) {
 	RygameObject.call(this, x, y, 0, drawDepth, null, layer, isAffectedByCamera, true, true);
-	this.normalSurface = toContext(normalSurface);
-	this.brightenedSurface = toContext(brightenedSurface);
+	this.normalSurface = normalSurface;
+	this.brightenedSurface = brightenedSurface;
 	this.darkenedSurface = this.normalSurface;
 	this.unavailableSurface = this.normalSurface;
 	this.runMethod = runMethod;
@@ -1096,16 +1096,6 @@ function ImageButton(x, y, drawDepth, normalSurface, brightenedSurface, layer, r
 		this.rect = new Rect(this.brightenedSurface.width, this.brightenedSurface.height);
 	} else if (this.darkenedSurface) {
 		this.rect = new Rect(this.darkenedSurface.width, this.darkenedSurface.height);
-	}
-}
-
-function toContext(imageOrContext) { // TODO Is this method should be obsolete? Load all images as contexts? Performance? One context per image or per entity?
-	if (imageOrContext instanceof HTMLImageElement) {
-		const drawSurface = createContext(imageOrContext.naturalWidth, imageOrContext.naturalHeight, false);
-		drawSurface.drawImage(imageOrContext, 0, 0);
-		return drawSurface;
-	} else {
-		return imageOrContext;
 	}
 }
 
@@ -1220,7 +1210,7 @@ RygameObject.prototype.changeImage = function (imageName, clearRect) {
 	if (clearRect) {
 		this.drawSurface.clearRect(0, 0, this.rect.width, this.rect.height);
 	}
-	this.drawSurface.drawImage(this.image, 0, 0, this.rect.width, this.rect.height);
+	this.drawSurface.drawImage(this.image.canvas, 0, 0, this.rect.width, this.rect.height);
 };
 
 /**
@@ -1370,7 +1360,7 @@ function RygameObject(x, y, updateDepth, drawDepth, image, layer, affectedByCame
 	if (image != null) {
 		this.image = GameManager.getImage(image);
 		this.drawSurface = createContext(this.image.width, this.image.height, false);
-		this.drawSurface.drawImage(this.image, 0, 0);
+		this.drawSurface.drawImage(this.image.canvas, 0, 0);
 	}
 	if (this.drawSurface != null) {
 		this.rect = new Rect(this.drawSurface.width, this.drawSurface.height);
