@@ -21,6 +21,7 @@ object = {
 		["wad0bmp", "Interface/Frontend/LP_Glow.bmp"], // back button in level select view (hovered)
 		["wad0bmp", "Interface/Frontend/LP_Dull.bmp"], // back button in level select view (pressed)
 		["wad0alpha", "Interface/Frontend/LowerPanel.bmp"], // lower panel in level select view
+		["wad0bmp", "Interface/Frontend/SaveLoad.bmp"],
 
 		// level images
 		["wad0bmp", "Interface/LEVELPICKER/Levelpick.bmp"], // level select menu background
