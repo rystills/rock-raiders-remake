@@ -335,6 +335,8 @@ object = {
 		["js", "gui", "BitmapFont.js"],
 		["js", "gui", "MainMenu.js"], // GUI elements used in the main menu
 
+		["wad1txt", "Lego.cfg", "Lego.cfg"], // configuration file with all parameters
+
 		// level data list files
 		["js", "levels", "levels.js"], // list of names of playable levels, to be used by the main menu for level selection
 

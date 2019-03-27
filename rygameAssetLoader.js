@@ -71,6 +71,91 @@ function loadAlphaImageAsset(path, name, callback) {
 	img.src = path;
 }
 
+function loadConfigurationAsset(path, name, callback) {
+	const result = {};
+	const ancestry = [];
+	let activeObject = result;
+	console.log("Parsing configuration from " + path);
+	const xhr = new XMLHttpRequest();
+	xhr.open('GET', path, true);
+	xhr.responseType = 'arraybuffer'; // jQuery cant handle response type arraybuffer
+	xhr.onload = function () {
+		if (this.status === 200) {
+			const data = this.response;
+			const buffer = new Uint8Array(data);
+			let isComment = false;
+			let keyVal = 0; // 0 = looking for key, 1 = inside key, 1 = looking for value, 2 = inside value
+			let key = "";
+			let value = "";
+			// debug output is a bad idea here, buffer size is about 232.611 characters and has 6781 lines
+			for (let seek = 0; seek < buffer.length; seek++) {
+				let charCode = buffer[seek];
+				if (charCode === 123 && key === "FullName") { // dirty workaround but in the original file { (123) was used instead of Ä (142)
+					charCode = 142;
+				}
+				let charStr = String.fromCharCode(charCode);
+				if (charCode === 130) {
+					charStr = "ä";
+				} else if (charCode === 142) {
+					charStr = "Ä";
+				} else if (charCode === 162) {
+					charStr = "ö";
+				} else if (charCode === 167) {
+					charStr = "Ü";
+				} else if (charCode === 171) {
+					charStr = "ü";
+				} else if (charCode === 195) {
+					charStr = "ß";
+				}
+				if (charStr === ";") {
+					isComment = true;
+				} else if (charCode === 10 || charCode === 13) {
+					isComment = false;
+				}
+				if (!isComment) {
+					if (charCode > 32) { // not a whitespace
+						if (keyVal === 0) { // looking for key
+							if (charStr === "}") {
+								activeObject = ancestry.pop();
+							} else {
+								keyVal++;
+								key = charStr;
+							}
+						} else if (keyVal === 1) { // inside key
+							key += charStr;
+						} else if (keyVal === 2) { // looking for value
+							if (charStr === "{") { // start of a new object key is identifier
+								ancestry.push(activeObject);
+								activeObject = {};
+								ancestry[ancestry.length - 1][key] = activeObject;
+								keyVal = 0; // start looking for a key again
+							} else {
+								keyVal++;
+								value = charStr;
+							}
+						} else if (keyVal === 3) { // inside value
+							value += charStr;
+						}
+					} else { // some whitespace
+						if (keyVal === 1) {
+							keyVal++;
+						} else if (keyVal === 3) {
+							keyVal = 0;
+							const splitVal = value.replace(/\\/g, "/").split(/[:|]/);
+							activeObject[key] = splitVal.length > 1 ? splitVal : splitVal[0];
+						}
+					}
+				}
+			}
+			GameManager.configuration = result;
+			if (callback != null) {
+				callback();
+			}
+		}
+	};
+	xhr.send();
+}
+
 /**
  * load a sound asset from the input path, setting the callback function to the input callback
  * @param path: the path from which to load the sound asset

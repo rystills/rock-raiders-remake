@@ -647,6 +647,7 @@ GameManagerInternal.prototype.getImage = function (imageName) {
  * GameManagerInternal constructor: initialize variables stored and maintained by the GameManager
  */
 function GameManagerInternal() {
+	this.configuration = null;
 	// list of image resources
 	this.images = [];
 	// list of sound resources
