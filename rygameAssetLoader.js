@@ -381,7 +381,7 @@ let lastScriptName = "";
 let wad0File;
 let wad1File;
 
-const loadingCanvas = document.getElementById('canvas');
+const loadingCanvas = document.getElementById('rygameCanvas');
 const loadingContext = loadingCanvas.getContext('2d');
 
 // clear the screen to black

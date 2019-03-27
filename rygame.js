@@ -3,7 +3,7 @@
  * Snippet taken from StackOverflow.
  */
 function goFullScreen() {
-	const el = document.getElementById("canvas");
+	const el = document.getElementById("rygameCanvas");
 	const rfs = el.requestFullscreen || el.webkitRequestFullScreen || el.mozRequestFullScreen || el.msRequestFullscreen;
 	rfs.call(el);
 }
@@ -658,7 +658,7 @@ function GameManagerInternal() {
 	this.completeLayerList = [];
 	this.renderOrderedCompleteObjectList = [];
 	this.updateOrderedCompleteObjectList = [];
-	this.canvas = document.getElementById('canvas');
+	this.canvas = document.getElementById('rygameCanvas');
 	this.drawSurface = null;
 	// native resolution of the game
 	this.gameWidth = 640;

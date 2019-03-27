@@ -11,11 +11,6 @@
     <? Bootstrap core CSS ?>
     <link href="css/bootstrap.min.css" rel="stylesheet">
 
-<!--    <script src="js/ie-emulation-modes-warning.js"></script>-->
-
-<!--    <? IE10 viewport hack for Surface/desktop Windows 8 bug ?>-->
-<!--    <script src="js/ie10-viewport-bug-workaround.js"></script>-->
-
     <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 
@@ -29,14 +24,12 @@
             </div>
         </div>
         <div id="fscontainer" class="container-fluid">
-            <div align="center">
-                <canvas id="canvas" width="640" height="480" tabindex="1" style="width: 1024px; height: 768px;"></canvas>
-                <div class="screensize-buttons">
-                    <button class="resize-canvas" data-width="640" data-height="480">640 x 480</button>
-                    <button class="resize-canvas" data-width="800" data-height="600">800 x 600</button>
-                    <button class="resize-canvas" data-width="1024" data-height="768">1024 x 768</button>
-                    <button class="fullscreen-canvas">Fullscreen</button>
-                </div>
+            <canvas id="rygameCanvas" width="640" height="480" tabindex="1" style="width: 1024px; height: 768px;"></canvas>
+            <div class="screensize-buttons">
+                <button class="resize-canvas" data-width="640" data-height="480">640 x 480</button>
+                <button class="resize-canvas" data-width="800" data-height="600">800 x 600</button>
+                <button class="resize-canvas" data-width="1024" data-height="768">1024 x 768</button>
+                <button class="fullscreen-button">Fullscreen</button>
             </div>
             <div class="modal" id="wadfiles_select_modal" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
                 <div class="modal-dialog" role="document">
@@ -98,12 +91,12 @@
 <script src="js/bootstrap.min.js"></script>
 <script src="rygameAssetLoader.js"></script>
 <script>
-	const canvas = $('#canvas');
+	const canvas = $('#rygameCanvas');
 	$('.resize-canvas').on('click', (event) => {
 		canvas.width(event.target.dataset.width);
 		canvas.height(event.target.dataset.height);
 	});
-	$('.fullscreen-canvas').on('click', () => {
+	$('.fullscreen-button').on('click', () => {
 		const canvasNative = canvas.get(0);
 		(canvasNative.requestFullscreen || canvasNative.webkitRequestFullScreen || canvasNative.mozRequestFullScreen || canvasNative.msRequestFullscreen).call(canvasNative);
 	});
