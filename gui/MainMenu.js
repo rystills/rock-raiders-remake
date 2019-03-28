@@ -24,11 +24,31 @@ function BitmapFontButton(x, y, label, fontLow, fontHigh, layer, runMethod, opti
 makeChild("WindowPanel", "RygameObject");
 
 WindowPanel.prototype.setFirstLine = function (font, text) {
+	if (text === undefined || text === null || text === "") {
+		text = " ";
+	}
+	this.firstLine = text.replace(/_/g, " ");
+	this.redraw(font);
+};
+
+WindowPanel.prototype.setSecondLine = function (font, text) {
+	if (text === undefined || text === null || text === "") {
+		text = " ";
+	}
+	this.secondLine = text.replace(/_/g, " ");
+	this.redraw(font);
+};
+
+WindowPanel.prototype.redraw = function (font) {
 	this.drawSurface.drawImage(this.originalSurface.canvas, 0, 0);
-	let txtCanvas = font.createTextImage(text.replace(/_/g, " ")).canvas;
-	const x = this.windowX + (this.windowWidth - txtCanvas.width) / 2;
-	const y = this.windowY + this.windowHeight / 2 - 3 * txtCanvas.height / 4;
-	this.drawSurface.drawImage(txtCanvas, x, y);
+	let txtFirstCanvas = font.createTextImage(this.firstLine).canvas;
+	const x1 = this.windowX + (this.windowWidth - txtFirstCanvas.width) / 2;
+	const y1 = this.windowY + this.windowHeight / 2 - 3 * txtFirstCanvas.height / 4;
+	this.drawSurface.drawImage(txtFirstCanvas, x1, y1);
+	let txtSecondCanvas = font.createTextImage(this.secondLine).canvas;
+	const x2 = this.windowX + (this.windowWidth - txtSecondCanvas.width) / 2;
+	const y2 = this.windowY + this.windowHeight / 2 - 3 * txtFirstCanvas.height / 4 + txtFirstCanvas.height;
+	this.drawSurface.drawImage(txtSecondCanvas, x2, y2);
 };
 
 function WindowPanel(x, y, drawDepth, drawSurface, layer, winX, winY, winWidth, winHeight) {
@@ -41,4 +61,6 @@ function WindowPanel(x, y, drawDepth, drawSurface, layer, winX, winY, winWidth, 
 	this.windowY = winY;
 	this.windowWidth = winWidth;
 	this.windowHeight = winHeight;
+	this.firstLine = " ";
+	this.secondLine = " ";
 }
