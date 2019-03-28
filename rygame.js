@@ -217,7 +217,8 @@ function binarySearch(a, x, key, leftMost, lo, hi) {
  */
 function createContext(width, height, is3d) {
 	if (width < 1 || height < 1) {
-		throw "Can't create context with size " + width + " x " + height;
+		console.error("Can't create context with size " + width + " x " + height);
+		return createDummyImage(64, 64);
 	}
 	const canvas = document.createElement("canvas");
 	canvas.setAttribute('width', width);
@@ -590,14 +591,14 @@ GameManagerInternal.prototype.drawFrame = function () {
 	// render objects to frames first (objects are sorted by depth when added, so no need to do any sorting here)
 	for (let i = this.renderOrderedCompleteObjectList.length - 1; i >= 0; i--) {
 		const drawObject = this.renderOrderedCompleteObjectList[i];
-		if (drawObject.renderAutomatically && drawObject.drawLayer.active && (!drawObject.drawLayer.frozen)) {
+		if (drawObject.renderAutomatically && drawObject.drawLayer != null && drawObject.drawLayer.active && (!drawObject.drawLayer.frozen)) {
 			drawObject.render();
 		}
 	}
 
 	for (let i = this.renderOrderedCompleteObjectList.length - 1; i >= 0; i--) {
 		const drawGuiObject = this.renderOrderedCompleteObjectList[i];
-		if (drawGuiObject.drawLayer.active && (!drawGuiObject.drawLayer.frozen)) {
+		if (drawGuiObject.renderAutomatically && drawGuiObject.drawLayer != null && drawGuiObject.drawLayer.active && (!drawGuiObject.drawLayer.frozen)) {
 			drawGuiObject.renderGuiElements();
 		}
 	}
@@ -695,8 +696,6 @@ function GameManagerInternal() {
 	this.mouseReleasedPosRight = {x: 1, y: 1};
 	// this is just a default; feel free to change it at any point from the game file
 	this.fullScreenKey = "F";
-	// text alignment
-	this.textAlign = "";
 	// font weight - first part of html font property (formatted 'fontWeight fontSizepx fontName')
 	this.fontWeight = "";
 	// font size in pixels - second part of html font property (formatted 'fontWeight fontSizepx fontName')
@@ -1422,4 +1421,13 @@ function blockPageExit() {
 
 function unblockPageExit() {
 	window.removeEventListener("beforeunload", warnMissionAbort);
+}
+
+function getUrlParamCaseInsensitive(key, lowercaseValue) {
+	for (const pair of new URLSearchParams(location.search)) {
+		if (pair[0].toLowerCase() === key.toLowerCase()) {
+			return lowercaseValue ? pair[1].toLowerCase() : pair[1];
+		}
+	}
+	return null;
 }

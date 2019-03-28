@@ -2486,9 +2486,8 @@ function update() {
 }
 
 // to instant load a level append ?devmode=true&level=03 to the URL
-const url = new URL(window.location.href);
-GameManager.devMode = url.searchParams.get("devmode") === "true";
-const levelFromUrl = url.searchParams.get("level");
+GameManager.devMode = getUrlParamCaseInsensitive("devmode", true) === "true";
+let levelFromUrl = getUrlParamCaseInsensitive("level");
 
 // split level data files (combined for faster loading)
 Object.keys(GameManager.scriptObjects["levels.js"]).forEach(function (key) {
