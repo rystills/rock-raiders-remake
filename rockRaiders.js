@@ -1391,7 +1391,7 @@ function drawUI() {
 	const imgNoCrystal = GameManager.getImage("Interface/RightPanel/NoSmallCrystal.bmp").canvas;
 	const imgSmallCrystal = GameManager.getImage("Interface/RightPanel/SmallCrystal.bmp").canvas;
 	const imgUsedCrystal = GameManager.getImage("Interface/RightPanel/UsedCrystal.bmp").canvas;
-	for (let i = 0; i < 20 && curY >= -Math.max(imgNoCrystal.height, imgSmallCrystal.height, imgUsedCrystal.height); ++i) {
+	for (let i = 0; i < parseInt(GameManager.scriptObjects["Info_" + levelName + ".js"].objective[1][1]) && curY >= -Math.max(imgNoCrystal.height, imgSmallCrystal.height, imgUsedCrystal.height); ++i) {
 		let imgCrystal = imgNoCrystal;
 		// TODO show used crystals
 		if (collectedResources["crystal"] > i) {
