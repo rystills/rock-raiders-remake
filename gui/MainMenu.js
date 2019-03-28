@@ -24,19 +24,17 @@ function BitmapFontButton(x, y, label, fontLow, fontHigh, layer, runMethod, opti
 makeChild("WindowPanel", "RygameObject");
 
 WindowPanel.prototype.setFirstLine = function (font, text) {
-	if (text === undefined || text === null || text === "") {
-		text = " ";
+	if (text) {
+		this.firstLine = text.replace(/_/g, " ");
+		this.redraw(font);
 	}
-	this.firstLine = text.replace(/_/g, " ");
-	this.redraw(font);
 };
 
 WindowPanel.prototype.setSecondLine = function (font, text) {
-	if (text === undefined || text === null || text === "") {
-		text = " ";
+	if (text) {
+		this.secondLine = text.replace(/_/g, " ");
+		this.redraw(font);
 	}
-	this.secondLine = text.replace(/_/g, " ");
-	this.redraw(font);
 };
 
 WindowPanel.prototype.redraw = function (font) {
@@ -61,6 +59,6 @@ function WindowPanel(x, y, drawDepth, drawSurface, layer, winX, winY, winWidth, 
 	this.windowY = winY;
 	this.windowWidth = winWidth;
 	this.windowHeight = winHeight;
-	this.firstLine = " ";
-	this.secondLine = " ";
+	this.firstLine = "";
+	this.secondLine = "";
 }

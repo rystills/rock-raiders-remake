@@ -828,7 +828,6 @@ function Layer(x, y, updateDepth, drawDepth, width, height, startActive) {
 	this.cameraY = 0;
 	this.drawAngle = 0;
 	this.rect = new Rect(this.drawSurface.width, this.drawSurface.height);
-	this.canScroll = false;
 	GameManager.addLayer(this);
 }
 

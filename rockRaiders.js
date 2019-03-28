@@ -1202,37 +1202,34 @@ function stopMinifig(raider) {
 /**
  * scroll the layer if mouse is panned or keyboard is pressed
  */
-function checkLayerScrolling(activeLayer) {
-	if (!(menuLayer.canScroll)) {
-		return;
-	}
+function applyLevelSelectScrolling() {
 	let pannedKeyboard = false;
 	// can we scroll using the arrow keys?
 	if (keyboardPanning) {
 		if (GameManager.keyStates[String.fromCharCode(38)]) {
 			pannedKeyboard = true;
-			activeLayer.cameraY -= scrollSpeed;
+			levelSelectLayer.cameraY -= scrollSpeed;
 		} else if (GameManager.keyStates[String.fromCharCode(40)]) {
 			pannedKeyboard = true;
-			activeLayer.cameraY += scrollSpeed;
+			levelSelectLayer.cameraY += scrollSpeed;
 		}
 	}
 	// can we scroll by moving your mouse to the edge of the screen?
 	if (mousePanning && !pannedKeyboard) {
-		const heightWithoutLowerPanel = 8 * GameManager.screenHeight / 9;
-		const mouseY = Math.min(Math.max(0, GameManager.mousePos.y), heightWithoutLowerPanel);
-		if (mouseY < heightWithoutLowerPanel / 3) {
-			activeLayer.cameraY -= scrollSpeed * (1 - 3 * mouseY / heightWithoutLowerPanel);
-		} else if (mouseY > 2 * heightWithoutLowerPanel / 3) {
-			activeLayer.cameraY -= scrollSpeed * (2 - 3 * mouseY / heightWithoutLowerPanel);
+		if (GameManager.mousePos.y < scrollDistance) {
+			levelSelectLayer.cameraY -= scrollSpeed;
+		} else if (GameManager.mousePos.y > GameManager.screenHeight - scrollDistance) {
+			levelSelectLayer.cameraY += scrollSpeed;
 		}
 	}
+	// can we scroll by using the mouse wheel?
+	levelSelectLayer.cameraY += GameManager.mouseWheel;
 
 	// keep level select camera in bounds
-	if (activeLayer.cameraY < 0) {
-		activeLayer.cameraY = 0;
-	} else if (activeLayer.cameraY > (activeLayer.height - GameManager.screenHeight)) {
-		activeLayer.cameraY = activeLayer.height - GameManager.screenHeight;
+	if (levelSelectLayer.cameraY < 0) {
+		levelSelectLayer.cameraY = 0;
+	} else if (levelSelectLayer.cameraY > (levelSelectLayer.height - GameManager.screenHeight)) {
+		levelSelectLayer.cameraY = levelSelectLayer.height - GameManager.screenHeight;
 	}
 }
 
@@ -1886,7 +1883,7 @@ function levelIsUnlocked(levelNum) {
 	}
 	if (levelNum === 16) {
 		const levelScore14 = getLevelScore(14);
-		const levelScore15 = getValue(GameManager.scriptObjects["levelList.js"].levels[15]);
+		const levelScore15 = getLevelScore(15);
 		return levelScore14 != null && levelScore15 != null;
 	}
 	if (levelNum < 19) {
@@ -1972,7 +1969,6 @@ function createMainMenuLayers() {
 		mainMenuLayers[menuKey].width = mainMenuLayers[menuKey].background.width;
 		mainMenuLayers[menuKey].height = mainMenuLayers[menuKey].background.height;
 		mainMenuLayers[menuKey].configuration = confMenu;
-		mainMenuLayers[menuKey].canScroll = confMenu["CanScroll"] === "TRUE";
 		const fontLow = GameManager.getFont(confMenu["LoFont"]);
 		const fontHigh = GameManager.getFont(confMenu["HiFont"]);
 		let position = confMenu["Position"];
@@ -2024,34 +2020,52 @@ function createMainMenuLayers() {
 function finalizeLevelSelectLayer() {
 	levelSelectLayer = mainMenuLayers["Menu2"];
 	const allLevelsConf = GameManager.configuration["Lego*"]["Levels"];
+	levelSelectLayer.levels = {};
+
+	const menuConf = GameManager.configuration["Lego*"]["Menu"];
+	const levelTextConf = menuConf["LevelText"];
+	const window = [];
+	levelTextConf["Window"].forEach(function (val) {
+		window.push(parseInt(val))
+	});
+	const panel = levelTextConf["Panel"];
+	const winPanel = new WindowPanel(panel[1], panel[2], 50, GameManager.getImage(panel[0]), levelSelectLayer, window[0], window[1], window[2], window[3]);
+	const font = GameManager.getFont("Interface/Fonts/Font5_Hi.bmp");
+	winPanel.setFirstLine(font, levelTextConf["Level"]);
 
 	Object.keys(allLevelsConf).forEach(function (levelKey) {
-		const currentLevel = {key: levelKey, conf: allLevelsConf[levelKey]};
-		const frontendX = currentLevel.conf["FrontEndX"];
-		const frontendY = currentLevel.conf["FrontEndY"];
-		let menuBmp = currentLevel.conf["MenuBMP"];
+		if (!(levelKey.startsWith("Tutorial") || levelKey.startsWith("Level"))) {
+			return;
+		}
+		const levelConf = allLevelsConf[levelKey];
+		levelSelectLayer.levels[levelKey] = {conf: levelConf};
+		const frontendX = levelConf["FrontEndX"];
+		const frontendY = levelConf["FrontEndY"];
+		let menuBmp = levelConf["MenuBMP"];
 		if (!(menuBmp)) {
 			return;
 		}
 		const bitmaps = menuBmp.split(",");
 		const brightenedSurface = GameManager.getImage(bitmaps[0]);
 		const normalSurface = GameManager.getImage(bitmaps[1]);
-		const levelIndex = levelKey.startsWith("Tutorial") ? parseInt(currentLevel.conf["FullName"].charAt(0)) - 1 : parseInt(levelKey.slice(-2)) + 7; // TODO should be obsolete, once level data handling is refactored
-		const btn = new ImageButton(frontendX, frontendY, 100, normalSurface, brightenedSurface, levelSelectLayer, resetLevelVars, [GameManager.scriptObjects["levelList.js"].levels[levelIndex]], true);
-		btn.unavailableSurface = GameManager.getImage(bitmaps[2]);
-		btn.additionalRequirement = levelIsUnlocked;
-		btn.additionalRequirementArgs = [0]; // FIXME refactor level unlocking use data from config
+		const fullName = levelConf["FullName"];
+		const levelIndex = levelKey.startsWith("Tutorial") ? parseInt(fullName.charAt(0)) - 1 : parseInt(levelKey.slice(-2)) + 7; // TODO should be obsolete, once level data handling is refactored
+		levelSelectLayer.levels[levelKey].btn = new ImageButton(frontendX, frontendY, 100, normalSurface, brightenedSurface, levelSelectLayer, resetLevelVars, [GameManager.scriptObjects["levelList.js"].levels[levelIndex]], true);
+		levelSelectLayer.levels[levelKey].btn.unavailableSurface = GameManager.getImage(bitmaps[2]);
+		levelSelectLayer.levels[levelKey].btn.additionalRequirement = levelIsUnlocked;
+		levelSelectLayer.levels[levelKey].btn.additionalRequirementArgs = [levelIndex];
+		levelSelectLayer.levels[levelKey].btn.mouseEnterCallback = function () {
+			let appendix = "";
+			const levelScore = getLevelScore(levelIndex);
+			if (levelScore != null) {
+				appendix = " l " + menuConf["Level_Completed"] + " (" + levelScore + ")"
+			}
+			winPanel.setSecondLine(font, fullName + appendix);
+		};
+		levelSelectLayer.levels[levelKey].btn.mouseLeaveCallback = function () {
+			winPanel.setSecondLine(font, menuConf["Level_Incomplete"]);
+		}
 	});
-
-	const levelTextConf = GameManager.configuration["Lego*"]["Menu"]["LevelText"];
-	const window = [];
-	levelTextConf["Window"].forEach(function (val) {
-		window.push(parseInt(val))
-	});
-	const panel = levelTextConf["Panel"]; // TODO window may be scaled, fourth and fifth parameter define width and height
-	const winPanel = new WindowPanel(panel[1], panel[2], 50, GameManager.getImage(panel[0]), levelSelectLayer, window[0], window[1], window[2], window[3]);
-	const font = GameManager.getFont("Interface/Fonts/Font5_Hi.bmp");
-	winPanel.setFirstLine(font, levelTextConf["Level"]);
 }
 
 function goToMenu(menuKey) {
@@ -2321,8 +2335,8 @@ function calculateLevelScore() {
  * @param score: the newly achieved level score (may or may not be the all-time high-score)
  */
 function setLevelScore(score) {
-	const prevScore = getValue(levelName);
-	if (prevScore === "null" || prevScore === undefined || prevScore < score) {
+	const prevScore = getValue(levelName, null);
+	if (prevScore != null && prevScore < score) {
 		setValue(levelName, score);
 	}
 }
@@ -2341,7 +2355,7 @@ function showScoreScreen(missionState) {
 	if (!GameManager.devMode) {
 		unblockPageExit();
 	}
-	if (missionState === "complete") {
+	if (missionState === "completed") {
 		lastLevelScore = calculateLevelScore();
 		setLevelScore(lastLevelScore);
 	}
@@ -2370,10 +2384,12 @@ function update() {
 		scoreScreenLayer.update();
 	}
 
+	if (levelSelectLayer.active) {
+		applyLevelSelectScrolling();
+	}
+
 	// menu update
 	if (menuLayer.active) {
-		checkLayerScrolling(menuLayer);
-
 		// update objects
 		GameManager.updateObjects();
 
