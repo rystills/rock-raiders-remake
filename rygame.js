@@ -1050,21 +1050,23 @@ makeChild("ImageButton", "RygameObject");
  */
 ImageButton.prototype.update = function () {
 	if (this.additionalRequirement != null) {
-		if (!(this.additionalRequirement.apply(this, this.additionalRequirementArgs))) {
-			this.clickable = false;
-			this.drawSurface = this.unavailableSurface;
-		} else {
-			this.clickable = true;
-
-		}
+		this.clickable = this.additionalRequirement.apply(this, this.additionalRequirementArgs);
 	}
 
+	const mouseOver = collisionPoint(GameManager.mousePos.x, GameManager.mousePos.y, this, this.affectedByCamera) && this.clickable;
+	if (mouseOver && !this.lastMouseOverState && this.mouseEnterCallback) {
+		this.mouseEnterCallback();
+	} else if (!mouseOver && this.lastMouseOverState && this.mouseLeaveCallback) {
+		this.mouseLeaveCallback();
+	}
+	this.lastMouseOverState = mouseOver;
+
 	// if this button is not currently interactive, don't need to update anything else
-	if (!this.clickable) {
+	if (!(this.clickable)) {
+		this.drawSurface = this.unavailableSurface;
 		return;
 	}
 
-	const mouseOver = collisionPoint(GameManager.mousePos.x, GameManager.mousePos.y, this, this.affectedByCamera);
 	// mouse pressed and released events can occur in the same frame on high doses of coffee
 	if (GameManager.mousePressedLeft === true) {
 		this.mouseDownOnButton = mouseOver;
@@ -1078,7 +1080,7 @@ ImageButton.prototype.update = function () {
 		this.mouseDownOnButton = false;
 	}
 
-	if (collisionPoint(GameManager.mousePos.x, GameManager.mousePos.y, this, this.affectedByCamera)) {
+	if (mouseOver) {
 		if (this.mouseDownOnButton) {
 			this.drawSurface = this.darkenedSurface;
 		} else {
@@ -1113,6 +1115,9 @@ function ImageButton(x, y, drawDepth, normalSurface, brightenedSurface, layer, r
 	this.additionalRequirementArgs = [];
 	this.clickable = true;
 	this.mouseDownOnButton = false;
+	this.lastMouseOverState = false;
+	this.mouseEnterCallback = null;
+	this.mouseLeaveCallback = null;
 	if (this.normalSurface) {
 		this.rect = new Rect(this.normalSurface.width, this.normalSurface.height);
 	} else if (this.brightenedSurface) {
