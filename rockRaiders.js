@@ -2483,6 +2483,7 @@ function update() {
 		drawAwaitingStartInstructions();
 		drawPauseInstructions();
 	}
+	GameManager.mouseWheel = 0;
 }
 
 // to instant load a level append ?devmode=true&level=03 to the URL

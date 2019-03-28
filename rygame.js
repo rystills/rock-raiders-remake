@@ -518,6 +518,13 @@ GameManagerInternal.prototype.initializeRygame = function (is3d) {
 			GameManager.mouseDownRight = false;
 		}
 	});
+	GameManager.canvas.addEventListener("wheel", function (e) {
+		if (e.deltaMode === 0) { // unit is pixels
+			GameManager.mouseWheel = e.deltaY;
+		} else if (e.deltaMode === 1) { // TODO unit is lines
+		} else if (e.deltaMode === 2) { // TODO unit is pages
+		}
+	});
 	GameManager.canvas.addEventListener('contextmenu', function (e) {
 		e.preventDefault();
 	});
@@ -694,6 +701,7 @@ function GameManagerInternal() {
 	this.mouseReleasedRight = false;
 	this.mouseReleasedPosLeft = {x: 1, y: 1};
 	this.mouseReleasedPosRight = {x: 1, y: 1};
+	this.mouseWheel = 0;
 	// this is just a default; feel free to change it at any point from the game file
 	this.fullScreenKey = "F";
 	// font weight - first part of html font property (formatted 'fontWeight fontSizepx fontName')
