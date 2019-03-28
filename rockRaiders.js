@@ -1425,16 +1425,6 @@ function drawUI() {
 }
 
 /**
- * draw ore and energy crystal count during the score screen
- */
-function drawScoreScreenUI() {
-	GameManager.setFontSize(48);
-	GameManager.drawSurface.fillStyle = "rgb(65, 218, 0)";
-	GameManager.drawSurface.fillText("Ore: " + collectedResources["ore"], 600, 40);
-	GameManager.drawSurface.fillText("Energy Crystals: " + collectedResources["crystal"], 341, 100);
-}
-
-/**
  * draw held tools and skills for each raider
  */
 function drawRaiderInfo() {
@@ -1848,10 +1838,7 @@ function createButtons() {
 			"super teleport", "mining laser", "upgrade station", "ore refinery"]));
 
 	pauseButtons.push(new Button(100, gameLayer.height / 2 - 50, 0, 0, null, gameLayer, "Continue", unpauseGame, false, false));
-	pauseButtons.push(new Button(100, gameLayer.height / 2 + 50, 0, 0, null, gameLayer, "Abort Mission", showScoreScreen, false, false, null, null, [false]));
-
-	scoreScreenButtons.push(new Button(200, 135, 0, 0, null, scoreScreenLayer, "Score: 0", null, false, true, null, null, [], false));
-	scoreScreenButtons.push(new Button(20, 200, 0, 0, null, scoreScreenLayer, "Continue", goToLevelSelect, false, true, null, null, [false, false]));
+	pauseButtons.push(new Button(100, gameLayer.height / 2 + 50, 0, 0, null, gameLayer, "Abort Mission", showScoreScreen, false, false, null, null, ["quit"]));
 }
 
 /**
@@ -2248,17 +2235,17 @@ function initGlobals() {
 	menuLayer = null;
 	levelSelectLayer = null;
 	gameLayer = new Layer(0, 0, 1, 1, GameManager.screenWidth, GameManager.screenHeight);
-	scoreScreenLayer = new Layer(0, 0, 1, 1, GameManager.screenWidth, GameManager.screenHeight);
 	musicPlayer = new MusicPlayer();
 	musicPlayer.changeTrack("menu theme");
 	buttons = new ObjectGroup();
 	pauseButtons = new ObjectGroup();
-	scoreScreenButtons = new ObjectGroup();
 	// create all in-game UI buttons initially, as there is no reason to load and unload these
 	createButtons();
 	// create all menu buttons
 	createMainMenuLayers();
 	finalizeLevelSelectLayer();
+	scoreScreenLayer = new ScoreScreenLayer(GameManager.configuration["Lego*"]["Reward"]);
+	mainMenuLayers["Reward"] = scoreScreenLayer;
 	GameManager.drawSurface.font = "48px Arial";
 	// update me manually for now, as the UI does not yet have task priority buttons
 	tasksAutomated = {
@@ -2317,7 +2304,7 @@ function checkAccomplishedObjective() {
 		}
 	}
 	if (won) {
-		showScoreScreen(true);
+		showScoreScreen("completed");
 	}
 }
 
@@ -2347,21 +2334,20 @@ function getLevelScore(level) {
 /**
  * switch to the score-screen layer
  */
-function showScoreScreen(completedMission) {
-	menuLayer.active = false;
-	levelSelectLayer.active = false;
-	scoreScreenLayer.active = true;
-	gameLayer.active = false;
+function showScoreScreen(missionState) {
+	goToMenu("Reward");
 	musicPlayer.changeTrack("score screen");
 	stopAllSounds();
 	if (!GameManager.devMode) {
 		unblockPageExit();
 	}
-	if (completedMission) {
+	if (missionState === "complete") {
 		lastLevelScore = calculateLevelScore();
 		setLevelScore(lastLevelScore);
-		scoreScreenButtons.objectList[0].updateText(scoreScreenButtons.objectList[0].text.split(":")[0] + ": " + lastLevelScore);
 	}
+	// TODO use actual values from level information
+	scoreScreenLayer.setValues(missionState, "Some Mission", 0, 0, 0, 0, 0, 0, 0, 0, 0, lastLevelScore);
+	scoreScreenLayer.startReveal();
 }
 
 /**
@@ -2379,6 +2365,11 @@ function checkCloseMenu() {
  * main update loop: update the current layer and any non-automatic objects
  */
 function update() {
+	// update is usually not called for layers, do it manually for now
+	if (scoreScreenLayer.active) {
+		scoreScreenLayer.update();
+	}
+
 	// menu update
 	if (menuLayer.active) {
 		checkLayerScrolling(menuLayer);
@@ -2388,23 +2379,6 @@ function update() {
 
 		// inital render; draw all rygame objects
 		GameManager.drawFrame();
-	}
-
-	// score screen update
-	else if (scoreScreenLayer.active) {
-		// update objects
-		GameManager.updateObjects();
-		scoreScreenButtons.update();
-
-		// pre-render; draw solid background
-		GameManager.drawSurface.fillStyle = "rgb(28,108,108)"; // turquoise background color
-		GameManager.drawSurface.fillRect(0, 0, GameManager.screenWidth, GameManager.screenHeight);
-
-		// inital render; draw all rygame objects
-		GameManager.drawFrame();
-
-		// post-render; draw effects and UI
-		drawScoreScreenUI();
 	}
 
 	// game update

@@ -126,6 +126,38 @@ object = {
 		["wad0alpha", "Levels/GameLevels/Level25.bmp"],
 		["wad0alpha", "Levels/GameLevels/Level25G.bmp"],
 
+		// score screen
+		["wad0bmp", "Interface/reward/RSGREY.bmp"], // score screen background
+		["wad0alpha", "Interface/reward/RSCRYSTALS.bmp"],
+		["wad0alpha", "Interface/reward/RSORE.bmp"],
+		["wad0alpha", "Interface/reward/RSDIGGING.bmp"],
+		["wad0alpha", "Interface/reward/RSBUILDING.bmp"],
+		["wad0alpha", "Interface/reward/RSCAVERN.bmp"],
+		["wad0alpha", "Interface/reward/RSMINFIG.bmp"],
+		["wad0alpha", "Interface/reward/RSMONSTER.bmp"],
+		["wad0alpha", "Interface/reward/RSOXYGEN.bmp"],
+		["wad0alpha", "Interface/reward/RSTIME.bmp"],
+		["wad0alpha", "Interface/reward/CAPT.bmp"],
+		["wad0font", "Interface/Fonts/FSFont.bmp"],
+		["wad0font", "Interface/Fonts/RSWritten.bmp"],
+		["wad0bmp", "Interface/Reward/GBcrystals.bmp"],
+		["wad0bmp", "Interface/Reward/GBore.bmp"],
+		["wad0bmp", "Interface/Reward/GBdigging.bmp"],
+		["wad0bmp", "Interface/Reward/GBbuilding.bmp"],
+		["wad0bmp", "Interface/Reward/GBcavern.bmp"],
+		["wad0bmp", "Interface/Reward/GBminfig.bmp"],
+		["wad0bmp", "Interface/Reward/GBmonster.bmp"],
+		["wad0bmp", "Interface/Reward/GBoxygen.bmp"],
+		["wad0bmp", "Interface/Reward/GBtime.bmp"],
+		["wad0bmp", "Interface/Reward/btn_save.bmp"],
+		["wad0bmp", "Interface/Reward/btn_save_hi.bmp"],
+		["wad0bmp", "Interface/Reward/btn_save_in.bmp"],
+		["wad0bmp", "Interface/Reward/btn_save_dim.bmp"],
+		["wad0bmp", "Interface/Reward/btn_adv.bmp"],
+		["wad0bmp", "Interface/Reward/btn_adv_hi.bmp"],
+		["wad0bmp", "Interface/Reward/btn_adv_in.bmp"],
+		["wad0bmp", "Interface/Reward/btn_adv_dim.bmp"],
+
 		// pointers/cursors
 		["wad0alpha", "Interface/Pointers/Aclosed.bmp"],
 
@@ -333,8 +365,10 @@ object = {
 		["js", "classes\\vehicles", "SmallDigger.js"], // small digger class
 		["js", "classes\\vehicles", "SmallTransportTruck.js"], // small transport truck class
 
-		// gui elements
+		// gui element scripts
+		// load scripts in the end, so images have been loaded before and are ready to use
 		["js", "gui", "MainMenu.js"], // GUI elements used in the main menu
+		["js", "gui", "ScoreScreen.js"], // GUI elements used in the score screen
 
 		["wad1txt", "Lego.cfg", "Lego.cfg"], // configuration file with all parameters
 
