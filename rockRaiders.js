@@ -1798,8 +1798,21 @@ function createButtons() {
 		["ore", "crystal"]));
 
 	// drillable wall selected buttons
-	buttons.push(new Button(buttonsX, 17, 0, 0, "Interface/Menus/drill.bmp", gameLayer, "", drillWall, false, false,
-		["dirt", "loose rock", "ore seam", "energy crystal seam", "hard rock"]));
+	const drillButton = new Button(buttonsX, 17, 0, 0, "Interface/Menus/drill.bmp", gameLayer, "", drillWall, false, false,
+		["dirt", "loose rock", "ore seam", "energy crystal seam", "hard rock"]);
+	buttons.push(drillButton);
+	drillButton.additionalRequirement = function () {
+		if (selection[0].type === "hard rock") {
+			for (let i = 0; i < vehicles.objectList.length; i++) {
+				if (vehicles.objectList[i].canDrillHard) {
+					return true;
+				}
+			}
+			return false;
+		} else {
+			return true;
+		}
+	};
 
 	// re-inforcable wall selected
 	buttons.push(new Button(buttonsX, 57, 0, 0, "Interface/Menus/Reinforce.bmp", gameLayer, "", reinforceWall, false, false,
