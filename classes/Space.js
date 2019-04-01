@@ -260,27 +260,39 @@ Space.prototype.setRockImage = function (themeName, matIndex) {
 			}
 		}
 	}
-	let shapeIndex = 0;
+	this.shapeIndex = 0;
 	if (!walls[0][1] && !walls[0][2] && !walls[1][2]) {
 		this.drawAngle = 0.5 * Math.PI; // 0 = lower right, 0.5 = lower left, ...
-		shapeIndex = 5; // corner
+		this.shapeIndex = 5; // corner
 	} else if (!walls[0][1] && !walls[0][0] && !walls[1][0]) {
 		this.drawAngle = Math.PI;
-		shapeIndex = 5;
+		this.shapeIndex = 5;
 	} else if (!walls[1][0] && !walls[2][0] && !walls[2][1]) {
 		this.drawAngle = -0.5 * Math.PI;
-		shapeIndex = 5;
+		this.shapeIndex = 5;
 	} else if (!walls[2][1] && !walls[2][2] && !walls[1][2]) {
 		this.drawAngle = 0;
-		shapeIndex = 5;
+		this.shapeIndex = 5;
 	} else if (wallsCount === 7) {
-		shapeIndex = 3; // inverted corner
+		this.shapeIndex = 3; // inverted corner
 		if (!walls[0][0]) {
 			this.drawAngle = Math.PI;
 		} else if (!walls[2][0]) {
 			this.drawAngle = -0.5 * Math.PI;
 		} else if (!walls[0][2]) {
 			this.drawAngle = 0.5 * Math.PI;
+		} else if (walls[2][2]) {
+			this.shapeIndex = 0;
+			// even part
+			if (!walls[1][0]) { // top missing
+				this.drawAngle = Math.PI;
+			} else if (!walls[0][1]) { // left missing
+				this.drawAngle = 0.5 * Math.PI;
+			} else if (!walls[2][1]) { // right missing
+				this.drawAngle = -0.5 * Math.PI;
+			} else {
+				this.drawAngle = 0;
+			}
 		}
 	} else { // even part
 		if (!walls[1][0]) { // top missing
@@ -289,9 +301,11 @@ Space.prototype.setRockImage = function (themeName, matIndex) {
 			this.drawAngle = 0.5 * Math.PI;
 		} else if (!walls[2][1]) { // right missing
 			this.drawAngle = -0.5 * Math.PI;
+		} else {
+			this.drawAngle = 0;
 		}
 	}
-	this.image = "World/WorldTextures/" + themeName + "Split/" + themeName + shapeIndex.toString() + matIndex.toString() + ".bmp";
+	this.image = "World/WorldTextures/" + themeName + "Split/" + themeName + this.shapeIndex.toString() + matIndex.toString() + ".bmp";
 };
 
 /**
@@ -381,6 +395,7 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 	this.drillPercent = 0;
 	this.sweepPercent = 0;
 	this.reinforcePercent = 0;
+	this.shapeIndex = 0;
 	if (type === "ground") {
 		this.image = "World/WorldTextures/RockSplit/ROCK00.BMP";
 		this.walkable = true;
@@ -703,7 +718,6 @@ Space.prototype.completeConstruction = function () {
  * attempt to trigger a landslide at this space, which will go through if we are bordering a valid non-reinforced non-solid wall
  */
 Space.prototype.activateLandSlide = function () {
-	console.log("land slide activated. this.type: " + this.type);
 	this.curLandSlideWait = this.minLandSlideWait;
 	const adjacentSpaces = this.getAdjacentSpaces();
 	let borderingValidWall = false;
@@ -712,9 +726,8 @@ Space.prototype.activateLandSlide = function () {
 		if (adjacentSpaces[i].type === "dirt" || adjacentSpaces[i].type === "loose rock" || adjacentSpaces[i].type === "hard rock" ||
 			adjacentSpaces[i].type === "ore seam" || adjacentSpaces[i].type === "energy crystal seam") {
 			// TODO: allow land-slides to re-fill partially swept rubble spaces as well (but don't reset rubbleContainsOre)
-			if (adjacentSpaces[i].reinforced === false) {
+			if (adjacentSpaces[i].reinforced === false && adjacentSpaces[i].shapeIndex === 0) {
 				borderingValidWall = true;
-				console.log("bordering wall type: " + adjacentSpaces[i].type);
 				break;
 			}
 		}
@@ -722,7 +735,6 @@ Space.prototype.activateLandSlide = function () {
 	if (borderingValidWall) {
 		if (this.type === "ground" || this.type === "rubble 1" || this.type === "rubble 2" || this.type === "rubble 3" || this.type === "rubble 4") {
 			// only change tile type if you are a ground or rubble tile
-			console.log(this.type);
 			this.setTypeProperties("rubble 1", false, false);
 			if (tasksAvailable.indexOf(this) === -1) {
 				tasksAvailable.push(this);
@@ -731,9 +743,6 @@ Space.prototype.activateLandSlide = function () {
 		this.landSlides.push([new LandSlide(this)]);
 		this.landSlideSound.play().catch(error => {
 		});
-
-	} else {
-		console.log("bordering wall type: No valid wall bordered");
 	}
 };
 
@@ -871,7 +880,7 @@ function Space(type, listX, listY, height, parentSpace) {
 	this.contains = new ObjectGroup();
 	this.reinforced = false;
 	// dummy used to identify reinforce tasks
-	this.reinforceDummy = this.isWall ? new RygameObject(0, 0, -99999, 99999, "World/WorldTextures/RockSplit/rock24.bmp", this.drawLayer, true, false, true) : null;
+	this.reinforceDummy = this.isWall ? new RygameObject(0, 0, -99999, drawDepthReinforcement, "World/WorldTextures/RockSplit/rock24.bmp", this.drawLayer, true, false, true) : null;
 	if (this.reinforceDummy != null) {
 		// workaround so the engine treats this dummy as a reinforcable space when determining what type of task it is
 		this.reinforceDummy.reinforcable = true;
@@ -890,6 +899,7 @@ function Space(type, listX, listY, height, parentSpace) {
 			this.visible = true;
 			this.renderAutomatically = true;
 			this.space.reinforced = true;
+			this.drawAngle = this.space.drawAngle;
 		}
 	}
 	// dummy used to identify dynamite tasks

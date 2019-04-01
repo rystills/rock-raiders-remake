@@ -5,6 +5,7 @@
  *
  */
 const drawDepthTerrain = 1000;
+const drawDepthReinforcement = 975;
 const drawDepthSelectedSpace = 950;
 const drawDepthBuildingPlacier = 900;
 
@@ -1815,8 +1816,12 @@ function createButtons() {
 	};
 
 	// re-inforcable wall selected
-	buttons.push(new Button(buttonsX, 57, 0, 0, "Interface/Menus/Reinforce.bmp", gameLayer, "", reinforceWall, false, false,
-		["dirt", "loose rock", "hard rock", "ore seam", "energy crystal seam"]));
+	const reinforceButton = new Button(buttonsX, 57, 0, 0, "Interface/Menus/Reinforce.bmp", gameLayer, "", reinforceWall, false, false,
+		["dirt", "loose rock", "hard rock", "ore seam", "energy crystal seam"]);
+	buttons.push(reinforceButton);
+	reinforceButton.additionalRequirement = function() {
+		return selection[0] && !(selection[0].reinforced) && selection[0].shapeIndex === 0;
+	};
 
 	// dynamitable wall selected buttons
 	buttons.push(new Button(buttonsX, 97, 0, 0, "Interface/Menus/dynamite.bmp", gameLayer, "", dynamiteWall, false, false,
