@@ -7,6 +7,7 @@ makeChild("Dynamite", "Collectable");
 Dynamite.prototype.ignite = function (targetSpace) {
 	this.target = targetSpace;
 	this.ignited = true;
+	this.target.dynamiteDummy.visible = false;
 };
 
 /**

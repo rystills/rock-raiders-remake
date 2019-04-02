@@ -5,7 +5,7 @@
  *
  */
 const drawDepthTerrain = 1000;
-const drawDepthReinforcement = 975;
+const drawDepthTerrainMarker = 975;
 const drawDepthSelectedSpace = 950;
 const drawDepthBuildingPlacier = 900;
 
@@ -978,6 +978,7 @@ function reinforceWall() {
 			tasksAvailable.push(selection[i].reinforceDummy);
 		}
 		selection[i].reinforceDummy.taskPriority = 1;
+		selection[i].reinforceDummy.visible = true;
 	}
 	cancelSelection();
 }
@@ -996,6 +997,7 @@ function dynamiteWall() {
 			tasksAvailable.push(selection[i].dynamiteDummy);
 		}
 		selection[i].dynamiteDummy.taskPriority = 1;
+		selection[i].dynamiteDummy.visible = true;
 	}
 	cancelSelection();
 }
@@ -1011,6 +1013,7 @@ function drillWall() {
 		const curIndex = tasksAvailable.indexOf(selection[i]);
 		if (curIndex !== -1) {
 			selection[i].taskPriority = 1;
+			selection[i].drillDummy.visible = true;
 		}
 	}
 	cancelSelection();
