@@ -1200,9 +1200,9 @@ function stopMinifig(raider) {
 }
 
 /**
- * scroll the level select screen vertically if mouse is panned or keyboard is pressed
+ * scroll the layer if mouse is panned or keyboard is pressed
  */
-function checkScrollLevelSelect(levelpickHeight) {
+function applyLevelSelectScrolling() {
 	let pannedKeyboard = false;
 	// can we scroll using the arrow keys?
 	if (keyboardPanning) {
@@ -1216,20 +1216,20 @@ function checkScrollLevelSelect(levelpickHeight) {
 	}
 	// can we scroll by moving your mouse to the edge of the screen?
 	if (mousePanning && !pannedKeyboard) {
-		const heightWithoutLowerPanel = 8 * GameManager.screenHeight / 9;
-		const mouseY = Math.min(Math.max(0, GameManager.mousePos.y), heightWithoutLowerPanel);
-		if (mouseY < heightWithoutLowerPanel / 3) {
-			levelSelectLayer.cameraY -= scrollSpeed * (1 - 3 * mouseY / heightWithoutLowerPanel);
-		} else if (mouseY > 2 * heightWithoutLowerPanel / 3) {
-			levelSelectLayer.cameraY -= scrollSpeed * (2 - 3 * mouseY / heightWithoutLowerPanel);
+		if (GameManager.mousePos.y < scrollDistance) {
+			levelSelectLayer.cameraY -= scrollSpeed;
+		} else if (GameManager.mousePos.y > GameManager.screenHeight - scrollDistance) {
+			levelSelectLayer.cameraY += scrollSpeed;
 		}
 	}
+	// can we scroll by using the mouse wheel?
+	levelSelectLayer.cameraY += GameManager.mouseWheel;
 
 	// keep level select camera in bounds
 	if (levelSelectLayer.cameraY < 0) {
 		levelSelectLayer.cameraY = 0;
-	} else if (levelSelectLayer.cameraY > (levelpickHeight - GameManager.screenHeight)) {
-		levelSelectLayer.cameraY = levelpickHeight - GameManager.screenHeight;
+	} else if (levelSelectLayer.cameraY > (levelSelectLayer.height - GameManager.screenHeight)) {
+		levelSelectLayer.cameraY = levelSelectLayer.height - GameManager.screenHeight;
 	}
 }
 
@@ -1391,7 +1391,7 @@ function drawUI() {
 	const imgNoCrystal = GameManager.getImage("Interface/RightPanel/NoSmallCrystal.bmp").canvas;
 	const imgSmallCrystal = GameManager.getImage("Interface/RightPanel/SmallCrystal.bmp").canvas;
 	const imgUsedCrystal = GameManager.getImage("Interface/RightPanel/UsedCrystal.bmp").canvas;
-	for (let i = 0; i < 20 && curY >= -Math.max(imgNoCrystal.height, imgSmallCrystal.height, imgUsedCrystal.height); ++i) {
+	for (let i = 0; i < parseInt(GameManager.scriptObjects["Info_" + levelName + ".js"].objective[1][1]) && curY >= -Math.max(imgNoCrystal.height, imgSmallCrystal.height, imgUsedCrystal.height); ++i) {
 		let imgCrystal = imgNoCrystal;
 		// TODO show used crystals
 		if (collectedResources["crystal"] > i) {
@@ -1419,16 +1419,6 @@ function drawUI() {
 	GameManager.drawSurface.fillText(collectedResources["crystal"], GameManager.screenWidth - 14, GameManager.screenHeight - 3);
 	GameManager.setFontWeight("");
 	GameManager.setTextAlign("start");
-}
-
-/**
- * draw ore and energy crystal count during the score screen
- */
-function drawScoreScreenUI() {
-	GameManager.setFontSize(48);
-	GameManager.drawSurface.fillStyle = "rgb(65, 218, 0)";
-	GameManager.drawSurface.fillText("Ore: " + collectedResources["ore"], 600, 40);
-	GameManager.drawSurface.fillText("Energy Crystals: " + collectedResources["crystal"], 341, 100);
 }
 
 /**
@@ -1579,15 +1569,6 @@ function drawAwaitingStartInstructions() {
 		const textHeight = getHeightFromFont(GameManager.drawSurface.font);
 		GameManager.drawSurface.fillText(awaitingText, GameManager.screenWidth / 2 - textWidth / 2,
 			GameManager.screenHeight / 2 + textHeight / 2);
-	}
-}
-
-/**
- * manually render level select ui buttons last
- */
-function drawLevelSelectUIButtons() {
-	for (let i = 0; i < levelSelectUIButtons.objectList.length; ++i) {
-		levelSelectUIButtons.objectList[i].render(GameManager);
 	}
 }
 
@@ -1854,29 +1835,7 @@ function createButtons() {
 			"super teleport", "mining laser", "upgrade station", "ore refinery"]));
 
 	pauseButtons.push(new Button(100, gameLayer.height / 2 - 50, 0, 0, null, gameLayer, "Continue", unpauseGame, false, false));
-	pauseButtons.push(new Button(100, gameLayer.height / 2 + 50, 0, 0, null, gameLayer, "Abort Mission", showScoreScreen, false, false, null, null, [false]));
-
-	scoreScreenButtons.push(new Button(200, 135, 0, 0, null, scoreScreenLayer, "Score: 0", null, false, true, null, null, [], false));
-	scoreScreenButtons.push(new Button(20, 200, 0, 0, null, scoreScreenLayer, "Continue", goToLevelSelect, false, true, null, null, [false, false]));
-}
-
-/**
- * create all level select screen buttons once here
- */
-function createLevelSelectButtons() {
-	// level select buttons
-	for (let i = 0; i < GameManager.scriptObjects["levelList.js"].levels.length; ++i) {
-		const levelImageName = GameManager.scriptObjects["levelList.js"].levelImages[i].split('.').slice(0, -1).join('.');
-		let levelPosition = GameManager.scriptObjects["levelList.js"].levelPositions[i];
-		levelSelectButtons.push(new LevelButton(levelPosition[0], levelPosition[1], levelImageName,
-			levelSelectLayer, GameManager.scriptObjects["levelList.js"].levels[i], i));
-	}
-
-	// back button
-	let levelSelectBackButton = new ImageButton(6, GameManager.gameHeight - 44, 0, GameManager.getImage("Interface/Frontend/LP_Normal.bmp"),
-		GameManager.getImage("Interface/Frontend/LP_Glow.bmp"), levelSelectLayer, returnToMainMenu, [true], false);
-	levelSelectBackButton.darkenedSurface = GameManager.getImage("Interface/Frontend/LP_Dull.bmp");
-	levelSelectUIButtons.push(levelSelectBackButton);
+	pauseButtons.push(new Button(100, gameLayer.height / 2 + 50, 0, 0, null, gameLayer, "Abort Mission", showScoreScreen, false, false, null, null, ["quit"]));
 }
 
 /**
@@ -1924,7 +1883,7 @@ function levelIsUnlocked(levelNum) {
 	}
 	if (levelNum === 16) {
 		const levelScore14 = getLevelScore(14);
-		const levelScore15 = getValue(GameManager.scriptObjects["levelList.js"].levels[15]);
+		const levelScore15 = getLevelScore(15);
 		return levelScore14 != null && levelScore15 != null;
 	}
 	if (levelNum < 19) {
@@ -1998,44 +1957,132 @@ function levelIsUnlocked(levelNum) {
 /**
  * create all menu screen buttons once here
  */
-function createMenuButtons() {
-	// main menu buttons
-	let xPos = 320;
-	let yPos = 240;
+function createMainMenuLayers() {
+	const confMainMenu = GameManager.configuration["Lego*"]["Menu"]["MainMenuFull"];
 
-	const fontLow = new BitmapFont("Interface/FrontEnd/Menu_Font_LO.bmp");
-	const fontHigh = new BitmapFont("Interface/FrontEnd/Menu_Font_HI.bmp");
+	const menuCount = parseInt(confMainMenu["MenuCount"]);
+	for (let m = 0; m < menuCount - 1; m++) {
+		const menuKey = "Menu" + (m + 1);
+		const confMenu = confMainMenu[menuKey];
+		mainMenuLayers[menuKey] = new Layer(0, 0, 1, 1, GameManager.screenWidth, GameManager.screenHeight);
+		mainMenuLayers[menuKey].background = GameManager.getImage(confMenu["MenuImage"]);
+		mainMenuLayers[menuKey].width = mainMenuLayers[menuKey].background.width;
+		mainMenuLayers[menuKey].height = mainMenuLayers[menuKey].background.height;
+		mainMenuLayers[menuKey].configuration = confMenu;
+		const fontLow = GameManager.getFont(confMenu["LoFont"]);
+		const fontHigh = GameManager.getFont(confMenu["HiFont"]);
+		let position = confMenu["Position"];
+		const mainX = parseInt(position[0]);
+		const mainY = parseInt(position[1]);
+		const autoCenter = confMenu["AutoCenter"] === "TRUE";
+		if (confMenu["DisplayTitle"] === "TRUE") {
+			new MenuTitleLabel(mainX, mainY, fontLow, confMenu["FullName"], mainMenuLayers[menuKey], autoCenter);
+		}
+		const itemCount = parseInt(confMenu["ItemCount"]);
+		for (let c = 0; c < itemCount; c++) {
+			if (m === 0 && c === itemCount - 1) { // TODO better use menu identifier/key?
+				continue; // ignore last entry (Exit Game) in main menu
+			}
+			const itemArgs = confMenu["Item" + (c + 1)];
+			const menuFunc = itemArgs[0] === "Next" ? goToMenu : null;
+			const itemX = mainX + parseInt(itemArgs[1]);
+			const itemY = mainY + parseInt(itemArgs[2]);
+			let normalSurface, hoverSurface, dullSurface;
+			if (itemArgs.length === 8) { // image button
+				normalSurface = GameManager.getImage(itemArgs[3]);
+				hoverSurface = GameManager.getImage(itemArgs[4]);
+				dullSurface = GameManager.getImage(itemArgs[5]);
+			} else { // default render as text button
+				const label = itemArgs[3].replace("_", " ");
+				normalSurface = fontLow.createTextImage(label);
+				hoverSurface = fontHigh.createTextImage(label);
+			}
+			const x = autoCenter ? itemX - normalSurface.canvas.width / 2 : itemX;
+			new ImageButton(x, itemY, 0, normalSurface, hoverSurface, mainMenuLayers[menuKey], menuFunc, [itemArgs[itemArgs.length - 1]]);
+		}
+		if (m === 0) { // TODO better use menu identifier/key?
+			new BitmapFontButton(mainX, mainY + 160, "Options", fontLow, fontHigh, mainMenuLayers[menuKey], goToMenu, ["Options"]);
+			mainMenuLayers["Options"] = new Layer(0, 0, 1, 1, GameManager.screenWidth, GameManager.screenHeight);
+			mainMenuLayers["Options"].background = mainMenuLayers["Menu1"].background;
+			let btn = new BitmapFontButton(mainX, mainY - 40, "Edge Panning " + (mousePanning ? "X" : "-"), fontLow, fontHigh, mainMenuLayers["Options"], toggleEdgePanning);
+			btn.optionalArgs = [btn];
+			btn = new BitmapFontButton(mainX, mainY, "Debug Mode " + (debug ? "X" : "-"), fontLow, fontHigh, mainMenuLayers["Options"], toggleDebugMode);
+			btn.optionalArgs = [btn];
+			btn = new BitmapFontButton(mainX, mainY + 40, "Show Hidden Spaces " + (!maskUntouchedSpaces ? "X" : "-"), fontLow, fontHigh, mainMenuLayers["Options"], toggleFog);
+			btn.optionalArgs = [btn];
+			new BitmapFontButton(mainX, mainY + 80, "Unlock All Levels", fontLow, fontHigh, mainMenuLayers["Options"], unlockAllLevels);
+			new BitmapFontButton(mainX, mainY + 120, "Clear Data", fontLow, fontHigh, mainMenuLayers["Options"], clearData);
+			new BitmapFontButton(mainX, mainY + 160, "Back", fontLow, fontHigh, mainMenuLayers["Options"], goToMenu, ["Menu1"]);
+		}
+	}
+}
 
-	menuButtons.push(new MainMenuButton(xPos, yPos, "Start Game", fontLow, fontHigh, menuLayer, goToLevelSelect, [true, true]));
-	xPos = 250;
-	yPos += 20;
+function finalizeLevelSelectLayer() {
+	levelSelectLayer = mainMenuLayers["Menu2"];
+	const allLevelsConf = GameManager.configuration["Lego*"]["Levels"];
+	levelSelectLayer.levels = {};
 
-	menuButtons.push(new Button(xPos, yPos, 0, 0, null, menuLayer, "    Options:", null, false, true, null, null, [], false, false, [200, 200, 200]));
-	yPos += 40;
-	menuButtons.push(new Button(xPos, yPos, 0, 0, null, menuLayer, "Edge Panning" + (mousePanning ? " ✓" : " X"),
-		toggleEdgePanning, false, true, null, null, [menuButtons.objectList.length], true, false, [0, 220, 245]));
-	yPos += 40;
-	menuButtons.push(new Button(xPos, yPos, 0, 0, null, menuLayer, "Debug Mode" + (debug ? " ✓" : " X"),
-		toggleDebugMode, false, true, null, null, [menuButtons.objectList.length], true, false, [200, 160, 185]));
-	yPos += 40;
-	menuButtons.push(new Button(xPos, yPos, 0, 0, null, menuLayer, "Show Hidden Spaces" + (maskUntouchedSpaces ? " X" : " ✓"),
-		toggleFog, false, true, null, null, [menuButtons.objectList.length], true, false, [200, 160, 185]));
-	yPos += 40;
-	menuButtons.push(new Button(xPos, yPos, 0, 0, null, menuLayer, "Unlock All Levels",
-		unlockAllLevels, false, true, null, null, [], true, false, [240, 120, 122]));
-	yPos += 40;
-	menuButtons.push(new Button(xPos, yPos, 0, 0, null, menuLayer, "Clear Data",
-		clearData, false, true, null, null, [], true, false, [240, 120, 122]));
+	const menuConf = GameManager.configuration["Lego*"]["Menu"];
+	const levelTextConf = menuConf["LevelText"];
+	const window = [];
+	levelTextConf["Window"].forEach(function (val) {
+		window.push(parseInt(val))
+	});
+	const panel = levelTextConf["Panel"];
+	const winPanel = new WindowPanel(panel[1], panel[2], 50, GameManager.getImage(panel[0]), levelSelectLayer, window[0], window[1], window[2], window[3]);
+	const font = GameManager.getFont("Interface/Fonts/Font5_Hi.bmp");
+	winPanel.setFirstLine(font, levelTextConf["Level"]);
+
+	Object.keys(allLevelsConf).forEach(function (levelKey) {
+		if (!(levelKey.startsWith("Tutorial") || levelKey.startsWith("Level"))) {
+			return;
+		}
+		const levelConf = allLevelsConf[levelKey];
+		levelSelectLayer.levels[levelKey] = {conf: levelConf};
+		const frontendX = levelConf["FrontEndX"];
+		const frontendY = levelConf["FrontEndY"];
+		let menuBmp = levelConf["MenuBMP"];
+		if (!(menuBmp)) {
+			return;
+		}
+		const bitmaps = menuBmp.split(",");
+		const brightenedSurface = GameManager.getImage(bitmaps[0]);
+		const normalSurface = GameManager.getImage(bitmaps[1]);
+		const fullName = levelConf["FullName"];
+		const levelIndex = levelKey.startsWith("Tutorial") ? parseInt(fullName.charAt(0)) - 1 : parseInt(levelKey.slice(-2)) + 7; // TODO should be obsolete, once level data handling is refactored
+		levelSelectLayer.levels[levelKey].btn = new ImageButton(frontendX, frontendY, 100, normalSurface, brightenedSurface, levelSelectLayer, resetLevelVars, [GameManager.scriptObjects["levelList.js"].levels[levelIndex]], true);
+		levelSelectLayer.levels[levelKey].btn.unavailableSurface = GameManager.getImage(bitmaps[2]);
+		levelSelectLayer.levels[levelKey].btn.additionalRequirement = levelIsUnlocked;
+		levelSelectLayer.levels[levelKey].btn.additionalRequirementArgs = [levelIndex];
+		levelSelectLayer.levels[levelKey].btn.mouseEnterCallback = function () {
+			let appendix = "";
+			const levelScore = getLevelScore(levelIndex);
+			if (levelScore != null) {
+				appendix = " l " + menuConf["Level_Completed"] + " (" + levelScore + ")"
+			}
+			winPanel.setSecondLine(font, fullName + appendix);
+		};
+		levelSelectLayer.levels[levelKey].btn.mouseLeaveCallback = function () {
+			winPanel.setSecondLine(font, menuConf["Level_Incomplete"]);
+		}
+	});
+}
+
+function goToMenu(menuKey) {
+	if (menuLayer !== null) {
+		menuLayer.active = false;
+	}
+	gameLayer.active = false;
+	menuLayer = mainMenuLayers[menuKey];
+	menuLayer.active = true;
+	menuLayer.cameraY = 0;
 }
 
 /**
  * switch to the level select layer
  */
 function goToLevelSelect(resetCamera, keepMusic) {
-	menuLayer.active = false;
-	levelSelectLayer.active = true;
-	scoreScreenLayer.active = false;
-	gameLayer.active = false;
+	goToMenu("Menu2");
 	if (resetCamera) {
 		levelSelectLayer.cameraY = 0;
 	}
@@ -2047,32 +2094,29 @@ function goToLevelSelect(resetCamera, keepMusic) {
 
 /**
  * toggle the global setting for whether or not the mouse may scroll the screen by pointing at the edges (both the variable and the HTML5 local var)
- * @param buttonIndex: the index of the 'edge panning' button in the menuButtons list
  */
-function toggleEdgePanning(buttonIndex) {
+function toggleEdgePanning(button) {
 	mousePanning = !mousePanning;
 	setValue("mousePanning", mousePanning);
-	menuButtons.objectList[buttonIndex].updateText("Edge Panning" + (mousePanning ? " ✓" : " X"));
+	button.setText("Edge Panning " + (mousePanning ? "X" : "-"));
 }
 
 /**
  * toggle debug mode variable and HTML5 local var on or off
- * @param buttonIndex: the index of the 'debug mode' button in the menuButtons list
  */
-function toggleDebugMode(buttonIndex) {
+function toggleDebugMode(button) {
 	debug = !debug;
 	setValue("debug", debug);
-	menuButtons.objectList[buttonIndex].updateText("Debug Mode" + (debug ? " ✓" : " X"));
+	button.setText("Debug Mode " + (debug ? "X" : "-"));
 }
 
 /**
  * toggle fog variable and HTML5 local var on or off
- * @param buttonIndex: the index of the 'Show Hidden Spaces' button in the menuButtons list
  */
-function toggleFog(buttonIndex) {
+function toggleFog(button) {
 	maskUntouchedSpaces = !maskUntouchedSpaces;
 	setValue("fog", maskUntouchedSpaces);
-	menuButtons.objectList[buttonIndex].updateText("Show Hidden Spaces" + (maskUntouchedSpaces ? " X" : " ✓"));
+	button.setText("Show Hidden Spaces " + (!maskUntouchedSpaces ? "X" : "-"));
 }
 
 function unlockAllLevels() {
@@ -2098,46 +2142,13 @@ function clearData() {
  */
 function returnToMainMenu(keepMusic = false) {
 	// toggle game and menu layers and swap music tracks, as well as update level score strings if coming from score screen
-	menuLayer.active = true;
-	levelSelectLayer.active = false;
-	scoreScreenLayer.active = false;
-	gameLayer.active = false;
+	goToMenu("Menu1");
 	if (!keepMusic) {
 		musicPlayer.changeTrack("menu theme");
 		stopAllSounds();
 	}
 	buildingPlacer.stop();
 	tileSelectedGraphic.visible = false;
-}
-
-/**
- * check if a level is highlighted; if so, display its name and best score
- */
-function checkHighlightedLevel() {
-	for (let i = 0; i < levelSelectButtons.objectList.length; ++i) {
-		// if level is not yet unlocked, hovering over it does nothing
-		if (!levelIsUnlocked(i)) {
-			continue;
-		}
-		if (collisionPoint(GameManager.mousePos.x, GameManager.mousePos.y, levelSelectButtons.objectList[i], levelSelectButtons.objectList[i].affectedByCamera)) {
-			GameManager.drawSurface.fillStyle = "rgb(65, 218, 255)";
-			GameManager.setFontSize(24);
-
-			// grab score, and format score string if valid
-			let highlightedLevelScore = getLevelScore(i);
-			if (highlightedLevelScore == null || highlightedLevelScore === "null") {
-				highlightedLevelScore = "";
-			} else {
-				highlightedLevelScore = ": " + highlightedLevelScore + "%";
-			}
-
-			// draw level name and score
-			let highlightedLevelName = GameManager.scriptObjects["Info_" + GameManager.scriptObjects["levelList.js"].levels[i] + ".js"].name + highlightedLevelScore;
-			const textWidth = GameManager.drawSurface.measureText(highlightedLevelName).width;
-			const textHeight = getHeightFromFont(GameManager.drawSurface.font);
-			GameManager.drawSurface.fillText(highlightedLevelName, GameManager.screenWidth / 2 - textWidth / 2, 19 * GameManager.screenHeight / 20);
-		}
-	}
 }
 
 /**
@@ -2234,23 +2245,21 @@ function initGlobals() {
 	// should the game render any active debug info?
 	debug = getValue("debug") === "true";
 
-	menuLayer = new Layer(0, 0, 1, 1, GameManager.screenWidth, GameManager.screenHeight, true);
-	levelSelectLayer = new Layer(0, 0, 1, 1, GameManager.screenWidth, GameManager.screenHeight);
+	mainMenuLayers = {};
+	menuLayer = null;
+	levelSelectLayer = null;
 	gameLayer = new Layer(0, 0, 1, 1, GameManager.screenWidth, GameManager.screenHeight);
-	scoreScreenLayer = new Layer(0, 0, 1, 1, GameManager.screenWidth, GameManager.screenHeight);
 	musicPlayer = new MusicPlayer();
 	musicPlayer.changeTrack("menu theme");
 	buttons = new ObjectGroup();
 	pauseButtons = new ObjectGroup();
-	menuButtons = new ObjectGroup();
-	levelSelectButtons = new ObjectGroup();
-	levelSelectUIButtons = new ObjectGroup();
-	scoreScreenButtons = new ObjectGroup();
 	// create all in-game UI buttons initially, as there is no reason to load and unload these
 	createButtons();
 	// create all menu buttons
-	createMenuButtons();
-	createLevelSelectButtons();
+	createMainMenuLayers();
+	finalizeLevelSelectLayer();
+	scoreScreenLayer = new ScoreScreenLayer(GameManager.configuration["Lego*"]["Reward"]);
+	mainMenuLayers["Reward"] = scoreScreenLayer;
 	GameManager.drawSurface.font = "48px Arial";
 	// update me manually for now, as the UI does not yet have task priority buttons
 	tasksAutomated = {
@@ -2288,6 +2297,8 @@ function initGlobals() {
 	vehicles = new ObjectGroup();
 	collectables = new ObjectGroup();
 	dynamiteInstances = new ObjectGroup();
+
+	goToMenu("Menu1");
 }
 
 /**
@@ -2307,7 +2318,7 @@ function checkAccomplishedObjective() {
 		}
 	}
 	if (won) {
-		showScoreScreen(true);
+		showScoreScreen("completed");
 	}
 }
 
@@ -2324,8 +2335,8 @@ function calculateLevelScore() {
  * @param score: the newly achieved level score (may or may not be the all-time high-score)
  */
 function setLevelScore(score) {
-	const prevScore = getValue(levelName);
-	if (prevScore === "null" || prevScore === undefined || prevScore < score) {
+	const prevScore = getValue(levelName, null);
+	if (prevScore != null && prevScore < score) {
 		setValue(levelName, score);
 	}
 }
@@ -2337,21 +2348,20 @@ function getLevelScore(level) {
 /**
  * switch to the score-screen layer
  */
-function showScoreScreen(completedMission) {
-	menuLayer.active = false;
-	levelSelectLayer.active = false;
-	scoreScreenLayer.active = true;
-	gameLayer.active = false;
+function showScoreScreen(missionState) {
+	goToMenu("Reward");
 	musicPlayer.changeTrack("score screen");
 	stopAllSounds();
 	if (!GameManager.devMode) {
 		unblockPageExit();
 	}
-	if (completedMission) {
+	if (missionState === "completed") {
 		lastLevelScore = calculateLevelScore();
 		setLevelScore(lastLevelScore);
-		scoreScreenButtons.objectList[0].updateText(scoreScreenButtons.objectList[0].text.split(":")[0] + ": " + lastLevelScore);
 	}
+	// TODO use actual values from level information
+	scoreScreenLayer.setValues(missionState, "Some Mission", 0, 0, 0, 0, 0, 0, 0, 0, 0, lastLevelScore);
+	scoreScreenLayer.startReveal();
 }
 
 /**
@@ -2369,59 +2379,22 @@ function checkCloseMenu() {
  * main update loop: update the current layer and any non-automatic objects
  */
 function update() {
+	// update is usually not called for layers, do it manually for now
+	if (scoreScreenLayer.active) {
+		scoreScreenLayer.update();
+	}
+
+	if (levelSelectLayer.active) {
+		applyLevelSelectScrolling();
+	}
+
 	// menu update
 	if (menuLayer.active) {
 		// update objects
 		GameManager.updateObjects();
-		menuButtons.update();
-
-		// pre-render; draw menu background
-		GameManager.drawSurface.drawImage(GameManager.getImage("Interface/FrontEnd/MenuBGpic.bmp").canvas, 0, 0, GameManager.screenWidth, GameManager.screenHeight);
 
 		// inital render; draw all rygame objects
 		GameManager.drawFrame();
-	}
-
-	// level select update
-	else if (levelSelectLayer.active) {
-		let levelpickImage = GameManager.getImage("Interface/LEVELPICKER/Levelpick.bmp");
-		let levelpickHeight = levelpickImage.height * GameManager.getScreenZoom();
-
-		// update input
-		checkScrollLevelSelect(levelpickHeight);
-
-		// draw level select image scrolled according to current scroll value (in front of buttons to hide overlaid pixels when highlighted or darkened)
-		GameManager.drawSurface.drawImage(levelpickImage.canvas, 0, -levelSelectLayer.cameraY, GameManager.screenWidth, levelpickHeight);
-
-		// update objects
-		GameManager.updateObjects();
-		levelSelectButtons.update();
-		levelSelectUIButtons.update();
-		// inital render; draw all rygame objects
-		GameManager.drawFrame();
-
-		GameManager.drawSurface.drawImage(GameManager.getImage("Interface/Frontend/LowerPanel.bmp").canvas, 0, 0, GameManager.screenWidth, GameManager.screenHeight);
-
-		// draw ui buttons on top
-		drawLevelSelectUIButtons();
-		checkHighlightedLevel();
-	}
-
-	// score screen update
-	else if (scoreScreenLayer.active) {
-		// update objects
-		GameManager.updateObjects();
-		scoreScreenButtons.update();
-
-		// pre-render; draw solid background
-		GameManager.drawSurface.fillStyle = "rgb(28,108,108)"; // turquoise background color
-		GameManager.drawSurface.fillRect(0, 0, GameManager.screenWidth, GameManager.screenHeight);
-
-		// inital render; draw all rygame objects
-		GameManager.drawFrame();
-
-		// post-render; draw effects and UI
-		drawScoreScreenUI();
 	}
 
 	// game update
@@ -2483,12 +2456,12 @@ function update() {
 		drawAwaitingStartInstructions();
 		drawPauseInstructions();
 	}
+	GameManager.mouseWheel = 0;
 }
 
 // to instant load a level append ?devmode=true&level=03 to the URL
-const url = new URL(window.location.href);
-GameManager.devMode = url.searchParams.get("devmode") === "true";
-const levelFromUrl = url.searchParams.get("level");
+GameManager.devMode = getUrlParamCaseInsensitive("devmode", true) === "true";
+let levelFromUrl = getUrlParamCaseInsensitive("level");
 
 // split level data files (combined for faster loading)
 Object.keys(GameManager.scriptObjects["levels.js"]).forEach(function (key) {

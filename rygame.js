@@ -217,7 +217,8 @@ function binarySearch(a, x, key, leftMost, lo, hi) {
  */
 function createContext(width, height, is3d) {
 	if (width < 1 || height < 1) {
-		throw "Can't create context with size " + width + " x " + height;
+		console.error("Can't create context with size " + width + " x " + height);
+		return createDummyImage(64, 64);
 	}
 	const canvas = document.createElement("canvas");
 	canvas.setAttribute('width', width);
@@ -517,6 +518,13 @@ GameManagerInternal.prototype.initializeRygame = function (is3d) {
 			GameManager.mouseDownRight = false;
 		}
 	});
+	GameManager.canvas.addEventListener("wheel", function (e) {
+		if (e.deltaMode === 0) { // unit is pixels
+			GameManager.mouseWheel = e.deltaY;
+		} else if (e.deltaMode === 1) { // TODO unit is lines
+		} else if (e.deltaMode === 2) { // TODO unit is pages
+		}
+	});
 	GameManager.canvas.addEventListener('contextmenu', function (e) {
 		e.preventDefault();
 	});
@@ -590,14 +598,14 @@ GameManagerInternal.prototype.drawFrame = function () {
 	// render objects to frames first (objects are sorted by depth when added, so no need to do any sorting here)
 	for (let i = this.renderOrderedCompleteObjectList.length - 1; i >= 0; i--) {
 		const drawObject = this.renderOrderedCompleteObjectList[i];
-		if (drawObject.renderAutomatically && drawObject.drawLayer.active && (!drawObject.drawLayer.frozen)) {
+		if (drawObject.renderAutomatically && drawObject.drawLayer != null && drawObject.drawLayer.active && (!drawObject.drawLayer.frozen)) {
 			drawObject.render();
 		}
 	}
 
 	for (let i = this.renderOrderedCompleteObjectList.length - 1; i >= 0; i--) {
 		const drawGuiObject = this.renderOrderedCompleteObjectList[i];
-		if (drawGuiObject.drawLayer.active && (!drawGuiObject.drawLayer.frozen)) {
+		if (drawGuiObject.renderAutomatically && drawGuiObject.drawLayer != null && drawGuiObject.drawLayer.active && (!drawGuiObject.drawLayer.frozen)) {
 			drawGuiObject.renderGuiElements();
 		}
 	}
@@ -643,16 +651,32 @@ GameManagerInternal.prototype.getImage = function (imageName) {
 	}
 };
 
+GameManagerInternal.prototype.getFont = function (fontName) {
+	if (!fontName || fontName.length === 0) {
+		throw "fontName must not be undefined, null or empty - was " + fontName;
+	} else {
+		const lFontName = fontName.toLowerCase();
+		if (!(lFontName in this.fonts) || this.fonts[lFontName] === undefined || this.fonts[lFontName] === null) {
+			console.error("Font '" + fontName + "' unknown! Using static placeholder font image instead");
+			this.fonts[lFontName] = new DummyFont();
+		}
+		return this.fonts[lFontName];
+	}
+};
+
 /**
  * GameManagerInternal constructor: initialize variables stored and maintained by the GameManager
  */
 function GameManagerInternal() {
+	this.configuration = null;
 	// list of image resources
 	this.images = [];
 	// list of sound resources
 	this.sounds = [];
 	// list of script resources
 	this.scriptObjects = [];
+	// list of bitmap fonts
+	this.fonts = [];
 	this.fps = 40;
 	this.keyStates = [];
 	this.completeLayerList = [];
@@ -677,10 +701,9 @@ function GameManagerInternal() {
 	this.mouseReleasedRight = false;
 	this.mouseReleasedPosLeft = {x: 1, y: 1};
 	this.mouseReleasedPosRight = {x: 1, y: 1};
+	this.mouseWheel = 0;
 	// this is just a default; feel free to change it at any point from the game file
 	this.fullScreenKey = "F";
-	// text alignment
-	this.textAlign = "";
 	// font weight - first part of html font property (formatted 'fontWeight fontSizepx fontName')
 	this.fontWeight = "";
 	// font size in pixels - second part of html font property (formatted 'fontWeight fontSizepx fontName')
@@ -1027,21 +1050,23 @@ makeChild("ImageButton", "RygameObject");
  */
 ImageButton.prototype.update = function () {
 	if (this.additionalRequirement != null) {
-		if (!(this.additionalRequirement.apply(this, this.additionalRequirementArgs))) {
-			this.clickable = false;
-			this.drawSurface = this.unavailableSurface;
-		} else {
-			this.clickable = true;
-
-		}
+		this.clickable = this.additionalRequirement.apply(this, this.additionalRequirementArgs);
 	}
 
+	const mouseOver = collisionPoint(GameManager.mousePos.x, GameManager.mousePos.y, this, this.affectedByCamera) && this.clickable;
+	if (mouseOver && !this.lastMouseOverState && this.mouseEnterCallback) {
+		this.mouseEnterCallback();
+	} else if (!mouseOver && this.lastMouseOverState && this.mouseLeaveCallback) {
+		this.mouseLeaveCallback();
+	}
+	this.lastMouseOverState = mouseOver;
+
 	// if this button is not currently interactive, don't need to update anything else
-	if (!this.clickable) {
+	if (!(this.clickable)) {
+		this.drawSurface = this.unavailableSurface;
 		return;
 	}
 
-	const mouseOver = collisionPoint(GameManager.mousePos.x, GameManager.mousePos.y, this, this.affectedByCamera);
 	// mouse pressed and released events can occur in the same frame on high doses of coffee
 	if (GameManager.mousePressedLeft === true) {
 		this.mouseDownOnButton = mouseOver;
@@ -1055,7 +1080,7 @@ ImageButton.prototype.update = function () {
 		this.mouseDownOnButton = false;
 	}
 
-	if (collisionPoint(GameManager.mousePos.x, GameManager.mousePos.y, this, this.affectedByCamera)) {
+	if (mouseOver) {
 		if (this.mouseDownOnButton) {
 			this.drawSurface = this.darkenedSurface;
 		} else {
@@ -1090,6 +1115,9 @@ function ImageButton(x, y, drawDepth, normalSurface, brightenedSurface, layer, r
 	this.additionalRequirementArgs = [];
 	this.clickable = true;
 	this.mouseDownOnButton = false;
+	this.lastMouseOverState = false;
+	this.mouseEnterCallback = null;
+	this.mouseLeaveCallback = null;
 	if (this.normalSurface) {
 		this.rect = new Rect(this.normalSurface.width, this.normalSurface.height);
 	} else if (this.brightenedSurface) {
@@ -1406,4 +1434,13 @@ function blockPageExit() {
 
 function unblockPageExit() {
 	window.removeEventListener("beforeunload", warnMissionAbort);
+}
+
+function getUrlParamCaseInsensitive(key, lowercaseValue) {
+	for (const pair of new URLSearchParams(location.search)) {
+		if (pair[0].toLowerCase() === key.toLowerCase()) {
+			return lowercaseValue ? pair[1].toLowerCase() : pair[1];
+		}
+	}
+	return null;
 }

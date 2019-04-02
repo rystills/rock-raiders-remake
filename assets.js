@@ -9,17 +9,19 @@ object = {
 		["wad0bmp", "Languages/Loading.bmp"], // loading screen image
 		["wad0bmp", "Interface/FrontEnd/gradient.bmp"], // loading bar container image
 		["js", "", "loadingScreenOverride.js"], // script to override loading screen to Rock Raiders loading screen
+		["js", "gui", "BitmapFont.js"], // important, must be loaded before creating UI elements
 
 		// ~images~
 		// menu resources
 		["wad0bmp", "Interface/FrontEnd/MenuBGpic.bmp"], // main menu background
-		["wad0alpha", "Interface/FrontEnd/Menu_Font_LO.bmp"], // main menu font
-		["wad0alpha", "Interface/FrontEnd/Menu_Font_HI.bmp"], // (highlighted) main menu font
-		["wad0alpha", "Interface/Fonts/Font5_Hi.bmp"],
+		["wad0font", "Interface/FrontEnd/Menu_Font_LO.bmp"], // main menu font
+		["wad0font", "Interface/FrontEnd/Menu_Font_HI.bmp"], // (highlighted) main menu font
+		["wad0font", "Interface/Fonts/Font5_Hi.bmp"],
 		["wad0bmp", "Interface/Frontend/LP_Normal.bmp"], // back button in level select view
 		["wad0bmp", "Interface/Frontend/LP_Glow.bmp"], // back button in level select view (hovered)
 		["wad0bmp", "Interface/Frontend/LP_Dull.bmp"], // back button in level select view (pressed)
 		["wad0alpha", "Interface/Frontend/LowerPanel.bmp"], // lower panel in level select view
+		["wad0bmp", "Interface/Frontend/SaveLoad.bmp"],
 
 		// level images
 		["wad0bmp", "Interface/LEVELPICKER/Levelpick.bmp"], // level select menu background
@@ -123,6 +125,38 @@ object = {
 		["wad0alpha", "Levels/GameLevels/GLevel25.bmp"], // level 25 image
 		["wad0alpha", "Levels/GameLevels/Level25.bmp"],
 		["wad0alpha", "Levels/GameLevels/Level25G.bmp"],
+
+		// score screen
+		["wad0bmp", "Interface/reward/RSGREY.bmp"], // score screen background
+		["wad0alpha", "Interface/reward/RSCRYSTALS.bmp"],
+		["wad0alpha", "Interface/reward/RSORE.bmp"],
+		["wad0alpha", "Interface/reward/RSDIGGING.bmp"],
+		["wad0alpha", "Interface/reward/RSBUILDING.bmp"],
+		["wad0alpha", "Interface/reward/RSCAVERN.bmp"],
+		["wad0alpha", "Interface/reward/RSMINFIG.bmp"],
+		["wad0alpha", "Interface/reward/RSMONSTER.bmp"],
+		["wad0alpha", "Interface/reward/RSOXYGEN.bmp"],
+		["wad0alpha", "Interface/reward/RSTIME.bmp"],
+		["wad0alpha", "Interface/reward/CAPT.bmp"],
+		["wad0font", "Interface/Fonts/FSFont.bmp"],
+		["wad0font", "Interface/Fonts/RSWritten.bmp"],
+		["wad0bmp", "Interface/Reward/GBcrystals.bmp"],
+		["wad0bmp", "Interface/Reward/GBore.bmp"],
+		["wad0bmp", "Interface/Reward/GBdigging.bmp"],
+		["wad0bmp", "Interface/Reward/GBbuilding.bmp"],
+		["wad0bmp", "Interface/Reward/GBcavern.bmp"],
+		["wad0bmp", "Interface/Reward/GBminfig.bmp"],
+		["wad0bmp", "Interface/Reward/GBmonster.bmp"],
+		["wad0bmp", "Interface/Reward/GBoxygen.bmp"],
+		["wad0bmp", "Interface/Reward/GBtime.bmp"],
+		["wad0bmp", "Interface/Reward/btn_save.bmp"],
+		["wad0bmp", "Interface/Reward/btn_save_hi.bmp"],
+		["wad0bmp", "Interface/Reward/btn_save_in.bmp"],
+		["wad0bmp", "Interface/Reward/btn_save_dim.bmp"],
+		["wad0bmp", "Interface/Reward/btn_adv.bmp"],
+		["wad0bmp", "Interface/Reward/btn_adv_hi.bmp"],
+		["wad0bmp", "Interface/Reward/btn_adv_in.bmp"],
+		["wad0bmp", "Interface/Reward/btn_adv_dim.bmp"],
 
 		// pointers/cursors
 		["wad0alpha", "Interface/Pointers/Aclosed.bmp"],
@@ -331,9 +365,12 @@ object = {
 		["js", "classes\\vehicles", "SmallDigger.js"], // small digger class
 		["js", "classes\\vehicles", "SmallTransportTruck.js"], // small transport truck class
 
-		// gui elements
-		["js", "gui", "BitmapFont.js"],
+		// gui element scripts
+		// load scripts in the end, so images have been loaded before and are ready to use
 		["js", "gui", "MainMenu.js"], // GUI elements used in the main menu
+		["js", "gui", "ScoreScreen.js"], // GUI elements used in the score screen
+
+		["wad1txt", "Lego.cfg", "Lego.cfg"], // configuration file with all parameters
 
 		// level data list files
 		["js", "levels", "levels.js"], // list of names of playable levels, to be used by the main menu for level selection
