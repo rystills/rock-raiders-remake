@@ -294,7 +294,6 @@ function calculatePath(terrain, startSpace, goalSpace, returnAllSolutions, raide
 						finalPathDistance = pathsFound[0].length;
 						solutions.push(pathsFound.shift());
 						continue;
-
 					}
 					// branch additional paths for each parent of the current path's current space
 					for (let i = 0; i < pathsFound[0][pathsFound[0].length - 1].parents.length; i++) {
@@ -358,13 +357,13 @@ function resourceAvailable(resourceType) {
  */
 function loadLevelData(name) {
 	levelName = name;
-	terrainMapName = "Surf_" + levelName + ".js";
-	cryoreMapName = "Cror_" + levelName + ".js";
-	olFileName = levelName + ".js";
-	predugMapName = "Dugg_" + levelName + ".js";
-	surfaceMapName = "High_" + levelName + ".js";
-	pathMapName = "path_" + levelName + ".js";
-	fallinMapName = "Fall_" + levelName + ".js";
+	const terrainMapName = "Surf_" + levelName + ".js";
+	const cryoreMapName = "Cror_" + levelName + ".js";
+	const olFileName = levelName + ".js";
+	const predugMapName = "Dugg_" + levelName + ".js";
+	const surfaceMapName = "High_" + levelName + ".js";
+	const pathMapName = "path_" + levelName + ".js";
+	const fallinMapName = "Fall_" + levelName + ".js";
 
 	// load in Space types from terrain, surface, and path maps
 	for (let i = 0; i < GameManager.scriptObjects[terrainMapName].level.length; i++) {
@@ -562,10 +561,10 @@ function createRaider() {
 			break;
 		}
 	}
-	if (toolStore == null) {
+	if (toolStore === null) {
 		return;
 	}
-	let raider = new Raider(toolStore);
+	const raider = new Raider(toolStore);
 	raider.walkPosDummy.setCenterX(toolStore.powerPathSpace.randomX());
 	raider.walkPosDummy.setCenterY(toolStore.powerPathSpace.randomY());
 	raider.currentTask = raider.walkPosDummy;
@@ -589,7 +588,6 @@ function createVehicle(vehicleType) {
 	if (toolStore == null) {
 		return;
 	}
-
 	const newVehicle = (vehicleType === "hover scout" ? new HoverScout(toolStore.powerPathSpace) :
 		(vehicleType === "small digger" ? new SmallDigger(toolStore.powerPathSpace) : new SmallTransportTruck(toolStore.powerPathSpace)));
 	vehicles.push(newVehicle);
@@ -1167,6 +1165,7 @@ function checkTogglePause() {
  * @param raider: if specified, only this raider will be stopped
  */
 function stopMinifig(raider) {
+	let stopGroup;
 	if (raider == null) {
 		stopGroup = selection;
 	} else {
@@ -1822,7 +1821,7 @@ function createButtons() {
 	const reinforceButton = new Button(buttonsX, 57, 0, 0, "Interface/Menus/Reinforce.bmp", gameLayer, "", reinforceWall, false, false,
 		["dirt", "loose rock", "hard rock", "ore seam", "energy crystal seam"]);
 	buttons.push(reinforceButton);
-	reinforceButton.additionalRequirement = function() {
+	reinforceButton.additionalRequirement = function () {
 		return selection[0] && !(selection[0].reinforced) && selection[0].shapeIndex === 0;
 	};
 
@@ -2161,20 +2160,6 @@ function clearData() {
 }
 
 /**
- * switch layers to the main menu, stopping all sounds and toggling all game-variables off
- */
-function returnToMainMenu(keepMusic = false) {
-	// toggle game and menu layers and swap music tracks, as well as update level score strings if coming from score screen
-	goToMenu("Menu1");
-	if (!keepMusic) {
-		musicPlayer.changeTrack("menu theme");
-		stopAllSounds();
-	}
-	buildingPlacer.stop();
-	tileSelectedGraphic.visible = false;
-}
-
-/**
  * stop all currently playing raider sounds
  */
 function stopAllSounds() {
@@ -2203,7 +2188,6 @@ function resetLevelVars(name) {
 	mousePressStartPos = {x: 1, y: 1};
 	mousePressIsSelection = false;
 	activeIconPanel = "";
-	lastLevelScore = 0;
 	selectionType = null;
 	for (let i = 0; i < terrain.length; ++i) {
 		for (let r = 0; r < terrain[i].length; ++r) {
@@ -2378,12 +2362,13 @@ function showScoreScreen(missionState) {
 	if (!GameManager.devMode) {
 		unblockPageExit();
 	}
+	let levelScore = 0;
 	if (missionState === "completed") {
-		lastLevelScore = calculateLevelScore();
-		setLevelScore(lastLevelScore);
+		levelScore = calculateLevelScore();
+		setLevelScore(levelScore);
 	}
 	// TODO use actual values from level information
-	scoreScreenLayer.setValues(missionState, "Some Mission", 0, 0, 0, 0, 0, 0, 0, 0, 0, lastLevelScore);
+	scoreScreenLayer.setValues(missionState, "Some Mission", 0, 0, 0, 0, 0, 0, 0, 0, 0, levelScore);
 	scoreScreenLayer.startReveal();
 }
 

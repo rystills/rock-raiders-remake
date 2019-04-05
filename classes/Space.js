@@ -145,8 +145,7 @@ Space.prototype.makeRubble = function (rubbleContainsOre, drilledBy, silent = fa
 			this.rockBreakSound = GameManager.createSound("ROKBREK1");
 			this.soundList.push(this.rockBreakSound);
 		}
-		this.rockBreakSound.play().catch(error => {
-		});
+		this.rockBreakSound.play().catch(() => {});
 	}
 	// setTypeProperties will check the value of rubbleContainsOre for us, so no need to do a type check here, just pipe it in
 	this.setTypeProperties("rubble 1", false, rubbleContainsOre);
@@ -174,9 +173,6 @@ Space.prototype.makeRubble = function (rubbleContainsOre, drilledBy, silent = fa
 		}
 	}
 	touchAllAdjacentSpaces(this);
-	if (this.reinforceDummy != null) {
-		this.reinforceDummy.die();
-	}
 };
 
 /**
@@ -765,8 +761,7 @@ Space.prototype.activateLandSlide = function () {
 			}
 		}
 		this.landSlides.push([new LandSlide(this)]);
-		this.landSlideSound.play().catch(error => {
-		});
+		this.landSlideSound.play().catch(() => {});
 	}
 };
 

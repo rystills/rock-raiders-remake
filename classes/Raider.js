@@ -291,56 +291,56 @@ Raider.prototype.vehicleInhibitsTask = function (taskType) {
 };
 
 /**
- * attempt to set task to index i of tasksAvailable
- * @param i: the index in tasksAvailable that we wish to choose
+ * attempt to set task to index taskIndex of tasksAvailable
+ * @param taskIndex: the index in tasksAvailable that we wish to choose
  * @param mustBeHighPriority: whether we will only allow a high priority task (true) or any task priority is fine (false)
  * @param calculatedPath: optional path to be used to reach the task; if left null, the path will be calculated here
  * @returns boolean whether the task was set (true) or not (false)
  */
-Raider.prototype.checkSetTask = function (i, mustBeHighPriority, calculatedPath) {
+Raider.prototype.checkSetTask = function (taskIndex, mustBeHighPriority, calculatedPath) {
 	// TODO: raiders will select the first high priority task this way, rather than the nearest one. Should be fixed when implementing automatic task priority order.
 	// if this task index is invalid, return now
-	if (i === -1) {
+	if (taskIndex === -1) {
 		return false;
 	}
 
 	// skip any tasks that cannot be performed automatically, unless they are high priority
-	if (tasksAvailable[i].taskPriority === 1 || (tasksAutomated[taskType(tasksAvailable[i])] && (mustBeHighPriority !== true))) {
+	if (tasksAvailable[taskIndex].taskPriority === 1 || (tasksAutomated[taskType(tasksAvailable[taskIndex])] && (mustBeHighPriority !== true))) {
 		let newPath = calculatedPath; // if we already calculated a path, don't bother calculating it again
 		if (newPath == null) {
 			newPath = findClosestStartPath(this, calculatePath(terrain, this.space,
-				typeof tasksAvailable[i].space == "undefined" ? tasksAvailable[i] : tasksAvailable[i].space, true));
+				typeof tasksAvailable[taskIndex].space == "undefined" ? tasksAvailable[taskIndex] : tasksAvailable[taskIndex].space, true));
 		}
 		// if there's no path to the task, move on to the next high priority task
 		if (newPath == null) {
 			return false;
 		}
 		// make sure the fact that we are in a vehicle won't stop us
-		if (this.vehicleInhibitsTask(taskType(tasksAvailable[i]))) {
+		if (this.vehicleInhibitsTask(taskType(tasksAvailable[taskIndex]))) {
 			return false;
 		}
 		// for building sites, we have to check for a pathable tool store and resources, otherwise we can't do anything
-		if (taskType(tasksAvailable[i]) === "build") {
+		if (taskType(tasksAvailable[taskIndex]) === "build") {
 			const destinationSite = this.chooseClosestBuilding("tool store");
 			// if there's no path to a tool store to get a resource with which to build, move on to the next high priority task
 			if (destinationSite == null) {
 				return false;
 			}
 			// if there is no resource in the tool store that is needed by the building site, move on to the next high priorty task
-			const dedicatedResourceTypes = Object.getOwnPropertyNames(tasksAvailable[i].dedicatedResources);
+			const dedicatedResourceTypes = Object.getOwnPropertyNames(tasksAvailable[taskIndex].dedicatedResources);
 			for (let r = 0; r < dedicatedResourceTypes.length; r++) {
 				// resource found! this will be our new task
-				if (tasksAvailable[i].resourceNeeded(dedicatedResourceTypes[r]) && resourceAvailable(dedicatedResourceTypes[r])) {
+				if (tasksAvailable[taskIndex].resourceNeeded(dedicatedResourceTypes[r]) && resourceAvailable(dedicatedResourceTypes[r])) {
 					this.currentObjectiveResourceType = dedicatedResourceTypes[r];
 					reservedResources[this.currentObjectiveResourceType]++;
 					this.reservingResource = true;
-					this.setTask(i, newPath, destinationSite, true);
+					this.setTask(taskIndex, newPath, destinationSite, true);
 					return true;
 				}
 			}
 		}
 		// for walls to be blown up with dynamite, check for a pathable tool store (same as build)
-		else if (taskType(tasksAvailable[i]) === "dynamite") {
+		else if (taskType(tasksAvailable[taskIndex]) === "dynamite") {
 			// make sure we can handle explosives
 			if (!this.amExplosivesExpert) {
 				return false;
@@ -352,29 +352,29 @@ Raider.prototype.checkSetTask = function (i, mustBeHighPriority, calculatedPath)
 			}
 			this.reservingResource = true;
 			this.currentObjectiveResourceType = "dynamite";
-			this.setTask(i, newPath, destinationSite, false);
+			this.setTask(taskIndex, newPath, destinationSite, false);
 			return true;
 		}
 		// this task is not a building site, check for required tools
 		else {
 			// check if the task requires a tool and we have it
-			if (this.haveTool(taskType(tasksAvailable[i]))) {
-				this.setTask(i, newPath);
+			if (this.haveTool(taskType(tasksAvailable[taskIndex]))) {
+				this.setTask(taskIndex, newPath);
 				return true;
 			}
 			// check if the task requires a tool and we can take it
 			const maxTools = 2 + this.upgradeLevel;
-			if (this.tools.length < maxTools && !this.vehicleInhibitsTask("get tool") && (taskType(tasksAvailable[i]) !== "drill hard" || (this.vehicle !== null && this.vehicle.canDrillHard))) {
+			if (this.tools.length < maxTools && !this.vehicleInhibitsTask("get tool") && (taskType(tasksAvailable[taskIndex]) !== "drill hard" || (this.vehicle !== null && this.vehicle.canDrillHard))) {
 				const destinationSite = pathToClosestBuilding(this, "tool store");
 				// if there's no path to a tool store to get a resource with which to build, move on to the next high priority task
 				if (destinationSite != null) {
 					// set original task so no other takes it
-					this.setTask(i, newPath, null, true);
+					this.setTask(taskIndex, newPath, null, true);
 					// override task with gettool task
 					this.currentTask = destinationSite[0];
 					this.currentPath = destinationSite;
 					this.currentObjective = this.currentTask;
-					this.getToolName = toolsRequired[taskType(tasksAvailable[i])];
+					this.getToolName = toolsRequired[taskType(tasksAvailable[taskIndex])];
 					return true;
 				}
 			}
@@ -615,7 +615,7 @@ Raider.prototype.workOnCurrentTask = function () {
 					}
 				}
 			}
-			// set distaneTraveled to 0 now as we are stopping to pick up the objective, and won't be moving any more
+			// set distanceTraveled to 0 now as we are stopping to pick up the objective, and won't be moving any more
 			this.distanceTraveled = 0;
 			if (this.busy || collisionReached || collisionRect(this, this.currentObjective, true)) {
 				if (!this.busy) {
@@ -626,7 +626,6 @@ Raider.prototype.workOnCurrentTask = function () {
 							freezeAngle = true;
 						}
 						this.moveOutsideCollision(this.currentObjective, this.xPrevious, this.yPrevious);
-
 					}
 				}
 
@@ -789,8 +788,7 @@ Raider.prototype.workOnCurrentTask = function () {
 				} else if (taskType === "drill" || taskType === "drill hard") {
 					this.currentTask.updateDrillPercent(this.drillSpeed * this.currentTask.drillSpeedModifier *
 						(this.vehicle == null ? 1 : (taskType === "drill" ? this.vehicle.drillSpeedModifier : this.vehicle.drillHardSpeedModifier)), this.space);
-					this.drillSound.play().catch(error => {
-					});
+					this.drillSound.play().catch(() => {});
 					this.busy = true;
 					if (this.currentTask.drillPercent >= 100) {
 						this.currentTask.drillPercent = 100;
@@ -813,8 +811,7 @@ Raider.prototype.workOnCurrentTask = function () {
 							this.space = this.currentTask;
 						}
 						this.currentTask.updateSweepPercent(this.sweepSpeed * (this.vehicle == null ? 1 : this.vehicle.sweepSpeedModifier));
-						this.sweepSound.play().catch(error => {
-						});
+						this.sweepSound.play().catch(() => {});
 						this.busy = true;
 						if (this.currentTask.sweepPercent >= 100) {
 							this.currentTask.sweepPercent = 100;
@@ -950,11 +947,9 @@ Raider.prototype.samePosition = function (x1, y1, x2, y2) {
  */
 Raider.prototype.playDropSound = function () {
 	if (this.holding[0].type === "ore") {
-		this.dropOreSound.play().catch(error => {
-		});
+		this.dropOreSound.play().catch(() => {});
 	} else if (this.holding[0].type === "crystal") {
-		this.dropCrystalSound.play().catch(error => {
-		});
+		this.dropCrystalSound.play().catch(() => {});
 	}
 };
 
@@ -976,8 +971,7 @@ Raider.prototype.hurt = function (damageAmount) {
 	if (this.hp <= 0) {
 		this.die();
 	} else {
-		this.hurtSound.play().catch(error => {
-		});
+		this.hurtSound.play().catch(() => {});
 	}
 };
 

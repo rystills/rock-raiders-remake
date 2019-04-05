@@ -624,10 +624,6 @@ GameManagerInternal.prototype.drawFrame = function () {
 	this.mousePressedRight = false;
 };
 
-GameManagerInternal.prototype.getScreenZoom = function () {
-	return this.screenWidth / this.gameWidth;
-};
-
 /**
  * draws the input surface to the GameManager's drawSurface at the specified location
  * @param surface: the surface to be drawn onto the GameManager's drawSurface
@@ -684,9 +680,6 @@ function GameManagerInternal() {
 	this.updateOrderedCompleteObjectList = [];
 	this.canvas = document.getElementById('rygameCanvas');
 	this.drawSurface = null;
-	// native resolution of the game
-	this.gameWidth = 640;
-	this.gameHeight = 480;
 	// zoomed/shrinked screen resolution
 	this.screenWidth = this.canvas.width;
 	this.screenHeight = this.canvas.height;

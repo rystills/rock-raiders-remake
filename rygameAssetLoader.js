@@ -109,7 +109,6 @@ function loadConfigurationAsset(path, name, callback) {
 	const result = {};
 	const ancestry = [];
 	let activeObject = result;
-	console.log("Parsing configuration from " + path);
 	const xhr = new XMLHttpRequest();
 	xhr.open('GET', path, true);
 	xhr.responseType = 'arraybuffer'; // jQuery cant handle response type arraybuffer
@@ -381,9 +380,9 @@ function parseWadFile(data) {
  * @returns {string} Returns the local object url to the extracted data
  */
 WadHandler.prototype.getEntry = function (entryName) {
-	entryName = entryName.toLowerCase();
+	const lEntryName = entryName.toLowerCase();
 	for (let i = 0; i < this.entries.length; i++) {
-		if (this.entries[i] === entryName) {
+		if (this.entries[i] === lEntryName) {
 			return URL.createObjectURL(new Blob([this.buffer.slice(this.fStart[i], this.fStart[i] + this.fLength[i])], {'type': 'image/bmp'}));
 		}
 	}
@@ -457,7 +456,6 @@ function storeFilesInCache() {
 	openLocalCache((objectStore) => {
 		objectStore.put(wad0File, "wad0");
 		objectStore.put(wad1File, "wad1");
-		console.log("Cached files");
 	});
 }
 
