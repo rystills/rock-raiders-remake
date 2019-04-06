@@ -168,6 +168,8 @@ function adjacentSpaceXY(terrain, x, y, dirX, dirY) {
  * @param initialSpace: the starting space to be marked as touched from which we propagate out
  */
 function touchAllAdjacentSpaces(initialSpace) {
+	// update the type properties to adjust image and update properties like reinforcement or selectable
+	initialSpace.setTypeProperties(initialSpace.type);
 	if (!initialSpace.touched) {
 		if (initialSpace.isBuilding === false && (!(initialSpace.walkable || initialSpace.type === "water" || initialSpace.type === "lava"))) {
 			if (initialSpace.drillable || initialSpace.drillHardable || initialSpace.explodable) {
@@ -1063,7 +1065,7 @@ function upgradeBuilding() {
  */
 function pathToClosestBuilding(raider, buildingType) {
 	const closestBuilding = raider.chooseClosestBuilding(buildingType);
-	return findClosestStartPath(raider, calculatePath(terrain, raider.space, closestBuilding, true));
+	return findClosestStartPath(raider, calculatePath(terrain, raider.space, closestBuilding, true, raider));
 }
 
 /**
@@ -2336,7 +2338,7 @@ function calculateLevelScore() {
  */
 function setLevelScore(score) {
 	const prevScore = getValue(levelName, null);
-	if (prevScore != null && prevScore < score) {
+	if (prevScore == null || prevScore < score) {
 		setValue(levelName, score);
 	}
 }

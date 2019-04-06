@@ -531,10 +531,6 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 			if (index === -1) {
 				buildings.push(this);
 			}
-			// this case should never be possible
-			else {
-				console.log("WARNING: BUILDING TRIED TO ADD ITSELF TO BUILDINGS LIST, BUT WAS ALREADY THERE");
-			}
 		}
 
 	} else if (type === "building site") {

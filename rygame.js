@@ -497,10 +497,10 @@ GameManagerInternal.prototype.initializeRygame = function (is3d) {
 			// left click press detected
 			GameManager.mouseDownLeft = true;
 			GameManager.mousePressedLeft = true;
-			GameManager.mousePressedRight = true;
 		} else if (e.button === 2) {
 			// right click press detected
 			GameManager.mouseDownRight = true;
+			GameManager.mousePressedRight = true;
 		}
 	});
 	GameManager.canvas.addEventListener("mouseup", function (e) {
