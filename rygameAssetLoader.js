@@ -39,13 +39,12 @@ function loadImageAsset(path, name, callback) {
 	img.onload = function () {
 		const context = createContext(img.naturalWidth, img.naturalHeight, false);
 		context.drawImage(img, 0, 0);
-		GameManager.images[name] = context;
+		GameManager.images[name.toLowerCase()] = context;
 		if (callback != null) {
 			callback();
 		}
 	};
 
-	GameManager.images[name] = img;
 	img.src = path;
 }
 
@@ -68,7 +67,7 @@ function loadAlphaImageAsset(path, name, callback) {
 			}
 		}
 		context.putImageData(imgData, 0, 0);
-		GameManager.images[name] = context;
+		GameManager.images[name.toLowerCase()] = context;
 		if (callback != null) {
 			callback();
 		}
@@ -96,7 +95,7 @@ function loadFontImageAsset(path, name, callback) {
 			}
 		}
 		context.putImageData(imgData, 0, 0);
-		GameManager.fonts[name] = new BitmapFont(context);
+		GameManager.fonts[name.toLowerCase()] = new BitmapFont(context);
 		if (callback != null) {
 			callback();
 		}
@@ -105,88 +104,79 @@ function loadFontImageAsset(path, name, callback) {
 	img.src = path;
 }
 
-function loadConfigurationAsset(path, name, callback) {
+function loadConfigurationAsset(buffer, name, callback) {
 	const result = {};
 	const ancestry = [];
 	let activeObject = result;
-	const xhr = new XMLHttpRequest();
-	xhr.open('GET', path, true);
-	xhr.responseType = 'arraybuffer'; // jQuery cant handle response type arraybuffer
-	xhr.onload = function () {
-		if (this.status === 200) {
-			const data = this.response;
-			const buffer = new Uint8Array(data);
-			let isComment = false;
-			let keyVal = 0; // 0 = looking for key, 1 = inside key, 1 = looking for value, 2 = inside value
-			let key = "";
-			let value = "";
-			// debug output is a bad idea here, buffer size is about 232.611 characters and has 6781 lines
-			for (let seek = 0; seek < buffer.length; seek++) {
-				let charCode = buffer[seek];
-				if (charCode === 123 && key === "FullName") { // dirty workaround but in the original file { (123) was used instead of Ä (142)
-					charCode = 142;
-				}
-				let charStr = String.fromCharCode(charCode);
-				if (charCode === 130) {
-					charStr = "ä";
-				} else if (charCode === 142) {
-					charStr = "Ä";
-				} else if (charCode === 162) {
-					charStr = "ö";
-				} else if (charCode === 167) {
-					charStr = "Ü";
-				} else if (charCode === 171) {
-					charStr = "ü";
-				} else if (charCode === 195) {
-					charStr = "ß";
-				}
-				if (charStr === ";") {
-					isComment = true;
-				} else if (charCode === 10 || charCode === 13) {
-					isComment = false;
-				}
-				if (!isComment) {
-					if (charCode > 32) { // not a whitespace
-						if (keyVal === 0) { // looking for key
-							if (charStr === "}") {
-								activeObject = ancestry.pop();
-							} else {
-								keyVal++;
-								key = charStr;
-							}
-						} else if (keyVal === 1) { // inside key
-							key += charStr;
-						} else if (keyVal === 2) { // looking for value
-							if (charStr === "{") { // start of a new object key is identifier
-								ancestry.push(activeObject);
-								activeObject = {};
-								ancestry[ancestry.length - 1][key] = activeObject;
-								keyVal = 0; // start looking for a key again
-							} else {
-								keyVal++;
-								value = charStr;
-							}
-						} else if (keyVal === 3) { // inside value
-							value += charStr;
-						}
-					} else { // some whitespace
-						if (keyVal === 1) {
-							keyVal++;
-						} else if (keyVal === 3) {
-							keyVal = 0;
-							const splitVal = value.replace(/\\/g, "/").split(/[:|]/);
-							activeObject[key] = splitVal.length > 1 ? splitVal : splitVal[0];
-						}
+	let isComment = false;
+	let keyVal = 0; // 0 = looking for key, 1 = inside key, 1 = looking for value, 2 = inside value
+	let key = "";
+	let value = "";
+	buffer = new Uint8Array(buffer);
+	// debug output is a bad idea here, buffer size is about 232.611 characters and has 6781 lines
+	for (let seek = 0; seek < buffer.length; seek++) {
+		let charCode = buffer[seek];
+		if (charCode === 123 && key === "FullName") { // dirty workaround but in the original file { (123) was used instead of Ä (142)
+			charCode = 142;
+		}
+		let charStr = String.fromCharCode(charCode);
+		if (charCode === 130) {
+			charStr = "ä";
+		} else if (charCode === 142) {
+			charStr = "Ä";
+		} else if (charCode === 162) {
+			charStr = "ö";
+		} else if (charCode === 167) {
+			charStr = "Ü";
+		} else if (charCode === 171) {
+			charStr = "ü";
+		} else if (charCode === 195) {
+			charStr = "ß";
+		}
+		if (charStr === ";") {
+			isComment = true;
+		} else if (charCode === 10 || charCode === 13) {
+			isComment = false;
+		}
+		if (!isComment) {
+			if (charCode > 32) { // not a whitespace
+				if (keyVal === 0) { // looking for key
+					if (charStr === "}") {
+						activeObject = ancestry.pop();
+					} else {
+						keyVal++;
+						key = charStr;
 					}
+				} else if (keyVal === 1) { // inside key
+					key += charStr;
+				} else if (keyVal === 2) { // looking for value
+					if (charStr === "{") { // start of a new object key is identifier
+						ancestry.push(activeObject);
+						activeObject = {};
+						ancestry[ancestry.length - 1][key] = activeObject;
+						keyVal = 0; // start looking for a key again
+					} else {
+						keyVal++;
+						value = charStr;
+					}
+				} else if (keyVal === 3) { // inside value
+					value += charStr;
 				}
-			}
-			GameManager.configuration = result;
-			if (callback != null) {
-				callback();
+			} else { // some whitespace
+				if (keyVal === 1) {
+					keyVal++;
+				} else if (keyVal === 3) {
+					keyVal = 0;
+					const splitVal = value.replace(/\\/g, "/").split(/[|]/);
+					activeObject[key] = splitVal.length > 1 ? splitVal : splitVal[0];
+				}
 			}
 		}
-	};
-	xhr.send();
+	}
+	GameManager.configuration = result;
+	if (callback != null) {
+		callback();
+	}
 }
 
 /**
@@ -295,7 +285,7 @@ function loadAssetNext() {
 		} else if (curAsset[0] === "wad0font") {
 			loadFontImageAsset(wad0File.getEntry(curAsset[1]), curAsset[1].toLowerCase(), loadAssetNext);
 		} else if (curAsset[0] === "wad1txt") {
-			loadConfigurationAsset(wad1File.getEntry(curAsset[1]), curAsset[1], loadAssetNext);
+			loadConfigurationAsset(wad1File.getEntryData(curAsset[1]), curAsset[1], loadAssetNext);
 		}
 	} else {
 		finishLoading();
@@ -389,6 +379,16 @@ WadHandler.prototype.getEntry = function (entryName) {
 	throw "Entry '" + entryName + "' not found in wad file";
 };
 
+WadHandler.prototype.getEntryData = function (entryName) {
+	const lEntryName = entryName.toLowerCase();
+	for (let i = 0; i < this.entries.length; i++) {
+		if (this.entries[i] === lEntryName) {
+			return this.buffer.slice(this.fStart[i], this.fStart[i] + this.fLength[i]);
+		}
+	}
+	throw "Entry '" + entryName + "' not found in wad file";
+};
+
 /**
  * Handles the extraction of single files from a bigger WAD data blob
  * @param buffer A data blob which contains the raw data in one piece
@@ -415,7 +415,7 @@ function startGameFileLocal() {
  */
 function startGameUrl() {
 	setLoadingMessage("Downloading WAD files... please wait", 20, loadingCanvas.height - 30);
-	const antiCorsPrefix = "https://cors-anywhere.herokuapp.com/"; // BAD IDEA! This enables MID attacks! But it's just a game... and nobody cares...
+	const antiCorsPrefix = "https://cors-anywhere.herokuapp.com/"; // BAD IDEA! This enables MITM attacks! But it's just a game... and nobody cares...
 	loadWadFiles(antiCorsPrefix + document.getElementById('wad0-url').value, antiCorsPrefix + document.getElementById('wad1-url').value);
 }
 

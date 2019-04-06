@@ -128,7 +128,7 @@ ScoreScreenLayer.prototype.setValues = function (missionState, missionTitle, cry
 	const m = Math.floor(timerMilliseconds / 60000).toString();
 	const mm = m.length < 2 ? "0" + m : m;
 	const s = Math.floor((timerMilliseconds % 60000) / 1000).toString();
-	const ss = m.length < 2 ? "0" + s : s;
+	const ss = s.length < 2 ? "0" + s : s;
 	this.overlays["Timer"].setValue(hh + ":" + mm + "." + ss);
 	this.overlays["Score"].setValue(score.toString() + "%");
 };

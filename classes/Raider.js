@@ -792,7 +792,7 @@ Raider.prototype.workOnCurrentTask = function () {
 					this.busy = true;
 					if (this.currentTask.drillPercent >= 100) {
 						this.currentTask.drillPercent = 100;
-						this.currentTask.makeRubble(true, this);
+						this.currentTask.makeRubble(4, this);
 						this.updateCompletedBy();
 						this.clearTask();
 					}

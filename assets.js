@@ -458,7 +458,7 @@ object = {
 		["wad0alpha", "Interface/IconPanel/IconPanel9.bmp"], // top right menu with space for 9 items and back button
 		["wad0alpha", "Interface/IconPanel/IconPanel10.bmp"], // top right menu with space for 10 items and back button
 		["wad0alpha", "Interface/IconPanel/IconPanel11.bmp"], // top right menu with space for 11 items and back button
-		["wad0alpha", "Interface/IconPanel/IconPanel11.bmp"], // same as IconPanel4 possibly obsolete
+		["wad0alpha", "Interface/IconPanel/IconPanel12.bmp"], // same as IconPanel4 possibly obsolete
 
 		["wad0alpha", "Interface/IconPanel/Back_HL.bmp"], // back button image used in top right icon panel
 		["wad0alpha", "Interface/IconPanel/Back_PR.bmp"], // back button image used in top right icon panel

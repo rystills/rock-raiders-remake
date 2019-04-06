@@ -572,7 +572,7 @@ GameManagerInternal.prototype.updateObjects = function () {
 	for (let i = 0; i < this.updateOrderedCompleteObjectList.length; i++) {
 		this.updateOrderedCompleteObjectList[i].xPrevious = this.updateOrderedCompleteObjectList[i].x;
 		this.updateOrderedCompleteObjectList[i].yPrevious = this.updateOrderedCompleteObjectList[i].y;
-		if (typeof this.updateOrderedCompleteObjectList[i].update == "function" && this.updateOrderedCompleteObjectList[i].updateAutomatically) {
+		if (this.updateOrderedCompleteObjectList[i].update && this.updateOrderedCompleteObjectList[i].updateAutomatically) {
 			this.updateOrderedCompleteObjectList[i].attemptUpdate();
 		}
 	}

@@ -109,7 +109,7 @@ Space.prototype.randomY = function () {
 
 /**
  * turn this space into rubble 1 (largest rubble level)
- * @param rubbleContainsOre: whether this space's rubble has ore in it (true) or not (false)
+ * @param rubbleContainsOre: the number of ores this space's rubble has in it
  * @param drilledBy: the raider instance who completed drilling this space
  * @param silent: whether this wall should collapse silently (true) or play a sound on collapsing (false)
  */
@@ -225,14 +225,15 @@ Space.prototype.checkWallSupported = function (drilledBy, silent = false) {
 	if ((adjacentSpaceIsWall[0] || adjacentSpaceIsWall[1]) && (adjacentSpaceIsWall[2] || adjacentSpaceIsWall[3])) {
 		return;
 	}
-	this.makeRubble(true, drilledBy, silent);
+	this.makeRubble(4, drilledBy, silent);
 };
 
 /**
  * reduce the level of rubble on this space, and generate a piece of ore at space center if the rubble contains ore
  */
 Space.prototype.sweep = function () {
-	if (this.rubbleContainsOre === true) {
+	if (this.rubbleContainsOre && this.rubbleContainsOre > 0) {
+		this.rubbleContainsOre--;
 		const newOre = new Collectable(this, "ore", this.randomX(), this.randomY());
 		collectables.push(newOre);
 		tasksAvailable.push(newOre);
@@ -335,7 +336,7 @@ Space.prototype.die = function () {
  * set all type-specific properties of the current space (called on init, as well as when changing space type)
  * @param type: this space's type
  * @param doNotChangeImage: whether this space should not change images while setting the new type (true) or should change images (false)
- * @param rubbleContainsOre: whether this space's rubble contains ore (true) or not (false)
+ * @param rubbleContainsOre: the number of ores this space's rubble has in it
  * @param requiredResources: the resources required to finish building this space (only valid if this is a building site)
  * @param dedicatedResources: the resources dedicated to build this space, but not yet placed (only valid if this is a building site)
  * @param placedResources: the resources placed at this space (only valid if this is a building site)
@@ -350,8 +351,8 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 	if (parentSpace != null) {
 		this.parentSpace = parentSpace;
 	}
-	// certain variables, such as rubbleContainsOre, should stay true even when this method is called multiple times
-	rubbleContainsOre = !((rubbleContainsOre !== true) && (this.rubbleContainsOre !== true));
+	// certain variables, such as rubbleContainsOre, should stay even when this method is called multiple times
+	rubbleContainsOre = (rubbleContainsOre && this.rubbleContainsOre) ? Math.max(rubbleContainsOre, this.rubbleContainsOre) : (rubbleContainsOre ? rubbleContainsOre : (this.rubbleContainsOre ? this.rubbleContainsOre : 0));
 	if (dedicatedResources == null) {
 		dedicatedResources = {"ore": 0, "crystal": 0};
 	}
@@ -414,8 +415,9 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 		this.image = "World/WorldTextures/RockSplit/ROCK00.BMP";
 		this.walkable = true;
 	} else if (type === "slug hole") {
-		this.image = "SlimySlugHole.jpg";
+		this.image = "World/WorldTextures/RockSplit/ROCK30.BMP";
 		this.walkable = true;
+		this.selectable = false;
 	} else if (powerPathSpaceTypes.indexOf(type) !== -1) {
 		this.image = (type === "power station powerPath" ? "power station powerPath.png" : type === "building power path" ? "World/WorldTextures/RockSplit/ROCK76.BMP" :
 			type === "power path" ? "World/WorldTextures/RockSplit/Rock60.bmp" : type === "upgrade station right" ? "upgrade station right.png" : "mining laser right.png");

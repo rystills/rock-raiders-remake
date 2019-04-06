@@ -1790,14 +1790,16 @@ RockRaidersGame.prototype.createGUIElements = function () {
 	this.groundIconPanel = new IconButtonPanel(cancelSelection);
 	this.groundIconPanel.addButton("Interface/Menus", "buildpath.bmp", buildPowerPath);
 	this.groundIconPanel.addButton("Interface/Menus", "diguppath.bmp", null, null, function () {
-		return selectionType === "power path";
+		return selectionType === "power path"; // seems obsolete, but is also in the original game
 	});
 	this.groundIconPanel.addButton("Interface/Icons", "efence.bmp", null, null, function () { return false; });
 	this.groundIconPanel.updateBackgroundImage();
 
 	// power path selection buttons
 	this.powerPathIconPanel = new IconButtonPanel(cancelSelection);
-	this.powerPathIconPanel.addButton("Interface/Menus", "diguppath.bmp", null, null, function () {
+	this.powerPathIconPanel.addButton("Interface/Menus", "diguppath.bmp", function () {
+		selection[0].makeRubble(2, null, true);
+	}, null, function () {
 		return selectionType === "power path";
 	});
 	this.powerPathIconPanel.addButton("Interface/Icons", "efence.bmp", null, null, function () { return false; });
@@ -1968,7 +1970,7 @@ function createMainMenuLayers() {
 		mainMenuLayers[menuKey].configuration = confMenu;
 		const fontLow = GameManager.getFont(confMenu["LoFont"]);
 		const fontHigh = GameManager.getFont(confMenu["HiFont"]);
-		let position = confMenu["Position"];
+		let position = confMenu["Position"].split(":");
 		const mainX = parseInt(position[0]);
 		const mainY = parseInt(position[1]);
 		const autoCenter = confMenu["AutoCenter"] === "TRUE";
@@ -1980,7 +1982,7 @@ function createMainMenuLayers() {
 			if (m === 0 && c === itemCount - 1) { // TODO better use menu identifier/key?
 				continue; // ignore last entry (Exit Game) in main menu
 			}
-			const itemArgs = confMenu["Item" + (c + 1)];
+			const itemArgs = confMenu["Item" + (c + 1)].split(":");
 			const menuFunc = itemArgs[0] === "Next" ? goToMenu : null;
 			const itemX = mainX + parseInt(itemArgs[1]);
 			const itemY = mainY + parseInt(itemArgs[2]);
@@ -2188,6 +2190,8 @@ function resetLevelVars(name) {
 	holdingEscKey = false;
 	loadLevelData(name);
 	RockRaiders.rightPanel.init(parseInt(GameManager.scriptObjects["Info_" + RockRaiders.levelName + ".js"].objective[1][1]));
+	// lets be fair and make this the last operation
+	RockRaiders.levelStartTime = new Date();
 }
 
 /**
@@ -2222,7 +2226,7 @@ function RockRaidersGame() {
 	// if true, this creates the "fog of war" type effect where unrevealed Spaces appear as solid rock (should only be set to false for debugging purposes)
 	maskUntouchedSpaces = getValue("fog") !== "false";
 	// can we scroll the screen using the mouse?
-	mousePanning = getValue("mousePanning", !GameManager.devMode);
+	mousePanning = getValue("mousePanning", (!GameManager.devMode).toString()) === "true";
 	// can we scroll the screen using the arrow keys?
 	keyboardPanning = true;
 	// should the game render any active debug info?
@@ -2333,6 +2337,8 @@ function getLevelScore(level) {
  * switch to the score-screen layer
  */
 function showScoreScreen(missionState) {
+	// lets be fair and stop the timer first
+	const timeElapsedMs = new Date() - RockRaiders.levelStartTime;
 	goToMenu("Reward");
 	musicPlayer.changeTrack("score screen");
 	stopAllSounds();
@@ -2345,7 +2351,9 @@ function showScoreScreen(missionState) {
 		setLevelScore(levelScore);
 	}
 	// TODO use actual values from level information
-	scoreScreenLayer.setValues(missionState, "Some Mission", 0, 0, 0, 0, 0, 0, 0, 0, 0, levelScore);
+	const maxCrystals = RockRaiders.rightPanel.neededCrystals !== 0 ? RockRaiders.rightPanel.neededCrystals : 25; // TODO replace 25 with number of crystals from level information
+	const crystals = Math.min(RockRaiders.rightPanel.resources["crystal"] * 100 / maxCrystals, 100);
+	scoreScreenLayer.setValues(missionState, "Some Mission", crystals, 0, 0, buildings.length, 0, 0, 0, 100, timeElapsedMs, levelScore);
 	scoreScreenLayer.startReveal();
 }
 
