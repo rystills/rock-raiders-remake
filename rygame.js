@@ -1042,11 +1042,15 @@ makeChild("ImageButton", "RygameObject");
  * update this MainMenuButton's state based on mouse interactivity
  */
 ImageButton.prototype.update = function () {
+	if (!this.visible) {
+		return; // don't update invisible buttons
+	}
 	if (this.additionalRequirement != null) {
 		this.clickable = this.additionalRequirement.apply(this, this.additionalRequirementArgs);
 	}
 
-	const mouseOver = collisionPoint(GameManager.mousePos.x, GameManager.mousePos.y, this, this.affectedByCamera) && this.clickable;
+	const mouseInRect = collisionPoint(GameManager.mousePos.x, GameManager.mousePos.y, this, this.affectedByCamera);
+	const mouseOver = mouseInRect && this.clickable;
 	if (mouseOver && !this.lastMouseOverState && this.mouseEnterCallback) {
 		this.mouseEnterCallback();
 	} else if (!mouseOver && this.lastMouseOverState && this.mouseLeaveCallback) {
@@ -1062,9 +1066,15 @@ ImageButton.prototype.update = function () {
 
 	// mouse pressed and released events can occur in the same frame on high doses of coffee
 	if (GameManager.mousePressedLeft === true) {
+		if (mouseInRect) { // TODO also check alpha pixels?
+			GameManager.mousePressedLeft = false; // consume pressed event, if mouse is over button
+		}
 		this.mouseDownOnButton = mouseOver;
 	}
 	if (GameManager.mouseReleasedLeft === true) {
+		if (mouseInRect) { // TODO also check alpha pixels?
+			GameManager.mouseReleasedLeft = false; // consume pressed event, if mouse is over button
+		}
 		if (this.mouseDownOnButton === true) {
 			if (mouseOver && this.runMethod != null) { // button has been clicked
 				this.runMethod.apply(this, this.optionalArgs);
