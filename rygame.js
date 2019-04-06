@@ -1094,6 +1094,27 @@ ImageButton.prototype.update = function () {
 	}
 };
 
+ImageButton.prototype.addContextButton = function (imgName, runMethod = null, optionalArgs = null, additionalRequirement = null, additionalRequirementArgs = null) {
+	const normalSurface = GameManager.getImage("Interface/Menus/" + imgName);
+	const contextButton = new ImageButton(this.x - 40 * this.contextButtons.length - normalSurface.width, this.y, this.drawDepth, normalSurface, normalSurface, this.drawLayer, runMethod, optionalArgs, false);
+	contextButton.darkenedSurface = GameManager.getImage("Interface/Menus/P" + imgName);
+	contextButton.unavailableSurface = GameManager.getImage("Interface/Menus/N" + imgName);
+	contextButton.additionalRequirement = additionalRequirement;
+	contextButton.additionalRequirementArgs = additionalRequirementArgs;
+	contextButton.visible = false;
+	const parentButton = this;
+	contextButton.update = function () {
+		if (!parentButton.visible) {
+			this.visible = false;
+		}
+		ImageButton.prototype.update.call(this);
+	};
+	this.contextButtons.push(contextButton);
+	this.runMethod = function () {
+		this.contextButtons.forEach(btn => btn.visible = !btn.visible);
+	}
+};
+
 /**
  * A simple button class consisting of different images for each state.
  * @param x button top left position
@@ -1128,6 +1149,7 @@ function ImageButton(x, y, drawDepth, normalSurface, brightenedSurface, layer, r
 	} else if (this.darkenedSurface) {
 		this.rect = new Rect(this.darkenedSurface.width, this.darkenedSurface.height);
 	}
+	this.contextButtons = [];
 }
 
 /**
