@@ -308,6 +308,10 @@ Space.prototype.setRockImage = function (themeName, matIndex) {
 	this.image = "World/WorldTextures/" + themeName + "Split/" + themeName + this.shapeIndex.toString() + matIndex.toString() + ".bmp";
 };
 
+Space.prototype.isSelectable = function () {
+	return this.selectable && this.touched && this.shapeIndex !== 3;
+};
+
 /**
  * custom die code: kill children before calling base class die
  */
@@ -395,6 +399,7 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 	this.drillPercent = 0;
 	this.sweepPercent = 0;
 	this.reinforcePercent = 0;
+	this.selectable = true;
 	this.shapeIndex = 0;
 	if (type === "ground") {
 		this.image = "World/WorldTextures/RockSplit/ROCK00.BMP";
@@ -410,9 +415,13 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 		}
 		this.walkable = true;
 		this.speedModifier = 1.5;
+		if (type === "building power path") {
+			this.selectable = false;
+		}
 	} else if (type === "solid rock") {
 		this.setRockImage("ROCK", 5);
 		this.isWall = true;
+		this.selectable = false;
 	} else if (type === "hard rock") {
 		this.setRockImage("ROCK", 4);
 		this.isWall = true;
@@ -428,6 +437,7 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 		this.isWall = true;
 	} else if (type === "lava") {
 		this.image = "World/WorldTextures/RockSplit/ROCK46.BMP";
+		this.selectable = false
 	} else if (type === "ore seam") {
 		this.image = "World/WorldTextures/RockSplit/Rock40.bmp";
 		this.drillable = true;
@@ -440,9 +450,11 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 		this.drillable = true;
 		this.isWall = true;
 		this.drillSpeedModifier = .2;
+		this.selectable = false
 	} else if (type === "recharge seam") {
 		this.image = "World/WorldTextures/RockSplit/Rock67.bmp";
 		this.isWall = true;
+		this.selectable = false
 	} else if (type.slice(0, 6) === "rubble") {
 		if (type === "rubble 1") {
 			this.image = "World/WorldTextures/RockSplit/ROCK10.BMP";
@@ -550,7 +562,6 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 
 	} else if (type === "building site") {
 		this.image = (this.buildingSiteType === "power path" ? "World/WorldTextures/RockSplit/Rock61.bmp" : "building site.png");
-		console.log(this.type);
 		if (this.touched === true) {
 			const index = buildingSites.indexOf(this);
 			if (index === -1) {
