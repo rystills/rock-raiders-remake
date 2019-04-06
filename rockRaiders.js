@@ -19,9 +19,9 @@ const drawDepthMonster = 700;
 const drawDepthLandslide = 600;
 const drawDepthHealthBar = 500;
 
-const drawDepthGuiBackground = 400;
-const drawDepthGuiBitmaps = 450; // like collected crystals/ore
-const drawDepthGuiTexts = 400; // like crystal/ore amount
+const drawDepthIconButtonPanelBackground = 475;
+const drawDepthIconButtonPanelButtons = 450;
+const drawDepthCrystalSideBar = 400;
 
 const drawDepthPauseBackground = 300;
 const drawDepthPauseButtons = 250;
@@ -356,7 +356,7 @@ function calculatePath(terrain, startSpace, goalSpace, returnAllSolutions, raide
  * @returns boolean whether a resource of the desired type is available (true) or not (false)
  */
 function resourceAvailable(resourceType) {
-	return (collectedResources[resourceType] - reservedResources[resourceType]) > 0;
+	return (RockRaiders.rightPanel.resources[resourceType] - reservedResources[resourceType]) > 0;
 }
 
 /**
@@ -364,14 +364,14 @@ function resourceAvailable(resourceType) {
  * @param name: the name of the level file, minus the file extension
  */
 function loadLevelData(name) {
-	levelName = name;
-	const terrainMapName = "Surf_" + levelName + ".js";
-	const cryoreMapName = "Cror_" + levelName + ".js";
-	const olFileName = levelName + ".js";
-	const predugMapName = "Dugg_" + levelName + ".js";
-	const surfaceMapName = "High_" + levelName + ".js";
-	const pathMapName = "path_" + levelName + ".js";
-	const fallinMapName = "Fall_" + levelName + ".js";
+	RockRaiders.levelName = name;
+	const terrainMapName = "Surf_" + RockRaiders.levelName + ".js";
+	const cryoreMapName = "Cror_" + RockRaiders.levelName + ".js";
+	const olFileName = RockRaiders.levelName + ".js";
+	const predugMapName = "Dugg_" + RockRaiders.levelName + ".js";
+	const surfaceMapName = "High_" + RockRaiders.levelName + ".js";
+	const pathMapName = "path_" + RockRaiders.levelName + ".js";
+	const fallinMapName = "Fall_" + RockRaiders.levelName + ".js";
 
 	// load in Space types from terrain, surface, and path maps
 	for (let i = 0; i < GameManager.scriptObjects[terrainMapName].level.length; i++) {
@@ -451,8 +451,8 @@ function loadLevelData(name) {
 			gameLayer.cameraX = olObject.xPos * tileSize;
 			gameLayer.cameraY = olObject.yPos * tileSize;
 			// center the camera
-			gameLayer.cameraX -= parseInt(GameManager.screenWidth / 2, 10);
-			gameLayer.cameraY -= parseInt(GameManager.screenHeight / 2, 10);
+			gameLayer.cameraX -= GameManager.screenWidth / 2;
+			gameLayer.cameraY -= GameManager.screenHeight / 2;
 		} else if (olObject.type === "Pilot") {
 			// note inverted x/y coords for terrain list
 			const newRaider = new Raider(terrain[parseInt(olObject.yPos, 10)][parseInt(olObject.xPos, 10)]);
@@ -603,13 +603,21 @@ function createVehicle(vehicleType) {
 	cancelSelection();
 }
 
+function changeIconPanel(targetIconPanel = RockRaiders.mainIconPanel) {
+	if (RockRaiders.activeIconPanel !== targetIconPanel) {
+		RockRaiders.activeIconPanel.hide();
+		RockRaiders.activeIconPanel = targetIconPanel;
+		RockRaiders.activeIconPanel.show();
+	}
+}
+
 /**
  * cancel the current selection, setting selection to an empty list and selectionType to null, and closing any open menus
  */
 function cancelSelection() {
 	selection = [];
 	selectionType = null;
-	activeIconPanel = "";
+	changeIconPanel();
 }
 
 function setSelectionByMouseCursor() {
@@ -661,8 +669,8 @@ function checkUpdateClickSelection() {
 	if (GameManager.mouseReleasedLeft && !mousePressIsSelection) {
 		setSelectionByMouseCursor();
 		// automatically close tool menu if a raider is no longer selected
-		if (selectionType !== "raider" && activeIconPanel === "tool") {
-			activeIconPanel = "";
+		if (selectionType !== "raider" && RockRaiders.activeIconPanel === RockRaiders.raiderIconPanel) {
+			changeIconPanel(RockRaiders.mainIconPanel);
 		}
 	}
 }
@@ -1025,6 +1033,26 @@ function drillWall() {
 	cancelSelection();
 }
 
+function stopDrillWall() {
+	if (selection.length === 0) {
+		return;
+	}
+	for (let i = 0; i < selection.length; i++) {
+		// reset visuals and priority
+		selection[i].taskPriority = 0;
+		selection[i].drillDummy.visible = false;
+		selection[i].reinforceDummy.visible = false;
+		selection[i].dynamiteDummy.visible = false;
+		// remove from available tasks
+		const curIndex = tasksAvailable.indexOf(selection[i]);
+		if (curIndex !== -1) {
+			tasksAvailable.splice(curIndex, -1);
+		}
+		// TODO remove task from raiders too
+	}
+	cancelSelection();
+}
+
 /**
  * if the currently selected space is sweepable, set it to be cleared of rubble
  */
@@ -1065,6 +1093,7 @@ function upgradeBuilding() {
 	for (let i = 0; i < selection.length; ++i) {
 		selection[i].upgrade();
 	}
+	cancelSelection();
 }
 
 /**
@@ -1143,11 +1172,11 @@ function getTool(toolName) {
  * pause or unpause the game
  */
 function togglePauseGame() {
-	paused = !paused;
+	RockRaiders.paused = !RockRaiders.paused;
 }
 
 function unpauseGame() {
-	paused = false;
+	RockRaiders.paused = false;
 }
 
 /**
@@ -1367,74 +1396,6 @@ function drawBuildingSiteMaterials() {
 }
 
 /**
- * draw all UI components
- */
-function drawUI() {
-	let selectionString = selectionType;
-	if (powerPathSpaceTypes.indexOf(selectionString) !== -1) {
-		selectionString = "power path";
-	}
-	if (selectionType != null && this.debug) {
-		GameManager.setFontSize(36);
-		GameManager.drawSurface.fillText("Selection Type: " + selectionString + (selection.length === 1 ?
-			(selection[0].isBuilding === true && selection[0].touched === true ? " lvl " + selection[0].upgradeLevel : "") :
-			(" x " + selection.length)), 8, 592);
-	}
-
-	// draw crystal and ore overlay
-	const crystalSideBarImage = GameManager.getImage("Interface/RightPanel/CrystalSideBar.bmp").canvas;
-	GameManager.drawSurface.drawImage(crystalSideBarImage, GameManager.screenWidth - crystalSideBarImage.width, 0);
-
-	// don't draw buttons when buildingPlacer is active
-	if (!buildingPlacer.visible) {
-		let numButtons = (activeIconPanel === "" && (selection === undefined || selection.length <= 0)) ? 4 : 2; // FIXME derive number of buttons from opened menu
-		const woBack = (activeIconPanel === "" && (selection === undefined || selection.length <= 0)) ? "WOBack" : "";
-		const imgName = "Interface/IconPanel/IconPanel" + numButtons.toString() + woBack + ".bmp";
-		let imgIconPanel = GameManager.getImage(imgName).canvas;
-		GameManager.drawSurface.drawImage(imgIconPanel, GameManager.screenWidth - 16 - imgIconPanel.width, 8);
-		// attempt to draw buttons here so that they are rendered in front of other post-render graphics
-		for (let i = 0; i < buttons.objectList.length; ++i) {
-			buttons.objectList[i].render(GameManager);
-		}
-	}
-
-	// draw crystals
-	let curX = GameManager.screenWidth - 8;
-	let curY = GameManager.screenHeight - 32;
-	const imgNoCrystal = GameManager.getImage("Interface/RightPanel/NoSmallCrystal.bmp").canvas;
-	const imgSmallCrystal = GameManager.getImage("Interface/RightPanel/SmallCrystal.bmp").canvas;
-	const imgUsedCrystal = GameManager.getImage("Interface/RightPanel/UsedCrystal.bmp").canvas;
-	for (let i = 0; i < parseInt(GameManager.scriptObjects["Info_" + levelName + ".js"].objective[1][1]) && curY >= -Math.max(imgNoCrystal.height, imgSmallCrystal.height, imgUsedCrystal.height); ++i) {
-		let imgCrystal = imgNoCrystal;
-		// TODO show used crystals
-		if (collectedResources["crystal"] > i) {
-			imgCrystal = imgSmallCrystal;
-		}
-		curY -= imgCrystal.height;
-		GameManager.drawSurface.drawImage(imgCrystal, curX - imgCrystal.width / 2, curY);
-	}
-
-	// draw ore
-	curX = GameManager.screenWidth - 21;
-	curY = GameManager.screenHeight - 42;
-	const imgOre = GameManager.getImage("Interface/RightPanel/CrystalSideBar_Ore.bmp").canvas;
-	for (let i = 0; i < collectedResources["ore"] && curY >= -imgOre.height; ++i) {
-		curY -= imgOre.height;
-		GameManager.drawSurface.drawImage(imgOre, curX - imgOre.width / 2, curY);
-	}
-
-	// draw ore and crystal text
-	GameManager.setTextAlign("center");
-	GameManager.setFontWeight("bold");
-	GameManager.setFontSize(10);
-	GameManager.drawSurface.fillStyle = "white";
-	GameManager.drawSurface.fillText(collectedResources["ore"], GameManager.screenWidth - 39, GameManager.screenHeight - 3);
-	GameManager.drawSurface.fillText(collectedResources["crystal"], GameManager.screenWidth - 14, GameManager.screenHeight - 3);
-	GameManager.setFontWeight("");
-	GameManager.setTextAlign("start");
-}
-
-/**
  * draw held tools and skills for each raider
  */
 function drawRaiderInfo() {
@@ -1589,7 +1550,7 @@ function drawAwaitingStartInstructions() {
  * draw pause screen instructions
  */
 function drawPauseInstructions() {
-	if (paused) {
+	if (RockRaiders.paused) {
 		dimScreen(.4);
 		GameManager.drawSurface.globalAlpha = 1.0;
 		GameManager.drawSurface.fillStyle = "rgb(65, 218, 255)";
@@ -1612,40 +1573,33 @@ function drawPauseInstructions() {
  * @returns boolean whether the mouse is hovering over a GUI object (true) or not (false)
  */
 function mouseOverGUI() {
-	for (let i = 0; i < buttons.objectList.length; i++) {
-		// use mouseDownOnButton rather than releasedThisFrame because button activates on mouse release, whereas task selection here activates on mouse press
-		if (buttons.objectList[i].visible && collisionPoint(GameManager.mousePos.x, GameManager.mousePos.y,
-			buttons.objectList[i], buttons.objectList[i].affectedByCamera)) {
-			return true;
-		}
-	}
-	return false;
+	const mPos = GameManager.mousePos;
+	// check color alpha value under mouse position, if not 0 there is some GUI element below the cursor
+	return uiLayer.drawSurface.getImageData(mPos.x, mPos.y, 1, 1).data[3] > 0;
 }
 
 /**
- * open or close the buildings menu
+ * open the buildings menu
  */
 function openBuildingMenu() {
-	if (activeIconPanel === "building") {
-		activeIconPanel = "";
-	} else {
-		// this clears selection and sets activeIconPanel to ""
-		cancelSelection();
-		activeIconPanel = "building";
-	}
+	cancelSelection();
+	changeIconPanel(RockRaiders.buildIconPanel);
 }
 
 /**
- * open or close the vehicles menu
+ * open the small vehicles menu
  */
-function openVehicleMenu() {
-	if (activeIconPanel === "vehicle") {
-		activeIconPanel = "";
-	} else {
-		// this clears selection and sets activeIconPanel to ""
-		cancelSelection();
-		activeIconPanel = "vehicle";
-	}
+function openSmallVehicleMenu() {
+	cancelSelection();
+	changeIconPanel(RockRaiders.smallVehicleIconPanel);
+}
+
+/**
+ * open the large vehicles menu
+ */
+function openLargeVehicleMenu() {
+	cancelSelection();
+	changeIconPanel(RockRaiders.largeVehicleIconPanel);
 }
 
 /**
@@ -1660,26 +1614,13 @@ function exitVehicle() {
 }
 
 /**
- * open or close the tools menu
- */
-function openToolMenu() {
-	if (selectionType === "raider") {
-		if (activeIconPanel === "tool") {
-			activeIconPanel = "";
-		} else {
-			activeIconPanel = "tool";
-		}
-	}
-}
-
-/**
  * determine whether or not the requirements are met in order to begin building a building of the input type
  * @param buildingType: the type of building for which we need to know the requirements
  * @returns boolean whether the necessary requirements are met to begin building the desired buildingType (true) or not (false)
  */
 function buildRequirementsMet(buildingType) {
 	let buildingRequirements = [];
-	// buildings
+	// buildings TODO read this from config
 	if (buildingType === "teleport pad") {
 		buildingRequirements = ["tool store"];
 	} else if (buildingType === "docks") {
@@ -1700,11 +1641,19 @@ function buildRequirementsMet(buildingType) {
 		buildingRequirements = ["tool store", "teleport pad", "power station", "support station"];
 	}
 
-	// vehicles
+	// vehicles TODO read this from config
 	else if (buildingType === "hover scout") {
-		buildingRequirements = [];
+		buildingRequirements = ["support station"];
 	} else if (buildingType === "small digger") {
-		buildingRequirements = [];
+		buildingRequirements = ["support station"];
+	} else if (buildingType === "small transport truck") {
+		buildingRequirements = ["support station"];
+	} else if (buildingType === "small catamaran") {
+		buildingRequirements = ["docks", "support station"];
+	} else if (buildingType === "small mwp") {
+		buildingRequirements = ["teleport pad:2", "support station"];
+	} else if (buildingType === "small heli") {
+		buildingRequirements = ["teleport pad:2", "support station"];
 	}
 
 	for (let i = 0; i < buildingRequirements.length; ++i) {
@@ -1728,6 +1677,7 @@ function buildRequirementsMet(buildingType) {
  * @param buildingType: the type of building that the buildingPlacer should place
  */
 function startBuildingPlacer(buildingType) {
+	// TODO remove obsolete duplicate check
 	// buttons now take care of this check, but it can't hurt to check it one more time here
 	if (buildRequirementsMet(buildingType)) {
 		buildingPlacer.start(buildingType);
@@ -1737,85 +1687,87 @@ function startBuildingPlacer(buildingType) {
 }
 
 /**
- * create all in-game buttons once here
+ * create all in-game GUI elements once here
  */
-function createButtons() {
-	const buttonsX = gameLayer.width - 76;
-	// FIXME organize buttons as menus, use ImageButton with original bitmaps
-	// base level buttons
-	buttons.push(new Button(buttonsX, 17, 0, 0, "Interface/Icons/minifigures.bmp", gameLayer, "", createRaider, false, false));
-	buttons.push(new Button(buttonsX, 57, 0, 0, "Interface/Menus/building.bmp", gameLayer, "", openBuildingMenu, false, false));
-	buttons.push(new Button(buttonsX, 97, 0, 0, "Interface/Menus/SMvehicle.bmp", gameLayer, "", openVehicleMenu, false, false));
-	buttons.push(new Button(buttonsX, 137, 0, 0, "Interface/Menus/BIGvehicle.bmp", gameLayer, "", null, false, false));
+RockRaidersGame.prototype.createGUIElements = function () {
+	this.mainIconPanel = new IconButtonPanel();
+	this.mainIconPanel.addButton("Interface/Icons", "minifigures.bmp", createRaider, null);
+	this.mainIconPanel.addButton("Interface/Menus", "building.bmp", openBuildingMenu);
+	this.mainIconPanel.addButton("Interface/Menus", "SMvehicle.bmp", openSmallVehicleMenu);
+	this.mainIconPanel.addButton("Interface/Menus", "BIGvehicle.bmp", openLargeVehicleMenu);
+	this.mainIconPanel.updateBackgroundImage();
 
-	// if selectionTypeBound is an empty list, the button will be visible for all selections except when selection == null
-	const iconPanelBackButton = new ImageButton(buttonsX - 31, 22, 0, null, GameManager.getImage("Interface/IconPanel/Back_HL.bmp"), gameLayer, cancelSelection);
-	iconPanelBackButton.darkenedSurface = GameManager.getImage("Interface/IconPanel/Back_PR.bmp");
-	iconPanelBackButton.additionalRequirement = function () {
-		return !(activeIconPanel === "" && (selection === undefined || selection.length <= 0));
-	};
-	buttons.push(iconPanelBackButton);
-	// 6 pixel boundary between general purpose buttons and selection specific buttons
+	this.buildIconPanel = new IconButtonPanel(changeIconPanel);
+	this.buildIconPanel.addButton("Interface/Icons", "ToolStation.bmp", startBuildingPlacer, ["tool store"], buildRequirementsMet, ["tool store"]);
+	this.buildIconPanel.addButton("Interface/Icons", "SMteleport.bmp", startBuildingPlacer, ["teleport pad"], buildRequirementsMet, ["teleport pad"]);
+	this.buildIconPanel.addButton("Interface/Icons", "dock.bmp", startBuildingPlacer, ["docks"], buildRequirementsMet, ["docks"]);
+	this.buildIconPanel.addButton("Interface/Icons", "PowerStation.bmp", startBuildingPlacer, ["power station"], buildRequirementsMet, ["power station"]);
+	this.buildIconPanel.addButton("Interface/Icons", "barracks.bmp", startBuildingPlacer, ["support station"], buildRequirementsMet, ["support station"]);
+	this.buildIconPanel.addButton("Interface/Icons", "Upgrade.bmp", startBuildingPlacer, ["upgrade station"], buildRequirementsMet, ["upgrade station"]);
+	this.buildIconPanel.addButton("Interface/Icons", "Geo.bmp", startBuildingPlacer, ["geological center"], buildRequirementsMet, ["geological center"]);
+	this.buildIconPanel.addButton("Interface/Icons", "Orerefinery.bmp", startBuildingPlacer, ["ore refinery"], buildRequirementsMet, ["ore refinery"]);
+	this.buildIconPanel.addButton("Interface/Icons", "Gunstation.bmp", startBuildingPlacer, ["mining laser"], buildRequirementsMet, ["mining laser"]);
+	this.buildIconPanel.addButton("Interface/Icons", "LargeTeleporter.bmp", startBuildingPlacer, ["super teleport"], buildRequirementsMet, ["super teleport"]);
+	this.buildIconPanel.updateBackgroundImage();
 
-	// building menu open buttons
-	buttons.push(new Button(buttonsX, 17, 0, 0, "make ToolStation.png", gameLayer, "", startBuildingPlacer, false, false, null,
-		["building"], ["tool store"], true, true, null, buildRequirementsMet, ["tool store"]));
-	buttons.push(new Button(buttonsX, 57, 0, 0, "make SMteleport.png", gameLayer, "", startBuildingPlacer, false, false, null,
-		["building"], ["teleport pad"], true, true, null, buildRequirementsMet, ["teleport pad"]));
-	buttons.push(new Button(buttonsX, 97, 0, 0, "make docks.png", gameLayer, "", startBuildingPlacer, false, false, null,
-		["building"], ["docks"], true, true, null, buildRequirementsMet, ["docks"]));
-	buttons.push(new Button(buttonsX, 137, 0, 0, "make PowerStation.png", gameLayer, "", startBuildingPlacer, false, false, null,
-		["building"], ["power station"], true, true, null, buildRequirementsMet, ["power station"]));
-	buttons.push(new Button(buttonsX, 177, 0, 0, "make barracks.png", gameLayer, "", startBuildingPlacer, false, false, null,
-		["building"], ["support station"], true, true, null, buildRequirementsMet, ["support station"]));
-	buttons.push(new Button(buttonsX, 217, 0, 0, "make Upgrade.png", gameLayer, "", startBuildingPlacer, false, false, null,
-		["building"], ["upgrade station"], true, true, null, buildRequirementsMet, ["upgrade station"]));
-	buttons.push(new Button(buttonsX, 257, 0, 0, "make Geo.png", gameLayer, "", startBuildingPlacer, false, false, null,
-		["building"], ["geological center"], true, true, null, buildRequirementsMet, ["geological center"]));
-	buttons.push(new Button(buttonsX, 297, 0, 0, "make Orerefinery.png", gameLayer, "", startBuildingPlacer, false, false, null,
-		["building"], ["ore refinery"], true, true, null, buildRequirementsMet, ["ore refinery"]));
-	buttons.push(new Button(buttonsX, 337, 0, 0, "make Gunstation.png", gameLayer, "", startBuildingPlacer, false, false, null,
-		["building"], ["mining laser"], true, true, null, buildRequirementsMet, ["mining laser"]));
-	buttons.push(new Button(buttonsX, 377, 0, 0, "make LargeTeleporter.png", gameLayer, "", startBuildingPlacer, false, false, null,
-		["building"], ["super teleport"], true, true, null, buildRequirementsMet, ["super teleport"]));
+	this.smallVehicleIconPanel = new IconButtonPanel(changeIconPanel);
+	this.smallVehicleIconPanel.addButton("Interface/Icons", "hoverboard.bmp", createVehicle, ["hover scout"], buildRequirementsMet, ["hover scout"]);
+	this.smallVehicleIconPanel.addButton("Interface/Icons", "SmallTruck.bmp", createVehicle, ["small digger"], buildRequirementsMet, ["small digger"]);
+	this.smallVehicleIconPanel.addButton("Interface/Icons", "SmallDigger.bmp", createVehicle, ["small transport truck"], buildRequirementsMet, ["small transport truck"]);
+	this.smallVehicleIconPanel.addButton("Interface/Icons", "SmallCat.bmp", createVehicle, ["small catamaran"], buildRequirementsMet, ["small catamaran"]);
+	this.smallVehicleIconPanel.addButton("Interface/Icons", "SmallMWP.bmp", createVehicle, ["small mwp"], buildRequirementsMet, ["small mwp"]);
+	this.smallVehicleIconPanel.addButton("Interface/Icons", "SmallHeli.bmp", createVehicle, ["small heli"], buildRequirementsMet, ["small heli"]);
+	this.smallVehicleIconPanel.updateBackgroundImage();
 
-	// vehicle menu open buttons
-	buttons.push(new Button(buttonsX, 17, 0, 0, "Interface/Icons/hoverboard.bmp", gameLayer, "", createVehicle, false, false, null,
-		["vehicle"], ["hover scout"], true, true, null, buildRequirementsMet, ["hover scout"]));
-	buttons.push(new Button(buttonsX, 57, 0, 0, "Interface/Icons/SmallDigger.bmp", gameLayer, "", createVehicle, false, false, null,
-		["vehicle"], ["small digger"], true, true, null, buildRequirementsMet, ["small digger"]));
-	buttons.push(new Button(buttonsX, 97, 0, 0, "Interface/Icons/SmallTruck.bmp", gameLayer, "", createVehicle, false, false, null,
-		["vehicle"], ["small transport truck"], true, true, null, buildRequirementsMet, ["small transport truck"]));
+	this.largeVehicleIconPanel = new IconButtonPanel(changeIconPanel);
+	this.largeVehicleIconPanel.addButton("Interface/Icons", "Bulldozer.bmp");
+	this.largeVehicleIconPanel.addButton("Interface/Icons", "WalkerDigger.bmp");
+	this.largeVehicleIconPanel.addButton("Interface/Icons", "LargeMWP.bmp");
+	this.largeVehicleIconPanel.addButton("Interface/Icons", "largeDigger.bmp");
+	this.largeVehicleIconPanel.addButton("Interface/Icons", "LargeCatamaran.bmp");
+	this.largeVehicleIconPanel.updateBackgroundImage();
 
 	// raider selected buttons
-	buttons.push(new Button(buttonsX, 17, 0, 0, "Interface/Menus/STOPeverything.bmp", gameLayer, "", stopMinifig, false, false, ["raider"], ["", "tool"]));
-	buttons.push(new Button(buttonsX, 57, 0, 0, "Interface/Menus/UnloadMinifigure.bmp", gameLayer, "", unloadMinifig, false, false, ["raider"], ["", "tool"]));
-	buttons.push(new Button(buttonsX, 97, 0, 0, "getTool.png", gameLayer, "", openToolMenu, false, false, ["raider"], ["", "tool"]));
-	buttons.push(new Button(buttonsX, 137, 0, 0, "Interface/Menus/Upgrade.bmp", gameLayer, "", upgradeRaider, false, false, ["raider"], ["", "tool"]));
-	buttons.push(new Button(buttonsX, 177, 0, 0, "Interface/Menus/exit.bmp", gameLayer, "", exitVehicle, false, false, ["raider"], ["", "tool"]));
+	this.raiderIconPanel = new IconButtonPanel(cancelSelection);
+	this.raiderIconPanel.addButton("Interface/Menus", "Sandwich.bmp");
+	this.raiderIconPanel.addButton("Interface/Menus", "UnloadMinifigure.bmp", unloadMinifig);
+	this.raiderIconPanel.addButton("Interface/Menus", "MF_Pickup.bmp");
+	const getToolButton = this.raiderIconPanel.addButton("Interface/Priorities", "getTool.bmp");
+	this.raiderIconPanel.addButton("Interface/Menus", "Upgrade.bmp", upgradeRaider);
+	const trainAsButton = this.raiderIconPanel.addButton("Interface/Menus", "TrainAs.bmp");
+	this.raiderIconPanel.addButton("Interface/Menus", "delete.bmp", function () {
+		unloadMinifig();
+		exitVehicle();
+		for (let c = 0; c < selection.length; c++) {
+			selection[c].die();
+		}
+	});
+	this.raiderIconPanel.updateBackgroundImage();
 
 	// get tool buttons
-	buttons.push(new Button(buttonsX - 40, 97, 0, 0, "get_Drill.png", gameLayer, "", getTool, false, false, ["raider"], ["tool"], ["drill"]));
-	buttons.push(new Button(buttonsX - 80, 97, 0, 0, "get_Hammer.png", gameLayer, "", getTool, false, false, ["raider"], ["tool"], ["hammer"]));
-	buttons.push(new Button(buttonsX - 120, 97, 0, 0, "get_Shovel.png", gameLayer, "", getTool, false, false, ["raider"], ["tool"], ["shovel"]));
-	buttons.push(new Button(buttonsX - 160, 97, 0, 0, "get_Wrench.png", gameLayer, "", getTool, false, false, ["raider"], ["tool"], ["wrench"]));
-	buttons.push(new Button(buttonsX - 200, 97, 0, 0, "get_Freezer.png", gameLayer, "", getTool, false, false, ["raider"], ["tool"], ["freezer"]));
-	buttons.push(new Button(buttonsX - 240, 97, 0, 0, "get_Pusher.png", gameLayer, "", getTool, false, false, ["raider"], ["tool"], ["pusher"]));
-	buttons.push(new Button(buttonsX - 280, 97, 0, 0, "get_Laser.png", gameLayer, "", getTool, false, false, ["raider"], ["tool"], ["laser"]));
-	buttons.push(new Button(buttonsX - 320, 97, 0, 0, "get_Sonic_Blaster.png", gameLayer, "", getTool, false, false, ["raider"], ["tool"], ["blaster"]));
+	getToolButton.addContextButton("get_Drill.bmp", getTool, ["drill"]);
+	getToolButton.addContextButton("get_Spade.bmp", getTool, ["shovel"]);
+	getToolButton.addContextButton("get_Hammer.bmp", getTool, ["hammer"]);
+	getToolButton.addContextButton("get_Spanner.bmp", getTool, ["wrench"]);
+	getToolButton.addContextButton("Gun_freeze.bmp", getTool, ["freezer"]);
+	getToolButton.addContextButton("Gun_Pusher.bmp", getTool, ["pusher"]);
+	getToolButton.addContextButton("Gun_lazer.bmp", getTool, ["laser"]);
+	getToolButton.addContextButton("get_BirdScarer.bmp", getTool, ["blaster"]);
 
-	// item selected buttons
-	buttons.push(new Button(buttonsX, 17, 0, 0, "Interface/Menus/MF_Pickup.bmp", gameLayer, "", grabItem, false, false,
-		["ore", "crystal"]));
+	// train as buttons
+	trainAsButton.addContextButton("Train_Explosives.bmp");
+	trainAsButton.addContextButton("Train_Pilot.bmp");
+	trainAsButton.addContextButton("Train_Sailor.bmp");
+	trainAsButton.addContextButton("Train_Driver.bmp");
+	trainAsButton.addContextButton("Train_Engineer.bmp");
+	trainAsButton.addContextButton("Train_Geologist.bmp");
 
 	// drillable wall selected buttons
-	const drillButton = new Button(buttonsX, 17, 0, 0, "Interface/Menus/drill.bmp", gameLayer, "", drillWall, false, false,
-		["dirt", "loose rock", "ore seam", "energy crystal seam", "hard rock"]);
-	buttons.push(drillButton);
-	drillButton.additionalRequirement = function () {
+	this.wallIconPanel = new IconButtonPanel(cancelSelection);
+	this.wallIconPanel.addButton("Interface/Menus", "drill.bmp", drillWall, null, function () {
 		if (selection[0].type === "hard rock") {
-			for (let i = 0; i < vehicles.objectList.length; i++) {
-				if (vehicles.objectList[i].canDrillHard) {
+			for (let c = 0; c < vehicles.objectList.length; c++) {
+				if (vehicles.objectList[c].canDrillHard) {
 					return true;
 				}
 			}
@@ -1823,50 +1775,65 @@ function createButtons() {
 		} else {
 			return true;
 		}
-	};
-
-	// re-inforcable wall selected
-	const reinforceButton = new Button(buttonsX, 57, 0, 0, "Interface/Menus/Reinforce.bmp", gameLayer, "", reinforceWall, false, false,
-		["dirt", "loose rock", "hard rock", "ore seam", "energy crystal seam"]);
-	buttons.push(reinforceButton);
-	reinforceButton.additionalRequirement = function () {
+	});
+	this.wallIconPanel.addButton("Interface/Menus", "Reinforce.bmp", reinforceWall, null, function () {
 		return selection[0] && !(selection[0].reinforced) && selection[0].shapeIndex === 0;
-	};
-
-	// dynamitable wall selected buttons
-	buttons.push(new Button(buttonsX, 97, 0, 0, "Interface/Menus/dynamite.bmp", gameLayer, "", dynamiteWall, false, false,
-		["dirt", "loose rock", "hard rock", "ore seam", "energy crystal seam"]));
+	});
+	this.wallIconPanel.addButton("Interface/Menus", "dynamite.bmp", dynamiteWall, null, function () {
+		// TODO test if demolition is available or tool store level >= 2 to train one
+		return true;
+	});
+	this.wallIconPanel.addButton("Interface/Menus", "stopdrill.bmp", stopDrillWall);
+	this.wallIconPanel.updateBackgroundImage();
 
 	// floor Space selected buttons
-	buttons.push(new Button(buttonsX, 17, 0, 0, "Interface/Menus/buildpath.bmp", gameLayer, "", buildPowerPath, false, false, ["ground"]));
-	const digupPathButton = new Button(buttonsX, 57, 0, 0, "Interface/Menus/diguppath.bmp", gameLayer, "", null, false, false, ["ground", "power path"]);
-	digupPathButton.additionalRequirement = function () {
+	this.groundIconPanel = new IconButtonPanel(cancelSelection);
+	this.groundIconPanel.addButton("Interface/Menus", "buildpath.bmp", buildPowerPath);
+	this.groundIconPanel.addButton("Interface/Menus", "diguppath.bmp", null, null, function () {
 		return selectionType === "power path";
-	};
-	buttons.push(digupPathButton);
+	});
+	this.groundIconPanel.addButton("Interface/Icons", "efence.bmp", null, null, function () { return false; });
+	this.groundIconPanel.updateBackgroundImage();
+
+	// power path selection buttons
+	this.powerPathIconPanel = new IconButtonPanel(cancelSelection);
+	this.powerPathIconPanel.addButton("Interface/Menus", "diguppath.bmp", null, null, function () {
+		return selectionType === "power path";
+	});
+	this.powerPathIconPanel.addButton("Interface/Icons", "efence.bmp", null, null, function () { return false; });
+	this.powerPathIconPanel.updateBackgroundImage();
 
 	// rubble selection buttons
-	buttons.push(new Button(buttonsX, 17, 0, 0, "Interface/Menus/ClearRubble.bmp", gameLayer, "", clearRubble, false, false,
-		["rubble 1", "rubble 2", "rubble 3", "rubble 4"]));
+	this.rubbleIconPanel = new IconButtonPanel(cancelSelection);
+	this.rubbleIconPanel.addButton("Interface/Menus", "ClearRubble.bmp", clearRubble);
+	this.rubbleIconPanel.addButton("Interface/Icons", "efence.bmp", null, null, function () { return false; });
+	this.rubbleIconPanel.updateBackgroundImage();
 
 	// building selection buttons
-	buttons.push(new Button(buttonsX, 17, 0, 0, "Interface/Menus/Upgrade.bmp", gameLayer, "", upgradeBuilding, false, false,
-		["tool store", "teleport pad", "power station", "docks", "geological center", "support station",
-			"super teleport", "mining laser", "upgrade station", "ore refinery"], null, null, true, true, null, function () {
-			if (selection) {
-				for (let c = 0; c < selection.length; c++) {
-					if (selection[c].isUpgradeable()) return true;
-				}
-			}
-			return false;
-		}));
-	buttons.push(new Button(buttonsX, 57, 0, 0, "Interface/Menus/telepbuilding.bmp", gameLayer, "", null, false, false,
-		["tool store", "teleport pad", "power station", "docks", "geological center", "support station",
-			"super teleport", "mining laser", "upgrade station", "ore refinery"]));
+	this.buildingIconPanel = new IconButtonPanel(cancelSelection);
+	this.buildingIconPanel.addButton("Interface/Menus", "Upgrade.bmp", upgradeBuilding, null, function () {
+		for (let c = 0; c < selection.length; c++) {
+			if (selection[c].isUpgradeable()) return true;
+		}
+		return false;
+	});
+	this.buildingIconPanel.addButton("Interface/Menus", "telepbuilding.bmp", function () {
+		for (let c = 0; c < selection.length; c++) {
+			// TODO drop ores and crystals
+			// TODO remove building
+		}
+	});
+	this.buildingIconPanel.updateBackgroundImage();
 
-	pauseButtons.push(new Button(100, gameLayer.height / 2 - 50, 0, 0, null, gameLayer, "Continue", unpauseGame, false, false));
-	pauseButtons.push(new Button(100, gameLayer.height / 2 + 50, 0, 0, null, gameLayer, "Abort Mission", showScoreScreen, false, false, null, null, ["quit"]));
-}
+	this.buildingSiteIconPanel = new IconButtonPanel(cancelSelection);
+	this.buildingSiteIconPanel.addButton("Interface/Menus", "STOPbuilding.bmp");
+	this.buildingSiteIconPanel.updateBackgroundImage();
+
+	this.rightPanel = new CrystalSideBar();
+
+	pauseButtons.push(new Button(100, uiLayer.height / 2 - 50, 0, 0, null, uiLayer, "Continue", unpauseGame, false, false));
+	pauseButtons.push(new Button(100, uiLayer.height / 2 + 50, 0, 0, null, uiLayer, "Abort Mission", showScoreScreen, false, false, null, null, ["quit"]));
+};
 
 /**
  * return whether or not level levelNum has been unlocked
@@ -2103,6 +2070,7 @@ function goToMenu(menuKey) {
 		menuLayer.active = false;
 	}
 	gameLayer.active = false;
+	uiLayer.active = false;
 	menuLayer = mainMenuLayers[menuKey];
 	menuLayer.active = true;
 	menuLayer.cameraY = 0;
@@ -2186,14 +2154,15 @@ function resetLevelVars(name) {
 	levelSelectLayer.active = false;
 	scoreScreenLayer.active = false;
 	gameLayer.active = true;
+	uiLayer.active = true;
 	musicPlayer.changeTrack();
-	collectedResources = {"ore": 0, "crystal": 0};
 	reservedResources = {"ore": 0, "crystal": 0};
 	selectionRectCoords = {x1: null, y1: null};
 	selection = [];
 	mousePressStartPos = {x: 1, y: 1};
 	mousePressIsSelection = false;
-	activeIconPanel = "";
+	RockRaiders.activeIconPanel = RockRaiders.mainIconPanel;
+	RockRaiders.mainIconPanel.setVisible(true);
 	selectionType = null;
 	for (let i = 0; i < terrain.length; ++i) {
 		for (let r = 0; r < terrain[i].length; ++r) {
@@ -2214,10 +2183,11 @@ function resetLevelVars(name) {
 	selectionRectPointList = [];
 	selectionRectCoordList = [];
 	awaitingStart = true;
-	paused = false;
+	RockRaiders.paused = false;
 	holdingPKey = false;
 	holdingEscKey = false;
 	loadLevelData(name);
+	RockRaiders.rightPanel.init(parseInt(GameManager.scriptObjects["Info_" + RockRaiders.levelName + ".js"].objective[1][1]));
 }
 
 /**
@@ -2243,7 +2213,7 @@ function getValue(name, valueDefault) {
 /**
  * initialize global game-related constants
  */
-function initGlobals() {
+function RockRaidersGame() {
 	tileSize = 128;
 	scrollDistance = 10;
 	scrollSpeed = 20;
@@ -2262,12 +2232,12 @@ function initGlobals() {
 	menuLayer = null;
 	levelSelectLayer = null;
 	gameLayer = new Layer(0, 0, 1, 1, GameManager.screenWidth, GameManager.screenHeight);
+	uiLayer = new Layer(0, 0, 0, 0, GameManager.screenWidth, GameManager.screenHeight);
 	musicPlayer = new MusicPlayer();
 	musicPlayer.changeTrack("menu theme");
-	buttons = new ObjectGroup();
 	pauseButtons = new ObjectGroup();
 	// create all in-game UI buttons initially, as there is no reason to load and unload these
-	createButtons();
+	this.createGUIElements();
 	// create all menu buttons
 	createMainMenuLayers();
 	finalizeLevelSelectLayer();
@@ -2319,9 +2289,9 @@ function initGlobals() {
  */
 function checkAccomplishedObjective() {
 	let won = false;
-	const objective = GameManager.scriptObjects["Info_" + levelName + ".js"].objective;
+	const objective = GameManager.scriptObjects["Info_" + RockRaiders.levelName + ".js"].objective;
 	if (objective[0] === "collect") {
-		won = (collectedResources[objective[1][0]] >= parseInt(objective[1][1]));
+		won = (RockRaiders.rightPanel.resources[objective[1][0]] >= parseInt(objective[1][1]));
 	} else if (objective[0] === "build") {
 		for (let i = 0; i < buildings.length; i++) {
 			if (buildings[i].type === objective[1][0]) {
@@ -2340,7 +2310,7 @@ function checkAccomplishedObjective() {
  * @returns number the calculated level score
  */
 function calculateLevelScore() {
-	return Math.round(100 * Math.min(1, (collectedResources["ore"] / 30) * .5 + (collectedResources["crystal"] / 5) * .5));
+	return Math.round(100 * Math.min(1, (RockRaiders.rightPanel.resources["ore"] / 30) * .5 + (RockRaiders.rightPanel.resources["crystal"] / 5) * .5));
 }
 
 /**
@@ -2348,7 +2318,7 @@ function calculateLevelScore() {
  * @param score: the newly achieved level score (may or may not be the all-time high-score)
  * @param name: Optional name to set level score, defaults to current level
  */
-function setLevelScore(score, name = levelName) {
+function setLevelScore(score, name = RockRaiders.levelName) {
 	const prevScore = getValue(name, null);
 	if (prevScore == null || prevScore < score) {
 		setValue(name, score);
@@ -2380,13 +2350,27 @@ function showScoreScreen(missionState) {
 }
 
 /**
- * disallow main menus from being open while the user has an active selection (submenues are allowed)
+ * open menu according to current selection
  */
-function checkCloseMenu() {
-	if (selection.length !== 0) {
-		if (activeIconPanel === "building" || activeIconPanel === "vehicle") {
-			activeIconPanel = "";
-		}
+function checkSelectionMenu() {
+	if (selectionType === "raider") {
+		changeIconPanel(RockRaiders.raiderIconPanel);
+	} else if (["dirt", "loose rock", "hard rock", "ore seam", "energy crystal seam"].includes(selectionType)) {
+		changeIconPanel(RockRaiders.wallIconPanel);
+	} else if (selectionType === "ground") {
+		changeIconPanel(RockRaiders.groundIconPanel);
+	} else if (selectionType === "power path") {
+		changeIconPanel(RockRaiders.powerPathIconPanel);
+	} else if (["rubble 1", "rubble 2", "rubble 3", "rubble 4"].includes(selectionType)) {
+		changeIconPanel(RockRaiders.rubbleIconPanel);
+	} else if (["tool store", "teleport pad", "power station", "docks", "geological center", "support station",
+		"super teleport", "mining laser", "upgrade station", "ore refinery"].includes(selectionType)) {
+		changeIconPanel(RockRaiders.buildingIconPanel);
+	} else if (selectionType === "building site") {
+		changeIconPanel(RockRaiders.buildingSiteIconPanel);
+	} else if (selectionType) {
+		changeIconPanel();
+		console.log(selectionType);
 	}
 }
 
@@ -2421,7 +2405,7 @@ function update() {
 			}
 		} else {
 			checkTogglePause();
-			if (!paused) {
+			if (!RockRaiders.paused) {
 				// update input
 				checkScrollScreen();
 				if (!buildingPlacer.visible) {
@@ -2440,8 +2424,8 @@ function update() {
 
 				// don't update buttons when buildingPlacer is active
 				if (!buildingPlacer.visible) {
-					buttons.update([selectionType, activeIconPanel]);
-					checkCloseMenu();
+					checkSelectionMenu();
+					RockRaiders.activeIconPanel.buttons.update();
 				}
 
 			} else {
@@ -2466,8 +2450,6 @@ function update() {
 		drawDynamiteTimers();
 		drawBuildingSiteMaterials();
 		drawRaiderTasks();
-		// draw UI last to ensure that it is in front of everything else
-		drawUI();
 		drawAwaitingStartInstructions();
 		drawPauseInstructions();
 	}
@@ -2487,7 +2469,7 @@ GameManager.scriptObjects.splice("levels.js", 1);
 // init rygame before we start the game
 GameManager.initializeRygame(0);
 
-initGlobals();
+RockRaiders = new RockRaidersGame();
 
 if (GameManager.devMode) {
 	if (levelFromUrl) {

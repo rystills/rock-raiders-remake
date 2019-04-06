@@ -188,7 +188,7 @@ Space.prototype.getAdjacentSpaces = function () {
 };
 
 Space.prototype.isUpgradeable = function () {
-	return this.upgradeLevel < 2 && collectedResources["ore"] >= 5;
+	return this.upgradeLevel < 2 && RockRaiders.rightPanel.resources["ore"] >= 5;
 };
 
 /**
@@ -197,7 +197,7 @@ Space.prototype.isUpgradeable = function () {
 Space.prototype.upgrade = function () {
 	if (this.isUpgradeable()) {
 		this.upgradeLevel += 1;
-		collectedResources["ore"] -= 5;
+		RockRaiders.rightPanel.changeResource("ore", -5);
 	}
 };
 

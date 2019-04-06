@@ -681,10 +681,10 @@ Raider.prototype.workOnCurrentTask = function () {
 								// make sure the player didn't use the remaining collected resource (ie for an upgrade) before we got here
 								// although we do reserve a resource from the toolstore as soon as we choose the build task,
 								// we do not reserve a spot in the building site until we pick up our resource, to avoid wasting time
-								if (this.currentTask.resourceNeeded(this.currentObjectiveResourceType) && collectedResources[this.currentObjectiveResourceType] >= 1) {
+								if (this.currentTask.resourceNeeded(this.currentObjectiveResourceType) && RockRaiders.rightPanel.resources[this.currentObjectiveResourceType] >= 1) {
 									this.currentTask.dedicatedResources[this.currentObjectiveResourceType]++;
 									this.dedicatingResource = true;
-									collectedResources[this.currentObjectiveResourceType]--;
+									RockRaiders.rightPanel.changeResource(this.currentObjectiveResourceType, -1);
 									const newCollectable = new Collectable(this.currentObjective, this.currentObjectiveResourceType);
 									this.moveObjectToHands(newCollectable);
 									this.currentObjective = newCollectable;
@@ -722,7 +722,7 @@ Raider.prototype.workOnCurrentTask = function () {
 								}
 								// because this is copied from the "collect" section and we are in the "build" section this condition is possibly unreachable
 								else if (this.currentObjective.type === "tool store") {
-									collectedResources[this.holding[0].type]++;
+									RockRaiders.rightPanel.changeResource(this.holding[0].type, 1);
 								}
 								this.dedicatingResource = false;
 								this.holding[0].die();
@@ -777,7 +777,7 @@ Raider.prototype.workOnCurrentTask = function () {
 								if (this.currentObjective.type === "building site") {
 									this.currentObjective.updatePlacedResources(this.holding[0].type);
 								} else if (this.currentObjective.type === "tool store") {
-									collectedResources[this.holding[0].type]++;
+									RockRaiders.rightPanel.changeResource(this.holding[0].type, 1);
 								}
 								this.dedicatingResource = false;
 								this.holding[0].die();

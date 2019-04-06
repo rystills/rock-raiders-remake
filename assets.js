@@ -177,19 +177,41 @@ object = {
 		["img", "images\\effects", "dynamite explosion.png"], // explosion created by a dynamite blast
 
 		// small vehicle buttons
-		["wad0bmp", "Interface/Icons/hoverboard.bmp"], // make hoverscout button
-		["wad0bmp", "Interface/Icons/SmallCat.bmp"], // make rapid rider button
-		["wad0bmp", "Interface/Icons/SmallDigger.bmp"], // make small digger button
-		["wad0bmp", "Interface/Icons/SmallHeli.bmp"], // make tunnel scout button
-		["wad0bmp", "Interface/Icons/SmallMWP.bmp"], // make small mobile laser cutter button
-		["wad0bmp", "Interface/Icons/SmallTruck.bmp"], // make small transport truck button
+		["wad0bmp", "Interface/Icons/hoverboard.bmp"], // hoverscout button
+		["wad0bmp", "Interface/Icons/Phoverboard.bmp"], // hoverscout button
+		["wad0bmp", "Interface/Icons/Nhoverboard.bmp"], // hoverscout button
+		["wad0bmp", "Interface/Icons/SmallTruck.bmp"], // small transport truck button
+		["wad0bmp", "Interface/Icons/PSmallTruck.bmp"], // small transport truck button
+		["wad0bmp", "Interface/Icons/NSmallTruck.bmp"], // small transport truck button
+		["wad0bmp", "Interface/Icons/SmallDigger.bmp"], // small digger button
+		["wad0bmp", "Interface/Icons/PSmallDigger.bmp"], // small digger button
+		["wad0bmp", "Interface/Icons/NSmallDigger.bmp"], // small digger button
+		["wad0bmp", "Interface/Icons/SmallCat.bmp"], // rapid rider button
+		["wad0bmp", "Interface/Icons/PSmallCat.bmp"], // rapid rider button
+		["wad0bmp", "Interface/Icons/NSmallCat.bmp"], // rapid rider button
+		["wad0bmp", "Interface/Icons/SmallMWP.bmp"], // small mobile laser cutter button
+		["wad0bmp", "Interface/Icons/PSmallMWP.bmp"], // small mobile laser cutter button
+		["wad0bmp", "Interface/Icons/NSmallMWP.bmp"], // small mobile laser cutter button
+		["wad0bmp", "Interface/Icons/SmallHeli.bmp"], // tunnel scout button
+		["wad0bmp", "Interface/Icons/PSmallHeli.bmp"], // tunnel scout button
+		["wad0bmp", "Interface/Icons/NSmallHeli.bmp"], // tunnel scout button
 
 		// large vehicle buttons
-		["wad0bmp", "Interface/Icons/Bulldozer.bmp"], // make loader dozer button
-		["wad0bmp", "Interface/Icons/LargeCatamaran.bmp"], // make cargo carrier button
-		["wad0bmp", "Interface/Icons/largeDigger.bmp"], // make large digger button
-		["wad0bmp", "Interface/Icons/LargeMWP.bmp"], // make large mobile laser cutter button
-		["wad0bmp", "Interface/Icons/WalkerDigger.bmp"], // make granite grinder button
+		["wad0bmp", "Interface/Icons/Bulldozer.bmp"], // loader dozer button
+		["wad0bmp", "Interface/Icons/PBulldozer.bmp"], // loader dozer button
+		["wad0bmp", "Interface/Icons/NBulldozer.bmp"], // loader dozer button
+		["wad0bmp", "Interface/Icons/WalkerDigger.bmp"], // granite grinder button
+		["wad0bmp", "Interface/Icons/PWalkerDigger.bmp"], // granite grinder button
+		["wad0bmp", "Interface/Icons/NWalkerDigger.bmp"], // granite grinder button
+		["wad0bmp", "Interface/Icons/LargeMWP.bmp"], // large mobile laser cutter button
+		["wad0bmp", "Interface/Icons/PLargeMWP.bmp"], // large mobile laser cutter button
+		["wad0bmp", "Interface/Icons/NLargeMWP.bmp"], // large mobile laser cutter button
+		["wad0bmp", "Interface/Icons/largeDigger.bmp"], // large digger button
+		["wad0bmp", "Interface/Icons/PlargeDigger.bmp"], // large digger button
+		["wad0bmp", "Interface/Icons/NlargeDigger.bmp"], // large digger button
+		["wad0bmp", "Interface/Icons/LargeCatamaran.bmp"], // cargo carrier button
+		["wad0bmp", "Interface/Icons/PLargeCatamaran.bmp"], // cargo carrier button
+		["wad0bmp", "Interface/Icons/NLargeCatamaran.bmp"], // cargo carrier button
 
 		// spaces
 		["wad0bmp", "World/WorldTextures/RockSplit/ROCK00.BMP"], // ground
@@ -249,32 +271,123 @@ object = {
 
 		// buttons
 		["wad0bmp", "Interface/Icons/minifigures.bmp"], // teleport rock raider button
-		["wad0bmp", "Interface/Menus/MF_Pickup.bmp"], // button to instruct a raider to pick up item (collectable, dynamite, etc..)
-		["wad0bmp", "Interface/Menus/drill.bmp"], // button to instruct a raider to drill a wall
-		["wad0bmp", "Interface/Menus/Reinforce.bmp"], // button to instruct a raider to reinforce a wall
-		["wad0bmp", "Interface/Menus/ClearRubble.bmp"], // button to instruct a raider to clear rubble
-		["wad0bmp", "Interface/Menus/buildpath.bmp"], // button to instruct a raider to build a power path
-		["wad0bmp", "Interface/Menus/diguppath.bmp"], // button to destroy a power path
-		["wad0bmp", "Interface/Menus/UnloadMinifigure.bmp"], // unload minifig button (drops held object)
-		["wad0bmp", "Interface/Menus/STOPeverything.bmp"], // stop minifig button (stops any performed task)
-		["wad0bmp", "Interface/Menus/Upgrade.bmp"], // button to upgrade a raider or building
-		["wad0bmp", "Interface/Menus/telepbuilding.bmp"], // button to upgrade a raider or building
+		["wad0bmp", "Interface/Icons/Pminifigures.bmp"], // pressed teleport rock raider button
+		["wad0bmp", "Interface/Icons/Nminifigures.bmp"], // disabled teleport rock raider button
 		["wad0bmp", "Interface/Menus/building.bmp"], // button to open up the building menu
-		["wad0bmp", "Interface/Menus/BIGvehicle.bmp"], // button to open up the large vehicle menu
+		["wad0bmp", "Interface/Menus/Pbuilding.bmp"], // pressed button to open up the building menu
+		["wad0bmp", "Interface/Menus/Nbuilding.bmp"], // disabled button to open up the building menu
 		["wad0bmp", "Interface/Menus/SMvehicle.bmp"], // button to open up the small vehicle menu
+		["wad0bmp", "Interface/Menus/PSMvehicle.bmp"], // pressed button to open up the small vehicle menu
+		["wad0bmp", "Interface/Menus/NSMvehicle.bmp"], // disabled button to open up the small vehicle menu
+		["wad0bmp", "Interface/Menus/BIGvehicle.bmp"], // button to open up the large vehicle menu
+		["wad0bmp", "Interface/Menus/PBIGvehicle.bmp"], // pressed button to open up the large vehicle menu
+		["wad0bmp", "Interface/Menus/NBIGvehicle.bmp"], // disabled button to open up the large vehicle menu
+
+		["wad0bmp", "Interface/Menus/Sandwich.bmp"], // unload minifig button (drops held object)
+		["wad0bmp", "Interface/Menus/PSandwich.bmp"], // unload minifig button (drops held object)
+		["wad0bmp", "Interface/Menus/NSandwich.bmp"], // unload minifig button (drops held object)
+		["wad0bmp", "Interface/Menus/UnloadMinifigure.bmp"], // unload minifig button (drops held object)
+		["wad0bmp", "Interface/Menus/PUnloadMinifigure.bmp"], // unload minifig button (drops held object)
+		["wad0bmp", "Interface/Menus/NUnloadMinifigure.bmp"], // unload minifig button (drops held object)
+		["wad0bmp", "Interface/Menus/MF_Pickup.bmp"], // button to instruct a raider to pick up item (collectable, dynamite, etc..)
+		["wad0bmp", "Interface/Menus/PMF_Pickup.bmp"], // button to instruct a raider to pick up item (collectable, dynamite, etc..)
+		["wad0bmp", "Interface/Menus/NMF_Pickup.bmp"], // button to instruct a raider to pick up item (collectable, dynamite, etc..)
+		["wad0bmp", "Interface/Priorities/getTool.bmp"], // button to open the 'get tool' raider submenu
+		["wad0bmp", "Interface/Priorities/PgetTool.bmp"], // button to open the 'get tool' raider submenu
+		["wad0bmp", "Interface/Priorities/NgetTool.bmp"], // button to open the 'get tool' raider submenu
+		["wad0bmp", "Interface/Menus/Upgrade.bmp"], // button to upgrade a raider or building
+		["wad0bmp", "Interface/Menus/PUpgrade.bmp"], // button to upgrade a raider or building
+		["wad0bmp", "Interface/Menus/NUpgrade.bmp"], // button to upgrade a raider or building
+		["wad0bmp", "Interface/Menus/TrainAs.bmp"],
+		["wad0bmp", "Interface/Menus/PTrainAs.bmp"],
+		["wad0bmp", "Interface/Menus/NTrainAs.bmp"],
+		["wad0bmp", "Interface/Menus/delete.bmp"],
+		["wad0bmp", "Interface/Menus/Pdelete.bmp"],
+		["wad0bmp", "Interface/Menus/Ndelete.bmp"],
+
+		["wad0bmp", "Interface/Menus/drill.bmp"], // button to instruct a raider to drill a wall
+		["wad0bmp", "Interface/Menus/Pdrill.bmp"], // button to instruct a raider to drill a wall
+		["wad0bmp", "Interface/Menus/Ndrill.bmp"], // button to instruct a raider to drill a wall
+		["wad0bmp", "Interface/Menus/Reinforce.bmp"], // button to instruct a raider to reinforce a wall
+		["wad0bmp", "Interface/Menus/PReinforce.bmp"], // button to instruct a raider to reinforce a wall
+		["wad0bmp", "Interface/Menus/NReinforce.bmp"], // button to instruct a raider to reinforce a wall
 		["wad0bmp", "Interface/Menus/dynamite.bmp"], // button to instruct a raider to blow up a wall using dynamite
+		["wad0bmp", "Interface/Menus/Pdynamite.bmp"], // button to instruct a raider to blow up a wall using dynamite
+		["wad0bmp", "Interface/Menus/Ndynamite.bmp"], // button to instruct a raider to blow up a wall using dynamite
+		["wad0bmp", "Interface/Menus/stopdrill.bmp"],
+		["wad0bmp", "Interface/Menus/Pstopdrill.bmp"],
+		["wad0bmp", "Interface/Menus/Nstopdrill.bmp"],
+
+		["wad0bmp", "Interface/Menus/buildpath.bmp"], // button to instruct a raider to build a power path
+		["wad0bmp", "Interface/Menus/Pbuildpath.bmp"], // button to instruct a raider to build a power path
+		["wad0bmp", "Interface/Menus/Nbuildpath.bmp"], // button to instruct a raider to build a power path
+		["wad0bmp", "Interface/Menus/diguppath.bmp"], // button to destroy a power path
+		["wad0bmp", "Interface/Menus/Pdiguppath.bmp"], // button to destroy a power path
+		["wad0bmp", "Interface/Menus/Ndiguppath.bmp"], // button to destroy a power path
+		["wad0bmp", "Interface/Icons/efence.bmp"],
+		["wad0bmp", "Interface/Icons/Pefence.bmp"],
+		["wad0bmp", "Interface/Icons/Nefence.bmp"],
+
+		["wad0bmp", "Interface/Menus/ClearRubble.bmp"], // button to instruct a raider to clear rubble
+		["wad0bmp", "Interface/Menus/PClearRubble.bmp"], // button to instruct a raider to clear rubble
+		["wad0bmp", "Interface/Menus/NClearRubble.bmp"], // button to instruct a raider to clear rubble
+
+		["wad0bmp", "Interface/Menus/telepbuilding.bmp"], // button to upgrade a raider or building
+		["wad0bmp", "Interface/Menus/Ptelepbuilding.bmp"], // button to upgrade a raider or building
+		["wad0bmp", "Interface/Menus/Ntelepbuilding.bmp"], // button to upgrade a raider or building
+
+		["wad0bmp", "Interface/Menus/STOPbuilding.bmp"],
+		["wad0bmp", "Interface/Menus/PSTOPbuilding.bmp"],
+		["wad0bmp", "Interface/Menus/NSTOPbuilding.bmp"],
+
+		["wad0bmp", "Interface/Menus/STOPeverything.bmp"], // stop minifig button (stops any performed task)
 		["wad0bmp", "Interface/Menus/exit.bmp"], // button to instruct a raider to exit the current vehicle
 
-		// grab item buttons FIXME replace with wadbmp
-		["img", "images\\buttons", "getTool.png"], // button to open the 'get tool' raider submenu
-		["img", "images\\buttons", "get_Drill.png"], // button to instruct a raider to get a drill from the nearest toolstore
-		["img", "images\\buttons", "get_Shovel.png"], // button to instruct a raider to get a shovel from the nearest toolstore
-		["img", "images\\buttons", "get_Hammer.png"], // button to instruct a raider to get a hammer from the nearest toolstore
-		["img", "images\\buttons", "get_Wrench.png"], // button to instruct a raider to get a wrench from the nearest toolstore
-		["img", "images\\buttons", "get_Freezer.png"], // button to instruct a raider to get a freezer beam from the nearest toolstore
-		["img", "images\\buttons", "get_Pusher.png"], // button to instruct a raider to get a pusher beam from the nearest toolstore
-		["img", "images\\buttons", "get_Laser.png"], // button to instruct a raider to get a laser beam from the nearest toolstore
-		["img", "images\\buttons", "get_Sonic_Blaster.png"], // button to instruct a raider to get a sonic blaster from the nearest toolstore
+		// grab item buttons
+		["wad0bmp", "Interface/Menus/get_Drill.bmp"], // button to instruct a raider to get a drill from the nearest toolstore
+		["wad0bmp", "Interface/Menus/Pget_Drill.bmp"], // button to instruct a raider to get a drill from the nearest toolstore
+		["wad0bmp", "Interface/Menus/Nget_Drill.bmp"], // button to instruct a raider to get a drill from the nearest toolstore
+		["wad0bmp", "Interface/Menus/get_Spade.bmp"], // button to instruct a raider to get a shovel from the nearest toolstore
+		["wad0bmp", "Interface/Menus/Pget_Spade.bmp"], // button to instruct a raider to get a shovel from the nearest toolstore
+		["wad0bmp", "Interface/Menus/Nget_Spade.bmp"], // button to instruct a raider to get a shovel from the nearest toolstore
+		["wad0bmp", "Interface/Menus/get_Hammer.bmp"], // button to instruct a raider to get a hammer from the nearest toolstore
+		["wad0bmp", "Interface/Menus/Pget_Hammer.bmp"], // button to instruct a raider to get a hammer from the nearest toolstore
+		["wad0bmp", "Interface/Menus/Nget_Hammer.bmp"], // button to instruct a raider to get a hammer from the nearest toolstore
+		["wad0bmp", "Interface/Menus/get_Spanner.bmp"], // button to instruct a raider to get a wrench from the nearest toolstore
+		["wad0bmp", "Interface/Menus/Pget_Spanner.bmp"], // button to instruct a raider to get a wrench from the nearest toolstore
+		["wad0bmp", "Interface/Menus/Nget_Spanner.bmp"], // button to instruct a raider to get a wrench from the nearest toolstore
+		["wad0bmp", "Interface/Menus/Gun_freeze.bmp"], // button to instruct a raider to get a freezer beam from the nearest toolstore
+		["wad0bmp", "Interface/Menus/PGun_freeze.bmp"], // button to instruct a raider to get a freezer beam from the nearest toolstore
+		["wad0bmp", "Interface/Menus/NGun_freeze.bmp"], // button to instruct a raider to get a freezer beam from the nearest toolstore
+		["wad0bmp", "Interface/Menus/Gun_Pusher.bmp"], // button to instruct a raider to get a pusher beam from the nearest toolstore
+		["wad0bmp", "Interface/Menus/PGun_Pusher.bmp"], // button to instruct a raider to get a pusher beam from the nearest toolstore
+		["wad0bmp", "Interface/Menus/NGun_Pusher.bmp"], // button to instruct a raider to get a pusher beam from the nearest toolstore
+		["wad0bmp", "Interface/Menus/Gun_lazer.bmp"], // button to instruct a raider to get a laser beam from the nearest toolstore
+		["wad0bmp", "Interface/Menus/PGun_lazer.bmp"], // button to instruct a raider to get a laser beam from the nearest toolstore
+		["wad0bmp", "Interface/Menus/NGun_lazer.bmp"], // button to instruct a raider to get a laser beam from the nearest toolstore
+		["wad0bmp", "Interface/Menus/get_BirdScarer.bmp"], // button to instruct a raider to get a sonic blaster from the nearest toolstore
+		["wad0bmp", "Interface/Menus/Pget_BirdScarer.bmp"], // button to instruct a raider to get a sonic blaster from the nearest toolstore
+		["wad0bmp", "Interface/Menus/Nget_BirdScarer.bmp"], // button to instruct a raider to get a sonic blaster from the nearest toolstore
+
+		// train as buttons
+		["wad0bmp", "Interface/Menus/Train_Explosives.bmp"],
+		["wad0bmp", "Interface/Menus/PTrain_Explosives.bmp"],
+		["wad0bmp", "Interface/Menus/NTrain_Explosives.bmp"],
+		["wad0bmp", "Interface/Menus/Train_Pilot.bmp"],
+		["wad0bmp", "Interface/Menus/PTrain_Pilot.bmp"],
+		["wad0bmp", "Interface/Menus/NTrain_Pilot.bmp"],
+		["wad0bmp", "Interface/Menus/Train_Sailor.bmp"],
+		["wad0bmp", "Interface/Menus/PTrain_Sailor.bmp"],
+		["wad0bmp", "Interface/Menus/NTrain_Sailor.bmp"],
+		["wad0bmp", "Interface/Menus/Train_Driver.bmp"],
+		["wad0bmp", "Interface/Menus/PTrain_Driver.bmp"],
+		["wad0bmp", "Interface/Menus/NTrain_Driver.bmp"],
+		["wad0bmp", "Interface/Menus/Train_Engineer.bmp"],
+		["wad0bmp", "Interface/Menus/PTrain_Engineer.bmp"],
+		["wad0bmp", "Interface/Menus/NTrain_Engineer.bmp"],
+		["wad0bmp", "Interface/Menus/Train_Geologist.bmp"],
+		["wad0bmp", "Interface/Menus/PTrain_Geologist.bmp"],
+		["wad0bmp", "Interface/Menus/NTrain_Geologist.bmp"],
 
 		// held tools and skills images FIXME replace with wadbmp
 		["img", "images\\skills_and_tools", "have drill.png"], // image indicating that a raider is currently carrying a drill in this tool slot
@@ -293,17 +406,37 @@ object = {
 		["img", "images\\skills_and_tools", "am geologist.png"], // image indicating that a raider is a geologist
 		["img", "images\\skills_and_tools", "am engineer.png"], // image indicating that a raider is an engineer
 
-		// building buttons FIXME replace with wadbmp
-		["img", "images\\buttons", "make ToolStation.png"], // button to select to build tool store from building menu
-		["img", "images\\buttons", "make SMteleport.png"], // button to select to build teleport pad from building menu
-		["img", "images\\buttons", "make docks.png"], // button to select to build docks from building menu
-		["img", "images\\buttons", "make PowerStation.png"], // button to select to build power station from building menu
-		["img", "images\\buttons", "make barracks.png"], // button to select to build support station from building menu
-		["img", "images\\buttons", "make Upgrade.png"], // button to select to build upgrade station from building menu
-		["img", "images\\buttons", "make Geo.png"], // button to select to build geological center from building menu
-		["img", "images\\buttons", "make Orerefinery.png"], // button to select to build ore refinery from building menu
-		["img", "images\\buttons", "make Gunstation.png"], // button to select to build mining laser from building menu
-		["img", "images\\buttons", "make LargeTeleporter.png"], // button to select to build super teleport from building menu
+		// building buttons
+		["wad0bmp", "Interface/Icons/Toolstation.bmp"],
+		["wad0bmp", "Interface/Icons/PToolstation.bmp"],
+		["wad0bmp", "Interface/Icons/NToolstation.bmp"],
+		["wad0bmp", "Interface/Icons/SMteleport.bmp"],
+		["wad0bmp", "Interface/Icons/PSMteleport.bmp"],
+		["wad0bmp", "Interface/Icons/NSMteleport.bmp"],
+		["wad0bmp", "Interface/Icons/dock.bmp"],
+		["wad0bmp", "Interface/Icons/Pdock.bmp"],
+		["wad0bmp", "Interface/Icons/Ndock.bmp"],
+		["wad0bmp", "Interface/Icons/PowerStation.bmp"],
+		["wad0bmp", "Interface/Icons/PPowerStation.bmp"],
+		["wad0bmp", "Interface/Icons/NPowerStation.bmp"],
+		["wad0bmp", "Interface/Icons/barracks.bmp"],
+		["wad0bmp", "Interface/Icons/Pbarracks.bmp"],
+		["wad0bmp", "Interface/Icons/Nbarracks.bmp"],
+		["wad0bmp", "Interface/Icons/Upgrade.bmp"],
+		["wad0bmp", "Interface/Icons/PUpgrade.bmp"],
+		["wad0bmp", "Interface/Icons/NUpgrade.bmp"],
+		["wad0bmp", "Interface/Icons/Geo.bmp"],
+		["wad0bmp", "Interface/Icons/PGeo.bmp"],
+		["wad0bmp", "Interface/Icons/NGeo.bmp"],
+		["wad0bmp", "Interface/Icons/Orerefinery.bmp"],
+		["wad0bmp", "Interface/Icons/POrerefinery.bmp"],
+		["wad0bmp", "Interface/Icons/NOrerefinery.bmp"],
+		["wad0bmp", "Interface/Icons/Gunstation.bmp"],
+		["wad0bmp", "Interface/Icons/PGunstation.bmp"],
+		["wad0bmp", "Interface/Icons/NGunstation.bmp"],
+		["wad0bmp", "Interface/Icons/LargeTeleporter.bmp"],
+		["wad0bmp", "Interface/Icons/PLargeTeleporter.bmp"],
+		["wad0bmp", "Interface/Icons/NLargeTeleporter.bmp"],
 
 		// interface
 		["wad0alpha", "Interface/RightPanel/CrystalSideBar.bmp"], // right side overlay showing crystal and ore count
@@ -368,6 +501,7 @@ object = {
 		// gui element scripts
 		// load scripts in the end, so images have been loaded before and are ready to use
 		["js", "gui", "MainMenu.js"], // GUI elements used in the main menu
+		["js", "gui", "Ingame.js"], // GUI elements used in-game
 		["js", "gui", "ScoreScreen.js"], // GUI elements used in the score screen
 
 		["wad1txt", "Lego.cfg", "Lego.cfg"], // configuration file with all parameters
