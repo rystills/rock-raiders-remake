@@ -258,6 +258,7 @@ function calculatePath(terrain, startSpace, goalSpace, returnAllSolutions, raide
 	const closedSet = [];
 	const solutions = [];
 	let finalPathDistance = -1;
+	let shortestPath = null;
 	const openSet = [startSpace];
 	// main iteration: keep popping spaces from the back until we have found a solution (or all equal solutions if returnAllSolutions is True)
 	// or openSet is empty (in which case there is no solution)
@@ -272,9 +273,9 @@ function calculatePath(terrain, startSpace, goalSpace, returnAllSolutions, raide
 
 		// main inner iteration: check each space in adjacentSpaces for validity
 		for (let k = 0; k < adjacentSpaces.length; k++) {
-			// if returnAllSolutions is True and we have surpassed finalPathDistance, exit immediately
-			if ((finalPathDistance !== -1) && (currentSpace.startDistance + 1 > finalPathDistance)) {
-				return solutions;
+			if ((finalPathDistance !== -1) && (currentSpace.startDistance + 1 / currentSpace.speedModifier > finalPathDistance)) {
+				// a shorter way is already known, so we can skip this option
+				continue;
 			}
 
 			const newSpace = adjacentSpaces[k];
@@ -288,11 +289,14 @@ function calculatePath(terrain, startSpace, goalSpace, returnAllSolutions, raide
 				// grow out the list of paths back in pathsFound until all valid paths have been exhausted
 				while (pathsFound.length > 0) {
 					if (pathsFound[0][pathsFound[0].length - 1].parents[0] === startSpace) { // we've reached the start space, thus completing this path
-						if (!returnAllSolutions) {
-							return pathsFound[0];
+						const currentPathDistance = pathsFound[0].reduce((a, b) => a + 1 / b.speedModifier, 0);
+						if (finalPathDistance === -1 || currentPathDistance < finalPathDistance) {
+							finalPathDistance = currentPathDistance;
+							shortestPath = pathsFound[0];
+							solutions.unshift(pathsFound.shift());
+						} else {
+							solutions.push(pathsFound.shift());
 						}
-						finalPathDistance = pathsFound[0].length;
-						solutions.push(pathsFound.shift());
 						continue;
 					}
 					// branch additional paths for each parent of the current path's current space
@@ -309,7 +313,7 @@ function calculatePath(terrain, startSpace, goalSpace, returnAllSolutions, raide
 
 			// attempt to keep branching from newSpace as long as it is a walkable type
 			if ((newSpace != null) && (newSpace.walkable === true)) {
-				const newStartDistance = currentSpace.startDistance + 1;
+				const newStartDistance = currentSpace.startDistance + 1 / currentSpace.speedModifier;
 				const notInOpenSet = openSet.indexOf(newSpace) === -1;
 
 				// don't bother with newSpace if it has already been visited unless our new distance from the start space is smaller than its existing startDistance
@@ -339,7 +343,11 @@ function calculatePath(terrain, startSpace, goalSpace, returnAllSolutions, raide
 	if (solutions.length === 0) {
 		return null;
 	}
-	return solutions;
+	if (returnAllSolutions) {
+		return solutions;
+	} else {
+		return shortestPath;
+	}
 }
 
 /**
@@ -2454,7 +2462,7 @@ function update() {
 		if (debug) {
 			highlightRaiderPaths();
 			drawSelectedRects();
-			drawTerrainVars(["listX"]);
+			drawTerrainVars(["speedModifier"]);
 		}
 		drawDynamiteTimers();
 		drawBuildingSiteMaterials();
