@@ -2150,11 +2150,9 @@ function toggleFog(button) {
 }
 
 function unlockAllLevels() {
-	for (let i = 0; i < GameManager.scriptObjects["levelList.js"].levels.length; ++i) {
-		const level = GameManager.scriptObjects["levelList.js"].levels[i];
-		if (getLevelScore(level) == null) {
-			setValue(level, 0);
-		}
+	for (let level = 0; level < GameManager.scriptObjects["levelList.js"].levels.length; ++level) {
+		const levelName = GameManager.scriptObjects["levelList.js"].levels[level];
+		setLevelScore(0, levelName);
 	}
 }
 
@@ -2348,16 +2346,17 @@ function calculateLevelScore() {
 /**
  * update the level dict and local storage var for the current level to reflect the player's highest score
  * @param score: the newly achieved level score (may or may not be the all-time high-score)
+ * @param name: Optional name to set level score, defaults to current level
  */
-function setLevelScore(score) {
-	const prevScore = getValue(levelName, null);
+function setLevelScore(score, name = levelName) {
+	const prevScore = getValue(name, null);
 	if (prevScore == null || prevScore < score) {
-		setValue(levelName, score);
+		setValue(name, score);
 	}
 }
 
 function getLevelScore(level) {
-	return getValue(GameManager.scriptObjects["levelList.js"].levels[level]);
+	return getValue(GameManager.scriptObjects["levelList.js"].levels[level], null);
 }
 
 /**
