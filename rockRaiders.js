@@ -5,6 +5,7 @@
  *
  */
 const drawDepthTerrain = 1000;
+const drawDepthTerrainMarker = 975;
 const drawDepthSelectedSpace = 950;
 const drawDepthBuildingPlacier = 900;
 
@@ -168,6 +169,8 @@ function adjacentSpaceXY(terrain, x, y, dirX, dirY) {
  * @param initialSpace: the starting space to be marked as touched from which we propagate out
  */
 function touchAllAdjacentSpaces(initialSpace) {
+	// update the type properties to adjust image and update properties like reinforcement or selectable
+	initialSpace.setTypeProperties(initialSpace.type);
 	if (!initialSpace.touched) {
 		if (initialSpace.isBuilding === false && (!(initialSpace.walkable || initialSpace.type === "water" || initialSpace.type === "lava"))) {
 			if (initialSpace.drillable || initialSpace.drillHardable || initialSpace.explodable) {
@@ -255,6 +258,7 @@ function calculatePath(terrain, startSpace, goalSpace, returnAllSolutions, raide
 	const closedSet = [];
 	const solutions = [];
 	let finalPathDistance = -1;
+	let shortestPath = null;
 	const openSet = [startSpace];
 	// main iteration: keep popping spaces from the back until we have found a solution (or all equal solutions if returnAllSolutions is True)
 	// or openSet is empty (in which case there is no solution)
@@ -269,9 +273,9 @@ function calculatePath(terrain, startSpace, goalSpace, returnAllSolutions, raide
 
 		// main inner iteration: check each space in adjacentSpaces for validity
 		for (let k = 0; k < adjacentSpaces.length; k++) {
-			// if returnAllSolutions is True and we have surpassed finalPathDistance, exit immediately
-			if ((finalPathDistance !== -1) && (currentSpace.startDistance + 1 > finalPathDistance)) {
-				return solutions;
+			if ((finalPathDistance !== -1) && (currentSpace.startDistance + 1 / currentSpace.speedModifier > finalPathDistance)) {
+				// a shorter way is already known, so we can skip this option
+				continue;
 			}
 
 			const newSpace = adjacentSpaces[k];
@@ -285,13 +289,15 @@ function calculatePath(terrain, startSpace, goalSpace, returnAllSolutions, raide
 				// grow out the list of paths back in pathsFound until all valid paths have been exhausted
 				while (pathsFound.length > 0) {
 					if (pathsFound[0][pathsFound[0].length - 1].parents[0] === startSpace) { // we've reached the start space, thus completing this path
-						if (!returnAllSolutions) {
-							return pathsFound[0];
+						const currentPathDistance = pathsFound[0].reduce((a, b) => a + 1 / b.speedModifier, 0);
+						if (finalPathDistance === -1 || currentPathDistance < finalPathDistance) {
+							finalPathDistance = currentPathDistance;
+							shortestPath = pathsFound[0];
+							solutions.unshift(pathsFound.shift());
+						} else {
+							solutions.push(pathsFound.shift());
 						}
-						finalPathDistance = pathsFound[0].length;
-						solutions.push(pathsFound.shift());
 						continue;
-
 					}
 					// branch additional paths for each parent of the current path's current space
 					for (let i = 0; i < pathsFound[0][pathsFound[0].length - 1].parents.length; i++) {
@@ -307,7 +313,7 @@ function calculatePath(terrain, startSpace, goalSpace, returnAllSolutions, raide
 
 			// attempt to keep branching from newSpace as long as it is a walkable type
 			if ((newSpace != null) && (newSpace.walkable === true)) {
-				const newStartDistance = currentSpace.startDistance + 1;
+				const newStartDistance = currentSpace.startDistance + 1 / currentSpace.speedModifier;
 				const notInOpenSet = openSet.indexOf(newSpace) === -1;
 
 				// don't bother with newSpace if it has already been visited unless our new distance from the start space is smaller than its existing startDistance
@@ -337,7 +343,11 @@ function calculatePath(terrain, startSpace, goalSpace, returnAllSolutions, raide
 	if (solutions.length === 0) {
 		return null;
 	}
-	return solutions;
+	if (returnAllSolutions) {
+		return solutions;
+	} else {
+		return shortestPath;
+	}
 }
 
 /**
@@ -355,13 +365,13 @@ function resourceAvailable(resourceType) {
  */
 function loadLevelData(name) {
 	levelName = name;
-	terrainMapName = "Surf_" + levelName + ".js";
-	cryoreMapName = "Cror_" + levelName + ".js";
-	olFileName = levelName + ".js";
-	predugMapName = "Dugg_" + levelName + ".js";
-	surfaceMapName = "High_" + levelName + ".js";
-	pathMapName = "path_" + levelName + ".js";
-	fallinMapName = "Fall_" + levelName + ".js";
+	const terrainMapName = "Surf_" + levelName + ".js";
+	const cryoreMapName = "Cror_" + levelName + ".js";
+	const olFileName = levelName + ".js";
+	const predugMapName = "Dugg_" + levelName + ".js";
+	const surfaceMapName = "High_" + levelName + ".js";
+	const pathMapName = "path_" + levelName + ".js";
+	const fallinMapName = "Fall_" + levelName + ".js";
 
 	// load in Space types from terrain, surface, and path maps
 	for (let i = 0; i < GameManager.scriptObjects[terrainMapName].level.length; i++) {
@@ -559,10 +569,10 @@ function createRaider() {
 			break;
 		}
 	}
-	if (toolStore == null) {
+	if (toolStore === null) {
 		return;
 	}
-	let raider = new Raider(toolStore);
+	const raider = new Raider(toolStore);
 	raider.walkPosDummy.setCenterX(toolStore.powerPathSpace.randomX());
 	raider.walkPosDummy.setCenterY(toolStore.powerPathSpace.randomY());
 	raider.currentTask = raider.walkPosDummy;
@@ -586,7 +596,6 @@ function createVehicle(vehicleType) {
 	if (toolStore == null) {
 		return;
 	}
-
 	const newVehicle = (vehicleType === "hover scout" ? new HoverScout(toolStore.powerPathSpace) :
 		(vehicleType === "small digger" ? new SmallDigger(toolStore.powerPathSpace) : new SmallTransportTruck(toolStore.powerPathSpace)));
 	vehicles.push(newVehicle);
@@ -634,7 +643,7 @@ function setSelectionByMouseCursor() {
 		for (let r = 0; r < terrain[i].length; r++) {
 			let terrainTile = terrain[i][r];
 			if (collisionPoint(GameManager.mouseReleasedPosLeft.x, GameManager.mouseReleasedPosLeft.y, terrainTile, terrainTile.affectedByCamera)) {
-				if (terrainTile.type !== "solid rock" && terrainTile.touched) {
+				if (terrainTile.isSelectable()) {
 					selection = [terrainTile];
 					selectionType = selection[0].touched ? selection[0].type : "Hidden";
 				}
@@ -975,6 +984,7 @@ function reinforceWall() {
 			tasksAvailable.push(selection[i].reinforceDummy);
 		}
 		selection[i].reinforceDummy.taskPriority = 1;
+		selection[i].reinforceDummy.visible = true;
 	}
 	cancelSelection();
 }
@@ -993,6 +1003,7 @@ function dynamiteWall() {
 			tasksAvailable.push(selection[i].dynamiteDummy);
 		}
 		selection[i].dynamiteDummy.taskPriority = 1;
+		selection[i].dynamiteDummy.visible = true;
 	}
 	cancelSelection();
 }
@@ -1008,6 +1019,7 @@ function drillWall() {
 		const curIndex = tasksAvailable.indexOf(selection[i]);
 		if (curIndex !== -1) {
 			selection[i].taskPriority = 1;
+			selection[i].drillDummy.visible = true;
 		}
 	}
 	cancelSelection();
@@ -1063,7 +1075,7 @@ function upgradeBuilding() {
  */
 function pathToClosestBuilding(raider, buildingType) {
 	const closestBuilding = raider.chooseClosestBuilding(buildingType);
-	return findClosestStartPath(raider, calculatePath(terrain, raider.space, closestBuilding, true));
+	return findClosestStartPath(raider, calculatePath(terrain, raider.space, closestBuilding, true, raider));
 }
 
 /**
@@ -1161,6 +1173,7 @@ function checkTogglePause() {
  * @param raider: if specified, only this raider will be stopped
  */
 function stopMinifig(raider) {
+	let stopGroup;
 	if (raider == null) {
 		stopGroup = selection;
 	} else {
@@ -1796,12 +1809,29 @@ function createButtons() {
 		["ore", "crystal"]));
 
 	// drillable wall selected buttons
-	buttons.push(new Button(buttonsX, 17, 0, 0, "Interface/Menus/drill.bmp", gameLayer, "", drillWall, false, false,
-		["dirt", "loose rock", "ore seam", "energy crystal seam", "hard rock"]));
+	const drillButton = new Button(buttonsX, 17, 0, 0, "Interface/Menus/drill.bmp", gameLayer, "", drillWall, false, false,
+		["dirt", "loose rock", "ore seam", "energy crystal seam", "hard rock"]);
+	buttons.push(drillButton);
+	drillButton.additionalRequirement = function () {
+		if (selection[0].type === "hard rock") {
+			for (let i = 0; i < vehicles.objectList.length; i++) {
+				if (vehicles.objectList[i].canDrillHard) {
+					return true;
+				}
+			}
+			return false;
+		} else {
+			return true;
+		}
+	};
 
 	// re-inforcable wall selected
-	buttons.push(new Button(buttonsX, 57, 0, 0, "Interface/Menus/Reinforce.bmp", gameLayer, "", reinforceWall, false, false,
-		["dirt", "loose rock", "hard rock", "ore seam", "energy crystal seam"]));
+	const reinforceButton = new Button(buttonsX, 57, 0, 0, "Interface/Menus/Reinforce.bmp", gameLayer, "", reinforceWall, false, false,
+		["dirt", "loose rock", "hard rock", "ore seam", "energy crystal seam"]);
+	buttons.push(reinforceButton);
+	reinforceButton.additionalRequirement = function () {
+		return selection[0] && !(selection[0].reinforced) && selection[0].shapeIndex === 0;
+	};
 
 	// dynamitable wall selected buttons
 	buttons.push(new Button(buttonsX, 97, 0, 0, "Interface/Menus/dynamite.bmp", gameLayer, "", dynamiteWall, false, false,
@@ -2120,11 +2150,9 @@ function toggleFog(button) {
 }
 
 function unlockAllLevels() {
-	for (let i = 0; i < GameManager.scriptObjects["levelList.js"].levels.length; ++i) {
-		const level = GameManager.scriptObjects["levelList.js"].levels[i];
-		if (getLevelScore(level) == null) {
-			setValue(level, 0);
-		}
+	for (let level = 0; level < GameManager.scriptObjects["levelList.js"].levels.length; ++level) {
+		const levelName = GameManager.scriptObjects["levelList.js"].levels[level];
+		setLevelScore(0, levelName);
 	}
 }
 
@@ -2135,20 +2163,6 @@ function clearData() {
 	localStorage.removeItem("fog");
 	localStorage.removeItem("mousePanning");
 	localStorage.removeItem("debug");
-}
-
-/**
- * switch layers to the main menu, stopping all sounds and toggling all game-variables off
- */
-function returnToMainMenu(keepMusic = false) {
-	// toggle game and menu layers and swap music tracks, as well as update level score strings if coming from score screen
-	goToMenu("Menu1");
-	if (!keepMusic) {
-		musicPlayer.changeTrack("menu theme");
-		stopAllSounds();
-	}
-	buildingPlacer.stop();
-	tileSelectedGraphic.visible = false;
 }
 
 /**
@@ -2180,7 +2194,6 @@ function resetLevelVars(name) {
 	mousePressStartPos = {x: 1, y: 1};
 	mousePressIsSelection = false;
 	activeIconPanel = "";
-	lastLevelScore = 0;
 	selectionType = null;
 	for (let i = 0; i < terrain.length; ++i) {
 		for (let r = 0; r < terrain[i].length; ++r) {
@@ -2333,16 +2346,17 @@ function calculateLevelScore() {
 /**
  * update the level dict and local storage var for the current level to reflect the player's highest score
  * @param score: the newly achieved level score (may or may not be the all-time high-score)
+ * @param name: Optional name to set level score, defaults to current level
  */
-function setLevelScore(score) {
-	const prevScore = getValue(levelName, null);
-	if (prevScore != null && prevScore < score) {
-		setValue(levelName, score);
+function setLevelScore(score, name = levelName) {
+	const prevScore = getValue(name, null);
+	if (prevScore == null || prevScore < score) {
+		setValue(name, score);
 	}
 }
 
 function getLevelScore(level) {
-	return getValue(GameManager.scriptObjects["levelList.js"].levels[level]);
+	return getValue(GameManager.scriptObjects["levelList.js"].levels[level], null);
 }
 
 /**
@@ -2355,12 +2369,13 @@ function showScoreScreen(missionState) {
 	if (!GameManager.devMode) {
 		unblockPageExit();
 	}
+	let levelScore = 0;
 	if (missionState === "completed") {
-		lastLevelScore = calculateLevelScore();
-		setLevelScore(lastLevelScore);
+		levelScore = calculateLevelScore();
+		setLevelScore(levelScore);
 	}
 	// TODO use actual values from level information
-	scoreScreenLayer.setValues(missionState, "Some Mission", 0, 0, 0, 0, 0, 0, 0, 0, 0, lastLevelScore);
+	scoreScreenLayer.setValues(missionState, "Some Mission", 0, 0, 0, 0, 0, 0, 0, 0, 0, levelScore);
 	scoreScreenLayer.startReveal();
 }
 
@@ -2446,7 +2461,7 @@ function update() {
 		if (debug) {
 			highlightRaiderPaths();
 			drawSelectedRects();
-			drawTerrainVars(["listX"]);
+			drawTerrainVars(["speedModifier"]);
 		}
 		drawDynamiteTimers();
 		drawBuildingSiteMaterials();

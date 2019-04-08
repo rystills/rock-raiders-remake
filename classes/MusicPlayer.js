@@ -25,7 +25,7 @@ MusicPlayer.prototype.startTrack = function (trackName, onendedCallback) {
 		track.addEventListener("ended", onendedCallback);
 		// at least Chromium throws an error, if the user didn't interact with the site, before play() is called
 		const that = this;
-		track.play().catch((e) => setTimeout(function () {
+		track.play().catch(() => setTimeout(function () {
 			that.startTrack(trackName, onendedCallback);
 		}, 2000)); // retry again in 2 seconds
 	}

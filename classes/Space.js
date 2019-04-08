@@ -126,8 +126,15 @@ Space.prototype.makeRubble = function (rubbleContainsOre, drilledBy, silent = fa
 		}
 	}
 	// kill dummies to stop any active tasks, since these can no longer be performed (if already dead, nothing will happen)
-	this.reinforceDummy.die();
-	this.dynamiteDummy.die();
+	if (this.drillDummy) {
+		this.drillDummy.die();
+	}
+	if (this.reinforceDummy) {
+		this.reinforceDummy.die();
+	}
+	if (this.dynamiteDummy) {
+		this.dynamiteDummy.die();
+	}
 	this.checkRemoveDummyTasks();
 	if (drilledBy != null) {
 		drilledBy.tasksToClear.push(this);
@@ -138,8 +145,7 @@ Space.prototype.makeRubble = function (rubbleContainsOre, drilledBy, silent = fa
 			this.rockBreakSound = GameManager.createSound("ROKBREK1");
 			this.soundList.push(this.rockBreakSound);
 		}
-		this.rockBreakSound.play().catch(error => {
-		});
+		this.rockBreakSound.play().catch(() => {});
 	}
 	// setTypeProperties will check the value of rubbleContainsOre for us, so no need to do a type check here, just pipe it in
 	this.setTypeProperties("rubble 1", false, rubbleContainsOre);
@@ -167,9 +173,6 @@ Space.prototype.makeRubble = function (rubbleContainsOre, drilledBy, silent = fa
 		}
 	}
 	touchAllAdjacentSpaces(this);
-	if (this.reinforceDummy != null) {
-		this.reinforceDummy.die();
-	}
 };
 
 /**
@@ -260,27 +263,39 @@ Space.prototype.setRockImage = function (themeName, matIndex) {
 			}
 		}
 	}
-	let shapeIndex = 0;
+	this.shapeIndex = 0;
 	if (!walls[0][1] && !walls[0][2] && !walls[1][2]) {
 		this.drawAngle = 0.5 * Math.PI; // 0 = lower right, 0.5 = lower left, ...
-		shapeIndex = 5; // corner
+		this.shapeIndex = 5; // corner
 	} else if (!walls[0][1] && !walls[0][0] && !walls[1][0]) {
 		this.drawAngle = Math.PI;
-		shapeIndex = 5;
+		this.shapeIndex = 5;
 	} else if (!walls[1][0] && !walls[2][0] && !walls[2][1]) {
 		this.drawAngle = -0.5 * Math.PI;
-		shapeIndex = 5;
+		this.shapeIndex = 5;
 	} else if (!walls[2][1] && !walls[2][2] && !walls[1][2]) {
 		this.drawAngle = 0;
-		shapeIndex = 5;
+		this.shapeIndex = 5;
 	} else if (wallsCount === 7) {
-		shapeIndex = 3; // inverted corner
+		this.shapeIndex = 3; // inverted corner
 		if (!walls[0][0]) {
 			this.drawAngle = Math.PI;
 		} else if (!walls[2][0]) {
 			this.drawAngle = -0.5 * Math.PI;
 		} else if (!walls[0][2]) {
 			this.drawAngle = 0.5 * Math.PI;
+		} else if (walls[2][2]) {
+			this.shapeIndex = 0;
+			// even part
+			if (!walls[1][0]) { // top missing
+				this.drawAngle = Math.PI;
+			} else if (!walls[0][1]) { // left missing
+				this.drawAngle = 0.5 * Math.PI;
+			} else if (!walls[2][1]) { // right missing
+				this.drawAngle = -0.5 * Math.PI;
+			} else {
+				this.drawAngle = 0;
+			}
 		}
 	} else { // even part
 		if (!walls[1][0]) { // top missing
@@ -289,17 +304,29 @@ Space.prototype.setRockImage = function (themeName, matIndex) {
 			this.drawAngle = 0.5 * Math.PI;
 		} else if (!walls[2][1]) { // right missing
 			this.drawAngle = -0.5 * Math.PI;
+		} else {
+			this.drawAngle = 0;
 		}
 	}
-	this.image = "World/WorldTextures/" + themeName + "Split/" + themeName + shapeIndex.toString() + matIndex.toString() + ".bmp";
+	this.image = "World/WorldTextures/" + themeName + "Split/" + themeName + this.shapeIndex.toString() + matIndex.toString() + ".bmp";
+};
+
+Space.prototype.isSelectable = function () {
+	return this.selectable && this.touched && this.shapeIndex !== 3;
 };
 
 /**
  * custom die code: kill children before calling base class die
  */
 Space.prototype.die = function () {
+	if (this.drillDummy != null) {
+		this.drillDummy.die();
+	}
 	if (this.reinforceDummy != null) {
 		this.reinforceDummy.die();
+	}
+	if (this.dynamiteDummy != null) {
+		this.dynamiteDummy.die();
 	}
 	return RygameObject.prototype.die.call(this);
 };
@@ -381,6 +408,8 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 	this.drillPercent = 0;
 	this.sweepPercent = 0;
 	this.reinforcePercent = 0;
+	this.selectable = true;
+	this.shapeIndex = 0;
 	if (type === "ground") {
 		this.image = "World/WorldTextures/RockSplit/ROCK00.BMP";
 		this.walkable = true;
@@ -395,9 +424,13 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 		}
 		this.walkable = true;
 		this.speedModifier = 1.5;
+		if (type === "building power path") {
+			this.selectable = false;
+		}
 	} else if (type === "solid rock") {
 		this.setRockImage("ROCK", 5);
 		this.isWall = true;
+		this.selectable = false;
 	} else if (type === "hard rock") {
 		this.setRockImage("ROCK", 4);
 		this.isWall = true;
@@ -413,6 +446,7 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 		this.isWall = true;
 	} else if (type === "lava") {
 		this.image = "World/WorldTextures/RockSplit/ROCK46.BMP";
+		this.selectable = false
 	} else if (type === "ore seam") {
 		this.image = "World/WorldTextures/RockSplit/Rock40.bmp";
 		this.drillable = true;
@@ -425,9 +459,11 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 		this.drillable = true;
 		this.isWall = true;
 		this.drillSpeedModifier = .2;
+		this.selectable = false
 	} else if (type === "recharge seam") {
 		this.image = "World/WorldTextures/RockSplit/Rock67.bmp";
 		this.isWall = true;
+		this.selectable = false
 	} else if (type.slice(0, 6) === "rubble") {
 		if (type === "rubble 1") {
 			this.image = "World/WorldTextures/RockSplit/ROCK10.BMP";
@@ -531,15 +567,10 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 			if (index === -1) {
 				buildings.push(this);
 			}
-			// this case should never be possible
-			else {
-				console.log("WARNING: BUILDING TRIED TO ADD ITSELF TO BUILDINGS LIST, BUT WAS ALREADY THERE");
-			}
 		}
 
 	} else if (type === "building site") {
 		this.image = (this.buildingSiteType === "power path" ? "World/WorldTextures/RockSplit/Rock61.bmp" : "building site.png");
-		console.log(this.type);
 		if (this.touched === true) {
 			const index = buildingSites.indexOf(this);
 			if (index === -1) {
@@ -707,7 +738,6 @@ Space.prototype.completeConstruction = function () {
  * attempt to trigger a landslide at this space, which will go through if we are bordering a valid non-reinforced non-solid wall
  */
 Space.prototype.activateLandSlide = function () {
-	console.log("land slide activated. this.type: " + this.type);
 	this.curLandSlideWait = this.minLandSlideWait;
 	const adjacentSpaces = this.getAdjacentSpaces();
 	let borderingValidWall = false;
@@ -716,9 +746,8 @@ Space.prototype.activateLandSlide = function () {
 		if (adjacentSpaces[i].type === "dirt" || adjacentSpaces[i].type === "loose rock" || adjacentSpaces[i].type === "hard rock" ||
 			adjacentSpaces[i].type === "ore seam" || adjacentSpaces[i].type === "energy crystal seam") {
 			// TODO: allow land-slides to re-fill partially swept rubble spaces as well (but don't reset rubbleContainsOre)
-			if (adjacentSpaces[i].reinforced === false) {
+			if (adjacentSpaces[i].reinforced === false && adjacentSpaces[i].shapeIndex === 0) {
 				borderingValidWall = true;
-				console.log("bordering wall type: " + adjacentSpaces[i].type);
 				break;
 			}
 		}
@@ -726,18 +755,13 @@ Space.prototype.activateLandSlide = function () {
 	if (borderingValidWall) {
 		if (this.type === "ground" || this.type === "rubble 1" || this.type === "rubble 2" || this.type === "rubble 3" || this.type === "rubble 4") {
 			// only change tile type if you are a ground or rubble tile
-			console.log(this.type);
 			this.setTypeProperties("rubble 1", false, false);
 			if (tasksAvailable.indexOf(this) === -1) {
 				tasksAvailable.push(this);
 			}
 		}
 		this.landSlides.push([new LandSlide(this)]);
-		this.landSlideSound.play().catch(error => {
-		});
-
-	} else {
-		console.log("bordering wall type: No valid wall bordered");
+		this.landSlideSound.play().catch(() => {});
 	}
 };
 
@@ -874,8 +898,25 @@ function Space(type, listX, listY, height, parentSpace) {
 	// contains lists objects which currently reside on the space, such as collectables
 	this.contains = new ObjectGroup();
 	this.reinforced = false;
+	// dummy used to identify drill tasks
+	this.drillDummy = this.drillable || this.drillHardable ? new RygameObject(0, 0, -99999, drawDepthTerrainMarker, null, this.drawLayer, true, true, true) : null;
+	if (this.drillDummy != null) {
+		// workaround so the engine treats this dummy as a space that can be blown up when determining what type of task it is
+		this.drillDummy.dynamitable = true;
+		// share a rect for collisions
+		this.drillDummy.rect = this.rect;
+		// set space for use in pathfinding
+		this.drillDummy.space = this;
+		this.drillDummy.setCenterX(this.centerX());
+		this.drillDummy.setCenterY(this.centerY());
+		this.drillDummy.drawSurface = createContext(this.drillDummy.rect.width, this.drillDummy.rect.height);
+		this.drillDummy.drawSurface.globalAlpha = 0.4;
+		this.drillDummy.drawSurface.fillStyle = "black";
+		this.drillDummy.drawSurface.fillRect(0, 0, this.drillDummy.rect.width, this.drillDummy.rect.height);
+		this.drillDummy.visible = false;
+	}
 	// dummy used to identify reinforce tasks
-	this.reinforceDummy = this.isWall ? new RygameObject(0, 0, -99999, 99999, "World/WorldTextures/RockSplit/rock24.bmp", this.drawLayer, true, false, true) : null;
+	this.reinforceDummy = (this.isWall && this.type !== "solid rock") ? new RygameObject(0, 0, -99999, drawDepthTerrainMarker, null, this.drawLayer, true, true, true) : null;
 	if (this.reinforceDummy != null) {
 		// workaround so the engine treats this dummy as a reinforcable space when determining what type of task it is
 		this.reinforceDummy.reinforcable = true;
@@ -891,13 +932,20 @@ function Space(type, listX, listY, height, parentSpace) {
 			this.reinforcePercent += reinforcePercentIncrease;
 		};
 		this.reinforceDummy.reinforce = function () {
+			this.drawSurface.drawImage(GameManager.getImage("World/WorldTextures/RockSplit/rock24.bmp").canvas, 0, 0);
 			this.visible = true;
-			this.renderAutomatically = true;
 			this.space.reinforced = true;
-		}
+			this.drawAngle = this.space.drawAngle;
+		};
+		this.reinforceDummy.drawSurface = createContext(this.reinforceDummy.rect.width, this.reinforceDummy.rect.height);
+		this.reinforceDummy.drawSurface.globalAlpha = 0.3;
+		this.reinforceDummy.drawSurface.fillStyle = "green";
+		this.reinforceDummy.drawSurface.fillRect(0, 0, this.reinforceDummy.rect.width, this.reinforceDummy.rect.height);
+		this.reinforceDummy.drawSurface.globalAlpha = 1;
+		this.reinforceDummy.visible = false;
 	}
 	// dummy used to identify dynamite tasks
-	this.dynamiteDummy = this.isWall ? new RygameObject(0, 0, -99999, drawDepthCollectables, null, this.drawLayer, true, false, true) : null;
+	this.dynamiteDummy = (this.isWall && this.type !== "solid rock") ? new RygameObject(0, 0, -99999, drawDepthTerrainMarker, null, this.drawLayer, true, true, true) : null;
 	if (this.dynamiteDummy != null) {
 		// workaround so the engine treats this dummy as a space that can be blown up when determining what type of task it is
 		this.dynamiteDummy.dynamitable = true;
@@ -907,6 +955,11 @@ function Space(type, listX, listY, height, parentSpace) {
 		this.dynamiteDummy.space = this;
 		this.dynamiteDummy.setCenterX(this.centerX());
 		this.dynamiteDummy.setCenterY(this.centerY());
+		this.dynamiteDummy.drawSurface = createContext(this.dynamiteDummy.rect.width, this.dynamiteDummy.rect.height);
+		this.dynamiteDummy.drawSurface.globalAlpha = 0.1;
+		this.dynamiteDummy.drawSurface.fillStyle = "red";
+		this.dynamiteDummy.drawSurface.fillRect(0, 0, this.dynamiteDummy.rect.width, this.dynamiteDummy.rect.height);
+		this.dynamiteDummy.visible = false;
 	}
 	// temporary angle variable used to store correct drawAngle when space has not yet been touched (is still in the fog)
 	this.headingAngle = 0;

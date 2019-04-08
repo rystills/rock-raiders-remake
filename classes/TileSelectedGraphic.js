@@ -27,7 +27,9 @@ TileSelectedGraphic.prototype.update = function () {
  */
 TileSelectedGraphic.prototype.resizeDrawSurface = function (width, height) {
 	this.drawSurface.canvas.width = width;
+	this.drawSurface.width = width;
 	this.drawSurface.canvas.height = height;
+	this.drawSurface.height = height;
 	this.redrawSelectedGraphic();
 };
 
@@ -35,8 +37,8 @@ TileSelectedGraphic.prototype.resizeDrawSurface = function (width, height) {
  * redraw the selected effect to our drawSurface (only necessary after changing dimensions)
  */
 TileSelectedGraphic.prototype.redrawSelectedGraphic = function () {
-	this.drawSurface.globalAlpha = 0.3;
-	this.drawSurface.fillStyle = "rgb(0,255,0)";
+	this.drawSurface.globalAlpha = 0.15;
+	this.drawSurface.fillStyle = "blue";
 	this.drawSurface.fillRect(0, 0, this.drawSurface.width, this.drawSurface.height);
 	this.drawSurface.globalAlpha = 1;
 };
