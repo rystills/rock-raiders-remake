@@ -361,51 +361,53 @@ function resourceAvailable(resourceType) {
 
 /**
  * load in level data from input level name, reading from all supported map file types
- * @param name: the name of the level file, minus the file extension
+ * @param levelKey: the identifier for the level
  */
-function loadLevelData(name) {
-	RockRaiders.levelName = name;
-	const terrainMapName = "Surf_" + RockRaiders.levelName + ".js";
-	const cryoreMapName = "Cror_" + RockRaiders.levelName + ".js";
-	const olFileName = RockRaiders.levelName + ".js";
-	const predugMapName = "Dugg_" + RockRaiders.levelName + ".js";
-	const surfaceMapName = "High_" + RockRaiders.levelName + ".js";
-	const pathMapName = "path_" + RockRaiders.levelName + ".js";
-	const fallinMapName = "Fall_" + RockRaiders.levelName + ".js";
+function loadLevelData(levelKey) {
+	RockRaiders.currentLevelKey = levelKey;
+	const levelConf = RockRaiders.levelConf[levelKey];
+	RockRaiders.themeName = levelConf["TextureSet"].split("::")[1];
+	const terrainMapName = levelConf["TerrainMap"];
+	const cryoreMapName = levelConf["CryOreMap"] || levelConf["CryoreMap"]; // typos... typos everywhere
+	const olFileName = levelConf["OListFile"];
+	const predugMapName = levelConf["PreDugMap"] || levelConf["PredugMap"];
+	const surfaceMapName = levelConf["SurfaceMap"];
+	const pathMapName = levelConf["PathMap"];
+	const fallinMapName = levelConf["FallinMap"];
 
 	// load in Space types from terrain, surface, and path maps
-	for (let i = 0; i < GameManager.scriptObjects[terrainMapName].level.length; i++) {
+	for (let i = 0; i < GameManager.maps[terrainMapName].level.length; i++) {
 		terrain.push([]);
-		for (let r = 0; r < GameManager.scriptObjects[terrainMapName].level[i].length; r++) {
+		for (let r = 0; r < GameManager.maps[terrainMapName].level[i].length; r++) {
 
 			// give the path map the highest priority, if it exists
-			if (GameManager.scriptObjects[pathMapName] && GameManager.scriptObjects[pathMapName].level[i][r] === 1) {
+			if (GameManager.maps[pathMapName] && GameManager.maps[pathMapName].level[i][r] === 1) {
 				// rubble 1 Space id = 100
-				terrain[i].push(new Space(100, i, r, GameManager.scriptObjects[surfaceMapName].level[i][r]));
-			} else if (GameManager.scriptObjects[pathMapName] && GameManager.scriptObjects[pathMapName].level[i][r] === 2) {
+				terrain[i].push(new Space(100, i, r, GameManager.maps[surfaceMapName].level[i][r]));
+			} else if (GameManager.maps[pathMapName] && GameManager.maps[pathMapName].level[i][r] === 2) {
 				// building power path Space id = -1
-				terrain[i].push(new Space(-1, i, r, GameManager.scriptObjects[surfaceMapName].level[i][r]));
+				terrain[i].push(new Space(-1, i, r, GameManager.maps[surfaceMapName].level[i][r]));
 			} else {
-				if (GameManager.scriptObjects[predugMapName].level[i][r] === 0) {
+				if (GameManager.maps[predugMapName].level[i][r] === 0) {
 					// soil(5) was removed pre-release, so replace it with dirt(4)
-					if (GameManager.scriptObjects[terrainMapName].level[i][r] === 5) {
-						terrain[i].push(new Space(4, i, r, GameManager.scriptObjects[surfaceMapName].level[i][r]));
+					if (GameManager.maps[terrainMapName].level[i][r] === 5) {
+						terrain[i].push(new Space(4, i, r, GameManager.maps[surfaceMapName].level[i][r]));
 					} else {
-						terrain[i].push(new Space(GameManager.scriptObjects[terrainMapName].level[i][r], i, r, GameManager.scriptObjects[surfaceMapName].level[i][r]));
+						terrain[i].push(new Space(GameManager.maps[terrainMapName].level[i][r], i, r, GameManager.maps[surfaceMapName].level[i][r]));
 					}
-				} else if (GameManager.scriptObjects[predugMapName].level[i][r] === 3 || GameManager.scriptObjects[predugMapName].level[i][r] === 4) {
-					terrain[i].push(new Space(GameManager.scriptObjects[predugMapName * 10].level[i][r], i, r, GameManager.scriptObjects[surfaceMapName].level[i][r]));
-				} else if (GameManager.scriptObjects[predugMapName].level[i][r] === 1 || GameManager.scriptObjects[predugMapName].level[i][r] === 2) {
-					if (GameManager.scriptObjects[terrainMapName].level[i][r] === 6) {
-						terrain[i].push(new Space(6, i, r, GameManager.scriptObjects[surfaceMapName].level[i][r]));
-					} else if (GameManager.scriptObjects[terrainMapName].level[i][r] === 9) {
-						terrain[i].push(new Space(9, i, r, GameManager.scriptObjects[surfaceMapName].level[i][r]));
+				} else if (GameManager.maps[predugMapName].level[i][r] === 3 || GameManager.maps[predugMapName].level[i][r] === 4) { // slug holes
+					terrain[i].push(new Space(GameManager.maps[predugMapName].level[i][r] * 10, i, r, GameManager.maps[surfaceMapName].level[i][r]));
+				} else if (GameManager.maps[predugMapName].level[i][r] === 1 || GameManager.maps[predugMapName].level[i][r] === 2) {
+					if (GameManager.maps[terrainMapName].level[i][r] === 6) {
+						terrain[i].push(new Space(6, i, r, GameManager.maps[surfaceMapName].level[i][r]));
+					} else if (GameManager.maps[terrainMapName].level[i][r] === 9) {
+						terrain[i].push(new Space(9, i, r, GameManager.maps[surfaceMapName].level[i][r]));
 					} else {
-						terrain[i].push(new Space(0, i, r, GameManager.scriptObjects[surfaceMapName].level[i][r]));
+						terrain[i].push(new Space(0, i, r, GameManager.maps[surfaceMapName].level[i][r]));
 					}
 				}
 
-				const currentCryOre = GameManager.scriptObjects[cryoreMapName].level[i][r];
+				const currentCryOre = GameManager.maps[cryoreMapName].level[i][r];
 				if (currentCryOre % 2 === 1) {
 					terrain[i][r].containedCrystals = (currentCryOre + 1) / 2;
 				} else {
@@ -416,8 +418,8 @@ function loadLevelData(name) {
 	}
 
 	// ensure that any walls which do not meet the 'supported' requirement crumble at the start
-	for (let i = 0; i < GameManager.scriptObjects[predugMapName].level.length; i++) {
-		for (let r = 0; r < GameManager.scriptObjects[predugMapName].level[i].length; r++) {
+	for (let i = 0; i < GameManager.maps[predugMapName].level.length; i++) {
+		for (let r = 0; r < GameManager.maps[predugMapName].level[i].length; r++) {
 			if (terrain[i][r].isWall) {
 				terrain[i][r].checkWallSupported(null, true);
 			}
@@ -425,9 +427,9 @@ function loadLevelData(name) {
 	}
 
 	// 'touch' all exposed spaces in the predug map so that they appear as visible from the start
-	for (let i = 0; i < GameManager.scriptObjects[predugMapName].level.length; i++) {
-		for (let r = 0; r < GameManager.scriptObjects[predugMapName].level[i].length; r++) {
-			const currentPredug = GameManager.scriptObjects[predugMapName].level[i][r];
+	for (let i = 0; i < GameManager.maps[predugMapName].level.length; i++) {
+		for (let r = 0; r < GameManager.maps[predugMapName].level[i].length; r++) {
+			const currentPredug = GameManager.maps[predugMapName].level[i][r];
 			if (currentPredug === 1 || currentPredug === 3) {
 				touchAllAdjacentSpaces(terrain[i][r]);
 			}
@@ -435,17 +437,17 @@ function loadLevelData(name) {
 	}
 
 	// add land-slide frequency to Spaces
-	if (GameManager.scriptObjects[fallinMapName]) {
-		for (let i = 0; i < GameManager.scriptObjects[fallinMapName].level.length; i++) {
-			for (let r = 0; r < GameManager.scriptObjects[fallinMapName].level[i].length; r++) {
-				terrain[i][r].setLandSlideFrequency(GameManager.scriptObjects[fallinMapName].level[i][r]);
+	if (GameManager.maps[fallinMapName]) {
+		for (let i = 0; i < GameManager.maps[fallinMapName].level.length; i++) {
+			for (let r = 0; r < GameManager.maps[fallinMapName].level[i].length; r++) {
+				terrain[i][r].setLandSlideFrequency(GameManager.maps[fallinMapName].level[i][r]);
 			}
 		}
 	}
 
 	// load in non-space objects next
-	for (let olObjectName in GameManager.scriptObjects[olFileName]) {
-		const olObject = GameManager.scriptObjects[olFileName][olObjectName];
+	const objectList = GameManager.objectLists[olFileName];
+	Object.values(objectList).forEach(function (olObject) {
 		if (olObject.type === "TVCamera") {
 			// coords need to be rescaled since 1 unit in LRR is 1, but 1 unit in the remake is tileSize (128)
 			gameLayer.cameraX = olObject.xPos * tileSize;
@@ -490,8 +492,11 @@ function loadLevelData(name) {
 			// check if this building's power path space was in a wall, but should now be touched
 			checkRevealSpace(currentSpace.powerPathSpace);
 			currentSpace.powerPathSpace.setTypeProperties("building power path");
+		} else {
+			// TODO implement remaining object types like: spider, drives and hovercraft
+			console.log("Object type " + olObject.type + " not yet implemented");
 		}
-	}
+	});
 }
 
 /**
@@ -1838,119 +1843,19 @@ RockRaidersGame.prototype.createGUIElements = function () {
 };
 
 /**
- * return whether or not level levelNum has been unlocked
+ * return boolean whether or not level targetLevelKey has been unlocked
  */
-function levelIsUnlocked(levelNum) {
-	// tutorial levels
-	if (levelNum === 0) {
+function levelIsUnlocked(targetLevelKey) {
+	const openByDefault = RockRaiders.levelConf[targetLevelKey]["FrontEndOpen"];
+	if (openByDefault && openByDefault === "TRUE") {
 		return true;
 	}
-	if (levelNum < 8) {
-		return getLevelScore(levelNum - 1) != null;
-	}
-
-	// main levels
-	if (levelNum === 8) {
-		return true;
-	}
-	if (levelNum < 11) {
-		return getLevelScore(8) != null;
-	}
-	if (levelNum < 14) {
-		const levelScore9 = getLevelScore(9);
-		const levelScore10 = getLevelScore(10);
-		if (levelNum === 11) {
-			return levelScore9 != null;
+	RockRaiders.levelLinks[targetLevelKey].forEach((parentKey) => {
+		if (getLevelScore(parentKey) == null) {
+			return false;
 		}
-		if (levelNum === 12) {
-			return levelScore9 != null || levelScore10 != null;
-		}
-		if (levelNum === 13) {
-			return levelScore10 != null;
-		}
-	}
-	if (levelNum < 16) {
-		const levelScore11 = getLevelScore(11);
-		const levelScore12 = getLevelScore(12);
-		const levelScore13 = getLevelScore(13);
-		if (levelNum === 14) {
-			return levelScore11 != null && levelScore12 != null;
-		}
-		if (levelNum === 15) {
-			return levelScore12 != null && levelScore13 != null;
-		}
-	}
-	if (levelNum === 16) {
-		const levelScore14 = getLevelScore(14);
-		const levelScore15 = getLevelScore(15);
-		return levelScore14 != null && levelScore15 != null;
-	}
-	if (levelNum < 19) {
-		const levelScore16 = getLevelScore(16);
-		return levelScore16 != null
-	}
-	if (levelNum < 22) {
-		const levelScore17 = getLevelScore(17);
-		const levelScore18 = getLevelScore(18);
-		if (levelNum === 19) {
-			return levelScore17 != null
-		}
-		if (levelNum === 20) {
-			return levelScore17 != null || levelScore18 != null;
-		}
-		if (levelNum === 21) {
-			return levelScore18 != null
-		}
-	}
-	if (levelNum < 24) {
-		const levelScore19 = getLevelScore(19);
-		const levelScore20 = getLevelScore(20);
-		const levelScore21 = getLevelScore(21);
-		if (levelNum === 22) {
-			return levelScore19 != null && levelScore20 != null;
-		}
-		if (levelNum === 23) {
-			return levelScore20 != null && levelScore21 != null;
-		}
-	}
-	if (levelNum === 24) {
-		const levelScore22 = getLevelScore(22);
-		const levelScore23 = getLevelScore(23);
-		return levelScore22 != null && levelScore23 != null;
-	}
-	if (levelNum < 27) {
-		const levelScore24 = getLevelScore(24);
-		return levelScore24 != null
-	}
-	if (levelNum < 30) {
-		const levelScore25 = getLevelScore(25);
-		const levelScore26 = getLevelScore(26);
-		if (levelNum === 27) {
-			return levelScore25 != null
-		}
-		if (levelNum === 28) {
-			return levelScore25 != null || levelScore26 != null;
-		}
-		if (levelNum === 29) {
-			return levelScore26 != null
-		}
-	}
-	if (levelNum < 32) {
-		const levelScore27 = getLevelScore(27);
-		const levelScore28 = getLevelScore(28);
-		const levelScore29 = getLevelScore(29);
-		if (levelNum === 30) {
-			return levelScore27 != null && levelScore28 != null;
-		}
-		if (levelNum === 31) {
-			return levelScore28 != null && levelScore29 != null;
-		}
-	}
-	if (levelNum === 32) {
-		const levelScore30 = getLevelScore(30);
-		const levelScore31 = getLevelScore(31);
-		return levelScore30 != null && levelScore31 != null;
-	}
+	});
+	return true;
 }
 
 /**
@@ -2016,56 +1921,59 @@ function createMainMenuLayers() {
 	}
 }
 
-function finalizeLevelSelectLayer() {
+RockRaidersGame.prototype.finalizeLevelSelectLayer = function () {
 	levelSelectLayer = mainMenuLayers["Menu2"];
 	const allLevelsConf = GameManager.configuration["Lego*"]["Levels"];
-	levelSelectLayer.levels = {};
 
 	const menuConf = GameManager.configuration["Lego*"]["Menu"];
 	const levelTextConf = menuConf["LevelText"];
 	const window = [];
-	levelTextConf["Window"].forEach(function (val) {
+	levelTextConf["Window"].split("|").forEach(function (val) {
 		window.push(parseInt(val))
 	});
-	const panel = levelTextConf["Panel"];
+	const panel = levelTextConf["Panel"].split("|");
 	const winPanel = new WindowPanel(panel[1], panel[2], 50, GameManager.getImage(panel[0]), levelSelectLayer, window[0], window[1], window[2], window[3]);
 	const font = GameManager.getFont("Interface/Fonts/Font5_Hi.bmp");
 	winPanel.setFirstLine(font, levelTextConf["Level"]);
 
+	const that = this;
 	Object.keys(allLevelsConf).forEach(function (levelKey) {
 		if (!(levelKey.startsWith("Tutorial") || levelKey.startsWith("Level"))) {
-			return;
+			return; // ignore duplicate levels
 		}
-		const levelConf = allLevelsConf[levelKey];
-		levelSelectLayer.levels[levelKey] = {conf: levelConf};
-		const frontendX = levelConf["FrontEndX"];
-		const frontendY = levelConf["FrontEndY"];
-		let menuBmp = levelConf["MenuBMP"];
-		if (!(menuBmp)) {
-			return;
+		that.levelConf[levelKey] = allLevelsConf[levelKey];
+		const levelLinks = that.levelConf[levelKey]["LevelLinks"];
+		if (levelLinks) {
+			levelLinks.split(",").forEach((childLevel) => {
+				// the current level is added as a dependency link to all child levels
+				const childKey = childLevel.replace(/^Levels::/, "").trim();
+				that.levelLinks[childKey] = that.levelLinks[childKey] || [];
+				that.levelLinks[childKey].push(levelKey);
+			});
 		}
-		const bitmaps = menuBmp.split(",");
-		const brightenedSurface = GameManager.getImage(bitmaps[0]);
-		const normalSurface = GameManager.getImage(bitmaps[1]);
-		const fullName = levelConf["FullName"];
-		const levelIndex = levelKey.startsWith("Tutorial") ? parseInt(fullName.charAt(0)) - 1 : parseInt(levelKey.slice(-2)) + 7; // TODO should be obsolete, once level data handling is refactored
-		levelSelectLayer.levels[levelKey].btn = new ImageButton(frontendX, frontendY, 100, normalSurface, brightenedSurface, levelSelectLayer, resetLevelVars, [GameManager.scriptObjects["levelList.js"].levels[levelIndex]], true);
-		levelSelectLayer.levels[levelKey].btn.unavailableSurface = GameManager.getImage(bitmaps[2]);
-		levelSelectLayer.levels[levelKey].btn.additionalRequirement = levelIsUnlocked;
-		levelSelectLayer.levels[levelKey].btn.additionalRequirementArgs = [levelIndex];
-		levelSelectLayer.levels[levelKey].btn.mouseEnterCallback = function () {
+		that.levelConf[levelKey].NerpRunner = GameManager.nerps[that.levelConf[levelKey]["NERPFile"].replace(".npl", ".nrn")];
+		const frontendX = that.levelConf[levelKey]["FrontEndX"];
+		const frontendY = that.levelConf[levelKey]["FrontEndY"];
+		const menuBitmaps = that.levelConf[levelKey]["MenuBMP"].split(",");
+		const normalSurface = GameManager.getImage(menuBitmaps[1]);
+		const brightenedSurface = GameManager.getImage(menuBitmaps[0]);
+		const btn = new ImageButton(frontendX, frontendY, 100, normalSurface, brightenedSurface, levelSelectLayer, resetLevelVars, [levelKey], true);
+		btn.unavailableSurface = GameManager.getImage(menuBitmaps[2]);
+		btn.additionalRequirement = levelIsUnlocked;
+		btn.additionalRequirementArgs = [levelKey];
+		btn.mouseEnterCallback = function () {
 			let appendix = "";
-			const levelScore = getLevelScore(levelIndex);
+			const levelScore = getLevelScore(levelKey);
 			if (levelScore != null) {
 				appendix = " l " + menuConf["Level_Completed"] + " (" + levelScore + ")"
 			}
-			winPanel.setSecondLine(font, fullName + appendix);
+			winPanel.setSecondLine(font, that.levelConf[levelKey]["FullName"] + appendix);
 		};
-		levelSelectLayer.levels[levelKey].btn.mouseLeaveCallback = function () {
+		btn.mouseLeaveCallback = function () {
 			winPanel.setSecondLine(font, menuConf["Level_Incomplete"]);
 		}
 	});
-}
+};
 
 function goToMenu(menuKey) {
 	if (menuLayer !== null) {
@@ -2120,16 +2028,15 @@ function toggleFog(button) {
 }
 
 function unlockAllLevels() {
-	for (let level = 0; level < GameManager.scriptObjects["levelList.js"].levels.length; ++level) {
-		const levelName = GameManager.scriptObjects["levelList.js"].levels[level];
-		setLevelScore(0, levelName);
-	}
+	Object.keys(RockRaiders.levelConf).forEach(function (levelKey) {
+		setLevelScore(0, levelKey);
+	});
 }
 
 function clearData() {
-	for (let i = 0; i < GameManager.scriptObjects["levelList.js"].levels.length; ++i) {
-		localStorage.removeItem(GameManager.scriptObjects["levelList.js"].levels[i]);
-	}
+	Object.keys(RockRaiders.levelConf).forEach(function (levelKey) {
+		localStorage.removeItem(levelKey);
+	});
 	localStorage.removeItem("fog");
 	localStorage.removeItem("mousePanning");
 	localStorage.removeItem("debug");
@@ -2146,9 +2053,9 @@ function stopAllSounds() {
 
 /**
  * reset all non-constant game variables for the start of a new level
- * @param name: the name of the level to switch to
+ * @param levelKey: the name of the level to switch to
  */
-function resetLevelVars(name) {
+function resetLevelVars(levelKey) {
 	if (!GameManager.devMode) {
 		blockPageExit();
 	}
@@ -2188,8 +2095,8 @@ function resetLevelVars(name) {
 	RockRaiders.paused = false;
 	holdingPKey = false;
 	holdingEscKey = false;
-	loadLevelData(name);
-	RockRaiders.rightPanel.init(parseInt(GameManager.scriptObjects["Info_" + RockRaiders.levelName + ".js"].objective[1][1]));
+	loadLevelData(levelKey);
+	RockRaiders.rightPanel.init(_try(() => parseInt(RockRaiders.levelConf[levelKey]["Reward"]["Quota"]["Crystals"])));
 	// lets be fair and make this the last operation
 	RockRaiders.levelStartTime = new Date();
 }
@@ -2231,6 +2138,8 @@ function RockRaidersGame() {
 	keyboardPanning = true;
 	// should the game render any active debug info?
 	debug = getValue("debug") === "true";
+	this.levelConf = {};
+	this.levelLinks = {};
 
 	mainMenuLayers = {};
 	menuLayer = null;
@@ -2244,7 +2153,7 @@ function RockRaidersGame() {
 	this.createGUIElements();
 	// create all menu buttons
 	createMainMenuLayers();
-	finalizeLevelSelectLayer();
+	this.finalizeLevelSelectLayer();
 	scoreScreenLayer = new ScoreScreenLayer(GameManager.configuration["Lego*"]["Reward"]);
 	mainMenuLayers["Reward"] = scoreScreenLayer;
 	GameManager.drawSurface.font = "48px Arial";
@@ -2289,27 +2198,6 @@ function RockRaidersGame() {
 }
 
 /**
- * check if the current level objective has been accomplished. If it has, transition to the score screen.
- */
-function checkAccomplishedObjective() {
-	let won = false;
-	const objective = GameManager.scriptObjects["Info_" + RockRaiders.levelName + ".js"].objective;
-	if (objective[0] === "collect") {
-		won = (RockRaiders.rightPanel.resources[objective[1][0]] >= parseInt(objective[1][1]));
-	} else if (objective[0] === "build") {
-		for (let i = 0; i < buildings.length; i++) {
-			if (buildings[i].type === objective[1][0]) {
-				won = true;
-				break;
-			}
-		}
-	}
-	if (won) {
-		showScoreScreen("completed");
-	}
-}
-
-/**
  * determine the level score from 0-100 based off off several factors, including resources collected, oxygen remaining, and time taken
  * @returns number the calculated level score
  */
@@ -2320,17 +2208,17 @@ function calculateLevelScore() {
 /**
  * update the level dict and local storage var for the current level to reflect the player's highest score
  * @param score: the newly achieved level score (may or may not be the all-time high-score)
- * @param name: Optional name to set level score, defaults to current level
+ * @param levelKey: Optional name to set level score, defaults to current level
  */
-function setLevelScore(score, name = RockRaiders.levelName) {
-	const prevScore = getValue(name, null);
+function setLevelScore(score, levelKey) {
+	const prevScore = getValue(levelKey, null);
 	if (prevScore == null || prevScore < score) {
-		setValue(name, score);
+		setValue(levelKey, score);
 	}
 }
 
-function getLevelScore(level) {
-	return getValue(GameManager.scriptObjects["levelList.js"].levels[level], null);
+function getLevelScore(levelKey) {
+	return getValue(levelKey, null);
 }
 
 /**
@@ -2348,12 +2236,13 @@ function showScoreScreen(missionState) {
 	let levelScore = 0;
 	if (missionState === "completed") {
 		levelScore = calculateLevelScore();
-		setLevelScore(levelScore);
+		setLevelScore(levelScore, RockRaiders.currentLevelKey);
 	}
 	// TODO use actual values from level information
+	const levelConf = RockRaiders.levelConf[RockRaiders.currentLevelKey];
 	const maxCrystals = RockRaiders.rightPanel.neededCrystals !== 0 ? RockRaiders.rightPanel.neededCrystals : 25; // TODO replace 25 with number of crystals from level information
 	const crystals = Math.min(RockRaiders.rightPanel.resources["crystal"] * 100 / maxCrystals, 100);
-	scoreScreenLayer.setValues(missionState, "Some Mission", crystals, 0, 0, buildings.length, 0, 0, 0, 100, timeElapsedMs, levelScore);
+	scoreScreenLayer.setValues(missionState, levelConf["FullName"], crystals, 0, 0, buildings.length, 0, 0, 0, 100, timeElapsedMs, levelScore);
 	scoreScreenLayer.startReveal();
 }
 
@@ -2435,11 +2324,10 @@ function update() {
 					checkSelectionMenu();
 					RockRaiders.activeIconPanel.buttons.update();
 				}
-
 			} else {
 				pauseButtons.update();
 			}
-			checkAccomplishedObjective();
+			RockRaiders.levelConf[RockRaiders.currentLevelKey].NerpRunner.execute();
 		}
 
 		// pre-render; nothing to do here now that camera can no longer go out of bounds
@@ -2464,15 +2352,9 @@ function update() {
 	GameManager.mouseWheel = 0;
 }
 
-// to instant load a level append ?devmode=true&level=03 to the URL
+// to instant load a level append ?devmode=true&level=Level03 to the URL
 GameManager.devMode = getUrlParamCaseInsensitive("devmode", true) === "true";
 let levelFromUrl = getUrlParamCaseInsensitive("level");
-
-// split level data files (combined for faster loading)
-Object.keys(GameManager.scriptObjects["levels.js"]).forEach(function (key) {
-	GameManager.scriptObjects[key] = GameManager.scriptObjects["levels.js"][key];
-});
-GameManager.scriptObjects.splice("levels.js", 1);
 
 // init rygame before we start the game
 GameManager.initializeRygame(0);

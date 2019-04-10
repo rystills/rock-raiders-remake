@@ -188,24 +188,24 @@ function ScoreScreenLayer(confScoreScreen) {
 	this.overlays = overlays;
 	let drawDepth = 500;
 	Object.keys(confScoreScreen["Images"]).forEach(function (imgKey, index) {
-		const imgConf = confScoreScreen["Images"][imgKey];
+		const imgConf = confScoreScreen["Images"][imgKey].split("|");
 		overlays[imgKey] = overlays[imgKey] || new ScoreScreenOverlay(imgKey, index * revealDelay);
 		overlays[imgKey].img = new RygameObject(parseInt(imgConf[1]), parseInt(imgConf[2]), 0, drawDepth, imgConf[0], layer, false, true, false);
 		overlays[imgKey].img.visible = false;
 		drawDepth--;
 	});
 	Object.keys(confScoreScreen["BoxImages"]).forEach(function (boxKey, index) {
-		const boxConf = confScoreScreen["BoxImages"][boxKey];
+		const boxConf = confScoreScreen["BoxImages"][boxKey].split("|");
 		overlays[boxKey] = overlays[boxKey] || new ScoreScreenOverlay(boxKey, index * revealDelay);
 		overlays[boxKey].box = new RygameObject(parseInt(boxConf[1]), parseInt(boxConf[2]), 0, drawDepth, boxConf[0], layer, false, true, false);
 		overlays[boxKey].box.visible = false;
 		drawDepth--;
 	});
-	const textPos = confScoreScreen["TextPos"];
+	const textPos = confScoreScreen["TextPos"].split("|");
 	const txtX = parseInt(textPos[0]);
 	const txtY = parseInt(textPos[1]);
 	Object.keys(confScoreScreen["Text"]).forEach(function (txtKey, index) {
-		const txtConf = confScoreScreen["Text"][txtKey];
+		const txtConf = confScoreScreen["Text"][txtKey].split("|");
 		const valX = parseInt(txtConf[1]);
 		const valY = parseInt(txtConf[2]);
 		overlays[txtKey] = overlays[txtKey] || new ScoreScreenOverlay(txtKey, index * revealDelay);
@@ -248,7 +248,7 @@ function ScoreScreenLayer(confScoreScreen) {
 	this.quitText.visible = false;
 	drawDepth--;
 
-	const confSaveButton = confScoreScreen["SaveButton"];
+	const confSaveButton = confScoreScreen["SaveButton"].split("|");
 	const normalSaveSurface = GameManager.getImage(confSaveButton[0]);
 	const brightenedSaveSurface = GameManager.getImage(confSaveButton[1]);
 	// TODO jump to save menu
@@ -258,7 +258,7 @@ function ScoreScreenLayer(confScoreScreen) {
 	this.saveButton.visible = false;
 	drawDepth--;
 
-	const confAdvanceButton = confScoreScreen["AdvanceButton"];
+	const confAdvanceButton = confScoreScreen["AdvanceButton"].split("|");
 	const normalAdvSurface = GameManager.getImage(confAdvanceButton[0]);
 	const brightenedAdvSurface = GameManager.getImage(confAdvanceButton[1]);
 	this.advanceButton = new ImageButton(parseInt(confAdvanceButton[confAdvanceButton.length - 2]), parseInt(confAdvanceButton[confAdvanceButton.length - 1]), drawDepth, normalAdvSurface, brightenedAdvSurface, layer, goToLevelSelect);

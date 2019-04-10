@@ -5,11 +5,9 @@
 // sounds will always come in both mp4 and ogg form for browser compatibility, so don't need to specify extension here
 object = {
 	assets: [
-		// loading screen resources
-		["wad0bmp", "Languages/Loading.bmp"], // loading screen image
-		["wad0bmp", "Interface/FrontEnd/gradient.bmp"], // loading bar container image
-		["js", "", "loadingScreenOverride.js"], // script to override loading screen to Rock Raiders loading screen
 		["js", "gui", "BitmapFont.js"], // important, must be loaded before creating UI elements
+		["js", "", "nerp.js"],
+		["wad0nerp", "Levels", "nerpnrn.h"], // included by other nrn scripts
 
 		// ~images~
 		// menu resources
@@ -26,137 +24,6 @@ object = {
 		// level images
 		["wad0bmp", "Interface/LEVELPICKER/Levelpick.bmp"], // level select menu background
 		["wad0bmp", "Interface/LEVELPICKER/LevelpickT.bmp"], // tutorial level select menu background
-		["wad0alpha", "Levels/TutorialLevels/GTutorial01.bmp"], // tutorial 1 image
-		["wad0alpha", "Levels/TutorialLevels/Tutorial01.bmp"],
-		["wad0alpha", "Levels/TutorialLevels/Tutorial01G.bmp"],
-		["wad0alpha", "Levels/TutorialLevels/GTutorial02.bmp"], // tutorial 2 image
-		["wad0alpha", "Levels/TutorialLevels/Tutorial02.bmp"],
-		["wad0alpha", "Levels/TutorialLevels/Tutorial02G.bmp"],
-		["wad0alpha", "Levels/TutorialLevels/GTutorial03.bmp"], // tutorial 3 image
-		["wad0alpha", "Levels/TutorialLevels/Tutorial03.bmp"],
-		["wad0alpha", "Levels/TutorialLevels/Tutorial03G.bmp"],
-		["wad0alpha", "Levels/TutorialLevels/GTutorial04.bmp"], // tutorial 4 image
-		["wad0alpha", "Levels/TutorialLevels/Tutorial04.bmp"],
-		["wad0alpha", "Levels/TutorialLevels/Tutorial04G.bmp"],
-		["wad0alpha", "Levels/TutorialLevels/GTutorial05.bmp"], // tutorial 5 image
-		["wad0alpha", "Levels/TutorialLevels/Tutorial05.bmp"],
-		["wad0alpha", "Levels/TutorialLevels/Tutorial05G.bmp"],
-		["wad0alpha", "Levels/TutorialLevels/GTutorial06.bmp"], // tutorial 6 image
-		["wad0alpha", "Levels/TutorialLevels/Tutorial06.bmp"],
-		["wad0alpha", "Levels/TutorialLevels/Tutorial06G.bmp"],
-		["wad0alpha", "Levels/TutorialLevels/GTutorial07.bmp"], // tutorial 7 image
-		["wad0alpha", "Levels/TutorialLevels/Tutorial07.bmp"],
-		["wad0alpha", "Levels/TutorialLevels/Tutorial07G.bmp"],
-		["wad0alpha", "Levels/TutorialLevels/GTutorial08.bmp"], // tutorial 8 image
-		["wad0alpha", "Levels/TutorialLevels/Tutorial08.bmp"],
-		["wad0alpha", "Levels/TutorialLevels/Tutorial08G.bmp"],
-		["wad0alpha", "Levels/GameLevels/GLevel01.bmp"], // level 1 image
-		["wad0alpha", "Levels/GameLevels/Level01.bmp"],
-		["wad0alpha", "Levels/GameLevels/Level01G.bmp"],
-		["wad0alpha", "Levels/GameLevels/GLevel02.bmp"], // level 2 image
-		["wad0alpha", "Levels/GameLevels/Level02.bmp"],
-		["wad0alpha", "Levels/GameLevels/Level02G.bmp"],
-		["wad0alpha", "Levels/GameLevels/GLevel03.bmp"], // level 3 image
-		["wad0alpha", "Levels/GameLevels/Level03.bmp"],
-		["wad0alpha", "Levels/GameLevels/Level03G.bmp"],
-		["wad0alpha", "Levels/GameLevels/GLevel04.bmp"], // level 4 image
-		["wad0alpha", "Levels/GameLevels/Level04.bmp"],
-		["wad0alpha", "Levels/GameLevels/Level04G.bmp"],
-		["wad0alpha", "Levels/GameLevels/GLevel05.bmp"], // level 5 image
-		["wad0alpha", "Levels/GameLevels/Level05.bmp"],
-		["wad0alpha", "Levels/GameLevels/Level05G.bmp"],
-		["wad0alpha", "Levels/GameLevels/GLevel06.bmp"], // level 6 image
-		["wad0alpha", "Levels/GameLevels/Level06.bmp"],
-		["wad0alpha", "Levels/GameLevels/Level06G.bmp"],
-		["wad0alpha", "Levels/GameLevels/GLevel07.bmp"], // level 7 image
-		["wad0alpha", "Levels/GameLevels/Level07.bmp"],
-		["wad0alpha", "Levels/GameLevels/Level07G.bmp"],
-		["wad0alpha", "Levels/GameLevels/GLevel08.bmp"], // level 8 image
-		["wad0alpha", "Levels/GameLevels/Level08.bmp"],
-		["wad0alpha", "Levels/GameLevels/Level08G.bmp"],
-		["wad0alpha", "Levels/GameLevels/GLevel09.bmp"], // level 9 image
-		["wad0alpha", "Levels/GameLevels/Level09.bmp"],
-		["wad0alpha", "Levels/GameLevels/Level09G.bmp"],
-		["wad0alpha", "Levels/GameLevels/GLevel10.bmp"], // level 10 image
-		["wad0alpha", "Levels/GameLevels/Level10.bmp"],
-		["wad0alpha", "Levels/GameLevels/Level10G.bmp"],
-		["wad0alpha", "Levels/GameLevels/GLevel11.bmp"], // level 11 image
-		["wad0alpha", "Levels/GameLevels/Level11.bmp"],
-		["wad0alpha", "Levels/GameLevels/Level11G.bmp"],
-		["wad0alpha", "Levels/GameLevels/GLevel12.bmp"], // level 12 image
-		["wad0alpha", "Levels/GameLevels/Level12.bmp"],
-		["wad0alpha", "Levels/GameLevels/Level12G.bmp"],
-		["wad0alpha", "Levels/GameLevels/GLevel13.bmp"], // level 13 image
-		["wad0alpha", "Levels/GameLevels/Level13.bmp"],
-		["wad0alpha", "Levels/GameLevels/Level13G.bmp"],
-		["wad0alpha", "Levels/GameLevels/GLevel14.bmp"], // level 14 image
-		["wad0alpha", "Levels/GameLevels/Level14.bmp"],
-		["wad0alpha", "Levels/GameLevels/Level14G.bmp"],
-		["wad0alpha", "Levels/GameLevels/GLevel15.bmp"], // level 15 image
-		["wad0alpha", "Levels/GameLevels/Level15.bmp"],
-		["wad0alpha", "Levels/GameLevels/Level15G.bmp"],
-		["wad0alpha", "Levels/GameLevels/GLevel16.bmp"], // level 16 image
-		["wad0alpha", "Levels/GameLevels/Level16.bmp"],
-		["wad0alpha", "Levels/GameLevels/Level16G.bmp"],
-		["wad0alpha", "Levels/GameLevels/GLevel17.bmp"], // level 17 image
-		["wad0alpha", "Levels/GameLevels/Level17.bmp"],
-		["wad0alpha", "Levels/GameLevels/Level17G.bmp"],
-		["wad0alpha", "Levels/GameLevels/GLevel18.bmp"], // level 18 image
-		["wad0alpha", "Levels/GameLevels/Level18.bmp"],
-		["wad0alpha", "Levels/GameLevels/Level18G.bmp"],
-		["wad0alpha", "Levels/GameLevels/GLevel19.bmp"], // level 19 image
-		["wad0alpha", "Levels/GameLevels/Level19.bmp"],
-		["wad0alpha", "Levels/GameLevels/Level19G.bmp"],
-		["wad0alpha", "Levels/GameLevels/GLevel20.bmp"], // level 20 image
-		["wad0alpha", "Levels/GameLevels/Level20.bmp"],
-		["wad0alpha", "Levels/GameLevels/Level20G.bmp"],
-		["wad0alpha", "Levels/GameLevels/GLevel21.bmp"], // level 21 image
-		["wad0alpha", "Levels/GameLevels/Level21.bmp"],
-		["wad0alpha", "Levels/GameLevels/Level21G.bmp"],
-		["wad0alpha", "Levels/GameLevels/GLevel22.bmp"], // level 22 image
-		["wad0alpha", "Levels/GameLevels/Level22.bmp"],
-		["wad0alpha", "Levels/GameLevels/Level22G.bmp"],
-		["wad0alpha", "Levels/GameLevels/GLevel23.bmp"], // level 23 image
-		["wad0alpha", "Levels/GameLevels/Level23.bmp"],
-		["wad0alpha", "Levels/GameLevels/Level23G.bmp"],
-		["wad0alpha", "Levels/GameLevels/GLevel24.bmp"], // level 24 image
-		["wad0alpha", "Levels/GameLevels/Level24.bmp"],
-		["wad0alpha", "Levels/GameLevels/Level24G.bmp"],
-		["wad0alpha", "Levels/GameLevels/GLevel25.bmp"], // level 25 image
-		["wad0alpha", "Levels/GameLevels/Level25.bmp"],
-		["wad0alpha", "Levels/GameLevels/Level25G.bmp"],
-
-		// score screen
-		["wad0bmp", "Interface/reward/RSGREY.bmp"], // score screen background
-		["wad0alpha", "Interface/reward/RSCRYSTALS.bmp"],
-		["wad0alpha", "Interface/reward/RSORE.bmp"],
-		["wad0alpha", "Interface/reward/RSDIGGING.bmp"],
-		["wad0alpha", "Interface/reward/RSBUILDING.bmp"],
-		["wad0alpha", "Interface/reward/RSCAVERN.bmp"],
-		["wad0alpha", "Interface/reward/RSMINFIG.bmp"],
-		["wad0alpha", "Interface/reward/RSMONSTER.bmp"],
-		["wad0alpha", "Interface/reward/RSOXYGEN.bmp"],
-		["wad0alpha", "Interface/reward/RSTIME.bmp"],
-		["wad0alpha", "Interface/reward/CAPT.bmp"],
-		["wad0font", "Interface/Fonts/FSFont.bmp"],
-		["wad0font", "Interface/Fonts/RSWritten.bmp"],
-		["wad0bmp", "Interface/Reward/GBcrystals.bmp"],
-		["wad0bmp", "Interface/Reward/GBore.bmp"],
-		["wad0bmp", "Interface/Reward/GBdigging.bmp"],
-		["wad0bmp", "Interface/Reward/GBbuilding.bmp"],
-		["wad0bmp", "Interface/Reward/GBcavern.bmp"],
-		["wad0bmp", "Interface/Reward/GBminfig.bmp"],
-		["wad0bmp", "Interface/Reward/GBmonster.bmp"],
-		["wad0bmp", "Interface/Reward/GBoxygen.bmp"],
-		["wad0bmp", "Interface/Reward/GBtime.bmp"],
-		["wad0bmp", "Interface/Reward/btn_save.bmp"],
-		["wad0bmp", "Interface/Reward/btn_save_hi.bmp"],
-		["wad0bmp", "Interface/Reward/btn_save_in.bmp"],
-		["wad0bmp", "Interface/Reward/btn_save_dim.bmp"],
-		["wad0bmp", "Interface/Reward/btn_adv.bmp"],
-		["wad0bmp", "Interface/Reward/btn_adv_hi.bmp"],
-		["wad0bmp", "Interface/Reward/btn_adv_in.bmp"],
-		["wad0bmp", "Interface/Reward/btn_adv_dim.bmp"],
 
 		// pointers/cursors
 		["wad0alpha", "Interface/Pointers/Aclosed.bmp"],
@@ -176,76 +43,8 @@ object = {
 		// effects
 		["img", "images\\effects", "dynamite explosion.png"], // explosion created by a dynamite blast
 
-		// small vehicle buttons
-		["wad0bmp", "Interface/Icons/hoverboard.bmp"], // hoverscout button
-		["wad0bmp", "Interface/Icons/Phoverboard.bmp"], // hoverscout button
-		["wad0bmp", "Interface/Icons/Nhoverboard.bmp"], // hoverscout button
-		["wad0bmp", "Interface/Icons/SmallTruck.bmp"], // small transport truck button
-		["wad0bmp", "Interface/Icons/PSmallTruck.bmp"], // small transport truck button
-		["wad0bmp", "Interface/Icons/NSmallTruck.bmp"], // small transport truck button
-		["wad0bmp", "Interface/Icons/SmallDigger.bmp"], // small digger button
-		["wad0bmp", "Interface/Icons/PSmallDigger.bmp"], // small digger button
-		["wad0bmp", "Interface/Icons/NSmallDigger.bmp"], // small digger button
-		["wad0bmp", "Interface/Icons/SmallCat.bmp"], // rapid rider button
-		["wad0bmp", "Interface/Icons/PSmallCat.bmp"], // rapid rider button
-		["wad0bmp", "Interface/Icons/NSmallCat.bmp"], // rapid rider button
-		["wad0bmp", "Interface/Icons/SmallMWP.bmp"], // small mobile laser cutter button
-		["wad0bmp", "Interface/Icons/PSmallMWP.bmp"], // small mobile laser cutter button
-		["wad0bmp", "Interface/Icons/NSmallMWP.bmp"], // small mobile laser cutter button
-		["wad0bmp", "Interface/Icons/SmallHeli.bmp"], // tunnel scout button
-		["wad0bmp", "Interface/Icons/PSmallHeli.bmp"], // tunnel scout button
-		["wad0bmp", "Interface/Icons/NSmallHeli.bmp"], // tunnel scout button
-
-		// large vehicle buttons
-		["wad0bmp", "Interface/Icons/Bulldozer.bmp"], // loader dozer button
-		["wad0bmp", "Interface/Icons/PBulldozer.bmp"], // loader dozer button
-		["wad0bmp", "Interface/Icons/NBulldozer.bmp"], // loader dozer button
-		["wad0bmp", "Interface/Icons/WalkerDigger.bmp"], // granite grinder button
-		["wad0bmp", "Interface/Icons/PWalkerDigger.bmp"], // granite grinder button
-		["wad0bmp", "Interface/Icons/NWalkerDigger.bmp"], // granite grinder button
-		["wad0bmp", "Interface/Icons/LargeMWP.bmp"], // large mobile laser cutter button
-		["wad0bmp", "Interface/Icons/PLargeMWP.bmp"], // large mobile laser cutter button
-		["wad0bmp", "Interface/Icons/NLargeMWP.bmp"], // large mobile laser cutter button
-		["wad0bmp", "Interface/Icons/largeDigger.bmp"], // large digger button
-		["wad0bmp", "Interface/Icons/PlargeDigger.bmp"], // large digger button
-		["wad0bmp", "Interface/Icons/NlargeDigger.bmp"], // large digger button
-		["wad0bmp", "Interface/Icons/LargeCatamaran.bmp"], // cargo carrier button
-		["wad0bmp", "Interface/Icons/PLargeCatamaran.bmp"], // cargo carrier button
-		["wad0bmp", "Interface/Icons/NLargeCatamaran.bmp"], // cargo carrier button
-
 		// spaces
-		["wad0bmp", "World/WorldTextures/RockSplit/ROCK00.BMP"], // ground
-		["wad0bmp", "World/WorldTextures/RockSplit/ROCK76.BMP"], // power path that is part of a building
-		["wad0bmp", "World/WorldTextures/RockSplit/Rock61.bmp"], // building site for a lone (non-building) power path
-		["wad0bmp", "World/WorldTextures/RockSplit/Rock60.bmp"], // all sides power path created by the player (not part of a building)
-		["wad0bmp", "World/WorldTextures/RockSplit/ROCK46.BMP"], // lava
-		["wad0bmp", "World/WorldTextures/RockSplit/Rock45.bmp"], // water
-		["wad0bmp", "World/WorldTextures/RockSplit/Rock20.bmp"], // energy crystal seam
-		["wad0bmp", "World/WorldTextures/RockSplit/Rock40.bmp"], // ore seam
-		["wad0bmp", "World/WorldTextures/RockSplit/Rock67.bmp"], // recharge seam
-		["wad0bmp", "World/WorldTextures/RockSplit/ROCK01.BMP"], // dirt
-		["wad0bmp", "World/WorldTextures/RockSplit/ROCK02.BMP"], // gravel
-		["wad0bmp", "World/WorldTextures/RockSplit/ROCK03.BMP"], // loose rock
-		["wad0bmp", "World/WorldTextures/RockSplit/ROCK04.BMP"], // hard rock
-		["wad0bmp", "World/WorldTextures/RockSplit/ROCK05.BMP"], // solid rock
-		["wad0bmp", "World/WorldTextures/RockSplit/ROCK31.BMP"], // dirt corner inverted
-		["wad0bmp", "World/WorldTextures/RockSplit/ROCK32.BMP"], // gravel corner inverted
-		["wad0bmp", "World/WorldTextures/RockSplit/ROCK33.BMP"], // loose rock corner inverted
-		["wad0bmp", "World/WorldTextures/RockSplit/ROCK34.BMP"], // hard rock corner inverted
-		["wad0bmp", "World/WorldTextures/RockSplit/ROCK35.BMP"], // solid rock corner inverted
-		["wad0bmp", "World/WorldTextures/RockSplit/ROCK51.BMP"], // dirt corner
-		["wad0bmp", "World/WorldTextures/RockSplit/ROCK52.BMP"], // gravel corner
-		["wad0bmp", "World/WorldTextures/RockSplit/ROCK53.BMP"], // loose rock corner
-		["wad0bmp", "World/WorldTextures/RockSplit/ROCK54.BMP"], // hard rock corner
-		["wad0bmp", "World/WorldTextures/RockSplit/ROCK55.BMP"], // solid rock corner
-		["wad0bmp", "World/WorldTextures/RockSplit/ROCK10.BMP"], // rubble swept 0 times. 4 sweeps required to clear fully
-		["wad0bmp", "World/WorldTextures/RockSplit/Rock11.bmp"], // rubble swept 1 time. 3 sweeps required to clear fully
-		["wad0bmp", "World/WorldTextures/RockSplit/Rock12.bmp"], // rubble swept 2 times. 2 sweeps required to clear fully
-		["wad0bmp", "World/WorldTextures/RockSplit/Rock13.bmp"], // rubble swept 3 times. 1 sweep required to clear fully
 		["img", "images\\spaces", "building site.png"], // building site
-		["wad0bmp", "World/WorldTextures/RockSplit/Rock30.bmp"], // hole out of which slimy slugs can emerge
-		["wad0bmp", "World/WorldTextures/RockSplit/rock24.bmp"], // reinforcement overlay for reinforced walls
-		["wad0bmp", "World/WorldTextures/RockSplit/ROCK70.BMP"], // rock theme non touched cover
 
 		// buildings
 		["img", "images\\buildings", "teleport pad.png"], // teleport pad
@@ -269,126 +68,6 @@ object = {
 		// NPCs
 		["img", "images\\objects", "raider.png"], // rock raider
 
-		// buttons
-		["wad0bmp", "Interface/Icons/minifigures.bmp"], // teleport rock raider button
-		["wad0bmp", "Interface/Icons/Pminifigures.bmp"], // pressed teleport rock raider button
-		["wad0bmp", "Interface/Icons/Nminifigures.bmp"], // disabled teleport rock raider button
-		["wad0bmp", "Interface/Menus/building.bmp"], // button to open up the building menu
-		["wad0bmp", "Interface/Menus/Pbuilding.bmp"], // pressed button to open up the building menu
-		["wad0bmp", "Interface/Menus/Nbuilding.bmp"], // disabled button to open up the building menu
-		["wad0bmp", "Interface/Menus/SMvehicle.bmp"], // button to open up the small vehicle menu
-		["wad0bmp", "Interface/Menus/PSMvehicle.bmp"], // pressed button to open up the small vehicle menu
-		["wad0bmp", "Interface/Menus/NSMvehicle.bmp"], // disabled button to open up the small vehicle menu
-		["wad0bmp", "Interface/Menus/BIGvehicle.bmp"], // button to open up the large vehicle menu
-		["wad0bmp", "Interface/Menus/PBIGvehicle.bmp"], // pressed button to open up the large vehicle menu
-		["wad0bmp", "Interface/Menus/NBIGvehicle.bmp"], // disabled button to open up the large vehicle menu
-
-		["wad0bmp", "Interface/Menus/Sandwich.bmp"], // unload minifig button (drops held object)
-		["wad0bmp", "Interface/Menus/PSandwich.bmp"], // unload minifig button (drops held object)
-		["wad0bmp", "Interface/Menus/NSandwich.bmp"], // unload minifig button (drops held object)
-		["wad0bmp", "Interface/Menus/UnloadMinifigure.bmp"], // unload minifig button (drops held object)
-		["wad0bmp", "Interface/Menus/PUnloadMinifigure.bmp"], // unload minifig button (drops held object)
-		["wad0bmp", "Interface/Menus/NUnloadMinifigure.bmp"], // unload minifig button (drops held object)
-		["wad0bmp", "Interface/Menus/MF_Pickup.bmp"], // button to instruct a raider to pick up item (collectable, dynamite, etc..)
-		["wad0bmp", "Interface/Menus/PMF_Pickup.bmp"], // button to instruct a raider to pick up item (collectable, dynamite, etc..)
-		["wad0bmp", "Interface/Menus/NMF_Pickup.bmp"], // button to instruct a raider to pick up item (collectable, dynamite, etc..)
-		["wad0bmp", "Interface/Priorities/getTool.bmp"], // button to open the 'get tool' raider submenu
-		["wad0bmp", "Interface/Priorities/PgetTool.bmp"], // button to open the 'get tool' raider submenu
-		["wad0bmp", "Interface/Priorities/NgetTool.bmp"], // button to open the 'get tool' raider submenu
-		["wad0bmp", "Interface/Menus/Upgrade.bmp"], // button to upgrade a raider or building
-		["wad0bmp", "Interface/Menus/PUpgrade.bmp"], // button to upgrade a raider or building
-		["wad0bmp", "Interface/Menus/NUpgrade.bmp"], // button to upgrade a raider or building
-		["wad0bmp", "Interface/Menus/TrainAs.bmp"],
-		["wad0bmp", "Interface/Menus/PTrainAs.bmp"],
-		["wad0bmp", "Interface/Menus/NTrainAs.bmp"],
-		["wad0bmp", "Interface/Menus/delete.bmp"],
-		["wad0bmp", "Interface/Menus/Pdelete.bmp"],
-		["wad0bmp", "Interface/Menus/Ndelete.bmp"],
-
-		["wad0bmp", "Interface/Menus/drill.bmp"], // button to instruct a raider to drill a wall
-		["wad0bmp", "Interface/Menus/Pdrill.bmp"], // button to instruct a raider to drill a wall
-		["wad0bmp", "Interface/Menus/Ndrill.bmp"], // button to instruct a raider to drill a wall
-		["wad0bmp", "Interface/Menus/Reinforce.bmp"], // button to instruct a raider to reinforce a wall
-		["wad0bmp", "Interface/Menus/PReinforce.bmp"], // button to instruct a raider to reinforce a wall
-		["wad0bmp", "Interface/Menus/NReinforce.bmp"], // button to instruct a raider to reinforce a wall
-		["wad0bmp", "Interface/Menus/dynamite.bmp"], // button to instruct a raider to blow up a wall using dynamite
-		["wad0bmp", "Interface/Menus/Pdynamite.bmp"], // button to instruct a raider to blow up a wall using dynamite
-		["wad0bmp", "Interface/Menus/Ndynamite.bmp"], // button to instruct a raider to blow up a wall using dynamite
-		["wad0bmp", "Interface/Menus/stopdrill.bmp"],
-		["wad0bmp", "Interface/Menus/Pstopdrill.bmp"],
-		["wad0bmp", "Interface/Menus/Nstopdrill.bmp"],
-
-		["wad0bmp", "Interface/Menus/buildpath.bmp"], // button to instruct a raider to build a power path
-		["wad0bmp", "Interface/Menus/Pbuildpath.bmp"], // button to instruct a raider to build a power path
-		["wad0bmp", "Interface/Menus/Nbuildpath.bmp"], // button to instruct a raider to build a power path
-		["wad0bmp", "Interface/Menus/diguppath.bmp"], // button to destroy a power path
-		["wad0bmp", "Interface/Menus/Pdiguppath.bmp"], // button to destroy a power path
-		["wad0bmp", "Interface/Menus/Ndiguppath.bmp"], // button to destroy a power path
-		["wad0bmp", "Interface/Icons/efence.bmp"],
-		["wad0bmp", "Interface/Icons/Pefence.bmp"],
-		["wad0bmp", "Interface/Icons/Nefence.bmp"],
-
-		["wad0bmp", "Interface/Menus/ClearRubble.bmp"], // button to instruct a raider to clear rubble
-		["wad0bmp", "Interface/Menus/PClearRubble.bmp"], // button to instruct a raider to clear rubble
-		["wad0bmp", "Interface/Menus/NClearRubble.bmp"], // button to instruct a raider to clear rubble
-
-		["wad0bmp", "Interface/Menus/telepbuilding.bmp"], // button to upgrade a raider or building
-		["wad0bmp", "Interface/Menus/Ptelepbuilding.bmp"], // button to upgrade a raider or building
-		["wad0bmp", "Interface/Menus/Ntelepbuilding.bmp"], // button to upgrade a raider or building
-
-		["wad0bmp", "Interface/Menus/STOPbuilding.bmp"],
-		["wad0bmp", "Interface/Menus/PSTOPbuilding.bmp"],
-		["wad0bmp", "Interface/Menus/NSTOPbuilding.bmp"],
-
-		["wad0bmp", "Interface/Menus/STOPeverything.bmp"], // stop minifig button (stops any performed task)
-		["wad0bmp", "Interface/Menus/exit.bmp"], // button to instruct a raider to exit the current vehicle
-
-		// grab item buttons
-		["wad0bmp", "Interface/Menus/get_Drill.bmp"], // button to instruct a raider to get a drill from the nearest toolstore
-		["wad0bmp", "Interface/Menus/Pget_Drill.bmp"], // button to instruct a raider to get a drill from the nearest toolstore
-		["wad0bmp", "Interface/Menus/Nget_Drill.bmp"], // button to instruct a raider to get a drill from the nearest toolstore
-		["wad0bmp", "Interface/Menus/get_Spade.bmp"], // button to instruct a raider to get a shovel from the nearest toolstore
-		["wad0bmp", "Interface/Menus/Pget_Spade.bmp"], // button to instruct a raider to get a shovel from the nearest toolstore
-		["wad0bmp", "Interface/Menus/Nget_Spade.bmp"], // button to instruct a raider to get a shovel from the nearest toolstore
-		["wad0bmp", "Interface/Menus/get_Hammer.bmp"], // button to instruct a raider to get a hammer from the nearest toolstore
-		["wad0bmp", "Interface/Menus/Pget_Hammer.bmp"], // button to instruct a raider to get a hammer from the nearest toolstore
-		["wad0bmp", "Interface/Menus/Nget_Hammer.bmp"], // button to instruct a raider to get a hammer from the nearest toolstore
-		["wad0bmp", "Interface/Menus/get_Spanner.bmp"], // button to instruct a raider to get a wrench from the nearest toolstore
-		["wad0bmp", "Interface/Menus/Pget_Spanner.bmp"], // button to instruct a raider to get a wrench from the nearest toolstore
-		["wad0bmp", "Interface/Menus/Nget_Spanner.bmp"], // button to instruct a raider to get a wrench from the nearest toolstore
-		["wad0bmp", "Interface/Menus/Gun_freeze.bmp"], // button to instruct a raider to get a freezer beam from the nearest toolstore
-		["wad0bmp", "Interface/Menus/PGun_freeze.bmp"], // button to instruct a raider to get a freezer beam from the nearest toolstore
-		["wad0bmp", "Interface/Menus/NGun_freeze.bmp"], // button to instruct a raider to get a freezer beam from the nearest toolstore
-		["wad0bmp", "Interface/Menus/Gun_Pusher.bmp"], // button to instruct a raider to get a pusher beam from the nearest toolstore
-		["wad0bmp", "Interface/Menus/PGun_Pusher.bmp"], // button to instruct a raider to get a pusher beam from the nearest toolstore
-		["wad0bmp", "Interface/Menus/NGun_Pusher.bmp"], // button to instruct a raider to get a pusher beam from the nearest toolstore
-		["wad0bmp", "Interface/Menus/Gun_lazer.bmp"], // button to instruct a raider to get a laser beam from the nearest toolstore
-		["wad0bmp", "Interface/Menus/PGun_lazer.bmp"], // button to instruct a raider to get a laser beam from the nearest toolstore
-		["wad0bmp", "Interface/Menus/NGun_lazer.bmp"], // button to instruct a raider to get a laser beam from the nearest toolstore
-		["wad0bmp", "Interface/Menus/get_BirdScarer.bmp"], // button to instruct a raider to get a sonic blaster from the nearest toolstore
-		["wad0bmp", "Interface/Menus/Pget_BirdScarer.bmp"], // button to instruct a raider to get a sonic blaster from the nearest toolstore
-		["wad0bmp", "Interface/Menus/Nget_BirdScarer.bmp"], // button to instruct a raider to get a sonic blaster from the nearest toolstore
-
-		// train as buttons
-		["wad0bmp", "Interface/Menus/Train_Explosives.bmp"],
-		["wad0bmp", "Interface/Menus/PTrain_Explosives.bmp"],
-		["wad0bmp", "Interface/Menus/NTrain_Explosives.bmp"],
-		["wad0bmp", "Interface/Menus/Train_Pilot.bmp"],
-		["wad0bmp", "Interface/Menus/PTrain_Pilot.bmp"],
-		["wad0bmp", "Interface/Menus/NTrain_Pilot.bmp"],
-		["wad0bmp", "Interface/Menus/Train_Sailor.bmp"],
-		["wad0bmp", "Interface/Menus/PTrain_Sailor.bmp"],
-		["wad0bmp", "Interface/Menus/NTrain_Sailor.bmp"],
-		["wad0bmp", "Interface/Menus/Train_Driver.bmp"],
-		["wad0bmp", "Interface/Menus/PTrain_Driver.bmp"],
-		["wad0bmp", "Interface/Menus/NTrain_Driver.bmp"],
-		["wad0bmp", "Interface/Menus/Train_Engineer.bmp"],
-		["wad0bmp", "Interface/Menus/PTrain_Engineer.bmp"],
-		["wad0bmp", "Interface/Menus/NTrain_Engineer.bmp"],
-		["wad0bmp", "Interface/Menus/Train_Geologist.bmp"],
-		["wad0bmp", "Interface/Menus/PTrain_Geologist.bmp"],
-		["wad0bmp", "Interface/Menus/NTrain_Geologist.bmp"],
-
 		// held tools and skills images FIXME replace with wadbmp
 		["img", "images\\skills_and_tools", "have drill.png"], // image indicating that a raider is currently carrying a drill in this tool slot
 		["img", "images\\skills_and_tools", "have shovel.png"], // image indicating that a raider is currently carrying a shovel in this tool slot
@@ -406,62 +85,12 @@ object = {
 		["img", "images\\skills_and_tools", "am geologist.png"], // image indicating that a raider is a geologist
 		["img", "images\\skills_and_tools", "am engineer.png"], // image indicating that a raider is an engineer
 
-		// building buttons
-		["wad0bmp", "Interface/Icons/Toolstation.bmp"],
-		["wad0bmp", "Interface/Icons/PToolstation.bmp"],
-		["wad0bmp", "Interface/Icons/NToolstation.bmp"],
-		["wad0bmp", "Interface/Icons/SMteleport.bmp"],
-		["wad0bmp", "Interface/Icons/PSMteleport.bmp"],
-		["wad0bmp", "Interface/Icons/NSMteleport.bmp"],
-		["wad0bmp", "Interface/Icons/dock.bmp"],
-		["wad0bmp", "Interface/Icons/Pdock.bmp"],
-		["wad0bmp", "Interface/Icons/Ndock.bmp"],
-		["wad0bmp", "Interface/Icons/PowerStation.bmp"],
-		["wad0bmp", "Interface/Icons/PPowerStation.bmp"],
-		["wad0bmp", "Interface/Icons/NPowerStation.bmp"],
-		["wad0bmp", "Interface/Icons/barracks.bmp"],
-		["wad0bmp", "Interface/Icons/Pbarracks.bmp"],
-		["wad0bmp", "Interface/Icons/Nbarracks.bmp"],
-		["wad0bmp", "Interface/Icons/Upgrade.bmp"],
-		["wad0bmp", "Interface/Icons/PUpgrade.bmp"],
-		["wad0bmp", "Interface/Icons/NUpgrade.bmp"],
-		["wad0bmp", "Interface/Icons/Geo.bmp"],
-		["wad0bmp", "Interface/Icons/PGeo.bmp"],
-		["wad0bmp", "Interface/Icons/NGeo.bmp"],
-		["wad0bmp", "Interface/Icons/Orerefinery.bmp"],
-		["wad0bmp", "Interface/Icons/POrerefinery.bmp"],
-		["wad0bmp", "Interface/Icons/NOrerefinery.bmp"],
-		["wad0bmp", "Interface/Icons/Gunstation.bmp"],
-		["wad0bmp", "Interface/Icons/PGunstation.bmp"],
-		["wad0bmp", "Interface/Icons/NGunstation.bmp"],
-		["wad0bmp", "Interface/Icons/LargeTeleporter.bmp"],
-		["wad0bmp", "Interface/Icons/PLargeTeleporter.bmp"],
-		["wad0bmp", "Interface/Icons/NLargeTeleporter.bmp"],
-
 		// interface
 		["wad0alpha", "Interface/RightPanel/CrystalSideBar.bmp"], // right side overlay showing crystal and ore count
 		["wad0alpha", "Interface/RightPanel/CrystalSideBar_Ore.bmp"], // image representing a single piece of ore on the overlay
 		["wad0alpha", "Interface/RightPanel/NoSmallCrystal.bmp"], // image representing no energy crystal on the overlay
 		["wad0alpha", "Interface/RightPanel/SmallCrystal.bmp"], // image representing a single energy crystal on the overlay
 		["wad0alpha", "Interface/RightPanel/UsedCrystal.bmp"], // image representing a single in use energy crystal on the overlay
-
-		["wad0alpha", "Interface/IconPanel/IconPanel1.bmp"], // top right menu with space for 1 item and back button
-		["wad0alpha", "Interface/IconPanel/IconPanel2.bmp"], // top right menu with space for 2 items and back button
-		["wad0alpha", "Interface/IconPanel/IconPanel3.bmp"], // top right menu with space for 3 items and back button
-		["wad0alpha", "Interface/IconPanel/IconPanel3WOBack.bmp"], // top right menu with space for 3 items without back button
-		["wad0alpha", "Interface/IconPanel/IconPanel4.bmp"], // top right menu with space for 4 items and back button
-		["wad0alpha", "Interface/IconPanel/IconPanel4WOBack.bmp"], // top right menu with space for 4 items without back button
-		["wad0alpha", "Interface/IconPanel/IconPanel5.bmp"], // top right menu with space for 5 items and back button
-		["wad0alpha", "Interface/IconPanel/IconPanel6.bmp"], // top right menu with space for 6 items and back button
-		["wad0alpha", "Interface/IconPanel/IconPanel7.bmp"], // top right menu with space for 7 items and back button
-		["wad0alpha", "Interface/IconPanel/IconPanel8.bmp"], // top right menu with space for 8 items and back button
-		["wad0alpha", "Interface/IconPanel/IconPanel9.bmp"], // top right menu with space for 9 items and back button
-		["wad0alpha", "Interface/IconPanel/IconPanel10.bmp"], // top right menu with space for 10 items and back button
-		["wad0alpha", "Interface/IconPanel/IconPanel11.bmp"], // top right menu with space for 11 items and back button
-		["wad0alpha", "Interface/IconPanel/IconPanel12.bmp"], // same as IconPanel4 possibly obsolete
-
-		["wad0alpha", "Interface/IconPanel/Back_HL.bmp"], // back button image used in top right icon panel
-		["wad0alpha", "Interface/IconPanel/Back_PR.bmp"], // back button image used in top right icon panel
 
 		// effects
 		["img", "images\\objects", "landslide.png"], // image that appears during a landslide
@@ -502,14 +131,6 @@ object = {
 		// load scripts in the end, so images have been loaded before and are ready to use
 		["js", "gui", "MainMenu.js"], // GUI elements used in the main menu
 		["js", "gui", "Ingame.js"], // GUI elements used in-game
-		["js", "gui", "ScoreScreen.js"], // GUI elements used in the score screen
-
-		["wad1txt", "Lego.cfg", "Lego.cfg"], // configuration file with all parameters
-
-		// level data list files
-		["js", "levels", "levels.js"], // list of names of playable levels, to be used by the main menu for level selection
-
-		// core
-		["js", "", "rockRaiders.js"] // main game file (put last as this contains the main game loop)
+		["js", "gui", "ScoreScreen.js"] // GUI elements used in the score screen
 	]
 };

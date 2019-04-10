@@ -252,7 +252,7 @@ Space.prototype.sweep = function () {
 	}
 };
 
-Space.prototype.setRockImage = function (themeName, matIndex) {
+Space.prototype.setRockImage = function (matIndex) {
 	const walls = [[false, false, false], [false, false, false], [false, false, false]];
 	let wallsCount = 0;
 	for (let y = -1; y <= 1; y++) {
@@ -309,7 +309,7 @@ Space.prototype.setRockImage = function (themeName, matIndex) {
 			this.drawAngle = 0;
 		}
 	}
-	this.image = "World/WorldTextures/" + themeName + "Split/" + themeName + this.shapeIndex.toString() + matIndex.toString() + ".bmp";
+	this.image = "World/WorldTextures/" + RockRaiders.themeName + "Split/" + RockRaiders.themeName + this.shapeIndex.toString() + matIndex.toString() + ".bmp";
 };
 
 Space.prototype.isSelectable = function () {
@@ -412,17 +412,17 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 	this.selectable = true;
 	this.shapeIndex = 0;
 	if (type === "ground") {
-		this.image = "World/WorldTextures/RockSplit/ROCK00.BMP";
+		this.image = "World/WorldTextures/" + RockRaiders.themeName + "Split/" + RockRaiders.themeName + "00.BMP";
 		this.walkable = true;
 	} else if (type === "slug hole") {
-		this.image = "World/WorldTextures/RockSplit/ROCK30.BMP";
+		this.image = "World/WorldTextures/" + RockRaiders.themeName + "Split/" + RockRaiders.themeName + "30.BMP";
 		this.walkable = true;
 		this.selectable = false;
 	} else if (powerPathSpaceTypes.indexOf(type) !== -1) {
-		this.image = (type === "power station powerPath" ? "power station powerPath.png" : type === "building power path" ? "World/WorldTextures/RockSplit/ROCK76.BMP" :
-			type === "power path" ? "World/WorldTextures/RockSplit/Rock60.bmp" : type === "upgrade station right" ? "upgrade station right.png" : "mining laser right.png");
+		this.image = (type === "power station powerPath" ? "power station powerPath.png" : type === "building power path" ? "World/WorldTextures/" + RockRaiders.themeName + "Split/" + RockRaiders.themeName + "76.BMP" :
+			type === "power path" ? "World/WorldTextures/" + RockRaiders.themeName + "Split/" + RockRaiders.themeName + "60.bmp" : type === "upgrade station right" ? "upgrade station right.png" : "mining laser right.png");
 		if (type === "power station powerPath" || type === "upgrade station right" || type === "mining laser right") {
-			this.image = "World/WorldTextures/RockSplit/ROCK76.BMP";
+			this.image = "World/WorldTextures/" + RockRaiders.themeName + "Split/" + RockRaiders.themeName + "76.BMP";
 		}
 		this.walkable = true;
 		this.speedModifier = 1.5;
@@ -430,51 +430,51 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 			this.selectable = false;
 		}
 	} else if (type === "solid rock") {
-		this.setRockImage("ROCK", 5);
+		this.setRockImage(5);
 		this.isWall = true;
 		this.selectable = false;
 	} else if (type === "hard rock") {
-		this.setRockImage("ROCK", 4);
+		this.setRockImage(4);
 		this.isWall = true;
 		this.explodable = true;
 		this.drillHardable = true;
 	} else if (type === "loose rock") {
-		this.setRockImage("ROCK", 3);
+		this.setRockImage(3);
 		this.drillable = true;
 		this.isWall = true;
 	} else if (type === "dirt") {
-		this.setRockImage("ROCK", 1);
+		this.setRockImage(1);
 		this.drillable = true;
 		this.isWall = true;
 	} else if (type === "lava") {
-		this.image = "World/WorldTextures/RockSplit/ROCK46.BMP";
+		this.image = "World/WorldTextures/" + RockRaiders.themeName + "Split/" + RockRaiders.themeName + "46.BMP";
 		this.selectable = false
 	} else if (type === "ore seam") {
-		this.image = "World/WorldTextures/RockSplit/Rock40.bmp";
+		this.image = "World/WorldTextures/" + RockRaiders.themeName + "Split/" + RockRaiders.themeName + "40.bmp";
 		this.drillable = true;
 		this.isWall = true;
 		this.drillSpeedModifier = .2;
 	} else if (type === "water") {
-		this.image = "World/WorldTextures/RockSplit/Rock45.bmp";
+		this.image = "World/WorldTextures/" + RockRaiders.themeName + "Split/" + RockRaiders.themeName + "45.bmp";
 	} else if (type === "energy crystal seam") {
-		this.image = "World/WorldTextures/RockSplit/Rock20.bmp";
+		this.image = "World/WorldTextures/" + RockRaiders.themeName + "Split/" + RockRaiders.themeName + "20.bmp";
 		this.drillable = true;
 		this.isWall = true;
 		this.drillSpeedModifier = .2;
 		this.selectable = false
 	} else if (type === "recharge seam") {
-		this.image = "World/WorldTextures/RockSplit/Rock67.bmp";
+		this.image = "World/WorldTextures/" + RockRaiders.themeName + "Split/" + RockRaiders.themeName + "67.bmp";
 		this.isWall = true;
 		this.selectable = false
 	} else if (type.slice(0, 6) === "rubble") {
 		if (type === "rubble 1") {
-			this.image = "World/WorldTextures/RockSplit/ROCK10.BMP";
+			this.image = "World/WorldTextures/" + RockRaiders.themeName + "Split/" + RockRaiders.themeName + "10.BMP";
 		} else if (type === "rubble 2") {
-			this.image = "World/WorldTextures/RockSplit/Rock11.bmp";
+			this.image = "World/WorldTextures/" + RockRaiders.themeName + "Split/" + RockRaiders.themeName + "11.bmp";
 		} else if (type === "rubble 3") {
-			this.image = "World/WorldTextures/RockSplit/Rock12.bmp";
+			this.image = "World/WorldTextures/" + RockRaiders.themeName + "Split/" + RockRaiders.themeName + "12.bmp";
 		} else if (type === "rubble 4") {
-			this.image = "World/WorldTextures/RockSplit/Rock13.bmp";
+			this.image = "World/WorldTextures/" + RockRaiders.themeName + "Split/" + RockRaiders.themeName + "13.bmp";
 		}
 		this.walkable = true;
 		this.sweepable = true;
@@ -572,7 +572,7 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 		}
 
 	} else if (type === "building site") {
-		this.image = (this.buildingSiteType === "power path" ? "World/WorldTextures/RockSplit/Rock61.bmp" : "building site.png");
+		this.image = (this.buildingSiteType === "power path" ? "World/WorldTextures/" + RockRaiders.themeName + "Split/" + RockRaiders.themeName + "61.bmp" : "building site.png");
 		if (this.touched === true) {
 			const index = buildingSites.indexOf(this);
 			if (index === -1) {
@@ -617,7 +617,7 @@ Space.prototype.updateTouched = function (touched) {
 
 	// if this space has not yet been revealed then we want it to appear as solid rock, but we leave this.image alone to keep track of its actual image.
 	if (this.touched === false && maskUntouchedSpaces === true) {
-		this.changeImage("World/WorldTextures/RockSplit/ROCK70.BMP");
+		this.changeImage("World/WorldTextures/" + RockRaiders.themeName + "Split/" + RockRaiders.themeName + "70.BMP");
 	} else {
 		// we never actually modified this.image so we should just be able to use it
 		this.setTypeProperties(this.type);
@@ -934,7 +934,7 @@ function Space(type, listX, listY, height, parentSpace) {
 			this.reinforcePercent += reinforcePercentIncrease;
 		};
 		this.reinforceDummy.reinforce = function () {
-			this.drawSurface.drawImage(GameManager.getImage("World/WorldTextures/RockSplit/rock24.bmp").canvas, 0, 0);
+			this.drawSurface.drawImage(GameManager.getImage("World/WorldTextures/" + RockRaiders.themeName + "Split/" + RockRaiders.themeName + "24.bmp").canvas, 0, 0);
 			this.visible = true;
 			this.space.reinforced = true;
 			this.drawAngle = this.space.drawAngle;

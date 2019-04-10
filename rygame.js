@@ -666,13 +666,17 @@ GameManagerInternal.prototype.getFont = function (fontName) {
 function GameManagerInternal() {
 	this.configuration = null;
 	// list of image resources
-	this.images = [];
+	this.images = {};
 	// list of sound resources
-	this.sounds = [];
-	// list of script resources
-	this.scriptObjects = [];
+	this.sounds = {};
 	// list of bitmap fonts
-	this.fonts = [];
+	this.fonts = {};
+	// list of maps
+	this.maps = {};
+	// list of objects on a map
+	this.objectLists = {};
+	// list of NERP scripts
+	this.nerps = [];
 	this.fps = 40;
 	this.keyStates = [];
 	this.completeLayerList = [];
@@ -1468,4 +1472,14 @@ function getUrlParamCaseInsensitive(key, lowercaseValue) {
 		}
 	}
 	return null;
+}
+
+// Taken from https://stackoverflow.com/a/41553572
+function _try(func, fallbackValue) {
+	try {
+		const value = func();
+		return (value === null || value === undefined) ? fallbackValue : value;
+	} catch (e) {
+		return fallbackValue;
+	}
 }
