@@ -1,9 +1,8 @@
 makeChild("MenuTitleLabel", "RygameObject");
 
-function MenuTitleLabel(x, y, font, label, layer, autoCenter) {
-	let imgTitle = font.createTextImage(label.replace(/_/g, " "));
-	const labelX = autoCenter ? x - imgTitle.canvas.width / 2 : x;
-	RygameObject.call(this, labelX, y, 0, 0, null, layer, false, true, true);
+function MenuTitleLabel(x, y, font, label, layer) {
+	const imgTitle = font.createTextImage(label);
+	RygameObject.call(this, x - imgTitle.canvas.width / 2, y, 0, 0, null, layer, false, true, true);
 	this.drawSurface = imgTitle;
 }
 
@@ -14,25 +13,26 @@ BitmapFontButton.prototype.setText = function (newLabel) {
 	this.brightenedSurface = this.fontHigh.createTextImage(newLabel);
 };
 
-function BitmapFontButton(x, y, label, fontLow, fontHigh, layer, runMethod, optionalArgs = null) {
+function BitmapFontButton(x, y, label, fontLow, fontHigh, layer, runMethod, optionalArgs = null, autoCenter = true) {
 	this.fontLow = fontLow;
 	this.fontHigh = fontHigh;
 	this.setText(label);
-	ImageButton.call(this, x - this.normalSurface.canvas.width / 2, y, 0, this.normalSurface, this.brightenedSurface, layer, runMethod, optionalArgs);
+	ImageButton.call(this, x, y, 0, this.normalSurface, this.brightenedSurface, layer, runMethod, optionalArgs);
+	this.x = autoCenter ? x - this.normalSurface.canvas.width / 2 : x;
 }
 
 makeChild("WindowPanel", "RygameObject");
 
 WindowPanel.prototype.setFirstLine = function (font, text) {
 	if (text) {
-		this.firstLine = text.replace(/_/g, " ");
+		this.firstLine = text;
 		this.redraw(font);
 	}
 };
 
 WindowPanel.prototype.setSecondLine = function (font, text) {
 	if (text) {
-		this.secondLine = text.replace(/_/g, " ");
+		this.secondLine = text;
 		this.redraw(font);
 	}
 };

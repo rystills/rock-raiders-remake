@@ -287,23 +287,11 @@ function calculateRectPoints(object, includeTouching) {
  */
 function collisionRect(object1, object2, includeTouching) {
 	if (object1.drawAngle === 0 && object2.drawAngle === 0) {
-		const objects = [object1, object2];
-		const objectCoordinates = [{}, {}];
-		for (let i = 0; i < 2; i++) {
-			objectCoordinates[i].left = objects[i].x;
-			objectCoordinates[i].top = objects[i].y;
-			objectCoordinates[i].right = objects[i].x + objects[i].rect.width;
-			objectCoordinates[i].bottom = objects[i].y + objects[i].rect.height;
-			if (includeTouching === true && i === 0) {
-				objectCoordinates[i].left -= .01;
-				objectCoordinates[i].top -= .01;
-				objectCoordinates[i].right += .01;
-				objectCoordinates[i].bottom += .01;
-			}
-		}
-		// note: changed from < and > to <= and >= so that bordering objects would not be considered colliding
-		return !((objectCoordinates[0].left >= objectCoordinates[1].right) || (objectCoordinates[0].top >= objectCoordinates[1].bottom) ||
-			(objectCoordinates[0].right <= objectCoordinates[1].left) || (objectCoordinates[0].bottom <= objectCoordinates[1].top));
+		// simplified according to https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection#Axis-Aligned_Bounding_Box
+		return (object1.x < object2.x + object2.rect.width &&
+			object1.x + object1.rect.width > object2.x &&
+			object1.y < object2.y + object2.rect.height &&
+			object1.y + object1.rect.height > object2.y);
 	} else {
 		// since rotation is centered, we have to go from the center and move in the direction of drawAngle * width,
 		// and the direction perpendicular to drawAngle * height to find corners
@@ -1329,14 +1317,32 @@ RygameObject.prototype.moveOutsideCollision = function (otherObject, xPrevious, 
 	} else {
 		angle = getAngle(this.x, this.y, xPrevious, yPrevious); // TODO: VERIFY THAT THIS METHOD WORKS CORRECTLY
 	}
+	let iterations = 0;
 	while (collisionRect(this, otherObject)) {
 		this.moveDirection(angle, 1);
+		iterations++;
+		if (iterations > 25) {
+			// TODO workaround against infinite loops
+			console.error("Aborted collision checks! Too many iterations");
+		}
 	}
+	iterations = 0;
 	while (!collisionRect(this, otherObject)) {
 		this.moveDirection(180 + angle, .1);
+		iterations++;
+		if (iterations > 25) {
+			// TODO workaround against infinite loops
+			console.error("Aborted collision checks! Too many iterations");
+		}
 	}
+	iterations = 0;
 	while (collisionRect(this, otherObject)) {
 		this.moveDirection(angle, .01);
+		iterations++;
+		if (iterations > 25) {
+			// TODO workaround against infinite loops
+			console.error("Aborted collision checks! Too many iterations");
+		}
 	}
 };
 

@@ -105,7 +105,7 @@ ScoreScreenLayer.prototype.setValues = function (missionState, missionTitle, cry
 	if (this.missionTitle != null && this.missionTitle.drawSurface != null) {
 		this.missionTitle.x += this.missionTitle.drawSurface.width / 2;
 	}
-	let titleImage = scoreScreenLayer.titleFont.createTextImage(missionTitle.replace(/_/g, " "));
+	let titleImage = scoreScreenLayer.titleFont.createTextImage(missionTitle);
 	this.missionTitle.x -= titleImage.width / 2;
 	this.missionTitle.drawSurface = titleImage;
 	this.missionTitle.rect = new Rect(this.missionTitle.drawSurface.width, this.missionTitle.drawSurface.height);
@@ -211,8 +211,7 @@ function ScoreScreenLayer(confScoreScreen) {
 		overlays[txtKey] = overlays[txtKey] || new ScoreScreenOverlay(txtKey, index * revealDelay);
 		overlays[txtKey].val = new RygameObject(valX, valY, 0, drawDepth, null, layer, false, true, false);
 		drawDepth--;
-		const text = txtConf[0].replace(/_/g, " ");
-		let textImage = (txtKey === "Score" ? backFont : font).createTextImage(text);
+		let textImage = (txtKey === "Score" ? backFont : font).createTextImage(txtConf[0]);
 		const x = txtKey === "Score" ? 305 : txtX;
 		const y = txtKey === "Score" ? 195 : txtY;
 		overlays[txtKey].txt = new RygameObject(x - textImage.width / 2, y, 0, drawDepth, null, layer, false, true, false);
@@ -227,21 +226,21 @@ function ScoreScreenLayer(confScoreScreen) {
 	this.missionTitle = new RygameObject(GameManager.screenWidth / 2, vertSpacing, 0, drawDepth, null, layer, false, true, false);
 	drawDepth--;
 
-	let completeImage = this.titleFont.createTextImage(confScoreScreen["CompleteText"].replace(/_/g, " "));
+	let completeImage = this.titleFont.createTextImage(confScoreScreen["CompleteText"]);
 	this.completeText = new RygameObject((GameManager.screenWidth - completeImage.width) / 2, vertSpacing * 2, 0, drawDepth, null, layer, false, true, false);
 	this.completeText.drawSurface = completeImage;
 	this.completeText.rect = new Rect(this.completeText.drawSurface.width, this.completeText.drawSurface.height);
 	this.completeText.visible = false;
 	drawDepth--;
 
-	let failedImage = this.titleFont.createTextImage(confScoreScreen["FailedText"].replace(/_/g, " "));
+	let failedImage = this.titleFont.createTextImage(confScoreScreen["FailedText"]);
 	this.failedText = new RygameObject((GameManager.screenWidth - failedImage.width) / 2, vertSpacing * 2, 0, drawDepth, null, layer, false, true, false);
 	this.failedText.drawSurface = failedImage;
 	this.failedText.rect = new Rect(this.failedText.drawSurface.width, this.failedText.drawSurface.height);
 	this.failedText.visible = false;
 	drawDepth--;
 
-	let quitImage = this.titleFont.createTextImage(confScoreScreen["QuitText"].replace(/_/g, " "));
+	let quitImage = this.titleFont.createTextImage(confScoreScreen["QuitText"]);
 	this.quitText = new RygameObject((GameManager.screenWidth - quitImage.width) / 2, vertSpacing * 2, 0, drawDepth, null, layer, false, true, false);
 	this.quitText.drawSurface = quitImage;
 	this.quitText.rect = new Rect(this.quitText.drawSurface.width, this.quitText.drawSurface.height);

@@ -165,6 +165,20 @@ function loadConfigurationAsset(buffer, callback) {
 			}
 		}
 	}
+	// apply some patches here
+	Object.values(result["Lego*"]["Levels"]).forEach((levelConf) => {
+		if (levelConf["CryoreMap"]) {
+			levelConf["CryOreMap"] = levelConf["CryoreMap"];  // typos... typos everywhere
+			delete levelConf["CryoreMap"];
+		}
+		if (levelConf["CryOreMap"]) {
+			levelConf["CryOreMap"] = levelConf["CryOreMap"].replace("Cryo_", "Cror_");
+		}
+		if (levelConf["PredugMap"]) {
+			levelConf["PreDugMap"] = levelConf["PredugMap"];
+			delete levelConf["PredugMap"];
+		}
+	});
 	GameManager.configuration = result;
 	if (callback != null) {
 		callback();
@@ -340,9 +354,6 @@ function addAsset(method, assetName, optional = false) {
 	if (!assetName || startLoadingProcess.assetsFromCfgByName.hasOwnProperty(assetName.toLowerCase()) || assetName === "NULL") {
 		return; // do not load assets twice
 	}
-	if (assetName.length < 5) {
-		debugger;
-	}
 	startLoadingProcess.assetsFromCfgByName[assetName] = {method: method, assetName: assetName, optional: optional};
 }
 
@@ -365,10 +376,10 @@ function registerAllAssets() {
 	// level files
 	Object.values(mainConf["Levels"]).forEach(levelConf => {
 		addAsset(loadMapAsset, levelConf["SurfaceMap"]);
-		addAsset(loadMapAsset, levelConf["PreDugMap"] || levelConf["PredugMap"]);
+		addAsset(loadMapAsset, levelConf["PreDugMap"]);
 		addAsset(loadMapAsset, levelConf["TerrainMap"]);
 		addAsset(loadMapAsset, levelConf["BlockPointersMap"], true);
-		addAsset(loadMapAsset, levelConf["CryOreMap"] || levelConf["CryoreMap"], true);
+		addAsset(loadMapAsset, levelConf["CryOreMap"]);
 		addAsset(loadMapAsset, levelConf["PathMap"], true);
 		addAsset(loadObjectListAsset, levelConf["OListFile"]);
 		addAsset(loadNerpAsset, levelConf["NERPFile"], true);

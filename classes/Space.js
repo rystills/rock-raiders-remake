@@ -258,7 +258,7 @@ Space.prototype.setRockImage = function (matIndex) {
 	for (let y = -1; y <= 1; y++) {
 		for (let x = -1; x <= 1; x++) {
 			const neighborSpace = adjacentSpaceXY(terrain, this.listX, this.listY, x, y);
-			if (neighborSpace && neighborSpace.isWall) {
+			if (!neighborSpace || neighborSpace.isWall || !neighborSpace.touched) {
 				walls[y + 1][x + 1] = true; // somehow coords are mixed up...
 				wallsCount += 1;
 			}
@@ -330,6 +330,20 @@ Space.prototype.die = function () {
 		this.dynamiteDummy.die();
 	}
 	return RygameObject.prototype.die.call(this);
+};
+
+Space.prototype.setPowerPathSpace = function () {
+	// round the heading angle as buildings can only be facing in cardinal directions
+	const headingDir = Math.round(this.headingAngle * 180 / Math.PI) + 90;
+	if (headingDir === 0) {
+		this.powerPathSpace = adjacentSpace(terrain, this.listX, this.listY, "up");
+	} else if (headingDir === 90) {
+		this.powerPathSpace = adjacentSpace(terrain, this.listX, this.listY, "right");
+	} else if (headingDir === 180) {
+		this.powerPathSpace = adjacentSpace(terrain, this.listX, this.listY, "down");
+	} else if (headingDir === 270) {
+		this.powerPathSpace = adjacentSpace(terrain, this.listX, this.listY, "left");
+	}
 };
 
 /**
@@ -426,7 +440,7 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 		}
 		this.walkable = true;
 		this.speedModifier = 1.5;
-		if (type === "building power path") {
+		if (type !== "power path") {
 			this.selectable = false;
 		}
 	} else if (type === "solid rock") {
@@ -487,6 +501,7 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 				buildings.push(this);
 			}
 		}
+		this.setPowerPathSpace();
 	} else if (type === "docks") {
 		this.image = "docks.png";
 		this.isBuilding = true;
@@ -559,6 +574,7 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 				buildings.push(this);
 			}
 		}
+		this.setPowerPathSpace();
 	} else if (type === "tool store") {
 		this.image = "tool store.png";
 		this.isBuilding = true;
@@ -569,7 +585,7 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 				buildings.push(this);
 			}
 		}
-
+		this.setPowerPathSpace();
 	} else if (type === "building site") {
 		this.image = (this.buildingSiteType === "power path" ? "World/WorldTextures/" + RockRaiders.themeName + "Split/" + RockRaiders.themeName + "61.bmp" : "building site.png");
 		if (this.touched === true) {

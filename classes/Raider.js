@@ -216,7 +216,7 @@ Raider.prototype.canPerformTask = function (task, ignoreAutomation, ignoreConten
 		}
 
 		// if the input task is a task that cannot be automated, return false
-		if (!tasksAutomated[taskType(task)]) {
+		if (!RockRaiders.tasksAutomated[taskType(task)]) {
 			return this.canPerformSpaceContains(task, ignoreAutomation, ignoreContents) || this.canPerformTaskDummies(task, ignoreAutomation, ignoreContents);
 		}
 	}
@@ -305,7 +305,7 @@ Raider.prototype.checkSetTask = function (taskIndex, mustBeHighPriority, calcula
 	}
 
 	// skip any tasks that cannot be performed automatically, unless they are high priority
-	if (tasksAvailable[taskIndex].taskPriority === 1 || (tasksAutomated[taskType(tasksAvailable[taskIndex])] && (mustBeHighPriority !== true))) {
+	if (tasksAvailable[taskIndex].taskPriority === 1 || (RockRaiders.tasksAutomated[taskType(tasksAvailable[taskIndex])] && (mustBeHighPriority !== true))) {
 		let newPath = calculatedPath; // if we already calculated a path, don't bother calculating it again
 		if (newPath == null) {
 			newPath = findClosestStartPath(this, calculatePath(terrain, this.space,
@@ -867,10 +867,10 @@ Raider.prototype.setHolding = function (task) {
  * stop all sounds by pausing them and resetting their currentTime to 0
  */
 Raider.prototype.stopSounds = function () {
-	this.sweepSound.pause();
-	this.sweepSound.currentTime = 0;
-	this.drillSound.pause();
-	this.drillSound.currentTime = 0;
+	this.soundList.forEach(sound => {
+		sound.pause();
+		sound.currentTime = 0;
+	});
 };
 
 /**

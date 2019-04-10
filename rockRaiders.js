@@ -364,13 +364,54 @@ function resourceAvailable(resourceType) {
  * @param levelKey: the identifier for the level
  */
 function loadLevelData(levelKey) {
-	RockRaiders.currentLevelKey = levelKey;
-	const levelConf = RockRaiders.levelConf[levelKey];
+	RockRaiders.currentLevelKey = levelKey || RockRaiders.currentLevelKey;
+	const levelConf = RockRaiders.levelConf[RockRaiders.currentLevelKey];
 	RockRaiders.themeName = levelConf["TextureSet"].split("::")[1];
+	// TODO maybe someday we can use the same keys...
+	RockRaiders.tasksAutomated = {
+		"sweep": false,
+		"collect": false, // TODO collect ore and collect crystal need to be separated (What about dropped dynamites?)
+		"drill": false,
+		"drill hard": false,
+		"reinforce": false,
+		"build": false,
+		"walk": false,
+		"dynamite": false,
+		"vehicle": false
+	};
+	Object.keys(levelConf["Priorities"]).forEach((taskKey) => {
+		const lKey = taskKey.toLowerCase();
+		let ourKey = null;
+		if (lKey === "AI_Priority_Crystal".toLowerCase() || lKey === "AI_Priority_Ore".toLowerCase()) { // TODO separate ore and crystal collect tasks
+			ourKey = "collect";
+		} else if (lKey === "AI_Priority_Destruction".toLowerCase()) {
+			ourKey = "dynamite"; // TODO is this correctly translated?
+		} else if (lKey === "AI_Priority_Clearing".toLowerCase()) {
+			ourKey = "sweep";
+		} else if (lKey === "AI_Priority_Repair".toLowerCase()) {
+			// TODO repair task type not yet implemented
+		} else if (lKey === "AI_Priority_GetIn".toLowerCase()) {
+			ourKey = "vehicle";
+		} else if (lKey === "AI_Priority_Construction".toLowerCase()) {
+			ourKey = "build";
+		} else if (lKey === "AI_Priority_Reinforce".toLowerCase()) {
+			ourKey = "reinforce";
+		} else if (lKey === "AI_Priority_GetTool".toLowerCase()) {
+			// TODO currently gettool is not an extra task
+		} else if (lKey === "AI_Priority_Train".toLowerCase()) {
+			// TODO currently train is not an extra task
+		} else if (lKey === "AI_Priority_Recharge".toLowerCase()) {
+			// TODO recharge task type not yet implemented
+		}
+		if (ourKey) {
+			RockRaiders.tasksAutomated[ourKey] = levelConf["Priorities"][taskKey].toLowerCase() === "true"; // TODO maybe check for weird values here?
+		}
+	});
+
 	const terrainMapName = levelConf["TerrainMap"];
-	const cryoreMapName = levelConf["CryOreMap"] || levelConf["CryoreMap"]; // typos... typos everywhere
+	const cryoreMapName = levelConf["CryOreMap"];
 	const olFileName = levelConf["OListFile"];
-	const predugMapName = levelConf["PreDugMap"] || levelConf["PredugMap"];
+	const predugMapName = levelConf["PreDugMap"];
 	const surfaceMapName = levelConf["SurfaceMap"];
 	const pathMapName = levelConf["PathMap"];
 	const fallinMapName = levelConf["FallinMap"];
@@ -448,6 +489,9 @@ function loadLevelData(levelKey) {
 	// load in non-space objects next
 	const objectList = GameManager.objectLists[olFileName];
 	Object.values(objectList).forEach(function (olObject) {
+		// all object positions seem to be off by one
+		olObject.xPos--;
+		olObject.yPos--;
 		if (olObject.type === "TVCamera") {
 			// coords need to be rescaled since 1 unit in LRR is 1, but 1 unit in the remake is tileSize (128)
 			gameLayer.cameraX = olObject.xPos * tileSize;
@@ -464,31 +508,15 @@ function loadLevelData(levelKey) {
 			newRaider.drawAngle = (olObject.heading - 90) / 180 * Math.PI;
 			raiders.push(newRaider);
 		} else if (olObject.type === "Toolstation") {
-			const currentSpace = terrain[parseInt(olObject.yPos, 10)][parseInt(olObject.xPos, 10)];
+			const currentSpace = terrain[Math.floor(parseFloat(olObject.yPos))][Math.floor(parseFloat(olObject.xPos))];
 			currentSpace.setTypeProperties("tool store");
+			currentSpace.headingAngle = (olObject.heading - 90) / 180 * Math.PI;
 			// check if this space was in a wall, but should now be touched
 			checkRevealSpace(currentSpace);
-			let powerPathSpace = null;
-			// round the heading angle as buildings can only be facing in cardinal directions
-			const headingDir = Math.round(olObject.heading);
-			if (headingDir === 0) {
-				powerPathSpace = adjacentSpace(terrain, currentSpace.listX, currentSpace.listY, "up");
-				currentSpace.headingAngle = Math.PI;
-			} else if (headingDir === 90) {
-				powerPathSpace = adjacentSpace(terrain, currentSpace.listX, currentSpace.listY, "right");
-				currentSpace.headingAngle = -.5 * Math.PI;
-			} else if (headingDir === 180) {
-				powerPathSpace = adjacentSpace(terrain, currentSpace.listX, currentSpace.listY, "down");
-				currentSpace.headingAngle = 0;
-			} else if (headingDir === 270) {
-				powerPathSpace = adjacentSpace(terrain, currentSpace.listX, currentSpace.listY, "left");
-				currentSpace.headingAngle = .5 * Math.PI;
-			}
 			// set drawAngle to headingAngle now if this space isn't initially in the fog
 			if (currentSpace.touched) {
-				currentSpace.drawAngle = currentSpace.headingAngle;
+				currentSpace.drawAngle = currentSpace.headingAngle - Math.PI / 2;
 			}
-			currentSpace.powerPathSpace = powerPathSpace;
 			// check if this building's power path space was in a wall, but should now be touched
 			checkRevealSpace(currentSpace.powerPathSpace);
 			currentSpace.powerPathSpace.setTypeProperties("building power path");
@@ -610,7 +638,9 @@ function createVehicle(vehicleType) {
 
 function changeIconPanel(targetIconPanel = RockRaiders.mainIconPanel) {
 	if (RockRaiders.activeIconPanel !== targetIconPanel) {
-		RockRaiders.activeIconPanel.hide();
+		if (RockRaiders.activeIconPanel) {
+			RockRaiders.activeIconPanel.hide();
+		}
 		RockRaiders.activeIconPanel = targetIconPanel;
 		RockRaiders.activeIconPanel.show();
 	}
@@ -1850,11 +1880,12 @@ function levelIsUnlocked(targetLevelKey) {
 	if (openByDefault && openByDefault === "TRUE") {
 		return true;
 	}
-	RockRaiders.levelLinks[targetLevelKey].forEach((parentKey) => {
-		if (getLevelScore(parentKey) == null) {
+	const levelLinks = RockRaiders.levelLinks[targetLevelKey];
+	for (let c = 0; c < levelLinks.length; c++) {
+		if (getLevelScore(levelLinks[c]) == null) {
 			return false;
 		}
-	});
+	}
 	return true;
 }
 
@@ -1868,7 +1899,7 @@ function createMainMenuLayers() {
 	for (let m = 0; m < menuCount - 1; m++) {
 		const menuKey = "Menu" + (m + 1);
 		const confMenu = confMainMenu[menuKey];
-		mainMenuLayers[menuKey] = new Layer(0, 0, 1, 1, GameManager.screenWidth, GameManager.screenHeight);
+		mainMenuLayers[menuKey] = new Layer(0, 0, 0, 0, GameManager.screenWidth, GameManager.screenHeight);
 		mainMenuLayers[menuKey].background = GameManager.getImage(confMenu["MenuImage"]);
 		mainMenuLayers[menuKey].width = mainMenuLayers[menuKey].background.width;
 		mainMenuLayers[menuKey].height = mainMenuLayers[menuKey].background.height;
@@ -1878,10 +1909,10 @@ function createMainMenuLayers() {
 		let position = confMenu["Position"].split(":");
 		const mainX = parseInt(position[0]);
 		const mainY = parseInt(position[1]);
-		const autoCenter = confMenu["AutoCenter"] === "TRUE";
 		if (confMenu["DisplayTitle"] === "TRUE") {
-			new MenuTitleLabel(mainX, mainY, fontLow, confMenu["FullName"], mainMenuLayers[menuKey], autoCenter);
+			new MenuTitleLabel(mainX, mainY, fontLow, confMenu["FullName"], mainMenuLayers[menuKey]);
 		}
+		const autoCenter = confMenu["AutoCenter"] === "TRUE";
 		const itemCount = parseInt(confMenu["ItemCount"]);
 		for (let c = 0; c < itemCount; c++) {
 			if (m === 0 && c === itemCount - 1) { // TODO better use menu identifier/key?
@@ -1897,7 +1928,7 @@ function createMainMenuLayers() {
 				hoverSurface = GameManager.getImage(itemArgs[4]);
 				dullSurface = GameManager.getImage(itemArgs[5]);
 			} else { // default render as text button
-				const label = itemArgs[3].replace("_", " ");
+				const label = itemArgs[3];
 				normalSurface = fontLow.createTextImage(label);
 				hoverSurface = fontHigh.createTextImage(label);
 			}
@@ -1906,7 +1937,7 @@ function createMainMenuLayers() {
 		}
 		if (m === 0) { // TODO better use menu identifier/key?
 			new BitmapFontButton(mainX, mainY + 160, "Options", fontLow, fontHigh, mainMenuLayers[menuKey], goToMenu, ["Options"]);
-			mainMenuLayers["Options"] = new Layer(0, 0, 1, 1, GameManager.screenWidth, GameManager.screenHeight);
+			mainMenuLayers["Options"] = new Layer(0, 0, 0, 0, GameManager.screenWidth, GameManager.screenHeight);
 			mainMenuLayers["Options"].background = mainMenuLayers["Menu1"].background;
 			let btn = new BitmapFontButton(mainX, mainY - 40, "Edge Panning " + (mousePanning ? "X" : "-"), fontLow, fontHigh, mainMenuLayers["Options"], toggleEdgePanning);
 			btn.optionalArgs = [btn];
@@ -2063,16 +2094,17 @@ function resetLevelVars(levelKey) {
 	levelSelectLayer.active = false;
 	scoreScreenLayer.active = false;
 	gameLayer.active = true;
+	gameLayer.frozen = false;
 	uiLayer.active = true;
+	uiLayer.frozen = false;
 	musicPlayer.changeTrack();
 	reservedResources = {"ore": 0, "crystal": 0};
 	selectionRectCoords = {x1: null, y1: null};
 	selection = [];
 	mousePressStartPos = {x: 1, y: 1};
 	mousePressIsSelection = false;
-	RockRaiders.activeIconPanel = RockRaiders.mainIconPanel;
 	RockRaiders.mainIconPanel.setVisible(true);
-	selectionType = null;
+	cancelSelection();
 	for (let i = 0; i < terrain.length; ++i) {
 		for (let r = 0; r < terrain[i].length; ++r) {
 			terrain[i][r].die();
@@ -2144,8 +2176,8 @@ function RockRaidersGame() {
 	mainMenuLayers = {};
 	menuLayer = null;
 	levelSelectLayer = null;
-	gameLayer = new Layer(0, 0, 1, 1, GameManager.screenWidth, GameManager.screenHeight);
-	uiLayer = new Layer(0, 0, 0, 0, GameManager.screenWidth, GameManager.screenHeight);
+	gameLayer = new Layer(0, 0, 150, 150, GameManager.screenWidth, GameManager.screenHeight);
+	uiLayer = new Layer(0, 0, 100, 100, GameManager.screenWidth, GameManager.screenHeight);
 	musicPlayer = new MusicPlayer();
 	musicPlayer.changeTrack("menu theme");
 	pauseButtons = new ObjectGroup();
@@ -2157,18 +2189,8 @@ function RockRaidersGame() {
 	scoreScreenLayer = new ScoreScreenLayer(GameManager.configuration["Lego*"]["Reward"]);
 	mainMenuLayers["Reward"] = scoreScreenLayer;
 	GameManager.drawSurface.font = "48px Arial";
-	// update me manually for now, as the UI does not yet have task priority buttons
-	tasksAutomated = {
-		"sweep": true,
-		"collect": true,
-		"drill": false,
-		"drill hard": false,
-		"reinforce": false,
-		"build": true,
-		"walk": true,
-		"dynamite": false,
-		"vehicle": false
-	};
+	// task priorities overridden by each level
+	this.tasksAutomated = {};
 	// dict of task type to required tool
 	toolsRequired = {
 		"sweep": "shovel",
@@ -2302,6 +2324,9 @@ function update() {
 			}
 		} else {
 			checkTogglePause();
+			// freeze some layers and all objects on them when paused
+			gameLayer.frozen = RockRaiders.paused;
+			uiLayer.frozen = RockRaiders.paused;
 			if (!RockRaiders.paused) {
 				// update input
 				checkScrollScreen();
@@ -2325,7 +2350,8 @@ function update() {
 					RockRaiders.activeIconPanel.buttons.update();
 				}
 			} else {
-				pauseButtons.update();
+				// still update objects (or at least the unfrozen pause layer)
+				GameManager.updateObjects();
 			}
 			RockRaiders.levelConf[RockRaiders.currentLevelKey].NerpRunner.execute();
 		}

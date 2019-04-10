@@ -9,6 +9,7 @@ BitmapFont.prototype.createTextImage = function (text) {
 		placeholder.putImageData(imgData, 0, 0);
 		return placeholder;
 	}
+	text = text.replace(/_/g, " ");
 	let width = 0;
 	for (let c = 0; c < text.length; c++) {
 		const letter = text.charAt(c);
