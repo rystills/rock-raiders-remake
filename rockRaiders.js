@@ -73,7 +73,7 @@ function updateSoundPositions(obj) {
 	if (typeof obj.soundList != "undefined" && obj.soundList.length > 0) {
 		const camDis = cameraDistance(obj);
 		// linear fade with distance, with a max sound distance of 1200 pixels
-		let vol = 1 - camDis / 1200;
+		let vol = RockRaiders.fxVolume - camDis / 1200;
 		if (vol < 0) {
 			vol = 0;
 		}
@@ -2083,6 +2083,14 @@ function stopAllSounds() {
 }
 
 /**
+ * Change volume for all sound effects
+ */
+function setFxVolume(volume) {
+	RockRaiders.fxVolume = volume;
+	setValue("fxVolume", RockRaiders.fxVolume);
+}
+
+/**
  * reset all non-constant game variables for the start of a new level
  * @param levelKey: the name of the level to switch to
  */
@@ -2170,6 +2178,7 @@ function RockRaidersGame() {
 	keyboardPanning = true;
 	// should the game render any active debug info?
 	debug = getValue("debug") === "true";
+	this.fxVolume = getValue("fxVolume", 1);
 	this.levelConf = {};
 	this.levelLinks = {};
 

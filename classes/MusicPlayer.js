@@ -1,33 +1,37 @@
 /**
- * play one of the three in-game tracks at random
+ * returns one of the three in-game tracks at random
  */
-MusicPlayer.prototype.startRandomTrack = function () {
-	// select next random track
-	this.currentRandomTrack = (this.currentRandomTrack + randomInt(1, this.numberOfRandomTracks - 1)) % this.numberOfRandomTracks;
-	const that = this;
-	this.startTrack("song" + (this.currentRandomTrack + 1) + "-reduced noise", function () {
-		that.startRandomTrack();
-	});
+MusicPlayer.prototype.getNextRandomTrack = function () {
+	return "song" + (randomInt(1, this.numberOfRandomTracks)) + "-reduced noise";
 };
 
 /**
  * Convenience function for better error handling. Starts playing a sound from beginning.
  * @param trackName A HTML audio element to start playing
- * @param onendedCallback Callback that is triggered if the selected track ends, useful for endless loops
  */
-MusicPlayer.prototype.startTrack = function (trackName, onendedCallback) {
-	if (typeof (trackName) === 'string' || trackName instanceof String) {
-		this.lastTrackName = trackName;
-	}
-	if (this.lastTrackName) {
-		const track = GameManager.sounds[this.lastTrackName];
+MusicPlayer.prototype.startTrack = function (trackName) {
+	this.currentTrackName = trackName;
+	if (this.currentTrackName) {
+		const track = GameManager.sounds[this.currentTrackName];
 		track.currentTime = 0;
-		track.addEventListener("ended", onendedCallback);
-		// at least Chromium throws an error, if the user didn't interact with the site, before play() is called
+		track.volume = this.musicVolume;
+		track.addEventListener("ended", function () {
+			that.stopTrack(track);
+			that.startTrack(that.randomMode ? that.getNextRandomTrack() : trackName);
+		});
 		const that = this;
-		track.play().catch(() => setTimeout(function () {
-			that.startTrack(trackName, onendedCallback);
-		}, 2000)); // retry again in 2 seconds
+		const playPromise = track.play();
+		if (playPromise !== undefined) {
+			// Chromium returns a promise and throws an exception, if the user didn't interact with the site, before play() is called
+			playPromise.then(() => {
+				// in case the last play throw an exception and the volume changed since initial startTrack was called
+				track.volume = this.musicVolume;
+			}).catch(() => setTimeout(function () { // retry start automatically
+				if (that.currentTrackName === trackName) {
+					that.startTrack(trackName);
+				} // else Track changed in the mean time
+			}, 2000));
+		}
 	}
 };
 
@@ -41,7 +45,6 @@ MusicPlayer.prototype.stopTrack = function (sound) {
 		sound.currentTime = 0;
 		sound.ended = true;
 	}
-	this.lastTrackName = undefined;
 };
 
 /**
@@ -49,16 +52,22 @@ MusicPlayer.prototype.stopTrack = function (sound) {
  * @param trackName: The sound track to play. No name means random
  */
 MusicPlayer.prototype.changeTrack = function (trackName) {
-	if (this.lastTrackName) { // currently playing a track? Stop it!
-		this.stopTrack(GameManager.sounds[this.lastTrackName]);
+	if (this.currentTrackName) { // currently playing a track? Stop it!
+		this.stopTrack(GameManager.sounds[this.currentTrackName]);
 	}
-	if (trackName) {
-		const that = this;
-		this.startTrack(trackName, function repeat() {
-			that.startTrack(trackName, repeat);
-		});
-	} else {
-		this.startRandomTrack();
+	this.randomMode = false;
+	if (!trackName) {
+		this.randomMode = true;
+		trackName = this.getNextRandomTrack();
+	}
+	this.startTrack(trackName);
+};
+
+MusicPlayer.prototype.setMusicVolume = function (volume) {
+	this.musicVolume = volume;
+	setValue("musicVolume", this.musicVolume);
+	if (this.currentTrackName) { // currently playing a track? Stop it!
+		GameManager.sounds[this.currentTrackName].volume = this.musicVolume;
 	}
 };
 
@@ -67,6 +76,7 @@ MusicPlayer.prototype.changeTrack = function (trackName) {
  */
 function MusicPlayer() {
 	this.numberOfRandomTracks = 3;
-	this.currentRandomTrack = 0;
-	this.lastTrackName = undefined;
+	this.currentTrackName = undefined;
+	this.randomMode = false;
+	this.musicVolume = getValue("musicVolume", 0.5);
 }
