@@ -572,7 +572,7 @@ GameManagerInternal.prototype.updateObjects = function () {
 	for (let i = 0; i < this.updateOrderedCompleteObjectList.length; i++) {
 		this.updateOrderedCompleteObjectList[i].xPrevious = this.updateOrderedCompleteObjectList[i].x;
 		this.updateOrderedCompleteObjectList[i].yPrevious = this.updateOrderedCompleteObjectList[i].y;
-		if (typeof this.updateOrderedCompleteObjectList[i].update == "function" && this.updateOrderedCompleteObjectList[i].updateAutomatically) {
+		if (this.updateOrderedCompleteObjectList[i].update && this.updateOrderedCompleteObjectList[i].updateAutomatically) {
 			this.updateOrderedCompleteObjectList[i].attemptUpdate();
 		}
 	}
@@ -666,13 +666,17 @@ GameManagerInternal.prototype.getFont = function (fontName) {
 function GameManagerInternal() {
 	this.configuration = null;
 	// list of image resources
-	this.images = [];
+	this.images = {};
 	// list of sound resources
-	this.sounds = [];
-	// list of script resources
-	this.scriptObjects = [];
+	this.sounds = {};
 	// list of bitmap fonts
-	this.fonts = [];
+	this.fonts = {};
+	// list of maps
+	this.maps = {};
+	// list of objects on a map
+	this.objectLists = {};
+	// list of NERP scripts
+	this.nerps = [];
 	this.fps = 40;
 	this.keyStates = [];
 	this.completeLayerList = [];
@@ -1042,11 +1046,15 @@ makeChild("ImageButton", "RygameObject");
  * update this MainMenuButton's state based on mouse interactivity
  */
 ImageButton.prototype.update = function () {
+	if (!this.visible) {
+		return; // don't update invisible buttons
+	}
 	if (this.additionalRequirement != null) {
 		this.clickable = this.additionalRequirement.apply(this, this.additionalRequirementArgs);
 	}
 
-	const mouseOver = collisionPoint(GameManager.mousePos.x, GameManager.mousePos.y, this, this.affectedByCamera) && this.clickable;
+	const mouseInRect = collisionPoint(GameManager.mousePos.x, GameManager.mousePos.y, this, this.affectedByCamera);
+	const mouseOver = mouseInRect && this.clickable;
 	if (mouseOver && !this.lastMouseOverState && this.mouseEnterCallback) {
 		this.mouseEnterCallback();
 	} else if (!mouseOver && this.lastMouseOverState && this.mouseLeaveCallback) {
@@ -1062,9 +1070,15 @@ ImageButton.prototype.update = function () {
 
 	// mouse pressed and released events can occur in the same frame on high doses of coffee
 	if (GameManager.mousePressedLeft === true) {
+		if (mouseInRect) { // TODO also check alpha pixels?
+			GameManager.mousePressedLeft = false; // consume pressed event, if mouse is over button
+		}
 		this.mouseDownOnButton = mouseOver;
 	}
 	if (GameManager.mouseReleasedLeft === true) {
+		if (mouseInRect) { // TODO also check alpha pixels?
+			GameManager.mouseReleasedLeft = false; // consume pressed event, if mouse is over button
+		}
 		if (this.mouseDownOnButton === true) {
 			if (mouseOver && this.runMethod != null) { // button has been clicked
 				this.runMethod.apply(this, this.optionalArgs);
@@ -1081,6 +1095,27 @@ ImageButton.prototype.update = function () {
 		}
 	} else {
 		this.drawSurface = this.normalSurface;
+	}
+};
+
+ImageButton.prototype.addContextButton = function (imgName, runMethod = null, optionalArgs = null, additionalRequirement = null, additionalRequirementArgs = null) {
+	const normalSurface = GameManager.getImage("Interface/Menus/" + imgName);
+	const contextButton = new ImageButton(this.x - 40 * this.contextButtons.length - normalSurface.width, this.y, this.drawDepth, normalSurface, normalSurface, this.drawLayer, runMethod, optionalArgs, false);
+	contextButton.darkenedSurface = GameManager.getImage("Interface/Menus/P" + imgName);
+	contextButton.unavailableSurface = GameManager.getImage("Interface/Menus/N" + imgName);
+	contextButton.additionalRequirement = additionalRequirement;
+	contextButton.additionalRequirementArgs = additionalRequirementArgs;
+	contextButton.visible = false;
+	const parentButton = this;
+	contextButton.update = function () {
+		if (!parentButton.visible) {
+			this.visible = false;
+		}
+		ImageButton.prototype.update.call(this);
+	};
+	this.contextButtons.push(contextButton);
+	this.runMethod = function () {
+		this.contextButtons.forEach(btn => btn.visible = !btn.visible);
 	}
 };
 
@@ -1118,6 +1153,7 @@ function ImageButton(x, y, drawDepth, normalSurface, brightenedSurface, layer, r
 	} else if (this.darkenedSurface) {
 		this.rect = new Rect(this.darkenedSurface.width, this.darkenedSurface.height);
 	}
+	this.contextButtons = [];
 }
 
 /**
@@ -1436,4 +1472,14 @@ function getUrlParamCaseInsensitive(key, lowercaseValue) {
 		}
 	}
 	return null;
+}
+
+// Taken from https://stackoverflow.com/a/41553572
+function _try(func, fallbackValue) {
+	try {
+		const value = func();
+		return (value === null || value === undefined) ? fallbackValue : value;
+	} catch (e) {
+		return fallbackValue;
+	}
 }

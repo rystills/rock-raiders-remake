@@ -18,16 +18,6 @@ function loadScriptAsset(path, callback) {
 }
 
 /**
- * indicate that loading has finished, and display the total loading time
- */
-function finishLoading() {
-	// remove globals used during loading phase so as not to clutter the memory, if even only by a small amount
-	delete object;
-	console.log("RyConsole: Loading complete! Total load time: " + (new Date().getTime() / 1000 - startTime.getTime() / 1000).toFixed(2).toString() + " seconds.");
-	delete startTime;
-}
-
-/**
  * load an image asset from the input path, setting the callback function to the input callback
  * @param path: the path from which to load the image asset
  * @param name: the name that should be used when referencing the image in the GameManager images dict
@@ -39,23 +29,25 @@ function loadImageAsset(path, name, callback) {
 	img.onload = function () {
 		const context = createContext(img.naturalWidth, img.naturalHeight, false);
 		context.drawImage(img, 0, 0);
-		GameManager.images[name] = context;
+		GameManager.images[name.toLowerCase()] = context;
 		if (callback != null) {
 			callback();
 		}
 	};
 
-	GameManager.images[name] = img;
 	img.src = path;
+}
+
+function loadWadImageAsset(name, callback) {
+	loadImageAsset(wad0File.getEntry(name), name, callback);
 }
 
 /**
  * Adds an alpha channel to the bitmap by setting alpha to 0 for all black pixels
- * @param path
  * @param name
  * @param callback
  */
-function loadAlphaImageAsset(path, name, callback) {
+function loadAlphaImageAsset(name, callback) {
 	const img = new Image();
 
 	img.onload = function () {
@@ -68,22 +60,21 @@ function loadAlphaImageAsset(path, name, callback) {
 			}
 		}
 		context.putImageData(imgData, 0, 0);
-		GameManager.images[name] = context;
+		GameManager.images[name.toLowerCase()] = context;
 		if (callback != null) {
 			callback();
 		}
 	};
 
-	img.src = path;
+	img.src = wad0File.getEntry(name.toLowerCase());
 }
 
 /**
  * Adds an alpha channel to the image by setting alpha to 0 for all pixels, which have the same color as the pixel at position 0,0
- * @param path
  * @param name
  * @param callback
  */
-function loadFontImageAsset(path, name, callback) {
+function loadFontImageAsset(name, callback) {
 	const img = new Image();
 
 	img.onload = function () {
@@ -96,97 +87,157 @@ function loadFontImageAsset(path, name, callback) {
 			}
 		}
 		context.putImageData(imgData, 0, 0);
-		GameManager.fonts[name] = new BitmapFont(context);
+		GameManager.fonts[name.toLowerCase()] = new BitmapFont(context);
 		if (callback != null) {
 			callback();
 		}
 	};
 
-	img.src = path;
+	img.src = wad0File.getEntry(name);
 }
 
-function loadConfigurationAsset(path, name, callback) {
+function loadConfigurationAsset(buffer, callback) {
 	const result = {};
 	const ancestry = [];
 	let activeObject = result;
-	const xhr = new XMLHttpRequest();
-	xhr.open('GET', path, true);
-	xhr.responseType = 'arraybuffer'; // jQuery cant handle response type arraybuffer
-	xhr.onload = function () {
-		if (this.status === 200) {
-			const data = this.response;
-			const buffer = new Uint8Array(data);
-			let isComment = false;
-			let keyVal = 0; // 0 = looking for key, 1 = inside key, 1 = looking for value, 2 = inside value
-			let key = "";
-			let value = "";
-			// debug output is a bad idea here, buffer size is about 232.611 characters and has 6781 lines
-			for (let seek = 0; seek < buffer.length; seek++) {
-				let charCode = buffer[seek];
-				if (charCode === 123 && key === "FullName") { // dirty workaround but in the original file { (123) was used instead of Ä (142)
-					charCode = 142;
-				}
-				let charStr = String.fromCharCode(charCode);
-				if (charCode === 130) {
-					charStr = "ä";
-				} else if (charCode === 142) {
-					charStr = "Ä";
-				} else if (charCode === 162) {
-					charStr = "ö";
-				} else if (charCode === 167) {
-					charStr = "Ü";
-				} else if (charCode === 171) {
-					charStr = "ü";
-				} else if (charCode === 195) {
-					charStr = "ß";
-				}
-				if (charStr === ";") {
-					isComment = true;
-				} else if (charCode === 10 || charCode === 13) {
-					isComment = false;
-				}
-				if (!isComment) {
-					if (charCode > 32) { // not a whitespace
-						if (keyVal === 0) { // looking for key
-							if (charStr === "}") {
-								activeObject = ancestry.pop();
-							} else {
-								keyVal++;
-								key = charStr;
-							}
-						} else if (keyVal === 1) { // inside key
-							key += charStr;
-						} else if (keyVal === 2) { // looking for value
-							if (charStr === "{") { // start of a new object key is identifier
-								ancestry.push(activeObject);
-								activeObject = {};
-								ancestry[ancestry.length - 1][key] = activeObject;
-								keyVal = 0; // start looking for a key again
-							} else {
-								keyVal++;
-								value = charStr;
-							}
-						} else if (keyVal === 3) { // inside value
-							value += charStr;
-						}
-					} else { // some whitespace
-						if (keyVal === 1) {
-							keyVal++;
-						} else if (keyVal === 3) {
-							keyVal = 0;
-							const splitVal = value.replace(/\\/g, "/").split(/[:|]/);
-							activeObject[key] = splitVal.length > 1 ? splitVal : splitVal[0];
-						}
+	let isComment = false;
+	let keyVal = 0; // 0 = looking for key, 1 = inside key, 1 = looking for value, 2 = inside value
+	let key = "";
+	let value = "";
+	buffer = new Uint8Array(buffer);
+	// debug output is a bad idea here, buffer size is about 232.611 characters and has 6781 lines
+	for (let seek = 0; seek < buffer.length; seek++) {
+		let charCode = buffer[seek];
+		if (charCode === 123 && key === "FullName") { // dirty workaround but in the original file { (123) was used instead of Ä (142)
+			charCode = 142;
+		}
+		let charStr = String.fromCharCode(charCode);
+		if (charCode === 130) {
+			charStr = "ä";
+		} else if (charCode === 142) {
+			charStr = "Ä";
+		} else if (charCode === 162) {
+			charStr = "ö";
+		} else if (charCode === 167) {
+			charStr = "Ü";
+		} else if (charCode === 171) {
+			charStr = "ü";
+		} else if (charCode === 195) {
+			charStr = "ß";
+		}
+		if (charStr === ";") {
+			isComment = true;
+		} else if (charCode === 10 || charCode === 13) {
+			isComment = false;
+		}
+		if (!isComment) {
+			if (charCode > 32) { // not a whitespace
+				if (keyVal === 0) { // looking for key
+					if (charStr === "}") {
+						activeObject = ancestry.pop();
+					} else {
+						keyVal++;
+						key = charStr;
 					}
+				} else if (keyVal === 1) { // inside key
+					key += charStr;
+				} else if (keyVal === 2) { // looking for value
+					if (charStr === "{") { // start of a new object key is identifier
+						ancestry.push(activeObject);
+						activeObject = {};
+						ancestry[ancestry.length - 1][key] = activeObject;
+						keyVal = 0; // start looking for a key again
+					} else {
+						keyVal++;
+						value = charStr;
+					}
+				} else if (keyVal === 3) { // inside value
+					value += charStr;
 				}
-			}
-			GameManager.configuration = result;
-			if (callback != null) {
-				callback();
+			} else { // some whitespace
+				if (keyVal === 1) {
+					keyVal++;
+				} else if (keyVal === 3) {
+					keyVal = 0;
+					const splitVal = value.replace(/\\/g, "/");
+					activeObject[key] = splitVal.length > 1 ? splitVal : splitVal[0];
+				}
 			}
 		}
-	};
-	xhr.send();
+	}
+	GameManager.configuration = result;
+	if (callback != null) {
+		callback();
+	}
+}
+
+function loadNerpAsset(name, callback) {
+	name = name.replace(/.npl$/, ".nrn");
+	const buffer = wad0File.getEntryData(name);
+	const script = String.fromCharCode.apply(String, buffer);
+	GameManager.nerps[name] = NerpParser(script);
+	if (callback != null) {
+		callback();
+	}
+}
+
+function loadMapAsset(name, callback) {
+	const buffer = wad0File.getEntryData(name);
+	if (buffer.length < 13 || String.fromCharCode.apply(String, buffer.slice(0, 3)) !== "MAP") {
+		console.log("Invalid map data provided");
+		return;
+	}
+	const map = {width: buffer[8], height: buffer[12], level: []};
+	let row = [];
+	for (let seek = 16; seek < buffer.length; seek += 2) {
+		row.push(buffer[seek]);
+		if (row.length >= map.width) {
+			map.level.push(row);
+			row = [];
+		}
+	}
+	GameManager.maps[name] = map;
+	if (callback) {
+		callback();
+	}
+}
+
+function loadObjectListAsset(name, callback) {
+	const buffer = wad0File.getEntryData(name);
+	const lines = String.fromCharCode.apply(String, buffer).split("\n");
+	GameManager.objectLists[name] = [];
+	let currentObject = null;
+	for (let c = 0; c < lines.length; c++) {
+		const line = lines[c].trim();
+		const objectStartMatch = line.match(/(.+)\s+{/);
+		const drivingMatch = line.match(/driving\s+(.+)/);
+		if (line.length < 1 || line.startsWith(";") || line.startsWith("Lego*")) {
+			// ignore empty lines, comments and the root object
+		} else if (objectStartMatch) {
+			currentObject = {};
+			GameManager.objectLists[name][objectStartMatch[1]] = currentObject;
+		} else if (line === "}") {
+			currentObject = null;
+		} else if (drivingMatch) {
+			currentObject.driving = drivingMatch[1];
+		} else {
+			const split = line.split(/\s+/);
+			if (split.length !== 2 || currentObject === null) {
+				throw "Unexpected key value entry: " + line;
+			}
+			const key = split[0];
+			let val = split[1];
+			if (key === "xPos" || key === "yPos" || key === "heading") {
+				val = parseFloat(val);
+			} else if (key !== "type") {
+				throw "Unexpected key value entry: " + line;
+			}
+			currentObject[key] = val;
+		}
+	}
+	if (callback) {
+		callback();
+	}
 }
 
 /**
@@ -204,102 +255,216 @@ function loadSoundAsset(path, name, callback) {
 	}
 
 	if (callback != null) {
-		snd.oncanplay = callback(srcType); // FIXME this is NOT executed onload but immediately, callback() is an actual function call
+		snd.oncanplay = function () {
+			snd.oncanplay = null; // otherwise the callback is triggered multiple times
+			GameManager.sounds[name] = snd;
+			callback();
+		}
 	}
 
-	GameManager.sounds[name] = snd;
 	snd.src = path + srcType;
 }
 
+function updateLoadingScreen() {
+	updateLoadingScreen.totalResources = updateLoadingScreen.totalResources || 1;
+	updateLoadingScreen.curResource = updateLoadingScreen.curResource || 0;
+	const ctx = GameManager.canvas.getContext('2d');
+	const loadingImg = GameManager.getImage(GameManager.configuration["Lego*"]["Main"]["LoadScreen"]).canvas;
+	const screenZoom = ctx.canvas.width / loadingImg.width;
+	const loadingBarX = 142 * screenZoom;
+	const loadingBarY = 450 * screenZoom;
+	const loadingBarWidth = 353 * updateLoadingScreen.curResource / updateLoadingScreen.totalResources * screenZoom;
+	const loadingBarHeight = 9 * screenZoom;
+	ctx.drawImage(loadingImg, 0, 0, ctx.canvas.width, ctx.canvas.height);
+	ctx.drawImage(GameManager.getImage(GameManager.configuration["Lego*"]["Main"]["ProgressBar"]).canvas, loadingBarX, loadingBarY, loadingBarWidth, loadingBarHeight);
+}
+
+function onAssetLoaded(callback) {
+	return () => {
+		updateLoadingScreen.curResource++;
+		updateLoadingScreen();
+		callback();
+	};
+}
+
 /**
- * load in the asset file, to begin the chain of asset loading
+ * load in essential files, to begin the chain of asset loading
  */
-function loadAssetFile() {
+function startLoadingProcess() {
 	// begin loading assets
-	startTime = new Date();
-	loadScriptAsset("assets.js", loadRygame);
-}
-
-/**
- * load in the main rygame JS file
- * @returns
- */
-function loadRygame() {
-	console.log("RyConsole: 'assets.js' successfully loaded from directory '' as type 'js'");
-	assetObject = object;
-	this.object = null;
-
+	startLoadingProcess.startTime = new Date();
+	startLoadingProcess.assetsFromCfgByName = {};
 	setLoadingMessage("loading rygame.js");
-	loadScriptAsset("rygame.js", loadAssets);
+	Promise.all([
+		// load in the main rygame JS file
+		new Promise((resolve) => {
+			loadScriptAsset("rygame.js", () => {
+				console.log("RyConsole: 'rygame.js' successfully loaded from directory '' as type 'js'");
+				resolve();
+			});
+		})
+	]).then(() => {
+		new Promise((resolve) => {
+			// Load configuration file, which depends on the GameEngine
+			loadConfigurationAsset(wad1File.getEntryData("Lego.cfg"), resolve);
+		}).then(loadLoadingScreen);
+	});
 }
 
 /**
- * begin loading assets one by one from assets.js
+ * Load loading screen files, which are read from configuration
  */
-function loadAssets() {
-	console.log("RyConsole: 'rygame.js' successfully loaded from directory '' as type 'js'");
-	GameManager.scriptObjects["assets.js"] = assetObject;
-	assetObject = null;
-	this.object = null;
-	loadAssetNext();
+function loadLoadingScreen() { // loading screen resources
+	Promise.all([
+		new Promise((resolve) => {
+			const name = GameManager.configuration["Lego*"]["Main"]["LoadScreen"]; // loading screen image
+			loadWadImageAsset(name, () => {
+				updateLoadingScreen();
+				resolve();
+			});
+		}),
+		new Promise((resolve) => {
+			const name = GameManager.configuration["Lego*"]["Main"]["ProgressBar"]; // loading bar container image
+			loadWadImageAsset(name, resolve);
+		}),
+		new Promise((resolve) => {
+			loadScriptAsset("assets.js", () => { // a list of sequential loaded assets
+				console.log("RyConsole: 'assets.js' successfully loaded from directory '' as type 'js'");
+				resolve();
+			});
+		})
+	]).then(registerAllAssets);
 }
 
-/**
- * load the next asset from assets.js
- * @returns
- */
-function loadAssetNext() {
-	if (assetNum !== -1 && this.debug) {
-		console.log("RyConsole: '" + GameManager.scriptObjects["assets.js"].assets[assetNum][2] +
-			"' successfully loaded from directory '" + GameManager.scriptObjects["assets.js"].assets[assetNum][1] + "' as type '" +
-			GameManager.scriptObjects["assets.js"].assets[assetNum][0] + "'");
+function addAsset(method, assetName, optional = false) {
+	if (!assetName || startLoadingProcess.assetsFromCfgByName.hasOwnProperty(assetName.toLowerCase()) || assetName === "NULL") {
+		return; // do not load assets twice
 	}
-	if (lastScriptName !== "") {
-		// if the most recently loaded JS file contained an object, store it in the GameManager
-		if (object != null) {
-			GameManager.scriptObjects[lastScriptName] = object;
-			this.object = null;
-		}
-		lastScriptName = "";
+	if (assetName.length < 5) {
+		debugger;
 	}
-	assetNum++;
-	if (assetNum < GameManager.scriptObjects["assets.js"].assets.length) {
-		const curAsset = GameManager.scriptObjects["assets.js"].assets[assetNum];
-		if (overrideLoadingScreen) {
-			overrideLoadingScreen(assetNum, GameManager.scriptObjects["assets.js"].assets.length);
-		} else {
-			// update the loading text to the name of the next file, appending .ogg as the default extension for sound files
-			let loadString = "loading " + curAsset[2] + (curAsset[0] === "snd" ? ".ogg" : "");
-			// remove 'undefined' from the end of the loading string if it gets appended in the browser
-			if (loadString.slice(-9) === "undefined") {
-				loadString = loadString.slice(0, -9);
-			}
-			setLoadingMessage(loadString);
-		}
+	startLoadingProcess.assetsFromCfgByName[assetName] = {method: method, assetName: assetName, optional: optional};
+}
 
-		let appendString = "";
-		if (curAsset[1] !== "") {
-			appendString += curAsset[1] + "/";
+function registerAllAssets() {
+	// register static assets from asset.js
+	const sequentialAssetsByName = {};
+	object.assets.forEach((curAsset) => {
+		const assetName = curAsset[curAsset.length - 1].toLowerCase();
+		if (sequentialAssetsByName.hasOwnProperty(assetName)) {
+			console.log("Duplicate entry for " + assetName + " in asset.js");
+			return;
 		}
-		if (curAsset[0] === "js") {
-			lastScriptName = curAsset[2];
-			loadScriptAsset(appendString + curAsset[2], loadAssetNext);
-		} else if (curAsset[0] === "img") {
-			loadImageAsset(appendString + curAsset[2], curAsset[2].toLowerCase(), loadAssetNext);
-		} else if (curAsset[0] === "snd") {
-			loadSoundAsset(appendString + curAsset[2], curAsset[2], loadAssetNext);
-		} else if (curAsset[0] === "wad0bmp") {
-			loadImageAsset(wad0File.getEntry(curAsset[1]), curAsset[1].toLowerCase(), loadAssetNext);
-		} else if (curAsset[0] === "wad0alpha") {
-			loadAlphaImageAsset(wad0File.getEntry(curAsset[1]), curAsset[1].toLowerCase(), loadAssetNext);
-		} else if (curAsset[0] === "wad0font") {
-			loadFontImageAsset(wad0File.getEntry(curAsset[1]), curAsset[1].toLowerCase(), loadAssetNext);
-		} else if (curAsset[0] === "wad1txt") {
-			loadConfigurationAsset(wad1File.getEntry(curAsset[1]), curAsset[1], loadAssetNext);
+		sequentialAssetsByName[assetName] = curAsset;
+	});
+	registerAllAssets.sequentialAssets = Object.values(sequentialAssetsByName);
+	// dynamically register assets from config
+	const mainConf = GameManager.configuration["Lego*"];
+	// back button
+	addAsset(loadWadImageAsset, mainConf["InterfaceBackButton"].split(":").slice(2, 4).forEach(imgPath => {addAsset(loadWadImageAsset, imgPath)}));
+	// level files
+	Object.values(mainConf["Levels"]).forEach(levelConf => {
+		addAsset(loadMapAsset, levelConf["SurfaceMap"]);
+		addAsset(loadMapAsset, levelConf["PreDugMap"] || levelConf["PredugMap"]);
+		addAsset(loadMapAsset, levelConf["TerrainMap"]);
+		addAsset(loadMapAsset, levelConf["BlockPointersMap"], true);
+		addAsset(loadMapAsset, levelConf["CryOreMap"] || levelConf["CryoreMap"], true);
+		addAsset(loadMapAsset, levelConf["PathMap"], true);
+		addAsset(loadObjectListAsset, levelConf["OListFile"]);
+		addAsset(loadNerpAsset, levelConf["NERPFile"], true);
+		const menuConf = levelConf["MenuBMP"];
+		if (menuConf) {
+			menuConf.split(",").forEach((imgKey) => {
+				addAsset(loadAlphaImageAsset, imgKey);
+			});
 		}
+	});
+	// reward screen
+	const rewardConf = mainConf["Reward"];
+	addAsset(loadWadImageAsset, rewardConf["Wallpaper"]);
+	addAsset(loadFontImageAsset, rewardConf["BackFont"]);
+	Object.values(rewardConf["Fonts"]).forEach(imgPath => { addAsset(loadFontImageAsset, imgPath); });
+	Object.values(rewardConf["Images"]).forEach(img => { addAsset(loadAlphaImageAsset, img.split("|")[0]); });
+	Object.values(rewardConf["BoxImages"]).forEach(img => { addAsset(loadWadImageAsset, img.split("|")[0]); });
+	rewardConf["SaveButton"].split("|").slice(0, 4).forEach(imgPath => { addAsset(loadWadImageAsset, imgPath); });
+	rewardConf["AdvanceButton"].split("|").slice(0, 4).forEach(imgPath => { addAsset(loadWadImageAsset, imgPath); });
+	// icon panel buttons
+	Object.values(mainConf["InterfaceImages"]).forEach(entry => {
+		entry.split(":").slice(0, 3).forEach(imgPath => { addAsset(loadWadImageAsset, imgPath) });
+	});
+	Object.values(mainConf["InterfaceBuildImages"]).forEach(entry => {
+		entry.split(":").slice(0, -1).forEach(imgPath => { addAsset(loadWadImageAsset, imgPath) });
+	});
+	Object.values(mainConf["InterfaceSurroundImages"]).forEach(entry => {
+		addAsset(loadAlphaImageAsset, entry.split(":")[0]);
+		addAsset(loadAlphaImageAsset, entry.split(":")[5]);
+	});
+	// spaces
+	wad0File.filterEntryNames("World/WorldTextures/IceSplit/Ice..\\.bmp").forEach(imgPath => { addAsset(loadWadImageAsset, imgPath); });
+	wad0File.filterEntryNames("World/WorldTextures/LavaSplit/Lava..\\.bmp").forEach(imgPath => { addAsset(loadWadImageAsset, imgPath); });
+	wad0File.filterEntryNames("World/WorldTextures/RockSplit/Rock..\\.bmp").forEach(imgPath => { addAsset(loadWadImageAsset, imgPath); });
+	// start loading assets
+	loadSequentialAssets.assetsFromCfg = Object.values(startLoadingProcess.assetsFromCfgByName);
+	updateLoadingScreen.totalResources = registerAllAssets.sequentialAssets.length + loadSequentialAssets.assetsFromCfg.length;
+	loadSequentialAssets.assetIndex = 0;
+	loadSequentialAssets();
+}
+
+function onSequentialAssetLoaded() {
+	loadSequentialAssets.assetIndex++;
+	onAssetLoaded(loadSequentialAssets)();
+}
+
+function loadSequentialAssets() {
+	if (loadSequentialAssets.assetIndex >= registerAllAssets.sequentialAssets.length) {
+		loadAssetsParallel();
+		return;
+	}
+	const curAsset = registerAllAssets.sequentialAssets[loadSequentialAssets.assetIndex];
+	const assetName = curAsset[curAsset.length - 1];
+	const filename = curAsset[1] !== "" ? curAsset[1] + "/" + curAsset[2] : curAsset[2];
+	if (curAsset[0] === "js") {
+		loadScriptAsset(filename, onSequentialAssetLoaded);
+	} else if (curAsset[0] === "img") {
+		loadImageAsset(filename, assetName, onSequentialAssetLoaded);
+	} else if (curAsset[0] === "snd") {
+		loadSoundAsset(filename, assetName, onSequentialAssetLoaded);
+	} else if (curAsset[0] === "wad0bmp") {
+		loadWadImageAsset(assetName, onSequentialAssetLoaded);
+	} else if (curAsset[0] === "wad0alpha") {
+		loadAlphaImageAsset(assetName, onSequentialAssetLoaded);
+	} else if (curAsset[0] === "wad0font") {
+		loadFontImageAsset(assetName, onSequentialAssetLoaded);
+	} else if (curAsset[0] === "wad0nerp") {
+		loadNerpAsset(filename, onSequentialAssetLoaded);
 	} else {
-		finishLoading();
+		throw "Unknown key " + curAsset[0] + ", can't load: " + curAsset.join(", ");
 	}
+}
+
+function loadAssetsParallel() {
+	const promises = [];
+	loadSequentialAssets.assetsFromCfg.forEach((asset) => {
+		promises.push(new Promise((resolve) => {
+			try {
+				asset.method(asset.assetName, onAssetLoaded(resolve));
+			} catch (e) {
+				if (!asset.optional) {
+					throw e;
+				}
+				onAssetLoaded(resolve)();
+			}
+		}));
+	});
+	Promise.all(promises).then(() => {
+		// main game file (put last as this contains the main game loop)
+		loadScriptAsset("rockRaiders.js", () => {
+			// indicate that loading has finished, and display the total loading time
+			console.log("RyConsole: Loading of about " + updateLoadingScreen.totalResources + " assets complete! Total load time: " + ((new Date().getTime() - startLoadingProcess.startTime.getTime()) / 1000).toFixed(2).toString() + " seconds.");
+			// remove globals used during loading phase so as not to clutter the memory, if even only by a small amount
+			delete object;
+		});
+	});
 }
 
 /**
@@ -389,6 +554,28 @@ WadHandler.prototype.getEntry = function (entryName) {
 	throw "Entry '" + entryName + "' not found in wad file";
 };
 
+WadHandler.prototype.getEntryData = function (entryName) {
+	const lEntryName = entryName.toLowerCase();
+	for (let i = 0; i < this.entries.length; i++) {
+		if (this.entries[i] === lEntryName) {
+			return this.buffer.slice(this.fStart[i], this.fStart[i] + this.fLength[i]);
+		}
+	}
+	throw "Entry '" + entryName + "' not found in wad file";
+};
+
+WadHandler.prototype.filterEntryNames = function (regexStr) {
+	const regex = new RegExp(regexStr.toLowerCase());
+	const result = [];
+	for (let c = 0; c < this.entries.length; c++) {
+		const entry = this.entries[c];
+		if (entry.toLowerCase().match(regex)) {
+			result.push(entry);
+		}
+	}
+	return result;
+};
+
 /**
  * Handles the extraction of single files from a bigger WAD data blob
  * @param buffer A data blob which contains the raw data in one piece
@@ -415,7 +602,7 @@ function startGameFileLocal() {
  */
 function startGameUrl() {
 	setLoadingMessage("Downloading WAD files... please wait", 20, loadingCanvas.height - 30);
-	const antiCorsPrefix = "https://cors-anywhere.herokuapp.com/"; // BAD IDEA! This enables MID attacks! But it's just a game... and nobody cares...
+	const antiCorsPrefix = "https://cors-anywhere.herokuapp.com/"; // BAD IDEA! This enables MITM attacks! But it's just a game... and nobody cares...
 	loadWadFiles(antiCorsPrefix + document.getElementById('wad0-url').value, antiCorsPrefix + document.getElementById('wad1-url').value);
 }
 
@@ -430,7 +617,7 @@ function loadWadFiles(wad0Url, wad1Url) {
 		wad0File = wadFiles[0];
 		wad1File = wadFiles[1];
 		storeFilesInCache();
-		loadAssetFile();
+		startLoadingProcess();
 	});
 }
 
@@ -480,7 +667,7 @@ function startWithCachedFiles(onerror) {
 				}
 				wad1File = new WadHandler(); // class info are runtime info and not stored in cache => use copy constructor
 				for (let prop in request2.result) wad1File[prop] = request2.result[prop];
-				loadAssetFile();
+				startLoadingProcess();
 			};
 		};
 	});
@@ -500,10 +687,8 @@ overrideLoadingScreen = null;
 // Any JS file containing an object named 'object' will have the contents of that object stored in GameManager.scriptObjects
 // if the file contains additional code, it will still be executed immediately as normal. Example: object = { list : [0,1,7] };
 object = null;
-let assetObject = null;
+assetObject = null;
 
-let assetNum = -1;
-let lastScriptName = "";
 let wad0File;
 let wad1File;
 

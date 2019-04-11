@@ -61,7 +61,7 @@ Dynamite.prototype.detonate = function () {
 	if (this.target.isWall) {
 		this.tasksToClear = [];
 		this.tasksToClear.push(this.target);
-		this.target.makeRubble(true, this);
+		this.target.makeRubble(4, this);
 		this.updateCompletedBy();
 	}
 	const centX = this.centerX();

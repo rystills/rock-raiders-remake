@@ -19,9 +19,9 @@ const drawDepthMonster = 700;
 const drawDepthLandslide = 600;
 const drawDepthHealthBar = 500;
 
-const drawDepthGuiBackground = 400;
-const drawDepthGuiBitmaps = 450; // like collected crystals/ore
-const drawDepthGuiTexts = 400; // like crystal/ore amount
+const drawDepthIconButtonPanelBackground = 475;
+const drawDepthIconButtonPanelButtons = 450;
+const drawDepthCrystalSideBar = 400;
 
 const drawDepthPauseBackground = 300;
 const drawDepthPauseButtons = 250;
@@ -356,56 +356,58 @@ function calculatePath(terrain, startSpace, goalSpace, returnAllSolutions, raide
  * @returns boolean whether a resource of the desired type is available (true) or not (false)
  */
 function resourceAvailable(resourceType) {
-	return (collectedResources[resourceType] - reservedResources[resourceType]) > 0;
+	return (RockRaiders.rightPanel.resources[resourceType] - reservedResources[resourceType]) > 0;
 }
 
 /**
  * load in level data from input level name, reading from all supported map file types
- * @param name: the name of the level file, minus the file extension
+ * @param levelKey: the identifier for the level
  */
-function loadLevelData(name) {
-	levelName = name;
-	const terrainMapName = "Surf_" + levelName + ".js";
-	const cryoreMapName = "Cror_" + levelName + ".js";
-	const olFileName = levelName + ".js";
-	const predugMapName = "Dugg_" + levelName + ".js";
-	const surfaceMapName = "High_" + levelName + ".js";
-	const pathMapName = "path_" + levelName + ".js";
-	const fallinMapName = "Fall_" + levelName + ".js";
+function loadLevelData(levelKey) {
+	RockRaiders.currentLevelKey = levelKey;
+	const levelConf = RockRaiders.levelConf[levelKey];
+	RockRaiders.themeName = levelConf["TextureSet"].split("::")[1];
+	const terrainMapName = levelConf["TerrainMap"];
+	const cryoreMapName = levelConf["CryOreMap"] || levelConf["CryoreMap"]; // typos... typos everywhere
+	const olFileName = levelConf["OListFile"];
+	const predugMapName = levelConf["PreDugMap"] || levelConf["PredugMap"];
+	const surfaceMapName = levelConf["SurfaceMap"];
+	const pathMapName = levelConf["PathMap"];
+	const fallinMapName = levelConf["FallinMap"];
 
 	// load in Space types from terrain, surface, and path maps
-	for (let i = 0; i < GameManager.scriptObjects[terrainMapName].level.length; i++) {
+	for (let i = 0; i < GameManager.maps[terrainMapName].level.length; i++) {
 		terrain.push([]);
-		for (let r = 0; r < GameManager.scriptObjects[terrainMapName].level[i].length; r++) {
+		for (let r = 0; r < GameManager.maps[terrainMapName].level[i].length; r++) {
 
 			// give the path map the highest priority, if it exists
-			if (GameManager.scriptObjects[pathMapName] && GameManager.scriptObjects[pathMapName].level[i][r] === 1) {
+			if (GameManager.maps[pathMapName] && GameManager.maps[pathMapName].level[i][r] === 1) {
 				// rubble 1 Space id = 100
-				terrain[i].push(new Space(100, i, r, GameManager.scriptObjects[surfaceMapName].level[i][r]));
-			} else if (GameManager.scriptObjects[pathMapName] && GameManager.scriptObjects[pathMapName].level[i][r] === 2) {
+				terrain[i].push(new Space(100, i, r, GameManager.maps[surfaceMapName].level[i][r]));
+			} else if (GameManager.maps[pathMapName] && GameManager.maps[pathMapName].level[i][r] === 2) {
 				// building power path Space id = -1
-				terrain[i].push(new Space(-1, i, r, GameManager.scriptObjects[surfaceMapName].level[i][r]));
+				terrain[i].push(new Space(-1, i, r, GameManager.maps[surfaceMapName].level[i][r]));
 			} else {
-				if (GameManager.scriptObjects[predugMapName].level[i][r] === 0) {
+				if (GameManager.maps[predugMapName].level[i][r] === 0) {
 					// soil(5) was removed pre-release, so replace it with dirt(4)
-					if (GameManager.scriptObjects[terrainMapName].level[i][r] === 5) {
-						terrain[i].push(new Space(4, i, r, GameManager.scriptObjects[surfaceMapName].level[i][r]));
+					if (GameManager.maps[terrainMapName].level[i][r] === 5) {
+						terrain[i].push(new Space(4, i, r, GameManager.maps[surfaceMapName].level[i][r]));
 					} else {
-						terrain[i].push(new Space(GameManager.scriptObjects[terrainMapName].level[i][r], i, r, GameManager.scriptObjects[surfaceMapName].level[i][r]));
+						terrain[i].push(new Space(GameManager.maps[terrainMapName].level[i][r], i, r, GameManager.maps[surfaceMapName].level[i][r]));
 					}
-				} else if (GameManager.scriptObjects[predugMapName].level[i][r] === 3 || GameManager.scriptObjects[predugMapName].level[i][r] === 4) {
-					terrain[i].push(new Space(GameManager.scriptObjects[predugMapName * 10].level[i][r], i, r, GameManager.scriptObjects[surfaceMapName].level[i][r]));
-				} else if (GameManager.scriptObjects[predugMapName].level[i][r] === 1 || GameManager.scriptObjects[predugMapName].level[i][r] === 2) {
-					if (GameManager.scriptObjects[terrainMapName].level[i][r] === 6) {
-						terrain[i].push(new Space(6, i, r, GameManager.scriptObjects[surfaceMapName].level[i][r]));
-					} else if (GameManager.scriptObjects[terrainMapName].level[i][r] === 9) {
-						terrain[i].push(new Space(9, i, r, GameManager.scriptObjects[surfaceMapName].level[i][r]));
+				} else if (GameManager.maps[predugMapName].level[i][r] === 3 || GameManager.maps[predugMapName].level[i][r] === 4) { // slug holes
+					terrain[i].push(new Space(GameManager.maps[predugMapName].level[i][r] * 10, i, r, GameManager.maps[surfaceMapName].level[i][r]));
+				} else if (GameManager.maps[predugMapName].level[i][r] === 1 || GameManager.maps[predugMapName].level[i][r] === 2) {
+					if (GameManager.maps[terrainMapName].level[i][r] === 6) {
+						terrain[i].push(new Space(6, i, r, GameManager.maps[surfaceMapName].level[i][r]));
+					} else if (GameManager.maps[terrainMapName].level[i][r] === 9) {
+						terrain[i].push(new Space(9, i, r, GameManager.maps[surfaceMapName].level[i][r]));
 					} else {
-						terrain[i].push(new Space(0, i, r, GameManager.scriptObjects[surfaceMapName].level[i][r]));
+						terrain[i].push(new Space(0, i, r, GameManager.maps[surfaceMapName].level[i][r]));
 					}
 				}
 
-				const currentCryOre = GameManager.scriptObjects[cryoreMapName].level[i][r];
+				const currentCryOre = GameManager.maps[cryoreMapName].level[i][r];
 				if (currentCryOre % 2 === 1) {
 					terrain[i][r].containedCrystals = (currentCryOre + 1) / 2;
 				} else {
@@ -416,8 +418,8 @@ function loadLevelData(name) {
 	}
 
 	// ensure that any walls which do not meet the 'supported' requirement crumble at the start
-	for (let i = 0; i < GameManager.scriptObjects[predugMapName].level.length; i++) {
-		for (let r = 0; r < GameManager.scriptObjects[predugMapName].level[i].length; r++) {
+	for (let i = 0; i < GameManager.maps[predugMapName].level.length; i++) {
+		for (let r = 0; r < GameManager.maps[predugMapName].level[i].length; r++) {
 			if (terrain[i][r].isWall) {
 				terrain[i][r].checkWallSupported(null, true);
 			}
@@ -425,9 +427,9 @@ function loadLevelData(name) {
 	}
 
 	// 'touch' all exposed spaces in the predug map so that they appear as visible from the start
-	for (let i = 0; i < GameManager.scriptObjects[predugMapName].level.length; i++) {
-		for (let r = 0; r < GameManager.scriptObjects[predugMapName].level[i].length; r++) {
-			const currentPredug = GameManager.scriptObjects[predugMapName].level[i][r];
+	for (let i = 0; i < GameManager.maps[predugMapName].level.length; i++) {
+		for (let r = 0; r < GameManager.maps[predugMapName].level[i].length; r++) {
+			const currentPredug = GameManager.maps[predugMapName].level[i][r];
 			if (currentPredug === 1 || currentPredug === 3) {
 				touchAllAdjacentSpaces(terrain[i][r]);
 			}
@@ -435,24 +437,24 @@ function loadLevelData(name) {
 	}
 
 	// add land-slide frequency to Spaces
-	if (GameManager.scriptObjects[fallinMapName]) {
-		for (let i = 0; i < GameManager.scriptObjects[fallinMapName].level.length; i++) {
-			for (let r = 0; r < GameManager.scriptObjects[fallinMapName].level[i].length; r++) {
-				terrain[i][r].setLandSlideFrequency(GameManager.scriptObjects[fallinMapName].level[i][r]);
+	if (GameManager.maps[fallinMapName]) {
+		for (let i = 0; i < GameManager.maps[fallinMapName].level.length; i++) {
+			for (let r = 0; r < GameManager.maps[fallinMapName].level[i].length; r++) {
+				terrain[i][r].setLandSlideFrequency(GameManager.maps[fallinMapName].level[i][r]);
 			}
 		}
 	}
 
 	// load in non-space objects next
-	for (let olObjectName in GameManager.scriptObjects[olFileName]) {
-		const olObject = GameManager.scriptObjects[olFileName][olObjectName];
+	const objectList = GameManager.objectLists[olFileName];
+	Object.values(objectList).forEach(function (olObject) {
 		if (olObject.type === "TVCamera") {
 			// coords need to be rescaled since 1 unit in LRR is 1, but 1 unit in the remake is tileSize (128)
 			gameLayer.cameraX = olObject.xPos * tileSize;
 			gameLayer.cameraY = olObject.yPos * tileSize;
 			// center the camera
-			gameLayer.cameraX -= parseInt(GameManager.screenWidth / 2, 10);
-			gameLayer.cameraY -= parseInt(GameManager.screenHeight / 2, 10);
+			gameLayer.cameraX -= GameManager.screenWidth / 2;
+			gameLayer.cameraY -= GameManager.screenHeight / 2;
 		} else if (olObject.type === "Pilot") {
 			// note inverted x/y coords for terrain list
 			const newRaider = new Raider(terrain[parseInt(olObject.yPos, 10)][parseInt(olObject.xPos, 10)]);
@@ -490,8 +492,11 @@ function loadLevelData(name) {
 			// check if this building's power path space was in a wall, but should now be touched
 			checkRevealSpace(currentSpace.powerPathSpace);
 			currentSpace.powerPathSpace.setTypeProperties("building power path");
+		} else {
+			// TODO implement remaining object types like: spider, drives and hovercraft
+			console.log("Object type " + olObject.type + " not yet implemented");
 		}
-	}
+	});
 }
 
 /**
@@ -603,13 +608,21 @@ function createVehicle(vehicleType) {
 	cancelSelection();
 }
 
+function changeIconPanel(targetIconPanel = RockRaiders.mainIconPanel) {
+	if (RockRaiders.activeIconPanel !== targetIconPanel) {
+		RockRaiders.activeIconPanel.hide();
+		RockRaiders.activeIconPanel = targetIconPanel;
+		RockRaiders.activeIconPanel.show();
+	}
+}
+
 /**
  * cancel the current selection, setting selection to an empty list and selectionType to null, and closing any open menus
  */
 function cancelSelection() {
 	selection = [];
 	selectionType = null;
-	activeIconPanel = "";
+	changeIconPanel();
 }
 
 function setSelectionByMouseCursor() {
@@ -661,8 +674,8 @@ function checkUpdateClickSelection() {
 	if (GameManager.mouseReleasedLeft && !mousePressIsSelection) {
 		setSelectionByMouseCursor();
 		// automatically close tool menu if a raider is no longer selected
-		if (selectionType !== "raider" && activeIconPanel === "tool") {
-			activeIconPanel = "";
+		if (selectionType !== "raider" && RockRaiders.activeIconPanel === RockRaiders.raiderIconPanel) {
+			changeIconPanel(RockRaiders.mainIconPanel);
 		}
 	}
 }
@@ -1025,6 +1038,26 @@ function drillWall() {
 	cancelSelection();
 }
 
+function stopDrillWall() {
+	if (selection.length === 0) {
+		return;
+	}
+	for (let i = 0; i < selection.length; i++) {
+		// reset visuals and priority
+		selection[i].taskPriority = 0;
+		selection[i].drillDummy.visible = false;
+		selection[i].reinforceDummy.visible = false;
+		selection[i].dynamiteDummy.visible = false;
+		// remove from available tasks
+		const curIndex = tasksAvailable.indexOf(selection[i]);
+		if (curIndex !== -1) {
+			tasksAvailable.splice(curIndex, -1);
+		}
+		// TODO remove task from raiders too
+	}
+	cancelSelection();
+}
+
 /**
  * if the currently selected space is sweepable, set it to be cleared of rubble
  */
@@ -1065,6 +1098,7 @@ function upgradeBuilding() {
 	for (let i = 0; i < selection.length; ++i) {
 		selection[i].upgrade();
 	}
+	cancelSelection();
 }
 
 /**
@@ -1143,11 +1177,11 @@ function getTool(toolName) {
  * pause or unpause the game
  */
 function togglePauseGame() {
-	paused = !paused;
+	RockRaiders.paused = !RockRaiders.paused;
 }
 
 function unpauseGame() {
-	paused = false;
+	RockRaiders.paused = false;
 }
 
 /**
@@ -1367,74 +1401,6 @@ function drawBuildingSiteMaterials() {
 }
 
 /**
- * draw all UI components
- */
-function drawUI() {
-	let selectionString = selectionType;
-	if (powerPathSpaceTypes.indexOf(selectionString) !== -1) {
-		selectionString = "power path";
-	}
-	if (selectionType != null && this.debug) {
-		GameManager.setFontSize(36);
-		GameManager.drawSurface.fillText("Selection Type: " + selectionString + (selection.length === 1 ?
-			(selection[0].isBuilding === true && selection[0].touched === true ? " lvl " + selection[0].upgradeLevel : "") :
-			(" x " + selection.length)), 8, 592);
-	}
-
-	// draw crystal and ore overlay
-	const crystalSideBarImage = GameManager.getImage("Interface/RightPanel/CrystalSideBar.bmp").canvas;
-	GameManager.drawSurface.drawImage(crystalSideBarImage, GameManager.screenWidth - crystalSideBarImage.width, 0);
-
-	// don't draw buttons when buildingPlacer is active
-	if (!buildingPlacer.visible) {
-		let numButtons = (activeIconPanel === "" && (selection === undefined || selection.length <= 0)) ? 4 : 2; // FIXME derive number of buttons from opened menu
-		const woBack = (activeIconPanel === "" && (selection === undefined || selection.length <= 0)) ? "WOBack" : "";
-		const imgName = "Interface/IconPanel/IconPanel" + numButtons.toString() + woBack + ".bmp";
-		let imgIconPanel = GameManager.getImage(imgName).canvas;
-		GameManager.drawSurface.drawImage(imgIconPanel, GameManager.screenWidth - 16 - imgIconPanel.width, 8);
-		// attempt to draw buttons here so that they are rendered in front of other post-render graphics
-		for (let i = 0; i < buttons.objectList.length; ++i) {
-			buttons.objectList[i].render(GameManager);
-		}
-	}
-
-	// draw crystals
-	let curX = GameManager.screenWidth - 8;
-	let curY = GameManager.screenHeight - 32;
-	const imgNoCrystal = GameManager.getImage("Interface/RightPanel/NoSmallCrystal.bmp").canvas;
-	const imgSmallCrystal = GameManager.getImage("Interface/RightPanel/SmallCrystal.bmp").canvas;
-	const imgUsedCrystal = GameManager.getImage("Interface/RightPanel/UsedCrystal.bmp").canvas;
-	for (let i = 0; i < parseInt(GameManager.scriptObjects["Info_" + levelName + ".js"].objective[1][1]) && curY >= -Math.max(imgNoCrystal.height, imgSmallCrystal.height, imgUsedCrystal.height); ++i) {
-		let imgCrystal = imgNoCrystal;
-		// TODO show used crystals
-		if (collectedResources["crystal"] > i) {
-			imgCrystal = imgSmallCrystal;
-		}
-		curY -= imgCrystal.height;
-		GameManager.drawSurface.drawImage(imgCrystal, curX - imgCrystal.width / 2, curY);
-	}
-
-	// draw ore
-	curX = GameManager.screenWidth - 21;
-	curY = GameManager.screenHeight - 42;
-	const imgOre = GameManager.getImage("Interface/RightPanel/CrystalSideBar_Ore.bmp").canvas;
-	for (let i = 0; i < collectedResources["ore"] && curY >= -imgOre.height; ++i) {
-		curY -= imgOre.height;
-		GameManager.drawSurface.drawImage(imgOre, curX - imgOre.width / 2, curY);
-	}
-
-	// draw ore and crystal text
-	GameManager.setTextAlign("center");
-	GameManager.setFontWeight("bold");
-	GameManager.setFontSize(10);
-	GameManager.drawSurface.fillStyle = "white";
-	GameManager.drawSurface.fillText(collectedResources["ore"], GameManager.screenWidth - 39, GameManager.screenHeight - 3);
-	GameManager.drawSurface.fillText(collectedResources["crystal"], GameManager.screenWidth - 14, GameManager.screenHeight - 3);
-	GameManager.setFontWeight("");
-	GameManager.setTextAlign("start");
-}
-
-/**
  * draw held tools and skills for each raider
  */
 function drawRaiderInfo() {
@@ -1589,7 +1555,7 @@ function drawAwaitingStartInstructions() {
  * draw pause screen instructions
  */
 function drawPauseInstructions() {
-	if (paused) {
+	if (RockRaiders.paused) {
 		dimScreen(.4);
 		GameManager.drawSurface.globalAlpha = 1.0;
 		GameManager.drawSurface.fillStyle = "rgb(65, 218, 255)";
@@ -1612,40 +1578,33 @@ function drawPauseInstructions() {
  * @returns boolean whether the mouse is hovering over a GUI object (true) or not (false)
  */
 function mouseOverGUI() {
-	for (let i = 0; i < buttons.objectList.length; i++) {
-		// use mouseDownOnButton rather than releasedThisFrame because button activates on mouse release, whereas task selection here activates on mouse press
-		if (buttons.objectList[i].visible && collisionPoint(GameManager.mousePos.x, GameManager.mousePos.y,
-			buttons.objectList[i], buttons.objectList[i].affectedByCamera)) {
-			return true;
-		}
-	}
-	return false;
+	const mPos = GameManager.mousePos;
+	// check color alpha value under mouse position, if not 0 there is some GUI element below the cursor
+	return uiLayer.drawSurface.getImageData(mPos.x, mPos.y, 1, 1).data[3] > 0;
 }
 
 /**
- * open or close the buildings menu
+ * open the buildings menu
  */
 function openBuildingMenu() {
-	if (activeIconPanel === "building") {
-		activeIconPanel = "";
-	} else {
-		// this clears selection and sets activeIconPanel to ""
-		cancelSelection();
-		activeIconPanel = "building";
-	}
+	cancelSelection();
+	changeIconPanel(RockRaiders.buildIconPanel);
 }
 
 /**
- * open or close the vehicles menu
+ * open the small vehicles menu
  */
-function openVehicleMenu() {
-	if (activeIconPanel === "vehicle") {
-		activeIconPanel = "";
-	} else {
-		// this clears selection and sets activeIconPanel to ""
-		cancelSelection();
-		activeIconPanel = "vehicle";
-	}
+function openSmallVehicleMenu() {
+	cancelSelection();
+	changeIconPanel(RockRaiders.smallVehicleIconPanel);
+}
+
+/**
+ * open the large vehicles menu
+ */
+function openLargeVehicleMenu() {
+	cancelSelection();
+	changeIconPanel(RockRaiders.largeVehicleIconPanel);
 }
 
 /**
@@ -1660,26 +1619,13 @@ function exitVehicle() {
 }
 
 /**
- * open or close the tools menu
- */
-function openToolMenu() {
-	if (selectionType === "raider") {
-		if (activeIconPanel === "tool") {
-			activeIconPanel = "";
-		} else {
-			activeIconPanel = "tool";
-		}
-	}
-}
-
-/**
  * determine whether or not the requirements are met in order to begin building a building of the input type
  * @param buildingType: the type of building for which we need to know the requirements
  * @returns boolean whether the necessary requirements are met to begin building the desired buildingType (true) or not (false)
  */
 function buildRequirementsMet(buildingType) {
 	let buildingRequirements = [];
-	// buildings
+	// buildings TODO read this from config
 	if (buildingType === "teleport pad") {
 		buildingRequirements = ["tool store"];
 	} else if (buildingType === "docks") {
@@ -1700,11 +1646,19 @@ function buildRequirementsMet(buildingType) {
 		buildingRequirements = ["tool store", "teleport pad", "power station", "support station"];
 	}
 
-	// vehicles
+	// vehicles TODO read this from config
 	else if (buildingType === "hover scout") {
-		buildingRequirements = [];
+		buildingRequirements = ["support station"];
 	} else if (buildingType === "small digger") {
-		buildingRequirements = [];
+		buildingRequirements = ["support station"];
+	} else if (buildingType === "small transport truck") {
+		buildingRequirements = ["support station"];
+	} else if (buildingType === "small catamaran") {
+		buildingRequirements = ["docks", "support station"];
+	} else if (buildingType === "small mwp") {
+		buildingRequirements = ["teleport pad:2", "support station"];
+	} else if (buildingType === "small heli") {
+		buildingRequirements = ["teleport pad:2", "support station"];
 	}
 
 	for (let i = 0; i < buildingRequirements.length; ++i) {
@@ -1728,6 +1682,7 @@ function buildRequirementsMet(buildingType) {
  * @param buildingType: the type of building that the buildingPlacer should place
  */
 function startBuildingPlacer(buildingType) {
+	// TODO remove obsolete duplicate check
 	// buttons now take care of this check, but it can't hurt to check it one more time here
 	if (buildRequirementsMet(buildingType)) {
 		buildingPlacer.start(buildingType);
@@ -1737,85 +1692,87 @@ function startBuildingPlacer(buildingType) {
 }
 
 /**
- * create all in-game buttons once here
+ * create all in-game GUI elements once here
  */
-function createButtons() {
-	const buttonsX = gameLayer.width - 76;
-	// FIXME organize buttons as menus, use ImageButton with original bitmaps
-	// base level buttons
-	buttons.push(new Button(buttonsX, 17, 0, 0, "Interface/Icons/minifigures.bmp", gameLayer, "", createRaider, false, false));
-	buttons.push(new Button(buttonsX, 57, 0, 0, "Interface/Menus/building.bmp", gameLayer, "", openBuildingMenu, false, false));
-	buttons.push(new Button(buttonsX, 97, 0, 0, "Interface/Menus/SMvehicle.bmp", gameLayer, "", openVehicleMenu, false, false));
-	buttons.push(new Button(buttonsX, 137, 0, 0, "Interface/Menus/BIGvehicle.bmp", gameLayer, "", null, false, false));
+RockRaidersGame.prototype.createGUIElements = function () {
+	this.mainIconPanel = new IconButtonPanel();
+	this.mainIconPanel.addButton("Interface/Icons", "minifigures.bmp", createRaider, null);
+	this.mainIconPanel.addButton("Interface/Menus", "building.bmp", openBuildingMenu);
+	this.mainIconPanel.addButton("Interface/Menus", "SMvehicle.bmp", openSmallVehicleMenu);
+	this.mainIconPanel.addButton("Interface/Menus", "BIGvehicle.bmp", openLargeVehicleMenu);
+	this.mainIconPanel.updateBackgroundImage();
 
-	// if selectionTypeBound is an empty list, the button will be visible for all selections except when selection == null
-	const iconPanelBackButton = new ImageButton(buttonsX - 31, 22, 0, null, GameManager.getImage("Interface/IconPanel/Back_HL.bmp"), gameLayer, cancelSelection);
-	iconPanelBackButton.darkenedSurface = GameManager.getImage("Interface/IconPanel/Back_PR.bmp");
-	iconPanelBackButton.additionalRequirement = function () {
-		return !(activeIconPanel === "" && (selection === undefined || selection.length <= 0));
-	};
-	buttons.push(iconPanelBackButton);
-	// 6 pixel boundary between general purpose buttons and selection specific buttons
+	this.buildIconPanel = new IconButtonPanel(changeIconPanel);
+	this.buildIconPanel.addButton("Interface/Icons", "ToolStation.bmp", startBuildingPlacer, ["tool store"], buildRequirementsMet, ["tool store"]);
+	this.buildIconPanel.addButton("Interface/Icons", "SMteleport.bmp", startBuildingPlacer, ["teleport pad"], buildRequirementsMet, ["teleport pad"]);
+	this.buildIconPanel.addButton("Interface/Icons", "dock.bmp", startBuildingPlacer, ["docks"], buildRequirementsMet, ["docks"]);
+	this.buildIconPanel.addButton("Interface/Icons", "PowerStation.bmp", startBuildingPlacer, ["power station"], buildRequirementsMet, ["power station"]);
+	this.buildIconPanel.addButton("Interface/Icons", "barracks.bmp", startBuildingPlacer, ["support station"], buildRequirementsMet, ["support station"]);
+	this.buildIconPanel.addButton("Interface/Icons", "Upgrade.bmp", startBuildingPlacer, ["upgrade station"], buildRequirementsMet, ["upgrade station"]);
+	this.buildIconPanel.addButton("Interface/Icons", "Geo.bmp", startBuildingPlacer, ["geological center"], buildRequirementsMet, ["geological center"]);
+	this.buildIconPanel.addButton("Interface/Icons", "Orerefinery.bmp", startBuildingPlacer, ["ore refinery"], buildRequirementsMet, ["ore refinery"]);
+	this.buildIconPanel.addButton("Interface/Icons", "Gunstation.bmp", startBuildingPlacer, ["mining laser"], buildRequirementsMet, ["mining laser"]);
+	this.buildIconPanel.addButton("Interface/Icons", "LargeTeleporter.bmp", startBuildingPlacer, ["super teleport"], buildRequirementsMet, ["super teleport"]);
+	this.buildIconPanel.updateBackgroundImage();
 
-	// building menu open buttons
-	buttons.push(new Button(buttonsX, 17, 0, 0, "make ToolStation.png", gameLayer, "", startBuildingPlacer, false, false, null,
-		["building"], ["tool store"], true, true, null, buildRequirementsMet, ["tool store"]));
-	buttons.push(new Button(buttonsX, 57, 0, 0, "make SMteleport.png", gameLayer, "", startBuildingPlacer, false, false, null,
-		["building"], ["teleport pad"], true, true, null, buildRequirementsMet, ["teleport pad"]));
-	buttons.push(new Button(buttonsX, 97, 0, 0, "make docks.png", gameLayer, "", startBuildingPlacer, false, false, null,
-		["building"], ["docks"], true, true, null, buildRequirementsMet, ["docks"]));
-	buttons.push(new Button(buttonsX, 137, 0, 0, "make PowerStation.png", gameLayer, "", startBuildingPlacer, false, false, null,
-		["building"], ["power station"], true, true, null, buildRequirementsMet, ["power station"]));
-	buttons.push(new Button(buttonsX, 177, 0, 0, "make barracks.png", gameLayer, "", startBuildingPlacer, false, false, null,
-		["building"], ["support station"], true, true, null, buildRequirementsMet, ["support station"]));
-	buttons.push(new Button(buttonsX, 217, 0, 0, "make Upgrade.png", gameLayer, "", startBuildingPlacer, false, false, null,
-		["building"], ["upgrade station"], true, true, null, buildRequirementsMet, ["upgrade station"]));
-	buttons.push(new Button(buttonsX, 257, 0, 0, "make Geo.png", gameLayer, "", startBuildingPlacer, false, false, null,
-		["building"], ["geological center"], true, true, null, buildRequirementsMet, ["geological center"]));
-	buttons.push(new Button(buttonsX, 297, 0, 0, "make Orerefinery.png", gameLayer, "", startBuildingPlacer, false, false, null,
-		["building"], ["ore refinery"], true, true, null, buildRequirementsMet, ["ore refinery"]));
-	buttons.push(new Button(buttonsX, 337, 0, 0, "make Gunstation.png", gameLayer, "", startBuildingPlacer, false, false, null,
-		["building"], ["mining laser"], true, true, null, buildRequirementsMet, ["mining laser"]));
-	buttons.push(new Button(buttonsX, 377, 0, 0, "make LargeTeleporter.png", gameLayer, "", startBuildingPlacer, false, false, null,
-		["building"], ["super teleport"], true, true, null, buildRequirementsMet, ["super teleport"]));
+	this.smallVehicleIconPanel = new IconButtonPanel(changeIconPanel);
+	this.smallVehicleIconPanel.addButton("Interface/Icons", "hoverboard.bmp", createVehicle, ["hover scout"], buildRequirementsMet, ["hover scout"]);
+	this.smallVehicleIconPanel.addButton("Interface/Icons", "SmallTruck.bmp", createVehicle, ["small digger"], buildRequirementsMet, ["small digger"]);
+	this.smallVehicleIconPanel.addButton("Interface/Icons", "SmallDigger.bmp", createVehicle, ["small transport truck"], buildRequirementsMet, ["small transport truck"]);
+	this.smallVehicleIconPanel.addButton("Interface/Icons", "SmallCat.bmp", createVehicle, ["small catamaran"], buildRequirementsMet, ["small catamaran"]);
+	this.smallVehicleIconPanel.addButton("Interface/Icons", "SmallMWP.bmp", createVehicle, ["small mwp"], buildRequirementsMet, ["small mwp"]);
+	this.smallVehicleIconPanel.addButton("Interface/Icons", "SmallHeli.bmp", createVehicle, ["small heli"], buildRequirementsMet, ["small heli"]);
+	this.smallVehicleIconPanel.updateBackgroundImage();
 
-	// vehicle menu open buttons
-	buttons.push(new Button(buttonsX, 17, 0, 0, "Interface/Icons/hoverboard.bmp", gameLayer, "", createVehicle, false, false, null,
-		["vehicle"], ["hover scout"], true, true, null, buildRequirementsMet, ["hover scout"]));
-	buttons.push(new Button(buttonsX, 57, 0, 0, "Interface/Icons/SmallDigger.bmp", gameLayer, "", createVehicle, false, false, null,
-		["vehicle"], ["small digger"], true, true, null, buildRequirementsMet, ["small digger"]));
-	buttons.push(new Button(buttonsX, 97, 0, 0, "Interface/Icons/SmallTruck.bmp", gameLayer, "", createVehicle, false, false, null,
-		["vehicle"], ["small transport truck"], true, true, null, buildRequirementsMet, ["small transport truck"]));
+	this.largeVehicleIconPanel = new IconButtonPanel(changeIconPanel);
+	this.largeVehicleIconPanel.addButton("Interface/Icons", "Bulldozer.bmp");
+	this.largeVehicleIconPanel.addButton("Interface/Icons", "WalkerDigger.bmp");
+	this.largeVehicleIconPanel.addButton("Interface/Icons", "LargeMWP.bmp");
+	this.largeVehicleIconPanel.addButton("Interface/Icons", "largeDigger.bmp");
+	this.largeVehicleIconPanel.addButton("Interface/Icons", "LargeCatamaran.bmp");
+	this.largeVehicleIconPanel.updateBackgroundImage();
 
 	// raider selected buttons
-	buttons.push(new Button(buttonsX, 17, 0, 0, "Interface/Menus/STOPeverything.bmp", gameLayer, "", stopMinifig, false, false, ["raider"], ["", "tool"]));
-	buttons.push(new Button(buttonsX, 57, 0, 0, "Interface/Menus/UnloadMinifigure.bmp", gameLayer, "", unloadMinifig, false, false, ["raider"], ["", "tool"]));
-	buttons.push(new Button(buttonsX, 97, 0, 0, "getTool.png", gameLayer, "", openToolMenu, false, false, ["raider"], ["", "tool"]));
-	buttons.push(new Button(buttonsX, 137, 0, 0, "Interface/Menus/Upgrade.bmp", gameLayer, "", upgradeRaider, false, false, ["raider"], ["", "tool"]));
-	buttons.push(new Button(buttonsX, 177, 0, 0, "Interface/Menus/exit.bmp", gameLayer, "", exitVehicle, false, false, ["raider"], ["", "tool"]));
+	this.raiderIconPanel = new IconButtonPanel(cancelSelection);
+	this.raiderIconPanel.addButton("Interface/Menus", "Sandwich.bmp");
+	this.raiderIconPanel.addButton("Interface/Menus", "UnloadMinifigure.bmp", unloadMinifig);
+	this.raiderIconPanel.addButton("Interface/Menus", "MF_Pickup.bmp");
+	const getToolButton = this.raiderIconPanel.addButton("Interface/Priorities", "getTool.bmp");
+	this.raiderIconPanel.addButton("Interface/Menus", "Upgrade.bmp", upgradeRaider);
+	const trainAsButton = this.raiderIconPanel.addButton("Interface/Menus", "TrainAs.bmp");
+	this.raiderIconPanel.addButton("Interface/Menus", "delete.bmp", function () {
+		unloadMinifig();
+		exitVehicle();
+		for (let c = 0; c < selection.length; c++) {
+			selection[c].die();
+		}
+	});
+	this.raiderIconPanel.updateBackgroundImage();
 
 	// get tool buttons
-	buttons.push(new Button(buttonsX - 40, 97, 0, 0, "get_Drill.png", gameLayer, "", getTool, false, false, ["raider"], ["tool"], ["drill"]));
-	buttons.push(new Button(buttonsX - 80, 97, 0, 0, "get_Hammer.png", gameLayer, "", getTool, false, false, ["raider"], ["tool"], ["hammer"]));
-	buttons.push(new Button(buttonsX - 120, 97, 0, 0, "get_Shovel.png", gameLayer, "", getTool, false, false, ["raider"], ["tool"], ["shovel"]));
-	buttons.push(new Button(buttonsX - 160, 97, 0, 0, "get_Wrench.png", gameLayer, "", getTool, false, false, ["raider"], ["tool"], ["wrench"]));
-	buttons.push(new Button(buttonsX - 200, 97, 0, 0, "get_Freezer.png", gameLayer, "", getTool, false, false, ["raider"], ["tool"], ["freezer"]));
-	buttons.push(new Button(buttonsX - 240, 97, 0, 0, "get_Pusher.png", gameLayer, "", getTool, false, false, ["raider"], ["tool"], ["pusher"]));
-	buttons.push(new Button(buttonsX - 280, 97, 0, 0, "get_Laser.png", gameLayer, "", getTool, false, false, ["raider"], ["tool"], ["laser"]));
-	buttons.push(new Button(buttonsX - 320, 97, 0, 0, "get_Sonic_Blaster.png", gameLayer, "", getTool, false, false, ["raider"], ["tool"], ["blaster"]));
+	getToolButton.addContextButton("get_Drill.bmp", getTool, ["drill"]);
+	getToolButton.addContextButton("get_Spade.bmp", getTool, ["shovel"]);
+	getToolButton.addContextButton("get_Hammer.bmp", getTool, ["hammer"]);
+	getToolButton.addContextButton("get_Spanner.bmp", getTool, ["wrench"]);
+	getToolButton.addContextButton("Gun_freeze.bmp", getTool, ["freezer"]);
+	getToolButton.addContextButton("Gun_Pusher.bmp", getTool, ["pusher"]);
+	getToolButton.addContextButton("Gun_lazer.bmp", getTool, ["laser"]);
+	getToolButton.addContextButton("get_BirdScarer.bmp", getTool, ["blaster"]);
 
-	// item selected buttons
-	buttons.push(new Button(buttonsX, 17, 0, 0, "Interface/Menus/MF_Pickup.bmp", gameLayer, "", grabItem, false, false,
-		["ore", "crystal"]));
+	// train as buttons
+	trainAsButton.addContextButton("Train_Explosives.bmp");
+	trainAsButton.addContextButton("Train_Pilot.bmp");
+	trainAsButton.addContextButton("Train_Sailor.bmp");
+	trainAsButton.addContextButton("Train_Driver.bmp");
+	trainAsButton.addContextButton("Train_Engineer.bmp");
+	trainAsButton.addContextButton("Train_Geologist.bmp");
 
 	// drillable wall selected buttons
-	const drillButton = new Button(buttonsX, 17, 0, 0, "Interface/Menus/drill.bmp", gameLayer, "", drillWall, false, false,
-		["dirt", "loose rock", "ore seam", "energy crystal seam", "hard rock"]);
-	buttons.push(drillButton);
-	drillButton.additionalRequirement = function () {
+	this.wallIconPanel = new IconButtonPanel(cancelSelection);
+	this.wallIconPanel.addButton("Interface/Menus", "drill.bmp", drillWall, null, function () {
 		if (selection[0].type === "hard rock") {
-			for (let i = 0; i < vehicles.objectList.length; i++) {
-				if (vehicles.objectList[i].canDrillHard) {
+			for (let c = 0; c < vehicles.objectList.length; c++) {
+				if (vehicles.objectList[c].canDrillHard) {
 					return true;
 				}
 			}
@@ -1823,165 +1780,82 @@ function createButtons() {
 		} else {
 			return true;
 		}
-	};
-
-	// re-inforcable wall selected
-	const reinforceButton = new Button(buttonsX, 57, 0, 0, "Interface/Menus/Reinforce.bmp", gameLayer, "", reinforceWall, false, false,
-		["dirt", "loose rock", "hard rock", "ore seam", "energy crystal seam"]);
-	buttons.push(reinforceButton);
-	reinforceButton.additionalRequirement = function () {
+	});
+	this.wallIconPanel.addButton("Interface/Menus", "Reinforce.bmp", reinforceWall, null, function () {
 		return selection[0] && !(selection[0].reinforced) && selection[0].shapeIndex === 0;
-	};
-
-	// dynamitable wall selected buttons
-	buttons.push(new Button(buttonsX, 97, 0, 0, "Interface/Menus/dynamite.bmp", gameLayer, "", dynamiteWall, false, false,
-		["dirt", "loose rock", "hard rock", "ore seam", "energy crystal seam"]));
+	});
+	this.wallIconPanel.addButton("Interface/Menus", "dynamite.bmp", dynamiteWall, null, function () {
+		// TODO test if demolition is available or tool store level >= 2 to train one
+		return true;
+	});
+	this.wallIconPanel.addButton("Interface/Menus", "stopdrill.bmp", stopDrillWall);
+	this.wallIconPanel.updateBackgroundImage();
 
 	// floor Space selected buttons
-	buttons.push(new Button(buttonsX, 17, 0, 0, "Interface/Menus/buildpath.bmp", gameLayer, "", buildPowerPath, false, false, ["ground"]));
-	const digupPathButton = new Button(buttonsX, 57, 0, 0, "Interface/Menus/diguppath.bmp", gameLayer, "", null, false, false, ["ground", "power path"]);
-	digupPathButton.additionalRequirement = function () {
+	this.groundIconPanel = new IconButtonPanel(cancelSelection);
+	this.groundIconPanel.addButton("Interface/Menus", "buildpath.bmp", buildPowerPath);
+	this.groundIconPanel.addButton("Interface/Menus", "diguppath.bmp", null, null, function () {
+		return selectionType === "power path"; // seems obsolete, but is also in the original game
+	});
+	this.groundIconPanel.addButton("Interface/Icons", "efence.bmp", null, null, function () { return false; });
+	this.groundIconPanel.updateBackgroundImage();
+
+	// power path selection buttons
+	this.powerPathIconPanel = new IconButtonPanel(cancelSelection);
+	this.powerPathIconPanel.addButton("Interface/Menus", "diguppath.bmp", function () {
+		selection[0].makeRubble(2, null, true);
+	}, null, function () {
 		return selectionType === "power path";
-	};
-	buttons.push(digupPathButton);
+	});
+	this.powerPathIconPanel.addButton("Interface/Icons", "efence.bmp", null, null, function () { return false; });
+	this.powerPathIconPanel.updateBackgroundImage();
 
 	// rubble selection buttons
-	buttons.push(new Button(buttonsX, 17, 0, 0, "Interface/Menus/ClearRubble.bmp", gameLayer, "", clearRubble, false, false,
-		["rubble 1", "rubble 2", "rubble 3", "rubble 4"]));
+	this.rubbleIconPanel = new IconButtonPanel(cancelSelection);
+	this.rubbleIconPanel.addButton("Interface/Menus", "ClearRubble.bmp", clearRubble);
+	this.rubbleIconPanel.addButton("Interface/Icons", "efence.bmp", null, null, function () { return false; });
+	this.rubbleIconPanel.updateBackgroundImage();
 
 	// building selection buttons
-	buttons.push(new Button(buttonsX, 17, 0, 0, "Interface/Menus/Upgrade.bmp", gameLayer, "", upgradeBuilding, false, false,
-		["tool store", "teleport pad", "power station", "docks", "geological center", "support station",
-			"super teleport", "mining laser", "upgrade station", "ore refinery"], null, null, true, true, null, function () {
-			if (selection) {
-				for (let c = 0; c < selection.length; c++) {
-					if (selection[c].isUpgradeable()) return true;
-				}
-			}
-			return false;
-		}));
-	buttons.push(new Button(buttonsX, 57, 0, 0, "Interface/Menus/telepbuilding.bmp", gameLayer, "", null, false, false,
-		["tool store", "teleport pad", "power station", "docks", "geological center", "support station",
-			"super teleport", "mining laser", "upgrade station", "ore refinery"]));
+	this.buildingIconPanel = new IconButtonPanel(cancelSelection);
+	this.buildingIconPanel.addButton("Interface/Menus", "Upgrade.bmp", upgradeBuilding, null, function () {
+		for (let c = 0; c < selection.length; c++) {
+			if (selection[c].isUpgradeable()) return true;
+		}
+		return false;
+	});
+	this.buildingIconPanel.addButton("Interface/Menus", "telepbuilding.bmp", function () {
+		for (let c = 0; c < selection.length; c++) {
+			// TODO drop ores and crystals
+			// TODO remove building
+		}
+	});
+	this.buildingIconPanel.updateBackgroundImage();
 
-	pauseButtons.push(new Button(100, gameLayer.height / 2 - 50, 0, 0, null, gameLayer, "Continue", unpauseGame, false, false));
-	pauseButtons.push(new Button(100, gameLayer.height / 2 + 50, 0, 0, null, gameLayer, "Abort Mission", showScoreScreen, false, false, null, null, ["quit"]));
-}
+	this.buildingSiteIconPanel = new IconButtonPanel(cancelSelection);
+	this.buildingSiteIconPanel.addButton("Interface/Menus", "STOPbuilding.bmp");
+	this.buildingSiteIconPanel.updateBackgroundImage();
+
+	this.rightPanel = new CrystalSideBar();
+
+	pauseButtons.push(new Button(100, uiLayer.height / 2 - 50, 0, 0, null, uiLayer, "Continue", unpauseGame, false, false));
+	pauseButtons.push(new Button(100, uiLayer.height / 2 + 50, 0, 0, null, uiLayer, "Abort Mission", showScoreScreen, false, false, null, null, ["quit"]));
+};
 
 /**
- * return whether or not level levelNum has been unlocked
+ * return boolean whether or not level targetLevelKey has been unlocked
  */
-function levelIsUnlocked(levelNum) {
-	// tutorial levels
-	if (levelNum === 0) {
+function levelIsUnlocked(targetLevelKey) {
+	const openByDefault = RockRaiders.levelConf[targetLevelKey]["FrontEndOpen"];
+	if (openByDefault && openByDefault === "TRUE") {
 		return true;
 	}
-	if (levelNum < 8) {
-		return getLevelScore(levelNum - 1) != null;
-	}
-
-	// main levels
-	if (levelNum === 8) {
-		return true;
-	}
-	if (levelNum < 11) {
-		return getLevelScore(8) != null;
-	}
-	if (levelNum < 14) {
-		const levelScore9 = getLevelScore(9);
-		const levelScore10 = getLevelScore(10);
-		if (levelNum === 11) {
-			return levelScore9 != null;
+	RockRaiders.levelLinks[targetLevelKey].forEach((parentKey) => {
+		if (getLevelScore(parentKey) == null) {
+			return false;
 		}
-		if (levelNum === 12) {
-			return levelScore9 != null || levelScore10 != null;
-		}
-		if (levelNum === 13) {
-			return levelScore10 != null;
-		}
-	}
-	if (levelNum < 16) {
-		const levelScore11 = getLevelScore(11);
-		const levelScore12 = getLevelScore(12);
-		const levelScore13 = getLevelScore(13);
-		if (levelNum === 14) {
-			return levelScore11 != null && levelScore12 != null;
-		}
-		if (levelNum === 15) {
-			return levelScore12 != null && levelScore13 != null;
-		}
-	}
-	if (levelNum === 16) {
-		const levelScore14 = getLevelScore(14);
-		const levelScore15 = getLevelScore(15);
-		return levelScore14 != null && levelScore15 != null;
-	}
-	if (levelNum < 19) {
-		const levelScore16 = getLevelScore(16);
-		return levelScore16 != null
-	}
-	if (levelNum < 22) {
-		const levelScore17 = getLevelScore(17);
-		const levelScore18 = getLevelScore(18);
-		if (levelNum === 19) {
-			return levelScore17 != null
-		}
-		if (levelNum === 20) {
-			return levelScore17 != null || levelScore18 != null;
-		}
-		if (levelNum === 21) {
-			return levelScore18 != null
-		}
-	}
-	if (levelNum < 24) {
-		const levelScore19 = getLevelScore(19);
-		const levelScore20 = getLevelScore(20);
-		const levelScore21 = getLevelScore(21);
-		if (levelNum === 22) {
-			return levelScore19 != null && levelScore20 != null;
-		}
-		if (levelNum === 23) {
-			return levelScore20 != null && levelScore21 != null;
-		}
-	}
-	if (levelNum === 24) {
-		const levelScore22 = getLevelScore(22);
-		const levelScore23 = getLevelScore(23);
-		return levelScore22 != null && levelScore23 != null;
-	}
-	if (levelNum < 27) {
-		const levelScore24 = getLevelScore(24);
-		return levelScore24 != null
-	}
-	if (levelNum < 30) {
-		const levelScore25 = getLevelScore(25);
-		const levelScore26 = getLevelScore(26);
-		if (levelNum === 27) {
-			return levelScore25 != null
-		}
-		if (levelNum === 28) {
-			return levelScore25 != null || levelScore26 != null;
-		}
-		if (levelNum === 29) {
-			return levelScore26 != null
-		}
-	}
-	if (levelNum < 32) {
-		const levelScore27 = getLevelScore(27);
-		const levelScore28 = getLevelScore(28);
-		const levelScore29 = getLevelScore(29);
-		if (levelNum === 30) {
-			return levelScore27 != null && levelScore28 != null;
-		}
-		if (levelNum === 31) {
-			return levelScore28 != null && levelScore29 != null;
-		}
-	}
-	if (levelNum === 32) {
-		const levelScore30 = getLevelScore(30);
-		const levelScore31 = getLevelScore(31);
-		return levelScore30 != null && levelScore31 != null;
-	}
+	});
+	return true;
 }
 
 /**
@@ -2001,7 +1875,7 @@ function createMainMenuLayers() {
 		mainMenuLayers[menuKey].configuration = confMenu;
 		const fontLow = GameManager.getFont(confMenu["LoFont"]);
 		const fontHigh = GameManager.getFont(confMenu["HiFont"]);
-		let position = confMenu["Position"];
+		let position = confMenu["Position"].split(":");
 		const mainX = parseInt(position[0]);
 		const mainY = parseInt(position[1]);
 		const autoCenter = confMenu["AutoCenter"] === "TRUE";
@@ -2013,7 +1887,7 @@ function createMainMenuLayers() {
 			if (m === 0 && c === itemCount - 1) { // TODO better use menu identifier/key?
 				continue; // ignore last entry (Exit Game) in main menu
 			}
-			const itemArgs = confMenu["Item" + (c + 1)];
+			const itemArgs = confMenu["Item" + (c + 1)].split(":");
 			const menuFunc = itemArgs[0] === "Next" ? goToMenu : null;
 			const itemX = mainX + parseInt(itemArgs[1]);
 			const itemY = mainY + parseInt(itemArgs[2]);
@@ -2047,62 +1921,66 @@ function createMainMenuLayers() {
 	}
 }
 
-function finalizeLevelSelectLayer() {
+RockRaidersGame.prototype.finalizeLevelSelectLayer = function () {
 	levelSelectLayer = mainMenuLayers["Menu2"];
 	const allLevelsConf = GameManager.configuration["Lego*"]["Levels"];
-	levelSelectLayer.levels = {};
 
 	const menuConf = GameManager.configuration["Lego*"]["Menu"];
 	const levelTextConf = menuConf["LevelText"];
 	const window = [];
-	levelTextConf["Window"].forEach(function (val) {
+	levelTextConf["Window"].split("|").forEach(function (val) {
 		window.push(parseInt(val))
 	});
-	const panel = levelTextConf["Panel"];
+	const panel = levelTextConf["Panel"].split("|");
 	const winPanel = new WindowPanel(panel[1], panel[2], 50, GameManager.getImage(panel[0]), levelSelectLayer, window[0], window[1], window[2], window[3]);
 	const font = GameManager.getFont("Interface/Fonts/Font5_Hi.bmp");
 	winPanel.setFirstLine(font, levelTextConf["Level"]);
 
+	const that = this;
 	Object.keys(allLevelsConf).forEach(function (levelKey) {
 		if (!(levelKey.startsWith("Tutorial") || levelKey.startsWith("Level"))) {
-			return;
+			return; // ignore duplicate levels
 		}
-		const levelConf = allLevelsConf[levelKey];
-		levelSelectLayer.levels[levelKey] = {conf: levelConf};
-		const frontendX = levelConf["FrontEndX"];
-		const frontendY = levelConf["FrontEndY"];
-		let menuBmp = levelConf["MenuBMP"];
-		if (!(menuBmp)) {
-			return;
+		that.levelConf[levelKey] = allLevelsConf[levelKey];
+		const levelLinks = that.levelConf[levelKey]["LevelLinks"];
+		if (levelLinks) {
+			levelLinks.split(",").forEach((childLevel) => {
+				// the current level is added as a dependency link to all child levels
+				const childKey = childLevel.replace(/^Levels::/, "").trim();
+				that.levelLinks[childKey] = that.levelLinks[childKey] || [];
+				that.levelLinks[childKey].push(levelKey);
+			});
 		}
-		const bitmaps = menuBmp.split(",");
-		const brightenedSurface = GameManager.getImage(bitmaps[0]);
-		const normalSurface = GameManager.getImage(bitmaps[1]);
-		const fullName = levelConf["FullName"];
-		const levelIndex = levelKey.startsWith("Tutorial") ? parseInt(fullName.charAt(0)) - 1 : parseInt(levelKey.slice(-2)) + 7; // TODO should be obsolete, once level data handling is refactored
-		levelSelectLayer.levels[levelKey].btn = new ImageButton(frontendX, frontendY, 100, normalSurface, brightenedSurface, levelSelectLayer, resetLevelVars, [GameManager.scriptObjects["levelList.js"].levels[levelIndex]], true);
-		levelSelectLayer.levels[levelKey].btn.unavailableSurface = GameManager.getImage(bitmaps[2]);
-		levelSelectLayer.levels[levelKey].btn.additionalRequirement = levelIsUnlocked;
-		levelSelectLayer.levels[levelKey].btn.additionalRequirementArgs = [levelIndex];
-		levelSelectLayer.levels[levelKey].btn.mouseEnterCallback = function () {
+		that.levelConf[levelKey].NerpRunner = GameManager.nerps[that.levelConf[levelKey]["NERPFile"].replace(".npl", ".nrn")];
+		const frontendX = that.levelConf[levelKey]["FrontEndX"];
+		const frontendY = that.levelConf[levelKey]["FrontEndY"];
+		const menuBitmaps = that.levelConf[levelKey]["MenuBMP"].split(",");
+		const normalSurface = GameManager.getImage(menuBitmaps[1]);
+		const brightenedSurface = GameManager.getImage(menuBitmaps[0]);
+		const btn = new ImageButton(frontendX, frontendY, 100, normalSurface, brightenedSurface, levelSelectLayer, resetLevelVars, [levelKey], true);
+		btn.unavailableSurface = GameManager.getImage(menuBitmaps[2]);
+		btn.additionalRequirement = levelIsUnlocked;
+		btn.additionalRequirementArgs = [levelKey];
+		btn.mouseEnterCallback = function () {
 			let appendix = "";
-			const levelScore = getLevelScore(levelIndex);
+			const levelScore = getLevelScore(levelKey);
 			if (levelScore != null) {
 				appendix = " l " + menuConf["Level_Completed"] + " (" + levelScore + ")"
 			}
-			winPanel.setSecondLine(font, fullName + appendix);
+			winPanel.setSecondLine(font, that.levelConf[levelKey]["FullName"] + appendix);
 		};
-		levelSelectLayer.levels[levelKey].btn.mouseLeaveCallback = function () {
+		btn.mouseLeaveCallback = function () {
 			winPanel.setSecondLine(font, menuConf["Level_Incomplete"]);
 		}
 	});
-}
+};
 
 function goToMenu(menuKey) {
 	if (menuLayer !== null) {
 		menuLayer.active = false;
 	}
 	gameLayer.active = false;
+	uiLayer.active = false;
 	menuLayer = mainMenuLayers[menuKey];
 	menuLayer.active = true;
 	menuLayer.cameraY = 0;
@@ -2150,16 +2028,15 @@ function toggleFog(button) {
 }
 
 function unlockAllLevels() {
-	for (let level = 0; level < GameManager.scriptObjects["levelList.js"].levels.length; ++level) {
-		const levelName = GameManager.scriptObjects["levelList.js"].levels[level];
-		setLevelScore(0, levelName);
-	}
+	Object.keys(RockRaiders.levelConf).forEach(function (levelKey) {
+		setLevelScore(0, levelKey);
+	});
 }
 
 function clearData() {
-	for (let i = 0; i < GameManager.scriptObjects["levelList.js"].levels.length; ++i) {
-		localStorage.removeItem(GameManager.scriptObjects["levelList.js"].levels[i]);
-	}
+	Object.keys(RockRaiders.levelConf).forEach(function (levelKey) {
+		localStorage.removeItem(levelKey);
+	});
 	localStorage.removeItem("fog");
 	localStorage.removeItem("mousePanning");
 	localStorage.removeItem("debug");
@@ -2176,9 +2053,9 @@ function stopAllSounds() {
 
 /**
  * reset all non-constant game variables for the start of a new level
- * @param name: the name of the level to switch to
+ * @param levelKey: the name of the level to switch to
  */
-function resetLevelVars(name) {
+function resetLevelVars(levelKey) {
 	if (!GameManager.devMode) {
 		blockPageExit();
 	}
@@ -2186,14 +2063,15 @@ function resetLevelVars(name) {
 	levelSelectLayer.active = false;
 	scoreScreenLayer.active = false;
 	gameLayer.active = true;
+	uiLayer.active = true;
 	musicPlayer.changeTrack();
-	collectedResources = {"ore": 0, "crystal": 0};
 	reservedResources = {"ore": 0, "crystal": 0};
 	selectionRectCoords = {x1: null, y1: null};
 	selection = [];
 	mousePressStartPos = {x: 1, y: 1};
 	mousePressIsSelection = false;
-	activeIconPanel = "";
+	RockRaiders.activeIconPanel = RockRaiders.mainIconPanel;
+	RockRaiders.mainIconPanel.setVisible(true);
 	selectionType = null;
 	for (let i = 0; i < terrain.length; ++i) {
 		for (let r = 0; r < terrain[i].length; ++r) {
@@ -2214,10 +2092,13 @@ function resetLevelVars(name) {
 	selectionRectPointList = [];
 	selectionRectCoordList = [];
 	awaitingStart = true;
-	paused = false;
+	RockRaiders.paused = false;
 	holdingPKey = false;
 	holdingEscKey = false;
-	loadLevelData(name);
+	loadLevelData(levelKey);
+	RockRaiders.rightPanel.init(_try(() => parseInt(RockRaiders.levelConf[levelKey]["Reward"]["Quota"]["Crystals"])));
+	// lets be fair and make this the last operation
+	RockRaiders.levelStartTime = new Date();
 }
 
 /**
@@ -2243,7 +2124,7 @@ function getValue(name, valueDefault) {
 /**
  * initialize global game-related constants
  */
-function initGlobals() {
+function RockRaidersGame() {
 	tileSize = 128;
 	scrollDistance = 10;
 	scrollSpeed = 20;
@@ -2252,25 +2133,27 @@ function initGlobals() {
 	// if true, this creates the "fog of war" type effect where unrevealed Spaces appear as solid rock (should only be set to false for debugging purposes)
 	maskUntouchedSpaces = getValue("fog") !== "false";
 	// can we scroll the screen using the mouse?
-	mousePanning = getValue("mousePanning", !GameManager.devMode);
+	mousePanning = getValue("mousePanning", (!GameManager.devMode).toString()) === "true";
 	// can we scroll the screen using the arrow keys?
 	keyboardPanning = true;
 	// should the game render any active debug info?
 	debug = getValue("debug") === "true";
+	this.levelConf = {};
+	this.levelLinks = {};
 
 	mainMenuLayers = {};
 	menuLayer = null;
 	levelSelectLayer = null;
 	gameLayer = new Layer(0, 0, 1, 1, GameManager.screenWidth, GameManager.screenHeight);
+	uiLayer = new Layer(0, 0, 0, 0, GameManager.screenWidth, GameManager.screenHeight);
 	musicPlayer = new MusicPlayer();
 	musicPlayer.changeTrack("menu theme");
-	buttons = new ObjectGroup();
 	pauseButtons = new ObjectGroup();
 	// create all in-game UI buttons initially, as there is no reason to load and unload these
-	createButtons();
+	this.createGUIElements();
 	// create all menu buttons
 	createMainMenuLayers();
-	finalizeLevelSelectLayer();
+	this.finalizeLevelSelectLayer();
 	scoreScreenLayer = new ScoreScreenLayer(GameManager.configuration["Lego*"]["Reward"]);
 	mainMenuLayers["Reward"] = scoreScreenLayer;
 	GameManager.drawSurface.font = "48px Arial";
@@ -2315,54 +2198,35 @@ function initGlobals() {
 }
 
 /**
- * check if the current level objective has been accomplished. If it has, transition to the score screen.
- */
-function checkAccomplishedObjective() {
-	let won = false;
-	const objective = GameManager.scriptObjects["Info_" + levelName + ".js"].objective;
-	if (objective[0] === "collect") {
-		won = (collectedResources[objective[1][0]] >= parseInt(objective[1][1]));
-	} else if (objective[0] === "build") {
-		for (let i = 0; i < buildings.length; i++) {
-			if (buildings[i].type === objective[1][0]) {
-				won = true;
-				break;
-			}
-		}
-	}
-	if (won) {
-		showScoreScreen("completed");
-	}
-}
-
-/**
  * determine the level score from 0-100 based off off several factors, including resources collected, oxygen remaining, and time taken
  * @returns number the calculated level score
  */
 function calculateLevelScore() {
-	return Math.round(100 * Math.min(1, (collectedResources["ore"] / 30) * .5 + (collectedResources["crystal"] / 5) * .5));
+	return Math.round(100 * Math.min(1, (RockRaiders.rightPanel.resources["ore"] / 30) * .5 + (RockRaiders.rightPanel.resources["crystal"] / 5) * .5));
 }
 
 /**
  * update the level dict and local storage var for the current level to reflect the player's highest score
  * @param score: the newly achieved level score (may or may not be the all-time high-score)
- * @param name: Optional name to set level score, defaults to current level
+ * @param levelKey: Optional name to set level score, defaults to current level
  */
-function setLevelScore(score, name = levelName) {
-	const prevScore = getValue(name, null);
+function setLevelScore(score, levelKey) {
+	const prevScore = getValue(levelKey, null);
 	if (prevScore == null || prevScore < score) {
-		setValue(name, score);
+		setValue(levelKey, score);
 	}
 }
 
-function getLevelScore(level) {
-	return getValue(GameManager.scriptObjects["levelList.js"].levels[level], null);
+function getLevelScore(levelKey) {
+	return getValue(levelKey, null);
 }
 
 /**
  * switch to the score-screen layer
  */
 function showScoreScreen(missionState) {
+	// lets be fair and stop the timer first
+	const timeElapsedMs = new Date() - RockRaiders.levelStartTime;
 	goToMenu("Reward");
 	musicPlayer.changeTrack("score screen");
 	stopAllSounds();
@@ -2372,21 +2236,38 @@ function showScoreScreen(missionState) {
 	let levelScore = 0;
 	if (missionState === "completed") {
 		levelScore = calculateLevelScore();
-		setLevelScore(levelScore);
+		setLevelScore(levelScore, RockRaiders.currentLevelKey);
 	}
 	// TODO use actual values from level information
-	scoreScreenLayer.setValues(missionState, "Some Mission", 0, 0, 0, 0, 0, 0, 0, 0, 0, levelScore);
+	const levelConf = RockRaiders.levelConf[RockRaiders.currentLevelKey];
+	const maxCrystals = RockRaiders.rightPanel.neededCrystals !== 0 ? RockRaiders.rightPanel.neededCrystals : 25; // TODO replace 25 with number of crystals from level information
+	const crystals = Math.min(RockRaiders.rightPanel.resources["crystal"] * 100 / maxCrystals, 100);
+	scoreScreenLayer.setValues(missionState, levelConf["FullName"], crystals, 0, 0, buildings.length, 0, 0, 0, 100, timeElapsedMs, levelScore);
 	scoreScreenLayer.startReveal();
 }
 
 /**
- * disallow main menus from being open while the user has an active selection (submenues are allowed)
+ * open menu according to current selection
  */
-function checkCloseMenu() {
-	if (selection.length !== 0) {
-		if (activeIconPanel === "building" || activeIconPanel === "vehicle") {
-			activeIconPanel = "";
-		}
+function checkSelectionMenu() {
+	if (selectionType === "raider") {
+		changeIconPanel(RockRaiders.raiderIconPanel);
+	} else if (["dirt", "loose rock", "hard rock", "ore seam", "energy crystal seam"].includes(selectionType)) {
+		changeIconPanel(RockRaiders.wallIconPanel);
+	} else if (selectionType === "ground") {
+		changeIconPanel(RockRaiders.groundIconPanel);
+	} else if (selectionType === "power path") {
+		changeIconPanel(RockRaiders.powerPathIconPanel);
+	} else if (["rubble 1", "rubble 2", "rubble 3", "rubble 4"].includes(selectionType)) {
+		changeIconPanel(RockRaiders.rubbleIconPanel);
+	} else if (["tool store", "teleport pad", "power station", "docks", "geological center", "support station",
+		"super teleport", "mining laser", "upgrade station", "ore refinery"].includes(selectionType)) {
+		changeIconPanel(RockRaiders.buildingIconPanel);
+	} else if (selectionType === "building site") {
+		changeIconPanel(RockRaiders.buildingSiteIconPanel);
+	} else if (selectionType) {
+		changeIconPanel();
+		console.log(selectionType);
 	}
 }
 
@@ -2421,7 +2302,7 @@ function update() {
 			}
 		} else {
 			checkTogglePause();
-			if (!paused) {
+			if (!RockRaiders.paused) {
 				// update input
 				checkScrollScreen();
 				if (!buildingPlacer.visible) {
@@ -2440,14 +2321,13 @@ function update() {
 
 				// don't update buttons when buildingPlacer is active
 				if (!buildingPlacer.visible) {
-					buttons.update([selectionType, activeIconPanel]);
-					checkCloseMenu();
+					checkSelectionMenu();
+					RockRaiders.activeIconPanel.buttons.update();
 				}
-
 			} else {
 				pauseButtons.update();
 			}
-			checkAccomplishedObjective();
+			RockRaiders.levelConf[RockRaiders.currentLevelKey].NerpRunner.execute();
 		}
 
 		// pre-render; nothing to do here now that camera can no longer go out of bounds
@@ -2466,28 +2346,20 @@ function update() {
 		drawDynamiteTimers();
 		drawBuildingSiteMaterials();
 		drawRaiderTasks();
-		// draw UI last to ensure that it is in front of everything else
-		drawUI();
 		drawAwaitingStartInstructions();
 		drawPauseInstructions();
 	}
 	GameManager.mouseWheel = 0;
 }
 
-// to instant load a level append ?devmode=true&level=03 to the URL
+// to instant load a level append ?devmode=true&level=Level03 to the URL
 GameManager.devMode = getUrlParamCaseInsensitive("devmode", true) === "true";
 let levelFromUrl = getUrlParamCaseInsensitive("level");
-
-// split level data files (combined for faster loading)
-Object.keys(GameManager.scriptObjects["levels.js"]).forEach(function (key) {
-	GameManager.scriptObjects[key] = GameManager.scriptObjects["levels.js"][key];
-});
-GameManager.scriptObjects.splice("levels.js", 1);
 
 // init rygame before we start the game
 GameManager.initializeRygame(0);
 
-initGlobals();
+RockRaiders = new RockRaidersGame();
 
 if (GameManager.devMode) {
 	if (levelFromUrl) {
