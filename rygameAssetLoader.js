@@ -414,6 +414,20 @@ function registerAllAssets() {
 	wad0File.filterEntryNames("World/WorldTextures/IceSplit/Ice..\\.bmp").forEach(imgPath => { addAsset(loadWadImageAsset, imgPath); });
 	wad0File.filterEntryNames("World/WorldTextures/LavaSplit/Lava..\\.bmp").forEach(imgPath => { addAsset(loadWadImageAsset, imgPath); });
 	wad0File.filterEntryNames("World/WorldTextures/RockSplit/Rock..\\.bmp").forEach(imgPath => { addAsset(loadWadImageAsset, imgPath); });
+	// pause screen
+	const pauseConf = mainConf["Menu"]["PausedMenu"];
+	addAsset(loadAlphaImageAsset, pauseConf["Menu1"]["MenuImage"].split(":")[0]);
+	addAsset(loadFontImageAsset, pauseConf["Menu1"]["MenuFont"]);
+	addAsset(loadFontImageAsset, pauseConf["Menu1"]["HiFont"]);
+	addAsset(loadFontImageAsset, pauseConf["Menu1"]["LoFont"]);
+	addAsset(loadAlphaImageAsset, "Interface/FrontEnd/Vol_OffBar.bmp");
+	addAsset(loadAlphaImageAsset, "Interface/FrontEnd/Vol_OnBar.bmp");
+	addAsset(loadAlphaImageAsset, "Interface/FrontEnd/Vol_Leftcap.bmp");
+	addAsset(loadAlphaImageAsset, "Interface/FrontEnd/Vol_Rightcap.bmp");
+	addAsset(loadAlphaImageAsset, "Interface/FrontEnd/Vol_Plus.bmp");
+	addAsset(loadAlphaImageAsset, "Interface/FrontEnd/Vol_Minus.bmp");
+	addAsset(loadAlphaImageAsset, "Interface/FrontEnd/Vol_PlusHi.bmp");
+	addAsset(loadAlphaImageAsset, "Interface/FrontEnd/Vol_MinusHi.bmp");
 	// start loading assets
 	loadSequentialAssets.assetsFromCfg = Object.values(startLoadingProcess.assetsFromCfgByName);
 	updateLoadingScreen.totalResources = registerAllAssets.sequentialAssets.length + loadSequentialAssets.assetsFromCfg.length;

@@ -1208,10 +1208,16 @@ function getTool(toolName) {
  */
 function togglePauseGame() {
 	RockRaiders.paused = !RockRaiders.paused;
+	if (RockRaiders.paused) {
+		goToPauseMenu("Menu1");
+	} else {
+		resetPauseLayer();
+	}
 }
 
 function unpauseGame() {
 	RockRaiders.paused = false;
+	resetPauseLayer();
 }
 
 /**
@@ -1582,28 +1588,6 @@ function drawAwaitingStartInstructions() {
 }
 
 /**
- * draw pause screen instructions
- */
-function drawPauseInstructions() {
-	if (RockRaiders.paused) {
-		dimScreen(.4);
-		GameManager.drawSurface.globalAlpha = 1.0;
-		GameManager.drawSurface.fillStyle = "rgb(65, 218, 255)";
-		GameManager.setFontSize(72);
-		const pausedText = "Paused";
-		const textWidth = GameManager.drawSurface.measureText(pausedText).width;
-		const textHeight = getHeightFromFont(GameManager.drawSurface.font);
-		GameManager.drawSurface.fillText(pausedText, GameManager.screenWidth / 2 - textWidth / 2,
-			GameManager.screenHeight / 2 - 150 + textHeight / 2);
-
-		// attempt to draw buttons here so that they are rendered in front of other post-render graphics
-		for (let i = 0; i < pauseButtons.objectList.length; ++i) {
-			pauseButtons.objectList[i].render(GameManager);
-		}
-	}
-}
-
-/**
  * determine whether or not the mouse is currently hovering over an active GUI object
  * @returns boolean whether the mouse is hovering over a GUI object (true) or not (false)
  */
@@ -1868,8 +1852,85 @@ RockRaidersGame.prototype.createGUIElements = function () {
 
 	this.rightPanel = new CrystalSideBar();
 
-	pauseButtons.push(new Button(100, uiLayer.height / 2 - 50, 0, 0, null, uiLayer, "Continue", unpauseGame, false, false));
-	pauseButtons.push(new Button(100, uiLayer.height / 2 + 50, 0, 0, null, uiLayer, "Abort Mission", showScoreScreen, false, false, null, null, ["quit"]));
+	// pause menu layers
+	const pauseConf = GameManager.configuration["Lego*"]["Menu"]["PausedMenu"];
+	const pauseMenuCount = parseInt(pauseConf["MenuCount"]);
+	for (let m = 0; m < pauseMenuCount; m++) {
+		const menuKey = "Menu" + (m + 1);
+		const confMenu = pauseConf[menuKey];
+		const layer = new Layer(0, 0, 50, 50, GameManager.screenWidth, GameManager.screenHeight);
+		pauseLayers[menuKey] = layer;
+		layer.background = GameManager.getImage(confMenu["MenuImage"].split(":")[0]);
+		layer.width = layer.background.width;
+		layer.height = layer.background.height;
+		const fontMenu = GameManager.getFont(confMenu["MenuFont"]);
+		const fontLow = GameManager.getFont(confMenu["LoFont"]);
+		const fontHigh = GameManager.getFont(confMenu["HiFont"]);
+		let position = confMenu["Position"].split(":");
+		const mainX = parseInt(position[0]);
+		const mainY = parseInt(position[1]);
+		new MenuTitleLabel(GameManager.screenWidth / 2, mainY, fontMenu, confMenu["FullName"], pauseLayers[menuKey]);
+		const autoCenter = confMenu["AutoCenter"] === "TRUE";
+		const itemCount = parseInt(confMenu["ItemCount"]);
+		for (let c = 0; c < itemCount; c++) {
+			const itemArgs = confMenu["Item" + (c + 1)].split(":");
+			// TODO hide some buttons in tutorial
+			// if (itemArgs[5] === "NotInTuto" && this.currentLevelKey.startsWith("Tutorial")) {
+			// 	continue;
+			// }
+			const itemType = itemArgs[0];
+			const itemX = autoCenter ? GameManager.screenWidth / 2 : mainX + parseInt(itemArgs[1]);
+			const itemY = mainY + parseInt(itemArgs[2]);
+			let menuFunc;
+			let menuArgs = [itemArgs[4]];
+			if (itemType === "Next") {
+				menuFunc = goToPauseMenu;
+				new BitmapFontButton(itemX, itemY, itemArgs[3].replace(/_/g, " "), fontLow, fontHigh, pauseLayers[menuKey], menuFunc, menuArgs, autoCenter);
+			} else if (itemType === "Trigger") {
+				if (menuKey === "Menu1") {
+					menuFunc = unpauseGame;
+				} else if (menuKey === "Menu3") {
+					menuFunc = showScoreScreen;
+					menuArgs = ["quit"];
+				} else if (menuKey === "Menu4") {
+					menuFunc = resetLevelVars;
+					menuArgs = null;
+				} else {
+					menuFunc = null;
+				}
+				new BitmapFontButton(itemX, itemY, itemArgs[3].replace(/_/g, " "), fontLow, fontHigh, pauseLayers[menuKey], menuFunc, menuArgs, autoCenter);
+			} else if (itemType === "Slider") {
+				const label = itemArgs[5].replace(/_/g, " ");
+				const imgLabelLow = fontLow.createTextImage(label);
+				const imgLabelHigh = fontHigh.createTextImage(label);
+				const maxValue = parseInt(itemArgs[7]);
+				let defaultValue = Math.floor(maxValue / 2);
+				if (m === 1 && c === 1) { // fx volume
+					defaultValue = this.fxVolume * maxValue;
+				} else if (m === 1 && c === 2) { // music volume
+					defaultValue = musicPlayer.musicVolume * maxValue;
+				}
+				new Slider(itemX, itemY, parseInt(itemArgs[3]), parseInt(itemArgs[4]), imgLabelLow, imgLabelHigh, itemArgs[6], maxValue, defaultValue, pauseLayers[menuKey], function (value) {
+					if (m === 1 && c === 0) { // game speed
+						// TODO change game speed
+					} else if (m === 1 && c === 1) { // sound fx volume
+						setFxVolume(value);
+					} else if (m === 1 && c === 2) { // music volume
+						musicPlayer.setMusicVolume(value);
+					} else if (m === 1 && c === 3) { // brightness
+						// TODO change game brightness
+					}
+				});
+			} else if (itemType === "Cycle") {
+				new ToggleButton(itemX, itemY, parseInt(itemArgs[3]), parseInt(itemArgs[4]), fontLow, fontHigh, itemArgs[5], itemArgs[7], itemArgs[8], 1, pauseLayers[menuKey], function (state) {
+					// TODO change states
+				});
+			} else {
+				// TODO other menu item types?
+				// console.log("Ignoring unknown item type " + itemType + " in pause menu");
+			}
+		}
+	}
 };
 
 /**
@@ -2012,9 +2073,22 @@ function goToMenu(menuKey) {
 	}
 	gameLayer.active = false;
 	uiLayer.active = false;
+	resetPauseLayer();
 	menuLayer = mainMenuLayers[menuKey];
 	menuLayer.active = true;
 	menuLayer.cameraY = 0;
+}
+
+function resetPauseLayer(menuKey = "Menu1") {
+	if (pauseLayer !== null) {
+		pauseLayer.active = false;
+	}
+	pauseLayer = pauseLayers[menuKey];
+}
+
+function goToPauseMenu(menuKey) {
+	resetPauseLayer(menuKey);
+	pauseLayer.active = true;
 }
 
 /**
@@ -2105,6 +2179,7 @@ function resetLevelVars(levelKey) {
 	gameLayer.frozen = false;
 	uiLayer.active = true;
 	uiLayer.frozen = false;
+	resetPauseLayer();
 	musicPlayer.changeTrack();
 	reservedResources = {"ore": 0, "crystal": 0};
 	selectionRectCoords = {x1: null, y1: null};
@@ -2187,9 +2262,10 @@ function RockRaidersGame() {
 	levelSelectLayer = null;
 	gameLayer = new Layer(0, 0, 150, 150, GameManager.screenWidth, GameManager.screenHeight);
 	uiLayer = new Layer(0, 0, 100, 100, GameManager.screenWidth, GameManager.screenHeight);
+	pauseLayers = {};
+	pauseLayer = null;
 	musicPlayer = new MusicPlayer();
 	musicPlayer.changeTrack("menu theme");
-	pauseButtons = new ObjectGroup();
 	// create all in-game UI buttons initially, as there is no reason to load and unload these
 	this.createGUIElements();
 	// create all menu buttons
@@ -2382,7 +2458,6 @@ function update() {
 		drawBuildingSiteMaterials();
 		drawRaiderTasks();
 		drawAwaitingStartInstructions();
-		drawPauseInstructions();
 	}
 	GameManager.mouseWheel = 0;
 }
