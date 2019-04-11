@@ -502,6 +502,7 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 			}
 		}
 		this.setPowerPathSpace();
+		this.canSpawnRaiders = true;
 	} else if (type === "docks") {
 		this.image = "docks.png";
 		this.isBuilding = true;
@@ -575,6 +576,7 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 			}
 		}
 		this.setPowerPathSpace();
+		this.canSpawnRaiders = true;
 	} else if (type === "tool store") {
 		this.image = "tool store.png";
 		this.isBuilding = true;
@@ -586,6 +588,7 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 			}
 		}
 		this.setPowerPathSpace();
+		this.canSpawnRaiders = true;
 	} else if (type === "building site") {
 		this.image = (this.buildingSiteType === "power path" ? "World/WorldTextures/" + RockRaiders.themeName + "Split/" + RockRaiders.themeName + "61.bmp" : "building site.png");
 		if (this.touched === true) {
@@ -595,7 +598,6 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 				tasksAvailable.push(this);
 			}
 		}
-
 		this.walkable = true;
 		this.buildable = true;
 		this.dedicatedResources = dedicatedResources;
@@ -839,6 +841,20 @@ Space.prototype.update = function () {
 			}
 		}
 	}
+	// decrement spawn cooldown per frame
+	if (this.spawnRaiderCooldown > 0) {
+		this.spawnRaiderCooldown--;
+	} else if (this.canSpawnRaiders && RockRaiders.raiderInQueue > 0 && raiders.size() < RockRaiders.getMaxAmountOfRaiders()) {
+		RockRaiders.raiderInQueue--;
+		this.spawnRaiderCooldown = GameManager.fps * 2; // = 2 seconds as number of frames
+		const raider = new Raider(this);
+		raider.walkPosDummy.setCenterX(this.powerPathSpace.randomX());
+		raider.walkPosDummy.setCenterY(this.powerPathSpace.randomY());
+		raider.currentTask = raider.walkPosDummy;
+		raider.currentObjective = raider.walkPosDummy;
+		raider.currentPath = calculatePath(terrain, this, this.powerPathSpace, false);
+		raiders.push(raider);
+	}
 };
 
 /**
@@ -989,4 +1005,6 @@ function Space(type, listX, listY, height, parentSpace) {
 	}
 	// modifier determines how difficult this wall is to drill (for ore and crystal seams, this will be 0.2, as they require 5 'drills')
 	this.drillSpeedModifier = 1;
+	this.canSpawnRaiders = false;
+	this.spawnRaiderCooldown = 0;
 }

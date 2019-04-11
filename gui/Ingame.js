@@ -106,3 +106,20 @@ function CrystalSideBar() {
 	this.neededCrystals = 0;
 	this.usedCrystals = 0;
 }
+
+makeChild("RaiderQueueSizeText", "RygameObject");
+
+function RaiderQueueSizeText(figBtn) {
+	const tooltipFont = GameManager.getFont("Interface/Fonts/ToolTipFont.bmp");
+	const imgQueueInfo = [];
+	for (let c = 1; c <= 9; c++) {
+		imgQueueInfo[c] = tooltipFont.createTextImage(c.toString());
+	}
+	const raiderQueueInfo = new RygameObject(figBtn.x + 3, figBtn.y + 3, figBtn.updateDepth + 1, figBtn.updateDepth - 1, null, figBtn.drawLayer, false, true, true);
+	raiderQueueInfo.update = function () {
+		raiderQueueInfo.visible = RockRaiders.mainIconPanel.visible && figBtn.visible && RockRaiders.raiderInQueue > 0;
+		if (RockRaiders.raiderInQueue > 0 && RockRaiders.raiderInQueue < imgQueueInfo.length) {
+			raiderQueueInfo.drawSurface = imgQueueInfo[RockRaiders.raiderInQueue];
+		}
+	};
+}

@@ -373,6 +373,7 @@ function registerAllAssets() {
 	const mainConf = GameManager.configuration["Lego*"];
 	// back button
 	addAsset(loadWadImageAsset, mainConf["InterfaceBackButton"].split(":").slice(2, 4).forEach(imgPath => {addAsset(loadWadImageAsset, imgPath)}));
+	addAsset(loadFontImageAsset, "Interface/Fonts/ToolTipFont.bmp");
 	// level files
 	Object.values(mainConf["Levels"]).forEach(levelConf => {
 		addAsset(loadMapAsset, levelConf["SurfaceMap"]);

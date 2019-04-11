@@ -595,24 +595,23 @@ function taskType(task, raider) { // optional raider flag allows us to determine
  * create a new raider, as long as there is at least one touched toolStore to which he can teleport
  */
 function createRaider() {
-	let toolStore = null;
-	for (let i = 0; i < buildings.length; i++) {
-		if (buildings[i].type === "tool store") {
-			toolStore = buildings[i];
-			break;
+	if (RockRaiders.raiderInQueue < 9) {
+		RockRaiders.raiderInQueue++;
+	}
+}
+
+/**
+ * Returns the maximum number of raiders currently allowed. Initial amount is nine plus ten per support station
+ */
+RockRaidersGame.prototype.getMaxAmountOfRaiders = function () {
+	let maxAmount = 9;
+	for (let c = 0; c < buildings.length; c++) {
+		if (buildings[c].type === "support station") {
+			maxAmount += 10;
 		}
 	}
-	if (toolStore === null) {
-		return;
-	}
-	const raider = new Raider(toolStore);
-	raider.walkPosDummy.setCenterX(toolStore.powerPathSpace.randomX());
-	raider.walkPosDummy.setCenterY(toolStore.powerPathSpace.randomY());
-	raider.currentTask = raider.walkPosDummy;
-	raider.currentObjective = raider.walkPosDummy;
-	raider.currentPath = calculatePath(terrain, toolStore, toolStore.powerPathSpace, false);
-	raiders.push(raider);
-}
+	return maxAmount;
+};
 
 /**
  * create a new vehicle of the input type, as long as there is at least one touched toolStore to which it can teleport
@@ -1710,7 +1709,10 @@ function startBuildingPlacer(buildingType) {
  */
 RockRaidersGame.prototype.createGUIElements = function () {
 	this.mainIconPanel = new IconButtonPanel();
-	this.mainIconPanel.addButton("Interface/Icons", "minifigures.bmp", createRaider, null);
+	const figBtn = this.mainIconPanel.addButton("Interface/Icons", "minifigures.bmp", createRaider, null, function () {
+		return raiders.size() < RockRaiders.getMaxAmountOfRaiders();
+	});
+	new RaiderQueueSizeText(figBtn);
 	this.mainIconPanel.addButton("Interface/Menus", "building.bmp", openBuildingMenu);
 	this.mainIconPanel.addButton("Interface/Menus", "SMvehicle.bmp", openSmallVehicleMenu);
 	this.mainIconPanel.addButton("Interface/Menus", "BIGvehicle.bmp", openLargeVehicleMenu);
@@ -2210,6 +2212,7 @@ function resetLevelVars(levelKey) {
 	RockRaiders.paused = false;
 	holdingPKey = false;
 	holdingEscKey = false;
+	RockRaiders.raiderInQueue = 0;
 	loadLevelData(levelKey);
 	RockRaiders.rightPanel.init(_try(() => parseInt(RockRaiders.levelConf[levelKey]["Reward"]["Quota"]["Crystals"])));
 	// lets be fair and make this the last operation
