@@ -374,6 +374,12 @@ function registerAllAssets() {
 	// back button
 	addAsset(loadWadImageAsset, mainConf["InterfaceBackButton"].split(":").slice(2, 4).forEach(imgPath => {addAsset(loadWadImageAsset, imgPath)}));
 	addAsset(loadFontImageAsset, "Interface/Fonts/ToolTipFont.bmp");
+	// crystal side bar
+	addAsset(loadAlphaImageAsset, "Interface/RightPanel/CrystalSideBar.bmp"); // right side overlay showing crystal and ore count
+	addAsset(loadAlphaImageAsset, "Interface/RightPanel/CrystalSideBar_Ore.bmp"); // image representing a single piece of ore on the overlay
+	addAsset(loadAlphaImageAsset, "Interface/RightPanel/NoSmallCrystal.bmp"); // image representing no energy crystal on the overlay
+	addAsset(loadAlphaImageAsset, "Interface/RightPanel/SmallCrystal.bmp"); // image representing a single energy crystal on the overlay
+	addAsset(loadAlphaImageAsset, "Interface/RightPanel/UsedCrystal.bmp"); // image representing a single in use energy crystal on the overlay
 	// level files
 	Object.values(mainConf["Levels"]).forEach(levelConf => {
 		addAsset(loadMapAsset, levelConf["SurfaceMap"]);
