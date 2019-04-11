@@ -448,7 +448,7 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 		this.isWall = true;
 	} else if (type === "lava") {
 		this.image = "World/WorldTextures/" + RockRaiders.themeName + "Split/" + RockRaiders.themeName + "46.BMP";
-		this.selectable = false
+		this.selectable = false;
 	} else if (type === "ore seam") {
 		this.image = "World/WorldTextures/" + RockRaiders.themeName + "Split/" + RockRaiders.themeName + "40.bmp";
 		this.drillable = true;
@@ -461,11 +461,10 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 		this.drillable = true;
 		this.isWall = true;
 		this.drillSpeedModifier = .2;
-		this.selectable = false
 	} else if (type === "recharge seam") {
 		this.image = "World/WorldTextures/" + RockRaiders.themeName + "Split/" + RockRaiders.themeName + "67.bmp";
 		this.isWall = true;
-		this.selectable = false
+		this.selectable = false;
 	} else if (type.slice(0, 6) === "rubble") {
 		if (type === "rubble 1") {
 			this.image = "World/WorldTextures/" + RockRaiders.themeName + "Split/" + RockRaiders.themeName + "10.BMP";
