@@ -89,18 +89,11 @@ object = {
 		["img", "images\\objects", "landslide.png"], // image that appears during a landslide
 
 		// ~sounds~
-		["snd", "sounds", "Crystaldrop"], // drop crystal
-		["snd", "sounds", "Rockdrop"], // drop ore
-		["snd", "sounds", "drtdrillc"], // raider drill (drill any wall type)
-		["snd", "sounds", "dig"], // raider shovel (sweep rubble)
-		["snd", "sounds", "ROKBREK1"], // wall break sound
 		["snd", "sounds", "song1-reduced noise"], // song 1
 		["snd", "sounds", "song2-reduced noise"], // song 2
 		["snd", "sounds", "song3-reduced noise"], // song 3
 		["snd", "sounds", "menu theme"], // menu song
 		["snd", "sounds", "score screen"], // score screen song
-		["snd", "sounds", "hurt1"], // raider hurt sound 1
-		["snd", "sounds", "lanslide"], // landslide sound
 
 		// ~scripts~
 		["js", "classes", "Collectable.js"], // Collectable class

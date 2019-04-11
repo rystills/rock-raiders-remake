@@ -375,9 +375,63 @@ GameManagerInternal.prototype.setCursor = function (cursorImageName) {
 	GameManager.canvas.style.cursor = "url('" + GameManager.getImage(cursorImageName).canvas.toDataURL() + "'), auto"; // auto is fallback here
 };
 
-GameManagerInternal.prototype.createSound = function (soundName) {
-	if (this.sounds[soundName] !== undefined) {
-		return this.sounds[soundName].cloneNode();
+/**
+ * Change volume for all sound effects
+ */
+function setFxVolume(volume) {
+	GameManager.fxVolume = volume;
+	setValue("fxVolume", GameManager.fxVolume);
+}
+
+/**
+ * Play some sound given by name. Internally a cache is managed to optimize the number of instances,
+ * while ensuring that the same sound can be played in parallel by setting the appropiate argument.
+ * Futhermore exception handling for the nasty Chrome edge case is provided.
+ * @param soundName A sound name/key to play
+ * @param loop Whether the loop flag should be set for this sound
+ * @param parallel Whether the sound should be played multiple times or just once as a singleton
+ * @returns the sound instance that is now playing
+ */
+GameManagerInternal.prototype.playSoundEffect = function (soundName, loop = false, parallel = true) {
+	const baseInst = this.sounds[soundName];
+	if (baseInst) {
+		let sound;
+		if (Array.isArray(baseInst)) {
+			// multiple variants for sound avail, just pick one
+			sound = baseInst[randomInt(0, baseInst.length - 1)];
+		} else {
+			sound = baseInst;
+		}
+		if (!sound.ended && !sound.paused) {
+			// base instance not yet done, what now?
+			if (!parallel) {
+				return sound;
+			} else {
+				let cacheHit = false;
+				GameManager.soundsCache[soundName] = GameManager.soundsCache[soundName] || [];
+				GameManager.soundsCache[soundName].forEach(cacheInst => {
+					if (cacheInst.ended || cacheInst.paused) {
+						cacheHit = true;
+						sound = cacheInst;
+					}
+				});
+				if (!cacheHit) {
+					const keyname = sound.keyname;
+					sound = sound.cloneNode(false);
+					sound.keyname = keyname; // otherwise the property is not set, not even copied with deep copy
+					GameManager.soundsCache[soundName].push(sound);
+				}
+			}
+		}
+		sound.currentTime = 0;
+		sound.volume = GameManager.fxVolume;
+		sound.loop = loop;
+		// TODO have to wait for canplay event sometimes?
+		const prom = sound.play();
+		if (prom) { // just chrome... nobody cares
+			prom.catch(() => {});
+		}
+		return sound;
 	} else {
 		throw "Unknown sound '" + soundName + "' requested";
 	}
@@ -657,6 +711,7 @@ function GameManagerInternal() {
 	this.images = {};
 	// list of sound resources
 	this.sounds = {};
+	this.soundsCache = {};
 	// list of bitmap fonts
 	this.fonts = {};
 	// list of maps
@@ -695,6 +750,7 @@ function GameManagerInternal() {
 	this.fontSize = 48;
 	// font name - third part of html font property (formatted 'fontWeight fontSizepx fontName')
 	this.fontName = "Arial";
+	this.fxVolume = 1;
 }
 
 // create GameManager instance in global namespace to make up for a lack of typical 'static' classes *that support inheritance*
@@ -1069,6 +1125,7 @@ ImageButton.prototype.update = function () {
 		}
 		if (this.mouseDownOnButton === true) {
 			if (mouseOver && this.runMethod != null) { // button has been clicked
+				GameManager.playSoundEffect("SFX_ButtonPressed");
 				this.runMethod.apply(this, this.optionalArgs);
 			}
 		}

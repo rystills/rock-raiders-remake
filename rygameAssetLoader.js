@@ -279,6 +279,33 @@ function loadSoundAsset(path, name, callback) {
 	snd.src = path + srcType;
 }
 
+/**
+ * Load a WAV file format sound asset from the WAD file.
+ * @param path Path inside the WAD file
+ * @param callback A callback that is triggered after the file has been loaded
+ * @param key Optional key to store the sound, should look like SND_pilotdrill
+ */
+function loadWavAsset(path, callback, key) {
+	const snd = document.createElement('audio');
+	snd.keyname = key; // can be used to identify the sound later
+	if (callback != null) {
+		snd.oncanplay = function () {
+			snd.oncanplay = null; // otherwise the callback is triggered multiple times
+			const keyPath = key || path;
+			// use array, because sounds have multiple variants sometimes
+			GameManager.sounds[keyPath] = GameManager.sounds[keyPath] || [];
+			GameManager.sounds[keyPath].push(snd);
+			callback();
+		}
+	}
+	// try (localized) wad1 file first, then use generic wad0 file
+	try {
+		snd.src = wad1File.getEntry(path);
+	} catch (e) {
+		snd.src = wad0File.getEntry(path);
+	}
+}
+
 function updateLoadingScreen() {
 	updateLoadingScreen.totalResources = updateLoadingScreen.totalResources || 1;
 	updateLoadingScreen.curResource = updateLoadingScreen.curResource || 0;
@@ -350,11 +377,16 @@ function loadLoadingScreen() { // loading screen resources
 	]).then(registerAllAssets);
 }
 
-function addAsset(method, assetName, optional = false) {
-	if (!assetName || startLoadingProcess.assetsFromCfgByName.hasOwnProperty(assetName.toLowerCase()) || assetName === "NULL") {
+function addAsset(method, assetPath, optional = false, assetKey = null) {
+	if (!assetPath || startLoadingProcess.assetsFromCfgByName.hasOwnProperty(assetPath.toLowerCase()) || assetPath === "NULL") {
 		return; // do not load assets twice
 	}
-	startLoadingProcess.assetsFromCfgByName[assetName] = {method: method, assetName: assetName, optional: optional};
+	startLoadingProcess.assetsFromCfgByName[assetKey || assetPath] = {
+		method: method,
+		assetKey: assetKey,
+		assetPath: assetPath,
+		optional: optional
+	};
 }
 
 function registerAllAssets() {
@@ -435,6 +467,23 @@ function registerAllAssets() {
 	addAsset(loadAlphaImageAsset, "Interface/FrontEnd/Vol_Minus.bmp");
 	addAsset(loadAlphaImageAsset, "Interface/FrontEnd/Vol_PlusHi.bmp");
 	addAsset(loadAlphaImageAsset, "Interface/FrontEnd/Vol_MinusHi.bmp");
+	// sounds
+	const samplesConf = mainConf["Samples"];
+	Object.keys(samplesConf).forEach(sndKey => {
+		let sndPath = samplesConf[sndKey] + ".wav";
+		if (sndKey.startsWith("!")) { // TODO no clue what this means... loop? duplicate?!
+			sndKey = sndKey.slice(1);
+		}
+		if (sndPath.startsWith("*")) { // TODO no clue what this means... not loop, see telportup
+			sndPath = sndPath.slice(1);
+		} else if (sndPath.startsWith("@")) { // sound must be loaded from programm files folder, can't handle this case yet
+			sndPath = sndPath.slice(1);
+			return;
+		}
+		sndPath.split(",").forEach(sndPath => {
+			addAsset(loadWavAsset, sndPath, false, sndKey, true);
+		});
+	});
 	// start loading assets
 	loadSequentialAssets.assetsFromCfg = Object.values(startLoadingProcess.assetsFromCfgByName);
 	updateLoadingScreen.totalResources = registerAllAssets.sequentialAssets.length + loadSequentialAssets.assetsFromCfg.length;
@@ -479,7 +528,7 @@ function loadAssetsParallel() {
 	loadSequentialAssets.assetsFromCfg.forEach((asset) => {
 		promises.push(new Promise((resolve) => {
 			try {
-				asset.method(asset.assetName, onAssetLoaded(resolve));
+				asset.method(asset.assetPath, onAssetLoaded(resolve), asset.assetKey);
 			} catch (e) {
 				if (!asset.optional) {
 					throw e;

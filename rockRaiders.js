@@ -72,13 +72,18 @@ function updateObjectSoundPositions() {
 function updateSoundPositions(obj) {
 	if (typeof obj.soundList != "undefined" && obj.soundList.length > 0) {
 		const camDis = cameraDistance(obj);
-		// linear fade with distance, with a max sound distance of 1200 pixels
-		let vol = RockRaiders.fxVolume - camDis / 1200;
+		// linear fade with distance, with a max sound distance of 2500 pixels
+		let vol = GameManager.fxVolume - camDis / 2500;
 		if (vol < 0) {
 			vol = 0;
 		}
 		for (let i = 0; i < obj.soundList.length; ++i) {
-			obj.soundList[i].volume = vol;
+			const sound = obj.soundList[i];
+			if (sound.ended || sound.paused) { // sanitize list, remove unused sounds
+				obj.soundList.splice(i, 1);
+			} else {
+				sound.volume = vol;
+			}
 		}
 	}
 }
@@ -685,9 +690,14 @@ function setSelectionByMouseCursor() {
 		for (let r = 0; r < terrain[i].length; r++) {
 			let terrainTile = terrain[i][r];
 			if (collisionPoint(GameManager.mouseReleasedPosLeft.x, GameManager.mouseReleasedPosLeft.y, terrainTile, terrainTile.affectedByCamera)) {
-				if (terrainTile.isSelectable()) {
+				if (terrainTile.isSelectable() && !selection.includes(terrainTile)) {
 					selection = [terrainTile];
 					selectionType = selection[0].touched ? selection[0].type : "Hidden";
+					if (selectionType === "ground") {
+						GameManager.playSoundEffect("SFX_Floor");
+					} else if (terrainTile.isWall) {
+						GameManager.playSoundEffect("SFX_Wall");
+					}
 				}
 				return;
 			}
@@ -1908,7 +1918,7 @@ RockRaidersGame.prototype.createGUIElements = function () {
 				const maxValue = parseInt(itemArgs[7]);
 				let defaultValue = Math.floor(maxValue / 2);
 				if (m === 1 && c === 1) { // fx volume
-					defaultValue = this.fxVolume * maxValue;
+					defaultValue = GameManager.fxVolume * maxValue;
 				} else if (m === 1 && c === 2) { // music volume
 					defaultValue = musicPlayer.musicVolume * maxValue;
 				}
@@ -2079,6 +2089,7 @@ function goToMenu(menuKey) {
 	menuLayer = mainMenuLayers[menuKey];
 	menuLayer.active = true;
 	menuLayer.cameraY = 0;
+	GameManager.playSoundEffect("SFX_RockWipe");
 }
 
 function resetPauseLayer(menuKey = "Menu1") {
@@ -2156,14 +2167,6 @@ function stopAllSounds() {
 	for (let i = 0; i < raiders.objectList.length; i++) {
 		raiders.objectList[i].stopSounds();
 	}
-}
-
-/**
- * Change volume for all sound effects
- */
-function setFxVolume(volume) {
-	RockRaiders.fxVolume = volume;
-	setValue("fxVolume", RockRaiders.fxVolume);
 }
 
 /**
@@ -2256,7 +2259,7 @@ function RockRaidersGame() {
 	keyboardPanning = true;
 	// should the game render any active debug info?
 	debug = getValue("debug") === "true";
-	this.fxVolume = getValue("fxVolume", 1);
+	GameManager.fxVolume = getValue("fxVolume", 1);
 	this.levelConf = {};
 	this.levelLinks = {};
 

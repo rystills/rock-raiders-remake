@@ -73,6 +73,7 @@ Dynamite.prototype.detonate = function () {
 	this.setCenterX(centX);
 	this.setCenterY(centY);
 	this.effectTimer = this.maxEffectTimer;
+	GameManager.playSoundEffect("SFX_Dynamite");
 };
 
 /**
