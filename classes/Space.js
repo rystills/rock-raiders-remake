@@ -183,7 +183,7 @@ Space.prototype.getAdjacentSpaces = function () {
 };
 
 Space.prototype.isUpgradeable = function () {
-	return this.upgradeLevel < 2 && RockRaiders.rightPanel.resources["ore"] >= 5;
+	return this.upgradeLevel < 2 && RockRaiders.rightPanel.resources.ore >= 5;
 };
 
 /**
@@ -194,6 +194,15 @@ Space.prototype.upgrade = function () {
 		this.upgradeLevel += 1;
 		RockRaiders.rightPanel.changeResource("ore", -5);
 	}
+};
+
+Space.prototype.isDigable = function () {
+	return this.drillable || this.drillHardable || this.dynamitable;
+};
+
+Space.prototype.getRubbleOreContained = function () {
+	// only add ores for walls, which are actually removable to make the total amount predictable
+	return this.isDigable() ? 4 : 0;
 };
 
 /**
@@ -220,7 +229,7 @@ Space.prototype.checkWallSupported = function (drilledBy, silent = false) {
 	if ((adjacentSpaceIsWall[0] || adjacentSpaceIsWall[1]) && (adjacentSpaceIsWall[2] || adjacentSpaceIsWall[3])) {
 		return;
 	}
-	this.makeRubble(4, drilledBy, silent);
+	this.makeRubble(this.getRubbleOreContained(), drilledBy, silent);
 };
 
 /**

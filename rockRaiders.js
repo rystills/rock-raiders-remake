@@ -530,6 +530,18 @@ function loadLevelData(levelKey) {
 			console.log("Object type " + olObject.type + " not yet implemented");
 		}
 	});
+
+	levelConf.numOfCrystals = 0;
+	levelConf.numOfOres = 0;
+	levelConf.numOfDigables = 0;
+	for (let x = 0; x < terrain.length; x++) {
+		for (let y = 0; y < terrain[x].length; y++) {
+			const space = terrain[x][y];
+			levelConf.numOfCrystals += space.containedCrystals;
+			levelConf.numOfOres += space.containedOre + space.getRubbleOreContained();
+			levelConf.numOfDigables += space.isDigable() ? 1 : 0;
+		}
+	}
 }
 
 /**
@@ -1902,8 +1914,10 @@ RockRaidersGame.prototype.createGUIElements = function () {
 				if (menuKey === "Menu1") {
 					menuFunc = unpauseGame;
 				} else if (menuKey === "Menu3") {
-					menuFunc = showScoreScreen;
-					menuArgs = ["quit"];
+					menuFunc = function () {
+						unpauseGame();
+						showScoreScreen("quit");
+					};
 				} else if (menuKey === "Menu4") {
 					menuFunc = resetLevelVars;
 					menuArgs = null;
@@ -2315,7 +2329,7 @@ function RockRaidersGame() {
  * @returns number the calculated level score
  */
 function calculateLevelScore() {
-	return Math.round(100 * Math.min(1, (RockRaiders.rightPanel.resources["ore"] / 30) * .5 + (RockRaiders.rightPanel.resources["crystal"] / 5) * .5));
+	return Math.round(100 * Math.min(1, (RockRaiders.rightPanel.resources.ore / 30) * .5 + (RockRaiders.rightPanel.resources.crystal / 5) * .5));
 }
 
 /**
@@ -2340,23 +2354,54 @@ function getLevelScore(levelKey) {
 function showScoreScreen(missionState) {
 	// lets be fair and stop the timer first
 	const timeElapsedMs = new Date() - RockRaiders.levelStartTime;
-	goToMenu("Reward");
-	musicPlayer.changeTrack("score screen");
-	stopAllSounds();
-	if (!GameManager.devMode) {
-		unblockPageExit();
+	// TODO gather all data for score calculation
+	let payedCrystals = 0;
+	let payedOres = 0;
+	for (let c = 0; c < buildings.length; c++) {
+		const requiredResources = buildings[c].requiredResources;
+		if (!requiredResources) continue;
+		payedCrystals += requiredResources.crystal;
+		payedOres += requiredResources.ore; // TODO minus start buildings from olList?!
 	}
-	let levelScore = 0;
-	if (missionState === "completed") {
-		levelScore = calculateLevelScore();
-		setLevelScore(levelScore, RockRaiders.currentLevelKey);
-	}
-	// TODO use actual values from level information
 	const levelConf = RockRaiders.levelConf[RockRaiders.currentLevelKey];
-	const maxCrystals = RockRaiders.rightPanel.neededCrystals !== 0 ? RockRaiders.rightPanel.neededCrystals : 25; // TODO replace 25 with number of crystals from level information
-	const crystals = Math.min(RockRaiders.rightPanel.resources["crystal"] * 100 / maxCrystals, 100);
-	scoreScreenLayer.setValues(missionState, levelConf["FullName"], crystals, 0, 0, buildings.length, 0, 0, 0, 100, timeElapsedMs, levelScore);
-	scoreScreenLayer.startReveal();
+	const maxCrystals = RockRaiders.rightPanel.neededCrystals !== 0 ? RockRaiders.rightPanel.neededCrystals : levelConf.numOfCrystals;
+	const percentCrystals = Math.min((RockRaiders.rightPanel.resources.crystal + payedCrystals) * 100 / maxCrystals, 100);
+	const percentOres = (RockRaiders.rightPanel.resources.ore + payedOres) * 100 / levelConf.numOfOres;
+	let remainingDigables = 0;
+	for (let x = 0; x < terrain.length; x++) {
+		for (let y = 0; y < terrain[x].length; y++) {
+			const space = terrain[x][y];
+			remainingDigables += ((space.drillDummy && !space.drillDummy.dead) || (space.dynamiteDummy && !space.dynamiteDummy.dead)) ? 1 : 0;
+		}
+	}
+	const percentDigable = 100 - remainingDigables * 100 / levelConf.numOfDigables;
+	const percentRaiders = Math.min(100, raiders.size() * 100 / 9);
+	// tidy up game layer
+	for (let c = 0; c < raiders.size(); c++) {
+		const raider = raiders.objectList[c]; // list might have changed when the timeout function is called
+		setTimeout(() => raider.die(), randomInt(0, 3000));
+	}
+	// FIXME remove buildings with teleport up sequence
+	// for (let c = 0; c < buildings.length; c++) {
+	// 	const building = buildings[c]; // list might have changed when the timeout function is called
+	// 	setTimeout(() => building.die(), randomInt(1, 500));
+	// }
+	// show score screen after some timeout
+	setTimeout(() => {
+		goToMenu("Reward");
+		musicPlayer.changeTrack("score screen");
+		stopAllSounds();
+		if (!GameManager.devMode) {
+			unblockPageExit();
+		}
+		let levelScore = 0;
+		if (missionState === "completed") {
+			levelScore = calculateLevelScore();
+			setLevelScore(levelScore, RockRaiders.currentLevelKey);
+		}
+		scoreScreenLayer.setValues(missionState, levelConf["FullName"], percentCrystals, percentOres, percentDigable, buildings.length, 0, percentRaiders, 0, 100, timeElapsedMs, levelScore);
+		scoreScreenLayer.startReveal();
+	}, 6000);
 }
 
 /**

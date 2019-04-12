@@ -40,12 +40,10 @@ NerpRunner.prototype.getTimer = function (timer) {
 };
 
 NerpRunner.prototype.setLevelCompleted = function () {
-	// TODO use some timeout for smoother exit
 	showScoreScreen("completed");
 };
 
 NerpRunner.prototype.setLevelFail = function () {
-	// TODO use some timeout for smoother exit
 	showScoreScreen("failed");
 };
 
@@ -84,7 +82,7 @@ NerpRunner.prototype.getMinifiguresOnLevel = function () {
 };
 
 NerpRunner.prototype.getCrystalsCurrentlyStored = function () {
-	return RockRaiders.rightPanel.resources["crystal"];
+	return RockRaiders.rightPanel.resources.crystal;
 };
 
 NerpRunner.prototype.getObjectiveSwitch = function () {
@@ -121,6 +119,11 @@ NerpRunner.prototype.getTutorialBlockIsGround = function (arg1) {
 NerpRunner.prototype.getOxygenLevel = function () {
 	// TODO implement this
 	return 100;
+};
+
+NerpRunner.prototype.getObjectiveShowing = function () {
+	// TODO implement this
+	return false;
 };
 
 NerpRunner.prototype.callMethod = function (methodName, methodArgs) {

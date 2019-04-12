@@ -90,7 +90,7 @@ function ScoreScreenOverlay(key, revealStart) {
 
 makeChild("ScoreScreenLayer", "Layer");
 
-ScoreScreenLayer.prototype.setValues = function (missionState, missionTitle, crystals, ore, diggable, constructions, caverns, figures, rockMonsters, oxygen, timerMilliseconds, score) {
+ScoreScreenLayer.prototype.setValues = function (missionState, missionTitle, percentCrystals, percentOre, percentDigable, numBuildings, percentCaverns, percentFigures, percentMonsters, percentOxygen, timerMilliseconds, score) {
 	if (this.btnTimeout != null) {
 		clearTimeout(this.btnTimeout);
 	}
@@ -115,14 +115,14 @@ ScoreScreenLayer.prototype.setValues = function (missionState, missionTitle, cry
 	this.failedText.visible = this.missionState === "failed";
 	this.quitText.visible = this.missionState === "quit";
 
-	this.overlays["Crystals"].setValue(crystals.toString() + "%");
-	this.overlays["Ore"].setValue(ore.toString() + "%");
-	this.overlays["Diggable"].setValue(diggable.toString() + "%");
-	this.overlays["Constructions"].setValue(constructions.toString());
-	this.overlays["Caverns"].setValue(caverns.toString() + "%");
-	this.overlays["Figures"].setValue(figures.toString() + "%");
-	this.overlays["RockMonsters"].setValue(rockMonsters.toString() + "%");
-	this.overlays["Oxygen"].setValue(oxygen.toString() + "%");
+	this.overlays["Crystals"].setValue(Math.round(percentCrystals).toString() + "%");
+	this.overlays["Ore"].setValue(Math.round(percentOre).toString() + "%");
+	this.overlays["Diggable"].setValue(Math.round(percentDigable).toString() + "%");
+	this.overlays["Constructions"].setValue(numBuildings.toString());
+	this.overlays["Caverns"].setValue(percentCaverns.toString() + "%");
+	this.overlays["Figures"].setValue(Math.round(percentFigures).toString() + "%");
+	this.overlays["RockMonsters"].setValue(Math.round(percentMonsters).toString() + "%");
+	this.overlays["Oxygen"].setValue(Math.round(percentOxygen).toString() + "%");
 	const h = Math.floor(timerMilliseconds / 3600000).toString();
 	const hh = h.length < 2 ? "0" + h : h;
 	const m = Math.floor(timerMilliseconds / 60000).toString();

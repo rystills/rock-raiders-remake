@@ -71,11 +71,11 @@ CrystalSideBar.prototype.redraw = function () {
 	const imgNoCrystal = GameManager.getImage("Interface/RightPanel/NoSmallCrystal.bmp").canvas;
 	const imgSmallCrystal = GameManager.getImage("Interface/RightPanel/SmallCrystal.bmp").canvas;
 	const imgUsedCrystal = GameManager.getImage("Interface/RightPanel/UsedCrystal.bmp").canvas;
-	for (let c = 0; (this.neededCrystals < 1 || c < Math.max(this.neededCrystals, this.resources["crystal"])) && curY >= Math.max(imgNoCrystal.height, imgSmallCrystal.height, imgUsedCrystal.height); c++) {
+	for (let c = 0; (this.neededCrystals < 1 || c < Math.max(this.neededCrystals, this.resources.crystal)) && curY >= Math.max(imgNoCrystal.height, imgSmallCrystal.height, imgUsedCrystal.height); c++) {
 		let imgCrystal = imgNoCrystal;
 		if (this.usedCrystals > c) {
 			imgCrystal = imgUsedCrystal;
-		} else if (this.resources["crystal"] > c) {
+		} else if (this.resources.crystal > c) {
 			imgCrystal = imgSmallCrystal;
 		}
 		curY -= imgCrystal.height;
@@ -86,14 +86,14 @@ CrystalSideBar.prototype.redraw = function () {
 	curX = this.rect.width - 21;
 	curY = this.rect.height - 42;
 	const imgOre = GameManager.getImage("Interface/RightPanel/CrystalSideBar_Ore.bmp").canvas;
-	for (let i = 0; i < this.resources["ore"] && curY >= imgOre.height; ++i) {
+	for (let i = 0; i < this.resources.ore && curY >= imgOre.height; ++i) {
 		curY -= imgOre.height;
 		this.drawSurface.drawImage(imgOre, curX - imgOre.width / 2, curY);
 	}
 
 	// draw ore and crystal text
-	this.drawSurface.fillText(this.resources["ore"], this.rect.width - 39, this.rect.height - 3);
-	this.drawSurface.fillText(this.resources["crystal"], this.rect.width - 14, this.rect.height - 3);
+	this.drawSurface.fillText(this.resources.ore, this.rect.width - 39, this.rect.height - 3);
+	this.drawSurface.fillText(this.resources.crystal, this.rect.width - 14, this.rect.height - 3);
 };
 
 function CrystalSideBar() {
@@ -102,7 +102,7 @@ function CrystalSideBar() {
 	this.drawSurface.textAlign = "center";
 	this.drawSurface.font = "bold 10px " + GameManager.fontName;
 	this.drawSurface.fillStyle = "white";
-	this.resources = {"ore": 0, "crystal": 0};
+	this.resources = {ore: 0, crystal: 0};
 	this.neededCrystals = 0;
 	this.usedCrystals = 0;
 }
