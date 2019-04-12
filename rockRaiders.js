@@ -2059,6 +2059,7 @@ RockRaidersGame.prototype.finalizeLevelSelectLayer = function () {
 			});
 		}
 		that.levelConf[levelKey].NerpRunner = GameManager.nerps[that.levelConf[levelKey]["NERPFile"].replace(".npl", ".nrn")];
+		that.levelConf[levelKey].NerpRunner.messages = GameManager.nerpMessages[that.levelConf[levelKey]["NERPMessageFile"]];
 		const frontendX = that.levelConf[levelKey]["FrontEndX"];
 		const frontendY = that.levelConf[levelKey]["FrontEndY"];
 		const menuBitmaps = that.levelConf[levelKey]["MenuBMP"].split(",");

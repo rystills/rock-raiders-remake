@@ -96,6 +96,23 @@ function loadFontImageAsset(name, callback) {
 	img.src = wad0File.getEntry(name);
 }
 
+function encodeChar(charCode) { // encoding of the original files still remains a mystery
+	if (charCode === 130) {
+		return "ä".charCodeAt(0);
+	} else if (charCode === 142) {
+		return "Ä".charCodeAt(0);
+	} else if (charCode === 162) {
+		return "ö".charCodeAt(0);
+	} else if (charCode === 167) {
+		return "Ü".charCodeAt(0);
+	} else if (charCode === 171) {
+		return "ü".charCodeAt(0);
+	} else if (charCode === 195) {
+		return "ß".charCodeAt(0);
+	}
+	return charCode;
+}
+
 function loadConfigurationAsset(buffer, callback) {
 	const result = {};
 	const ancestry = [];
@@ -104,27 +121,13 @@ function loadConfigurationAsset(buffer, callback) {
 	let keyVal = 0; // 0 = looking for key, 1 = inside key, 1 = looking for value, 2 = inside value
 	let key = "";
 	let value = "";
-	buffer = new Uint8Array(buffer);
 	// debug output is a bad idea here, buffer size is about 232.611 characters and has 6781 lines
 	for (let seek = 0; seek < buffer.length; seek++) {
 		let charCode = buffer[seek];
 		if (charCode === 123 && key === "FullName") { // dirty workaround but in the original file { (123) was used instead of Ä (142)
 			charCode = 142;
 		}
-		let charStr = String.fromCharCode(charCode);
-		if (charCode === 130) {
-			charStr = "ä";
-		} else if (charCode === 142) {
-			charStr = "Ä";
-		} else if (charCode === 162) {
-			charStr = "ö";
-		} else if (charCode === 167) {
-			charStr = "Ü";
-		} else if (charCode === 171) {
-			charStr = "ü";
-		} else if (charCode === 195) {
-			charStr = "ß";
-		}
+		let charStr = String.fromCharCode(encodeChar(charCode));
 		if (charStr === ";") {
 			isComment = true;
 		} else if (charCode === 10 || charCode === 13) {
@@ -191,6 +194,81 @@ function loadNerpAsset(name, callback) {
 	const script = String.fromCharCode.apply(String, buffer);
 	GameManager.nerps[name] = NerpParser(script);
 	if (callback != null) {
+		callback();
+	}
+}
+
+function numericNameToNumber(name) {
+	if (name === undefined) {
+		throw "Numeric name must not be undefined"
+	}
+	const digits = {one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9};
+	const specials = {
+		ten: 10, eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15,
+		sixteen: 16, seventeen: 17, eighteen: 18, nineteen: 19
+	};
+	const tens = {twenty: 20, thirty: 30, forty: 40};
+	let number = specials[name] || digits[name];
+	if (number === undefined) {
+		Object.keys(tens).forEach(ten => {
+			if (name.startsWith(ten)) {
+				const digitName = name.replace(ten, "");
+				number = tens[ten] + (digitName ? digits[digitName] : 0);
+			}
+		});
+	}
+	if (number === undefined) {
+		throw "Found unexpected numeric name " + name;
+	}
+	return number;
+}
+
+function parseNerpMsgFile(wadFile, name) {
+	const result = [];
+	const lines = String.fromCharCode.apply(String, wadFile.getEntryData(name).map(c => encodeChar(c))).split("\n");
+	for (let c = 0; c < lines.length; c++) {
+		const line = lines[c].trim();
+		if (line.length < 1 || line === "-") {
+			continue;
+		}
+		// line formatting differs between wad0 and wad1 files!
+		const txt0Match = line.match(/\\\[([^\\]+)\\](\s*#([^#]+)#)?/);
+		const txt1Match = line.match(/^([^$][^#]+)(\s*#([^#]+)#)?/);
+		const sndMatch = line.match(/\$([^\s]+)\s*([^\s]+)/);
+		if (wadFile === wad0File && txt0Match) {
+			const index = txt0Match[3] !== undefined ? numericNameToNumber(txt0Match[3]) : c; // THIS IS MADNESS! #number# at the end of line is OPTIONAL
+			result[index] = result[index] || {};
+			result[index].txt = txt0Match[1];
+		} else if (wadFile === wad1File && txt1Match) {
+			const index = txt1Match[3] !== undefined ? numericNameToNumber(txt1Match[3]) : c; // THIS IS MADNESS! #number# at the end of line is OPTIONAL
+			result[index] = result[index] || {};
+			result[index].txt = txt1Match[1].replace(/_/g, " ").trim();
+		} else if (sndMatch && sndMatch.length === 3) {
+			const index = numericNameToNumber(sndMatch[1]);
+			result[index] = result[index] || {};
+			result[index].snd = sndMatch[2].replace(/\\/g, "/");
+		} else {
+			throw "Line in nerps message file did not match anything";
+		}
+	}
+	return result;
+}
+
+function loadNerpMsg(name, callback) {
+	const result = parseNerpMsgFile(wad0File, name);
+	const msg1 = parseNerpMsgFile(wad1File, name);
+	for (let c = 0; c < msg1.length; c++) {
+		const m1 = msg1[c];
+		if (!m1) continue;
+		if (m1.txt) {
+			result[c].txt = m1.txt;
+		}
+		if (m1.snd) {
+			result[c].snd = m1.snd;
+		}
+	}
+	GameManager.nerpMessages[name] = result;
+	if (callback) {
 		callback();
 	}
 }
@@ -413,7 +491,11 @@ function registerAllAssets() {
 	addAsset(loadAlphaImageAsset, "Interface/RightPanel/SmallCrystal.bmp"); // image representing a single energy crystal on the overlay
 	addAsset(loadAlphaImageAsset, "Interface/RightPanel/UsedCrystal.bmp"); // image representing a single in use energy crystal on the overlay
 	// level files
-	Object.values(mainConf["Levels"]).forEach(levelConf => {
+	Object.keys(mainConf["Levels"]).forEach(levelKey => {
+		if (!(levelKey.startsWith("Tutorial") || levelKey.startsWith("Level"))) {
+			return; // ignore incomplete test levels and duplicates
+		}
+		const levelConf = mainConf["Levels"][levelKey];
 		addAsset(loadMapAsset, levelConf["SurfaceMap"]);
 		addAsset(loadMapAsset, levelConf["PreDugMap"]);
 		addAsset(loadMapAsset, levelConf["TerrainMap"]);
@@ -421,7 +503,8 @@ function registerAllAssets() {
 		addAsset(loadMapAsset, levelConf["CryOreMap"]);
 		addAsset(loadMapAsset, levelConf["PathMap"], true);
 		addAsset(loadObjectListAsset, levelConf["OListFile"]);
-		addAsset(loadNerpAsset, levelConf["NERPFile"], true);
+		addAsset(loadNerpAsset, levelConf["NERPFile"]);
+		addAsset(loadNerpMsg, levelConf["NERPMessageFile"]);
 		const menuConf = levelConf["MenuBMP"];
 		if (menuConf) {
 			menuConf.split(",").forEach((imgKey) => {
@@ -639,7 +722,7 @@ WadHandler.prototype.getEntryData = function (entryName) {
 	const lEntryName = entryName.toLowerCase();
 	for (let i = 0; i < this.entries.length; i++) {
 		if (this.entries[i] === lEntryName) {
-			return this.buffer.slice(this.fStart[i], this.fStart[i] + this.fLength[i]);
+			return new Uint8Array(this.buffer.slice(this.fStart[i], this.fStart[i] + this.fLength[i]));
 		}
 	}
 	throw "Entry '" + entryName + "' not found in wad file";

@@ -717,6 +717,8 @@ function GameManagerInternal() {
 	this.objectLists = {};
 	// list of NERP scripts
 	this.nerps = [];
+	// list of NERP messages
+	this.nerpMessages = [];
 	this.fps = 40;
 	this.keyStates = [];
 	this.completeLayerList = [];
