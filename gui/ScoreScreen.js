@@ -90,7 +90,7 @@ function ScoreScreenOverlay(key, revealStart) {
 
 makeChild("ScoreScreenLayer", "Layer");
 
-ScoreScreenLayer.prototype.setValues = function (missionState, missionTitle, crystals, ore, diggable, constructions, caverns, figures, rockMonsters, oxygen, timerMilliseconds, score) {
+ScoreScreenLayer.prototype.setValues = function (missionState, missionTitle, percentCrystals, percentOre, percentDigable, numBuildings, percentCaverns, percentFigures, percentMonsters, percentOxygen, timerMilliseconds, score) {
 	if (this.btnTimeout != null) {
 		clearTimeout(this.btnTimeout);
 	}
@@ -105,7 +105,7 @@ ScoreScreenLayer.prototype.setValues = function (missionState, missionTitle, cry
 	if (this.missionTitle != null && this.missionTitle.drawSurface != null) {
 		this.missionTitle.x += this.missionTitle.drawSurface.width / 2;
 	}
-	let titleImage = scoreScreenLayer.titleFont.createTextImage(missionTitle.replace(/_/g, " "));
+	let titleImage = scoreScreenLayer.titleFont.createTextImage(missionTitle);
 	this.missionTitle.x -= titleImage.width / 2;
 	this.missionTitle.drawSurface = titleImage;
 	this.missionTitle.rect = new Rect(this.missionTitle.drawSurface.width, this.missionTitle.drawSurface.height);
@@ -115,14 +115,14 @@ ScoreScreenLayer.prototype.setValues = function (missionState, missionTitle, cry
 	this.failedText.visible = this.missionState === "failed";
 	this.quitText.visible = this.missionState === "quit";
 
-	this.overlays["Crystals"].setValue(crystals.toString() + "%");
-	this.overlays["Ore"].setValue(ore.toString() + "%");
-	this.overlays["Diggable"].setValue(diggable.toString() + "%");
-	this.overlays["Constructions"].setValue(constructions.toString());
-	this.overlays["Caverns"].setValue(caverns.toString() + "%");
-	this.overlays["Figures"].setValue(figures.toString() + "%");
-	this.overlays["RockMonsters"].setValue(rockMonsters.toString() + "%");
-	this.overlays["Oxygen"].setValue(oxygen.toString() + "%");
+	this.overlays["Crystals"].setValue(Math.round(percentCrystals).toString() + "%");
+	this.overlays["Ore"].setValue(Math.round(percentOre).toString() + "%");
+	this.overlays["Diggable"].setValue(Math.round(percentDigable).toString() + "%");
+	this.overlays["Constructions"].setValue(numBuildings.toString());
+	this.overlays["Caverns"].setValue(percentCaverns.toString() + "%");
+	this.overlays["Figures"].setValue(Math.round(percentFigures).toString() + "%");
+	this.overlays["RockMonsters"].setValue(Math.round(percentMonsters).toString() + "%");
+	this.overlays["Oxygen"].setValue(Math.round(percentOxygen).toString() + "%");
 	const h = Math.floor(timerMilliseconds / 3600000).toString();
 	const hh = h.length < 2 ? "0" + h : h;
 	const m = Math.floor(timerMilliseconds / 60000).toString();
@@ -211,8 +211,7 @@ function ScoreScreenLayer(confScoreScreen) {
 		overlays[txtKey] = overlays[txtKey] || new ScoreScreenOverlay(txtKey, index * revealDelay);
 		overlays[txtKey].val = new RygameObject(valX, valY, 0, drawDepth, null, layer, false, true, false);
 		drawDepth--;
-		const text = txtConf[0].replace(/_/g, " ");
-		let textImage = (txtKey === "Score" ? backFont : font).createTextImage(text);
+		let textImage = (txtKey === "Score" ? backFont : font).createTextImage(txtConf[0]);
 		const x = txtKey === "Score" ? 305 : txtX;
 		const y = txtKey === "Score" ? 195 : txtY;
 		overlays[txtKey].txt = new RygameObject(x - textImage.width / 2, y, 0, drawDepth, null, layer, false, true, false);
@@ -227,21 +226,21 @@ function ScoreScreenLayer(confScoreScreen) {
 	this.missionTitle = new RygameObject(GameManager.screenWidth / 2, vertSpacing, 0, drawDepth, null, layer, false, true, false);
 	drawDepth--;
 
-	let completeImage = this.titleFont.createTextImage(confScoreScreen["CompleteText"].replace(/_/g, " "));
+	let completeImage = this.titleFont.createTextImage(confScoreScreen["CompleteText"]);
 	this.completeText = new RygameObject((GameManager.screenWidth - completeImage.width) / 2, vertSpacing * 2, 0, drawDepth, null, layer, false, true, false);
 	this.completeText.drawSurface = completeImage;
 	this.completeText.rect = new Rect(this.completeText.drawSurface.width, this.completeText.drawSurface.height);
 	this.completeText.visible = false;
 	drawDepth--;
 
-	let failedImage = this.titleFont.createTextImage(confScoreScreen["FailedText"].replace(/_/g, " "));
+	let failedImage = this.titleFont.createTextImage(confScoreScreen["FailedText"]);
 	this.failedText = new RygameObject((GameManager.screenWidth - failedImage.width) / 2, vertSpacing * 2, 0, drawDepth, null, layer, false, true, false);
 	this.failedText.drawSurface = failedImage;
 	this.failedText.rect = new Rect(this.failedText.drawSurface.width, this.failedText.drawSurface.height);
 	this.failedText.visible = false;
 	drawDepth--;
 
-	let quitImage = this.titleFont.createTextImage(confScoreScreen["QuitText"].replace(/_/g, " "));
+	let quitImage = this.titleFont.createTextImage(confScoreScreen["QuitText"]);
 	this.quitText = new RygameObject((GameManager.screenWidth - quitImage.width) / 2, vertSpacing * 2, 0, drawDepth, null, layer, false, true, false);
 	this.quitText.drawSurface = quitImage;
 	this.quitText.rect = new Rect(this.quitText.drawSurface.width, this.quitText.drawSurface.height);

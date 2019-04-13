@@ -72,13 +72,18 @@ function updateObjectSoundPositions() {
 function updateSoundPositions(obj) {
 	if (typeof obj.soundList != "undefined" && obj.soundList.length > 0) {
 		const camDis = cameraDistance(obj);
-		// linear fade with distance, with a max sound distance of 1200 pixels
-		let vol = 1 - camDis / 1200;
+		// linear fade with distance, with a max sound distance of 2500 pixels
+		let vol = GameManager.fxVolume - camDis / 2500;
 		if (vol < 0) {
 			vol = 0;
 		}
 		for (let i = 0; i < obj.soundList.length; ++i) {
-			obj.soundList[i].volume = vol;
+			const sound = obj.soundList[i];
+			if (sound.ended || sound.paused) { // sanitize list, remove unused sounds
+				obj.soundList.splice(i, 1);
+			} else {
+				sound.volume = vol;
+			}
 		}
 	}
 }
@@ -364,13 +369,54 @@ function resourceAvailable(resourceType) {
  * @param levelKey: the identifier for the level
  */
 function loadLevelData(levelKey) {
-	RockRaiders.currentLevelKey = levelKey;
-	const levelConf = RockRaiders.levelConf[levelKey];
+	RockRaiders.currentLevelKey = levelKey || RockRaiders.currentLevelKey;
+	const levelConf = RockRaiders.levelConf[RockRaiders.currentLevelKey];
 	RockRaiders.themeName = levelConf["TextureSet"].split("::")[1];
+	// TODO maybe someday we can use the same keys...
+	RockRaiders.tasksAutomated = {
+		"sweep": false,
+		"collect": false, // TODO collect ore and collect crystal need to be separated (What about dropped dynamites?)
+		"drill": false,
+		"drill hard": false,
+		"reinforce": false,
+		"build": false,
+		"walk": false,
+		"dynamite": false,
+		"vehicle": false
+	};
+	Object.keys(levelConf["Priorities"]).forEach((taskKey) => {
+		const lKey = taskKey.toLowerCase();
+		let ourKey = null;
+		if (lKey === "AI_Priority_Crystal".toLowerCase() || lKey === "AI_Priority_Ore".toLowerCase()) { // TODO separate ore and crystal collect tasks
+			ourKey = "collect";
+		} else if (lKey === "AI_Priority_Destruction".toLowerCase()) {
+			ourKey = "dynamite"; // TODO is this correctly translated?
+		} else if (lKey === "AI_Priority_Clearing".toLowerCase()) {
+			ourKey = "sweep";
+		} else if (lKey === "AI_Priority_Repair".toLowerCase()) {
+			// TODO repair task type not yet implemented
+		} else if (lKey === "AI_Priority_GetIn".toLowerCase()) {
+			ourKey = "vehicle";
+		} else if (lKey === "AI_Priority_Construction".toLowerCase()) {
+			ourKey = "build";
+		} else if (lKey === "AI_Priority_Reinforce".toLowerCase()) {
+			ourKey = "reinforce";
+		} else if (lKey === "AI_Priority_GetTool".toLowerCase()) {
+			// TODO currently gettool is not an extra task
+		} else if (lKey === "AI_Priority_Train".toLowerCase()) {
+			// TODO currently train is not an extra task
+		} else if (lKey === "AI_Priority_Recharge".toLowerCase()) {
+			// TODO recharge task type not yet implemented
+		}
+		if (ourKey) {
+			RockRaiders.tasksAutomated[ourKey] = levelConf["Priorities"][taskKey].toLowerCase() === "true"; // TODO maybe check for weird values here?
+		}
+	});
+
 	const terrainMapName = levelConf["TerrainMap"];
-	const cryoreMapName = levelConf["CryOreMap"] || levelConf["CryoreMap"]; // typos... typos everywhere
+	const cryoreMapName = levelConf["CryOreMap"];
 	const olFileName = levelConf["OListFile"];
-	const predugMapName = levelConf["PreDugMap"] || levelConf["PredugMap"];
+	const predugMapName = levelConf["PreDugMap"];
 	const surfaceMapName = levelConf["SurfaceMap"];
 	const pathMapName = levelConf["PathMap"];
 	const fallinMapName = levelConf["FallinMap"];
@@ -448,6 +494,9 @@ function loadLevelData(levelKey) {
 	// load in non-space objects next
 	const objectList = GameManager.objectLists[olFileName];
 	Object.values(objectList).forEach(function (olObject) {
+		// all object positions seem to be off by one
+		olObject.xPos--;
+		olObject.yPos--;
 		if (olObject.type === "TVCamera") {
 			// coords need to be rescaled since 1 unit in LRR is 1, but 1 unit in the remake is tileSize (128)
 			gameLayer.cameraX = olObject.xPos * tileSize;
@@ -464,31 +513,15 @@ function loadLevelData(levelKey) {
 			newRaider.drawAngle = (olObject.heading - 90) / 180 * Math.PI;
 			raiders.push(newRaider);
 		} else if (olObject.type === "Toolstation") {
-			const currentSpace = terrain[parseInt(olObject.yPos, 10)][parseInt(olObject.xPos, 10)];
+			const currentSpace = terrain[Math.floor(parseFloat(olObject.yPos))][Math.floor(parseFloat(olObject.xPos))];
 			currentSpace.setTypeProperties("tool store");
+			currentSpace.headingAngle = (olObject.heading - 90) / 180 * Math.PI;
 			// check if this space was in a wall, but should now be touched
 			checkRevealSpace(currentSpace);
-			let powerPathSpace = null;
-			// round the heading angle as buildings can only be facing in cardinal directions
-			const headingDir = Math.round(olObject.heading);
-			if (headingDir === 0) {
-				powerPathSpace = adjacentSpace(terrain, currentSpace.listX, currentSpace.listY, "up");
-				currentSpace.headingAngle = Math.PI;
-			} else if (headingDir === 90) {
-				powerPathSpace = adjacentSpace(terrain, currentSpace.listX, currentSpace.listY, "right");
-				currentSpace.headingAngle = -.5 * Math.PI;
-			} else if (headingDir === 180) {
-				powerPathSpace = adjacentSpace(terrain, currentSpace.listX, currentSpace.listY, "down");
-				currentSpace.headingAngle = 0;
-			} else if (headingDir === 270) {
-				powerPathSpace = adjacentSpace(terrain, currentSpace.listX, currentSpace.listY, "left");
-				currentSpace.headingAngle = .5 * Math.PI;
-			}
 			// set drawAngle to headingAngle now if this space isn't initially in the fog
 			if (currentSpace.touched) {
-				currentSpace.drawAngle = currentSpace.headingAngle;
+				currentSpace.drawAngle = currentSpace.headingAngle - Math.PI / 2;
 			}
-			currentSpace.powerPathSpace = powerPathSpace;
 			// check if this building's power path space was in a wall, but should now be touched
 			checkRevealSpace(currentSpace.powerPathSpace);
 			currentSpace.powerPathSpace.setTypeProperties("building power path");
@@ -497,6 +530,18 @@ function loadLevelData(levelKey) {
 			console.log("Object type " + olObject.type + " not yet implemented");
 		}
 	});
+
+	levelConf.numOfCrystals = 0;
+	levelConf.numOfOres = 0;
+	levelConf.numOfDigables = 0;
+	for (let x = 0; x < terrain.length; x++) {
+		for (let y = 0; y < terrain[x].length; y++) {
+			const space = terrain[x][y];
+			levelConf.numOfCrystals += space.containedCrystals;
+			levelConf.numOfOres += space.containedOre + space.getRubbleOreContained();
+			levelConf.numOfDigables += space.isDigable() ? 1 : 0;
+		}
+	}
 }
 
 /**
@@ -567,24 +612,23 @@ function taskType(task, raider) { // optional raider flag allows us to determine
  * create a new raider, as long as there is at least one touched toolStore to which he can teleport
  */
 function createRaider() {
-	let toolStore = null;
-	for (let i = 0; i < buildings.length; i++) {
-		if (buildings[i].type === "tool store") {
-			toolStore = buildings[i];
-			break;
+	if (RockRaiders.raiderInQueue < 9) {
+		RockRaiders.raiderInQueue++;
+	}
+}
+
+/**
+ * Returns the maximum number of raiders currently allowed. Initial amount is nine plus ten per support station
+ */
+RockRaidersGame.prototype.getMaxAmountOfRaiders = function () {
+	let maxAmount = 9;
+	for (let c = 0; c < buildings.length; c++) {
+		if (buildings[c].type === "support station") {
+			maxAmount += 10;
 		}
 	}
-	if (toolStore === null) {
-		return;
-	}
-	const raider = new Raider(toolStore);
-	raider.walkPosDummy.setCenterX(toolStore.powerPathSpace.randomX());
-	raider.walkPosDummy.setCenterY(toolStore.powerPathSpace.randomY());
-	raider.currentTask = raider.walkPosDummy;
-	raider.currentObjective = raider.walkPosDummy;
-	raider.currentPath = calculatePath(terrain, toolStore, toolStore.powerPathSpace, false);
-	raiders.push(raider);
-}
+	return maxAmount;
+};
 
 /**
  * create a new vehicle of the input type, as long as there is at least one touched toolStore to which it can teleport
@@ -610,7 +654,9 @@ function createVehicle(vehicleType) {
 
 function changeIconPanel(targetIconPanel = RockRaiders.mainIconPanel) {
 	if (RockRaiders.activeIconPanel !== targetIconPanel) {
-		RockRaiders.activeIconPanel.hide();
+		if (RockRaiders.activeIconPanel) {
+			RockRaiders.activeIconPanel.hide();
+		}
 		RockRaiders.activeIconPanel = targetIconPanel;
 		RockRaiders.activeIconPanel.show();
 	}
@@ -656,9 +702,14 @@ function setSelectionByMouseCursor() {
 		for (let r = 0; r < terrain[i].length; r++) {
 			let terrainTile = terrain[i][r];
 			if (collisionPoint(GameManager.mouseReleasedPosLeft.x, GameManager.mouseReleasedPosLeft.y, terrainTile, terrainTile.affectedByCamera)) {
-				if (terrainTile.isSelectable()) {
+				if (terrainTile.isSelectable() && !selection.includes(terrainTile)) {
 					selection = [terrainTile];
 					selectionType = selection[0].touched ? selection[0].type : "Hidden";
+					if (selectionType === "ground") {
+						GameManager.playSoundEffect("SFX_Floor");
+					} else if (terrainTile.isWall) {
+						GameManager.playSoundEffect("SFX_Wall");
+					}
 				}
 				return;
 			}
@@ -1178,10 +1229,16 @@ function getTool(toolName) {
  */
 function togglePauseGame() {
 	RockRaiders.paused = !RockRaiders.paused;
+	if (RockRaiders.paused) {
+		goToPauseMenu("Menu1");
+	} else {
+		resetPauseLayer();
+	}
 }
 
 function unpauseGame() {
 	RockRaiders.paused = false;
+	resetPauseLayer();
 }
 
 /**
@@ -1552,28 +1609,6 @@ function drawAwaitingStartInstructions() {
 }
 
 /**
- * draw pause screen instructions
- */
-function drawPauseInstructions() {
-	if (RockRaiders.paused) {
-		dimScreen(.4);
-		GameManager.drawSurface.globalAlpha = 1.0;
-		GameManager.drawSurface.fillStyle = "rgb(65, 218, 255)";
-		GameManager.setFontSize(72);
-		const pausedText = "Paused";
-		const textWidth = GameManager.drawSurface.measureText(pausedText).width;
-		const textHeight = getHeightFromFont(GameManager.drawSurface.font);
-		GameManager.drawSurface.fillText(pausedText, GameManager.screenWidth / 2 - textWidth / 2,
-			GameManager.screenHeight / 2 - 150 + textHeight / 2);
-
-		// attempt to draw buttons here so that they are rendered in front of other post-render graphics
-		for (let i = 0; i < pauseButtons.objectList.length; ++i) {
-			pauseButtons.objectList[i].render(GameManager);
-		}
-	}
-}
-
-/**
  * determine whether or not the mouse is currently hovering over an active GUI object
  * @returns boolean whether the mouse is hovering over a GUI object (true) or not (false)
  */
@@ -1696,7 +1731,10 @@ function startBuildingPlacer(buildingType) {
  */
 RockRaidersGame.prototype.createGUIElements = function () {
 	this.mainIconPanel = new IconButtonPanel();
-	this.mainIconPanel.addButton("Interface/Icons", "minifigures.bmp", createRaider, null);
+	const figBtn = this.mainIconPanel.addButton("Interface/Icons", "minifigures.bmp", createRaider, null, function () {
+		return raiders.size() < RockRaiders.getMaxAmountOfRaiders();
+	});
+	new RaiderQueueSizeText(figBtn);
 	this.mainIconPanel.addButton("Interface/Menus", "building.bmp", openBuildingMenu);
 	this.mainIconPanel.addButton("Interface/Menus", "SMvehicle.bmp", openSmallVehicleMenu);
 	this.mainIconPanel.addButton("Interface/Menus", "BIGvehicle.bmp", openLargeVehicleMenu);
@@ -1838,8 +1876,87 @@ RockRaidersGame.prototype.createGUIElements = function () {
 
 	this.rightPanel = new CrystalSideBar();
 
-	pauseButtons.push(new Button(100, uiLayer.height / 2 - 50, 0, 0, null, uiLayer, "Continue", unpauseGame, false, false));
-	pauseButtons.push(new Button(100, uiLayer.height / 2 + 50, 0, 0, null, uiLayer, "Abort Mission", showScoreScreen, false, false, null, null, ["quit"]));
+	// pause menu layers
+	const pauseConf = GameManager.configuration["Lego*"]["Menu"]["PausedMenu"];
+	const pauseMenuCount = parseInt(pauseConf["MenuCount"]);
+	for (let m = 0; m < pauseMenuCount; m++) {
+		const menuKey = "Menu" + (m + 1);
+		const confMenu = pauseConf[menuKey];
+		const layer = new Layer(0, 0, 50, 50, GameManager.screenWidth, GameManager.screenHeight);
+		pauseLayers[menuKey] = layer;
+		layer.background = GameManager.getImage(confMenu["MenuImage"].split(":")[0]);
+		layer.width = layer.background.width;
+		layer.height = layer.background.height;
+		const fontMenu = GameManager.getFont(confMenu["MenuFont"]);
+		const fontLow = GameManager.getFont(confMenu["LoFont"]);
+		const fontHigh = GameManager.getFont(confMenu["HiFont"]);
+		let position = confMenu["Position"].split(":");
+		const mainX = parseInt(position[0]);
+		const mainY = parseInt(position[1]);
+		new MenuTitleLabel(GameManager.screenWidth / 2, mainY, fontMenu, confMenu["FullName"], pauseLayers[menuKey]);
+		const autoCenter = confMenu["AutoCenter"] === "TRUE";
+		const itemCount = parseInt(confMenu["ItemCount"]);
+		for (let c = 0; c < itemCount; c++) {
+			const itemArgs = confMenu["Item" + (c + 1)].split(":");
+			// TODO hide some buttons in tutorial
+			// if (itemArgs[5] === "NotInTuto" && this.currentLevelKey.startsWith("Tutorial")) {
+			// 	continue;
+			// }
+			const itemType = itemArgs[0];
+			const itemX = autoCenter ? GameManager.screenWidth / 2 : mainX + parseInt(itemArgs[1]);
+			const itemY = mainY + parseInt(itemArgs[2]);
+			let menuFunc;
+			let menuArgs = [itemArgs[4]];
+			if (itemType === "Next") {
+				menuFunc = goToPauseMenu;
+				new BitmapFontButton(itemX, itemY, itemArgs[3].replace(/_/g, " "), fontLow, fontHigh, pauseLayers[menuKey], menuFunc, menuArgs, autoCenter);
+			} else if (itemType === "Trigger") {
+				if (menuKey === "Menu1") {
+					menuFunc = unpauseGame;
+				} else if (menuKey === "Menu3") {
+					menuFunc = function () {
+						unpauseGame();
+						showScoreScreen("quit");
+					};
+				} else if (menuKey === "Menu4") {
+					menuFunc = resetLevelVars;
+					menuArgs = null;
+				} else {
+					menuFunc = null;
+				}
+				new BitmapFontButton(itemX, itemY, itemArgs[3].replace(/_/g, " "), fontLow, fontHigh, pauseLayers[menuKey], menuFunc, menuArgs, autoCenter);
+			} else if (itemType === "Slider") {
+				const label = itemArgs[5].replace(/_/g, " ");
+				const imgLabelLow = fontLow.createTextImage(label);
+				const imgLabelHigh = fontHigh.createTextImage(label);
+				const maxValue = parseInt(itemArgs[7]);
+				let defaultValue = Math.floor(maxValue / 2);
+				if (m === 1 && c === 1) { // fx volume
+					defaultValue = GameManager.fxVolume * maxValue;
+				} else if (m === 1 && c === 2) { // music volume
+					defaultValue = musicPlayer.musicVolume * maxValue;
+				}
+				new Slider(itemX, itemY, parseInt(itemArgs[3]), parseInt(itemArgs[4]), imgLabelLow, imgLabelHigh, itemArgs[6], maxValue, defaultValue, pauseLayers[menuKey], function (value) {
+					if (m === 1 && c === 0) { // game speed
+						// TODO change game speed
+					} else if (m === 1 && c === 1) { // sound fx volume
+						setFxVolume(value);
+					} else if (m === 1 && c === 2) { // music volume
+						musicPlayer.setMusicVolume(value);
+					} else if (m === 1 && c === 3) { // brightness
+						// TODO change game brightness
+					}
+				});
+			} else if (itemType === "Cycle") {
+				new ToggleButton(itemX, itemY, parseInt(itemArgs[3]), parseInt(itemArgs[4]), fontLow, fontHigh, itemArgs[5], itemArgs[7], itemArgs[8], 1, pauseLayers[menuKey], function (state) {
+					// TODO change states
+				});
+			} else {
+				// TODO other menu item types?
+				// console.log("Ignoring unknown item type " + itemType + " in pause menu");
+			}
+		}
+	}
 };
 
 /**
@@ -1850,11 +1967,12 @@ function levelIsUnlocked(targetLevelKey) {
 	if (openByDefault && openByDefault === "TRUE") {
 		return true;
 	}
-	RockRaiders.levelLinks[targetLevelKey].forEach((parentKey) => {
-		if (getLevelScore(parentKey) == null) {
+	const levelLinks = RockRaiders.levelLinks[targetLevelKey];
+	for (let c = 0; c < levelLinks.length; c++) {
+		if (getLevelScore(levelLinks[c]) == null) {
 			return false;
 		}
-	});
+	}
 	return true;
 }
 
@@ -1868,7 +1986,7 @@ function createMainMenuLayers() {
 	for (let m = 0; m < menuCount - 1; m++) {
 		const menuKey = "Menu" + (m + 1);
 		const confMenu = confMainMenu[menuKey];
-		mainMenuLayers[menuKey] = new Layer(0, 0, 1, 1, GameManager.screenWidth, GameManager.screenHeight);
+		mainMenuLayers[menuKey] = new Layer(0, 0, 0, 0, GameManager.screenWidth, GameManager.screenHeight);
 		mainMenuLayers[menuKey].background = GameManager.getImage(confMenu["MenuImage"]);
 		mainMenuLayers[menuKey].width = mainMenuLayers[menuKey].background.width;
 		mainMenuLayers[menuKey].height = mainMenuLayers[menuKey].background.height;
@@ -1878,10 +1996,10 @@ function createMainMenuLayers() {
 		let position = confMenu["Position"].split(":");
 		const mainX = parseInt(position[0]);
 		const mainY = parseInt(position[1]);
-		const autoCenter = confMenu["AutoCenter"] === "TRUE";
 		if (confMenu["DisplayTitle"] === "TRUE") {
-			new MenuTitleLabel(mainX, mainY, fontLow, confMenu["FullName"], mainMenuLayers[menuKey], autoCenter);
+			new MenuTitleLabel(mainX, mainY, fontLow, confMenu["FullName"], mainMenuLayers[menuKey]);
 		}
+		const autoCenter = confMenu["AutoCenter"] === "TRUE";
 		const itemCount = parseInt(confMenu["ItemCount"]);
 		for (let c = 0; c < itemCount; c++) {
 			if (m === 0 && c === itemCount - 1) { // TODO better use menu identifier/key?
@@ -1897,7 +2015,7 @@ function createMainMenuLayers() {
 				hoverSurface = GameManager.getImage(itemArgs[4]);
 				dullSurface = GameManager.getImage(itemArgs[5]);
 			} else { // default render as text button
-				const label = itemArgs[3].replace("_", " ");
+				const label = itemArgs[3];
 				normalSurface = fontLow.createTextImage(label);
 				hoverSurface = fontHigh.createTextImage(label);
 			}
@@ -1906,7 +2024,7 @@ function createMainMenuLayers() {
 		}
 		if (m === 0) { // TODO better use menu identifier/key?
 			new BitmapFontButton(mainX, mainY + 160, "Options", fontLow, fontHigh, mainMenuLayers[menuKey], goToMenu, ["Options"]);
-			mainMenuLayers["Options"] = new Layer(0, 0, 1, 1, GameManager.screenWidth, GameManager.screenHeight);
+			mainMenuLayers["Options"] = new Layer(0, 0, 0, 0, GameManager.screenWidth, GameManager.screenHeight);
 			mainMenuLayers["Options"].background = mainMenuLayers["Menu1"].background;
 			let btn = new BitmapFontButton(mainX, mainY - 40, "Edge Panning " + (mousePanning ? "X" : "-"), fontLow, fontHigh, mainMenuLayers["Options"], toggleEdgePanning);
 			btn.optionalArgs = [btn];
@@ -1981,9 +2099,23 @@ function goToMenu(menuKey) {
 	}
 	gameLayer.active = false;
 	uiLayer.active = false;
+	resetPauseLayer();
 	menuLayer = mainMenuLayers[menuKey];
 	menuLayer.active = true;
 	menuLayer.cameraY = 0;
+	GameManager.playSoundEffect("SFX_RockWipe");
+}
+
+function resetPauseLayer(menuKey = "Menu1") {
+	if (pauseLayer !== null) {
+		pauseLayer.active = false;
+	}
+	pauseLayer = pauseLayers[menuKey];
+}
+
+function goToPauseMenu(menuKey) {
+	resetPauseLayer(menuKey);
+	pauseLayer.active = true;
 }
 
 /**
@@ -2063,16 +2195,18 @@ function resetLevelVars(levelKey) {
 	levelSelectLayer.active = false;
 	scoreScreenLayer.active = false;
 	gameLayer.active = true;
+	gameLayer.frozen = false;
 	uiLayer.active = true;
+	uiLayer.frozen = false;
+	resetPauseLayer();
 	musicPlayer.changeTrack();
 	reservedResources = {"ore": 0, "crystal": 0};
 	selectionRectCoords = {x1: null, y1: null};
 	selection = [];
 	mousePressStartPos = {x: 1, y: 1};
 	mousePressIsSelection = false;
-	RockRaiders.activeIconPanel = RockRaiders.mainIconPanel;
 	RockRaiders.mainIconPanel.setVisible(true);
-	selectionType = null;
+	cancelSelection();
 	for (let i = 0; i < terrain.length; ++i) {
 		for (let r = 0; r < terrain[i].length; ++r) {
 			terrain[i][r].die();
@@ -2095,6 +2229,7 @@ function resetLevelVars(levelKey) {
 	RockRaiders.paused = false;
 	holdingPKey = false;
 	holdingEscKey = false;
+	RockRaiders.raiderInQueue = 0;
 	loadLevelData(levelKey);
 	RockRaiders.rightPanel.init(_try(() => parseInt(RockRaiders.levelConf[levelKey]["Reward"]["Quota"]["Crystals"])));
 	// lets be fair and make this the last operation
@@ -2138,17 +2273,19 @@ function RockRaidersGame() {
 	keyboardPanning = true;
 	// should the game render any active debug info?
 	debug = getValue("debug") === "true";
+	GameManager.fxVolume = getValue("fxVolume", 1);
 	this.levelConf = {};
 	this.levelLinks = {};
 
 	mainMenuLayers = {};
 	menuLayer = null;
 	levelSelectLayer = null;
-	gameLayer = new Layer(0, 0, 1, 1, GameManager.screenWidth, GameManager.screenHeight);
-	uiLayer = new Layer(0, 0, 0, 0, GameManager.screenWidth, GameManager.screenHeight);
+	gameLayer = new Layer(0, 0, 150, 150, GameManager.screenWidth, GameManager.screenHeight);
+	uiLayer = new Layer(0, 0, 100, 100, GameManager.screenWidth, GameManager.screenHeight);
+	pauseLayers = {};
+	pauseLayer = null;
 	musicPlayer = new MusicPlayer();
 	musicPlayer.changeTrack("menu theme");
-	pauseButtons = new ObjectGroup();
 	// create all in-game UI buttons initially, as there is no reason to load and unload these
 	this.createGUIElements();
 	// create all menu buttons
@@ -2157,18 +2294,8 @@ function RockRaidersGame() {
 	scoreScreenLayer = new ScoreScreenLayer(GameManager.configuration["Lego*"]["Reward"]);
 	mainMenuLayers["Reward"] = scoreScreenLayer;
 	GameManager.drawSurface.font = "48px Arial";
-	// update me manually for now, as the UI does not yet have task priority buttons
-	tasksAutomated = {
-		"sweep": true,
-		"collect": true,
-		"drill": false,
-		"drill hard": false,
-		"reinforce": false,
-		"build": true,
-		"walk": true,
-		"dynamite": false,
-		"vehicle": false
-	};
+	// task priorities overridden by each level
+	this.tasksAutomated = {};
 	// dict of task type to required tool
 	toolsRequired = {
 		"sweep": "shovel",
@@ -2202,7 +2329,7 @@ function RockRaidersGame() {
  * @returns number the calculated level score
  */
 function calculateLevelScore() {
-	return Math.round(100 * Math.min(1, (RockRaiders.rightPanel.resources["ore"] / 30) * .5 + (RockRaiders.rightPanel.resources["crystal"] / 5) * .5));
+	return Math.round(100 * Math.min(1, (RockRaiders.rightPanel.resources.ore / 30) * .5 + (RockRaiders.rightPanel.resources.crystal / 5) * .5));
 }
 
 /**
@@ -2227,23 +2354,54 @@ function getLevelScore(levelKey) {
 function showScoreScreen(missionState) {
 	// lets be fair and stop the timer first
 	const timeElapsedMs = new Date() - RockRaiders.levelStartTime;
-	goToMenu("Reward");
-	musicPlayer.changeTrack("score screen");
-	stopAllSounds();
-	if (!GameManager.devMode) {
-		unblockPageExit();
+	// TODO gather all data for score calculation
+	let payedCrystals = 0;
+	let payedOres = 0;
+	for (let c = 0; c < buildings.length; c++) {
+		const requiredResources = buildings[c].requiredResources;
+		if (!requiredResources) continue;
+		payedCrystals += requiredResources.crystal;
+		payedOres += requiredResources.ore; // TODO minus start buildings from olList?!
 	}
-	let levelScore = 0;
-	if (missionState === "completed") {
-		levelScore = calculateLevelScore();
-		setLevelScore(levelScore, RockRaiders.currentLevelKey);
-	}
-	// TODO use actual values from level information
 	const levelConf = RockRaiders.levelConf[RockRaiders.currentLevelKey];
-	const maxCrystals = RockRaiders.rightPanel.neededCrystals !== 0 ? RockRaiders.rightPanel.neededCrystals : 25; // TODO replace 25 with number of crystals from level information
-	const crystals = Math.min(RockRaiders.rightPanel.resources["crystal"] * 100 / maxCrystals, 100);
-	scoreScreenLayer.setValues(missionState, levelConf["FullName"], crystals, 0, 0, buildings.length, 0, 0, 0, 100, timeElapsedMs, levelScore);
-	scoreScreenLayer.startReveal();
+	const maxCrystals = RockRaiders.rightPanel.neededCrystals !== 0 ? RockRaiders.rightPanel.neededCrystals : levelConf.numOfCrystals;
+	const percentCrystals = Math.min((RockRaiders.rightPanel.resources.crystal + payedCrystals) * 100 / maxCrystals, 100);
+	const percentOres = (RockRaiders.rightPanel.resources.ore + payedOres) * 100 / levelConf.numOfOres;
+	let remainingDigables = 0;
+	for (let x = 0; x < terrain.length; x++) {
+		for (let y = 0; y < terrain[x].length; y++) {
+			const space = terrain[x][y];
+			remainingDigables += ((space.drillDummy && !space.drillDummy.dead) || (space.dynamiteDummy && !space.dynamiteDummy.dead)) ? 1 : 0;
+		}
+	}
+	const percentDigable = 100 - remainingDigables * 100 / levelConf.numOfDigables;
+	const percentRaiders = Math.min(100, raiders.size() * 100 / 9);
+	// tidy up game layer
+	for (let c = 0; c < raiders.size(); c++) {
+		const raider = raiders.objectList[c]; // list might have changed when the timeout function is called
+		setTimeout(() => raider.die(), randomInt(0, 3000));
+	}
+	// FIXME remove buildings with teleport up sequence
+	// for (let c = 0; c < buildings.length; c++) {
+	// 	const building = buildings[c]; // list might have changed when the timeout function is called
+	// 	setTimeout(() => building.die(), randomInt(1, 500));
+	// }
+	// show score screen after some timeout
+	setTimeout(() => {
+		goToMenu("Reward");
+		musicPlayer.changeTrack("score screen");
+		stopAllSounds();
+		if (!GameManager.devMode) {
+			unblockPageExit();
+		}
+		let levelScore = 0;
+		if (missionState === "completed") {
+			levelScore = calculateLevelScore();
+			setLevelScore(levelScore, RockRaiders.currentLevelKey);
+		}
+		scoreScreenLayer.setValues(missionState, levelConf["FullName"], percentCrystals, percentOres, percentDigable, buildings.length, 0, percentRaiders, 0, 100, timeElapsedMs, levelScore);
+		scoreScreenLayer.startReveal();
+	}, 6000);
 }
 
 /**
@@ -2302,6 +2460,9 @@ function update() {
 			}
 		} else {
 			checkTogglePause();
+			// freeze some layers and all objects on them when paused
+			gameLayer.frozen = RockRaiders.paused;
+			uiLayer.frozen = RockRaiders.paused;
 			if (!RockRaiders.paused) {
 				// update input
 				checkScrollScreen();
@@ -2325,7 +2486,8 @@ function update() {
 					RockRaiders.activeIconPanel.buttons.update();
 				}
 			} else {
-				pauseButtons.update();
+				// still update objects (or at least the unfrozen pause layer)
+				GameManager.updateObjects();
 			}
 			RockRaiders.levelConf[RockRaiders.currentLevelKey].NerpRunner.execute();
 		}
@@ -2347,7 +2509,6 @@ function update() {
 		drawBuildingSiteMaterials();
 		drawRaiderTasks();
 		drawAwaitingStartInstructions();
-		drawPauseInstructions();
 	}
 	GameManager.mouseWheel = 0;
 }

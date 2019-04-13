@@ -165,6 +165,20 @@ function loadConfigurationAsset(buffer, callback) {
 			}
 		}
 	}
+	// apply some patches here
+	Object.values(result["Lego*"]["Levels"]).forEach((levelConf) => {
+		if (levelConf["CryoreMap"]) {
+			levelConf["CryOreMap"] = levelConf["CryoreMap"];  // typos... typos everywhere
+			delete levelConf["CryoreMap"];
+		}
+		if (levelConf["CryOreMap"]) {
+			levelConf["CryOreMap"] = levelConf["CryOreMap"].replace("Cryo_", "Cror_");
+		}
+		if (levelConf["PredugMap"]) {
+			levelConf["PreDugMap"] = levelConf["PredugMap"];
+			delete levelConf["PredugMap"];
+		}
+	});
 	GameManager.configuration = result;
 	if (callback != null) {
 		callback();
@@ -265,6 +279,33 @@ function loadSoundAsset(path, name, callback) {
 	snd.src = path + srcType;
 }
 
+/**
+ * Load a WAV file format sound asset from the WAD file.
+ * @param path Path inside the WAD file
+ * @param callback A callback that is triggered after the file has been loaded
+ * @param key Optional key to store the sound, should look like SND_pilotdrill
+ */
+function loadWavAsset(path, callback, key) {
+	const snd = document.createElement('audio');
+	snd.keyname = key; // can be used to identify the sound later
+	if (callback != null) {
+		snd.oncanplay = function () {
+			snd.oncanplay = null; // otherwise the callback is triggered multiple times
+			const keyPath = key || path;
+			// use array, because sounds have multiple variants sometimes
+			GameManager.sounds[keyPath] = GameManager.sounds[keyPath] || [];
+			GameManager.sounds[keyPath].push(snd);
+			callback();
+		}
+	}
+	// try (localized) wad1 file first, then use generic wad0 file
+	try {
+		snd.src = wad1File.getEntry(path);
+	} catch (e) {
+		snd.src = wad0File.getEntry(path);
+	}
+}
+
 function updateLoadingScreen() {
 	updateLoadingScreen.totalResources = updateLoadingScreen.totalResources || 1;
 	updateLoadingScreen.curResource = updateLoadingScreen.curResource || 0;
@@ -336,14 +377,16 @@ function loadLoadingScreen() { // loading screen resources
 	]).then(registerAllAssets);
 }
 
-function addAsset(method, assetName, optional = false) {
-	if (!assetName || startLoadingProcess.assetsFromCfgByName.hasOwnProperty(assetName.toLowerCase()) || assetName === "NULL") {
+function addAsset(method, assetPath, optional = false, assetKey = null) {
+	if (!assetPath || startLoadingProcess.assetsFromCfgByName.hasOwnProperty(assetPath.toLowerCase()) || assetPath === "NULL") {
 		return; // do not load assets twice
 	}
-	if (assetName.length < 5) {
-		debugger;
-	}
-	startLoadingProcess.assetsFromCfgByName[assetName] = {method: method, assetName: assetName, optional: optional};
+	startLoadingProcess.assetsFromCfgByName[assetKey || assetPath] = {
+		method: method,
+		assetKey: assetKey,
+		assetPath: assetPath,
+		optional: optional
+	};
 }
 
 function registerAllAssets() {
@@ -362,13 +405,20 @@ function registerAllAssets() {
 	const mainConf = GameManager.configuration["Lego*"];
 	// back button
 	addAsset(loadWadImageAsset, mainConf["InterfaceBackButton"].split(":").slice(2, 4).forEach(imgPath => {addAsset(loadWadImageAsset, imgPath)}));
+	addAsset(loadFontImageAsset, "Interface/Fonts/ToolTipFont.bmp");
+	// crystal side bar
+	addAsset(loadAlphaImageAsset, "Interface/RightPanel/CrystalSideBar.bmp"); // right side overlay showing crystal and ore count
+	addAsset(loadAlphaImageAsset, "Interface/RightPanel/CrystalSideBar_Ore.bmp"); // image representing a single piece of ore on the overlay
+	addAsset(loadAlphaImageAsset, "Interface/RightPanel/NoSmallCrystal.bmp"); // image representing no energy crystal on the overlay
+	addAsset(loadAlphaImageAsset, "Interface/RightPanel/SmallCrystal.bmp"); // image representing a single energy crystal on the overlay
+	addAsset(loadAlphaImageAsset, "Interface/RightPanel/UsedCrystal.bmp"); // image representing a single in use energy crystal on the overlay
 	// level files
 	Object.values(mainConf["Levels"]).forEach(levelConf => {
 		addAsset(loadMapAsset, levelConf["SurfaceMap"]);
-		addAsset(loadMapAsset, levelConf["PreDugMap"] || levelConf["PredugMap"]);
+		addAsset(loadMapAsset, levelConf["PreDugMap"]);
 		addAsset(loadMapAsset, levelConf["TerrainMap"]);
 		addAsset(loadMapAsset, levelConf["BlockPointersMap"], true);
-		addAsset(loadMapAsset, levelConf["CryOreMap"] || levelConf["CryoreMap"], true);
+		addAsset(loadMapAsset, levelConf["CryOreMap"]);
 		addAsset(loadMapAsset, levelConf["PathMap"], true);
 		addAsset(loadObjectListAsset, levelConf["OListFile"]);
 		addAsset(loadNerpAsset, levelConf["NERPFile"], true);
@@ -403,6 +453,37 @@ function registerAllAssets() {
 	wad0File.filterEntryNames("World/WorldTextures/IceSplit/Ice..\\.bmp").forEach(imgPath => { addAsset(loadWadImageAsset, imgPath); });
 	wad0File.filterEntryNames("World/WorldTextures/LavaSplit/Lava..\\.bmp").forEach(imgPath => { addAsset(loadWadImageAsset, imgPath); });
 	wad0File.filterEntryNames("World/WorldTextures/RockSplit/Rock..\\.bmp").forEach(imgPath => { addAsset(loadWadImageAsset, imgPath); });
+	// pause screen
+	const pauseConf = mainConf["Menu"]["PausedMenu"];
+	addAsset(loadAlphaImageAsset, pauseConf["Menu1"]["MenuImage"].split(":")[0]);
+	addAsset(loadFontImageAsset, pauseConf["Menu1"]["MenuFont"]);
+	addAsset(loadFontImageAsset, pauseConf["Menu1"]["HiFont"]);
+	addAsset(loadFontImageAsset, pauseConf["Menu1"]["LoFont"]);
+	addAsset(loadAlphaImageAsset, "Interface/FrontEnd/Vol_OffBar.bmp");
+	addAsset(loadAlphaImageAsset, "Interface/FrontEnd/Vol_OnBar.bmp");
+	addAsset(loadAlphaImageAsset, "Interface/FrontEnd/Vol_Leftcap.bmp");
+	addAsset(loadAlphaImageAsset, "Interface/FrontEnd/Vol_Rightcap.bmp");
+	addAsset(loadAlphaImageAsset, "Interface/FrontEnd/Vol_Plus.bmp");
+	addAsset(loadAlphaImageAsset, "Interface/FrontEnd/Vol_Minus.bmp");
+	addAsset(loadAlphaImageAsset, "Interface/FrontEnd/Vol_PlusHi.bmp");
+	addAsset(loadAlphaImageAsset, "Interface/FrontEnd/Vol_MinusHi.bmp");
+	// sounds
+	const samplesConf = mainConf["Samples"];
+	Object.keys(samplesConf).forEach(sndKey => {
+		let sndPath = samplesConf[sndKey] + ".wav";
+		if (sndKey.startsWith("!")) { // TODO no clue what this means... loop? duplicate?!
+			sndKey = sndKey.slice(1);
+		}
+		if (sndPath.startsWith("*")) { // TODO no clue what this means... not loop, see telportup
+			sndPath = sndPath.slice(1);
+		} else if (sndPath.startsWith("@")) { // sound must be loaded from programm files folder, can't handle this case yet
+			sndPath = sndPath.slice(1);
+			return;
+		}
+		sndPath.split(",").forEach(sndPath => {
+			addAsset(loadWavAsset, sndPath, false, sndKey, true);
+		});
+	});
 	// start loading assets
 	loadSequentialAssets.assetsFromCfg = Object.values(startLoadingProcess.assetsFromCfgByName);
 	updateLoadingScreen.totalResources = registerAllAssets.sequentialAssets.length + loadSequentialAssets.assetsFromCfg.length;
@@ -447,7 +528,7 @@ function loadAssetsParallel() {
 	loadSequentialAssets.assetsFromCfg.forEach((asset) => {
 		promises.push(new Promise((resolve) => {
 			try {
-				asset.method(asset.assetName, onAssetLoaded(resolve));
+				asset.method(asset.assetPath, onAssetLoaded(resolve), asset.assetKey);
 			} catch (e) {
 				if (!asset.optional) {
 					throw e;

@@ -68,7 +68,7 @@ object = {
 		// NPCs
 		["img", "images\\objects", "raider.png"], // rock raider
 
-		// held tools and skills images FIXME replace with wadbmp
+		// held tools and skills images TODO replace with wadbmp
 		["img", "images\\skills_and_tools", "have drill.png"], // image indicating that a raider is currently carrying a drill in this tool slot
 		["img", "images\\skills_and_tools", "have shovel.png"], // image indicating that a raider is currently carrying a shovel in this tool slot
 		["img", "images\\skills_and_tools", "have hammer.png"], // image indicating that a raider is currently carrying a hammer in this tool slot
@@ -85,29 +85,15 @@ object = {
 		["img", "images\\skills_and_tools", "am geologist.png"], // image indicating that a raider is a geologist
 		["img", "images\\skills_and_tools", "am engineer.png"], // image indicating that a raider is an engineer
 
-		// interface
-		["wad0alpha", "Interface/RightPanel/CrystalSideBar.bmp"], // right side overlay showing crystal and ore count
-		["wad0alpha", "Interface/RightPanel/CrystalSideBar_Ore.bmp"], // image representing a single piece of ore on the overlay
-		["wad0alpha", "Interface/RightPanel/NoSmallCrystal.bmp"], // image representing no energy crystal on the overlay
-		["wad0alpha", "Interface/RightPanel/SmallCrystal.bmp"], // image representing a single energy crystal on the overlay
-		["wad0alpha", "Interface/RightPanel/UsedCrystal.bmp"], // image representing a single in use energy crystal on the overlay
-
 		// effects
 		["img", "images\\objects", "landslide.png"], // image that appears during a landslide
 
 		// ~sounds~
-		["snd", "sounds", "Crystaldrop"], // drop crystal
-		["snd", "sounds", "Rockdrop"], // drop ore
-		["snd", "sounds", "drtdrillc"], // raider drill (drill any wall type)
-		["snd", "sounds", "dig"], // raider shovel (sweep rubble)
-		["snd", "sounds", "ROKBREK1"], // wall break sound
 		["snd", "sounds", "song1-reduced noise"], // song 1
 		["snd", "sounds", "song2-reduced noise"], // song 2
 		["snd", "sounds", "song3-reduced noise"], // song 3
 		["snd", "sounds", "menu theme"], // menu song
 		["snd", "sounds", "score screen"], // score screen song
-		["snd", "sounds", "hurt1"], // raider hurt sound 1
-		["snd", "sounds", "lanslide"], // landslide sound
 
 		// ~scripts~
 		["js", "classes", "Collectable.js"], // Collectable class

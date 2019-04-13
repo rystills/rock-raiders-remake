@@ -140,12 +140,7 @@ Space.prototype.makeRubble = function (rubbleContainsOre, drilledBy, silent = fa
 		drilledBy.tasksToClear.push(this);
 	}
 	if (!silent) {
-		// if we are not drillable but were drilled indirectly, we don't have this sound yet, so clone it now
-		if (!this.rockBreakSound) {
-			this.rockBreakSound = GameManager.createSound("ROKBREK1");
-			this.soundList.push(this.rockBreakSound);
-		}
-		this.rockBreakSound.play().catch(() => {});
+		this.soundList.push(GameManager.playSoundEffect("SFX_RockBreak"));
 	}
 	// setTypeProperties will check the value of rubbleContainsOre for us, so no need to do a type check here, just pipe it in
 	this.setTypeProperties("rubble 1", false, rubbleContainsOre);
@@ -188,7 +183,7 @@ Space.prototype.getAdjacentSpaces = function () {
 };
 
 Space.prototype.isUpgradeable = function () {
-	return this.upgradeLevel < 2 && RockRaiders.rightPanel.resources["ore"] >= 5;
+	return this.upgradeLevel < 2 && RockRaiders.rightPanel.resources.ore >= 5;
 };
 
 /**
@@ -199,6 +194,15 @@ Space.prototype.upgrade = function () {
 		this.upgradeLevel += 1;
 		RockRaiders.rightPanel.changeResource("ore", -5);
 	}
+};
+
+Space.prototype.isDigable = function () {
+	return this.drillable || this.drillHardable || this.dynamitable;
+};
+
+Space.prototype.getRubbleOreContained = function () {
+	// only add ores for walls, which are actually removable to make the total amount predictable
+	return this.isDigable() ? 4 : 0;
 };
 
 /**
@@ -225,7 +229,7 @@ Space.prototype.checkWallSupported = function (drilledBy, silent = false) {
 	if ((adjacentSpaceIsWall[0] || adjacentSpaceIsWall[1]) && (adjacentSpaceIsWall[2] || adjacentSpaceIsWall[3])) {
 		return;
 	}
-	this.makeRubble(4, drilledBy, silent);
+	this.makeRubble(this.getRubbleOreContained(), drilledBy, silent);
 };
 
 /**
@@ -258,7 +262,7 @@ Space.prototype.setRockImage = function (matIndex) {
 	for (let y = -1; y <= 1; y++) {
 		for (let x = -1; x <= 1; x++) {
 			const neighborSpace = adjacentSpaceXY(terrain, this.listX, this.listY, x, y);
-			if (neighborSpace && neighborSpace.isWall) {
+			if (!neighborSpace || neighborSpace.isWall || !neighborSpace.touched) {
 				walls[y + 1][x + 1] = true; // somehow coords are mixed up...
 				wallsCount += 1;
 			}
@@ -330,6 +334,20 @@ Space.prototype.die = function () {
 		this.dynamiteDummy.die();
 	}
 	return RygameObject.prototype.die.call(this);
+};
+
+Space.prototype.setPowerPathSpace = function () {
+	// round the heading angle as buildings can only be facing in cardinal directions
+	const headingDir = Math.round(this.headingAngle * 180 / Math.PI) + 90;
+	if (headingDir === 0) {
+		this.powerPathSpace = adjacentSpace(terrain, this.listX, this.listY, "up");
+	} else if (headingDir === 90) {
+		this.powerPathSpace = adjacentSpace(terrain, this.listX, this.listY, "right");
+	} else if (headingDir === 180) {
+		this.powerPathSpace = adjacentSpace(terrain, this.listX, this.listY, "down");
+	} else if (headingDir === 270) {
+		this.powerPathSpace = adjacentSpace(terrain, this.listX, this.listY, "left");
+	}
 };
 
 /**
@@ -426,7 +444,7 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 		}
 		this.walkable = true;
 		this.speedModifier = 1.5;
-		if (type === "building power path") {
+		if (type !== "power path") {
 			this.selectable = false;
 		}
 	} else if (type === "solid rock") {
@@ -487,6 +505,8 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 				buildings.push(this);
 			}
 		}
+		this.setPowerPathSpace();
+		this.canSpawnRaiders = true;
 	} else if (type === "docks") {
 		this.image = "docks.png";
 		this.isBuilding = true;
@@ -559,6 +579,8 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 				buildings.push(this);
 			}
 		}
+		this.setPowerPathSpace();
+		this.canSpawnRaiders = true;
 	} else if (type === "tool store") {
 		this.image = "tool store.png";
 		this.isBuilding = true;
@@ -569,7 +591,8 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 				buildings.push(this);
 			}
 		}
-
+		this.setPowerPathSpace();
+		this.canSpawnRaiders = true;
 	} else if (type === "building site") {
 		this.image = (this.buildingSiteType === "power path" ? "World/WorldTextures/" + RockRaiders.themeName + "Split/" + RockRaiders.themeName + "61.bmp" : "building site.png");
 		if (this.touched === true) {
@@ -579,7 +602,6 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 				tasksAvailable.push(this);
 			}
 		}
-
 		this.walkable = true;
 		this.buildable = true;
 		this.dedicatedResources = dedicatedResources;
@@ -762,7 +784,7 @@ Space.prototype.activateLandSlide = function () {
 			}
 		}
 		this.landSlides.push([new LandSlide(this)]);
-		this.landSlideSound.play().catch(() => {});
+		this.soundList.push(GameManager.playSoundEffect("SND_Landslide"));
 	}
 };
 
@@ -775,8 +797,6 @@ Space.prototype.setLandSlideFrequency = function (frequency) {
 		this.landSlideFrequency = frequency;
 		if (this.landSlides == null) {
 			this.landSlides = new ObjectGroup();
-			this.landSlideSound = GameManager.createSound("lanslide");
-			this.soundList.push(this.landSlideSound);
 		}
 	}
 };
@@ -822,6 +842,21 @@ Space.prototype.update = function () {
 				}
 			}
 		}
+	}
+	// decrement spawn cooldown per frame
+	if (this.spawnRaiderCooldown > 0) {
+		this.spawnRaiderCooldown--;
+	} else if (this.canSpawnRaiders && RockRaiders.raiderInQueue > 0 && raiders.size() < RockRaiders.getMaxAmountOfRaiders()) {
+		RockRaiders.raiderInQueue--;
+		this.spawnRaiderCooldown = GameManager.fps * 2; // = 2 seconds as number of frames
+		const raider = new Raider(this);
+		raider.walkPosDummy.setCenterX(this.powerPathSpace.randomX());
+		raider.walkPosDummy.setCenterY(this.powerPathSpace.randomY());
+		raider.currentTask = raider.walkPosDummy;
+		raider.currentObjective = raider.walkPosDummy;
+		raider.currentPath = calculatePath(terrain, this, this.powerPathSpace, false);
+		raiders.push(raider);
+		GameManager.playSoundEffect("SND_teleport");
 	}
 };
 
@@ -964,13 +999,11 @@ function Space(type, listX, listY, height, parentSpace) {
 	}
 	// temporary angle variable used to store correct drawAngle when space has not yet been touched (is still in the fog)
 	this.headingAngle = 0;
-	this.rockBreakSound = (this.drillable ? GameManager.createSound("ROKBREK1") : null);
 	this.landSlides = null;
 	this.landSlideSound = null;
 	this.soundList = [];
-	if (this.rockBreakSound != null) {
-		this.soundList.push(this.rockBreakSound);
-	}
 	// modifier determines how difficult this wall is to drill (for ore and crystal seams, this will be 0.2, as they require 5 'drills')
 	this.drillSpeedModifier = 1;
+	this.canSpawnRaiders = false;
+	this.spawnRaiderCooldown = 0;
 }
