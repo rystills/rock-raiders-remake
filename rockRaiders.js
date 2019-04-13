@@ -23,9 +23,6 @@ const drawDepthIconButtonPanelBackground = 475;
 const drawDepthIconButtonPanelButtons = 450;
 const drawDepthCrystalSideBar = 400;
 
-const drawDepthPauseBackground = 300;
-const drawDepthPauseButtons = 250;
-
 /**
  * output the terrain 2d-array to the console
  * @param terrain: a 2d-array representing the terrain (note that terrain is formatted as [y][x])
@@ -851,10 +848,10 @@ function checkAssignSelectionTask() {
 						if (collisionPoint(GameManager.mouseReleasedPosRight.x, GameManager.mouseReleasedPosRight.y, initialSpace, initialSpace.affectedByCamera) &&
 							// don't do anything if the task is already taken by another raider, we don't want to re-add it to the task queue
 							((tasksAvailable.indexOf(initialSpace) !== -1) || initialSpace.walkable || (tasksInProgress.objectList.indexOf(initialSpace) !== -1))) {
-							console.log("A");
+							// console.log("A");
 							if ((j === 0 && (initialSpace.drillable || initialSpace.drillHardable || initialSpace.sweepable ||
 								initialSpace.buildable || initialSpace.walkable)) || j > 0) {
-								console.log("B");
+								// console.log("B");
 								clickedTasks.push(initialSpace);
 								if (debug) {
 									console.log("TERRAIN OL LENGTH + 1: " + (terrain[p][r].contains.objectList.length + 1));
@@ -920,7 +917,7 @@ function checkAssignSelectionTask() {
 					continue;
 				}
 
-				console.log("can we perform? : " + selection[i].canPerformTask(selectedTask, true));
+				// console.log("can we perform? : " + selection[i].canPerformTask(selectedTask, true));
 				// if we changed the taskType to 'walk' override this canPerformTask check since raiders can always walk
 				if (selection[i].canPerformTask(selectedTask, true) || selectedTaskType === "walk") {
 					// if current raider is already performing a task and not holding anything, stop him before assigning the new task

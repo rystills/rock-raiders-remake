@@ -1000,7 +1000,6 @@ function Space(type, listX, listY, height, parentSpace) {
 	// temporary angle variable used to store correct drawAngle when space has not yet been touched (is still in the fog)
 	this.headingAngle = 0;
 	this.landSlides = null;
-	this.landSlideSound = null;
 	this.soundList = [];
 	// modifier determines how difficult this wall is to drill (for ore and crystal seams, this will be 0.2, as they require 5 'drills')
 	this.drillSpeedModifier = 1;
