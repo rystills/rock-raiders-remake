@@ -872,8 +872,10 @@ Raider.prototype.setHolding = function (task) {
  */
 Raider.prototype.stopSounds = function () {
 	this.soundList.forEach(sound => {
-		sound.pause();
-		sound.currentTime = 0;
+		if (sound.loop) {
+			sound.pause();
+			sound.currentTime = 0;
+		}
 	});
 };
 

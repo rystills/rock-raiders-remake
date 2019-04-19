@@ -426,11 +426,8 @@ GameManagerInternal.prototype.playSoundEffect = function (soundName, loop = fals
 		sound.currentTime = 0;
 		sound.volume = GameManager.fxVolume;
 		sound.loop = loop;
-		// TODO have to wait for canplay event sometimes?
 		const prom = sound.play();
-		if (prom) { // just chrome... nobody cares
-			prom.catch(() => {});
-		}
+		if (prom) prom.catch((e) => console.log("Could not play sound: " + soundName + " exception: " + e.toString()));
 		return sound;
 	} else {
 		throw "Unknown sound '" + soundName + "' requested";
