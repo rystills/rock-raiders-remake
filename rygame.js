@@ -1381,6 +1381,8 @@ RygameObject.prototype.moveOutsideCollision = function (otherObject, xPrevious, 
 		if (iterations > 25) {
 			// TODO workaround against infinite loops
 			console.error("Aborted collision checks! Too many iterations");
+			debugger;
+			break;
 		}
 	}
 	iterations = 0;
@@ -1390,6 +1392,8 @@ RygameObject.prototype.moveOutsideCollision = function (otherObject, xPrevious, 
 		if (iterations > 25) {
 			// TODO workaround against infinite loops
 			console.error("Aborted collision checks! Too many iterations");
+			debugger;
+			break;
 		}
 	}
 	iterations = 0;
@@ -1399,6 +1403,8 @@ RygameObject.prototype.moveOutsideCollision = function (otherObject, xPrevious, 
 		if (iterations > 25) {
 			// TODO workaround against infinite loops
 			console.error("Aborted collision checks! Too many iterations");
+			debugger;
+			break;
 		}
 	}
 };
