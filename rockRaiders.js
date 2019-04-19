@@ -10,7 +10,7 @@ const drawDepthSelectedSpace = 950;
 const drawDepthBuildingPlacier = 900;
 
 const drawDepthCollectables = 800;
-const drawDepthSelectedCollectables = 790;
+const drawDepthSelectedVehicle = 790;
 const drawDepthSlimes = 775;
 const drawDepthRaider = 750;
 const drawDepthVehicle = 725;
@@ -686,14 +686,6 @@ function setSelectionByMouseCursor() {
 			return;
 		}
 	}
-	// check if a collectable object was clicked
-	for (let i = 0; i < collectables.objectList.length; i++) {
-		if (collisionPoint(GameManager.mouseReleasedPosLeft.x, GameManager.mouseReleasedPosLeft.y, collectables.objectList[i], collectables.objectList[i].affectedByCamera)) {
-			selection = [collectables.objectList[i]];
-			selectionType = selection[0].type;
-			return;
-		}
-	}
 	// check if a terrain was clicked
 	for (let i = 0; i < terrain.length; i++) {
 		for (let r = 0; r < terrain[i].length; r++) {
@@ -749,8 +741,8 @@ function checkUpdateSelectionType() {
 		tileSelectedGraphic.drawDepth = drawDepthSelectedSpace; // put tile selection graphic between space and collectable
 		GameManager.refreshObject(tileSelectedGraphic);
 	}
-	if (selection[0] instanceof Collectable || selection[0] instanceof Vehicle) {
-		tileSelectedGraphic.drawDepth = drawDepthSelectedCollectables; // put tile selection graphic in front of collectable
+	if (selection[0] instanceof Vehicle) {
+		tileSelectedGraphic.drawDepth = drawDepthSelectedVehicle;
 		GameManager.refreshObject(tileSelectedGraphic);
 		// manually update vehicle selection to raider riding it, if it has a driver
 		for (let i = 0; i < raiders.objectList.length; ++i) {
