@@ -1725,7 +1725,8 @@ function startBuildingPlacer(buildingType) {
 RockRaidersGame.prototype.createGUIElements = function () {
 	this.mainIconPanel = new IconButtonPanel();
 	const figBtn = this.mainIconPanel.addButton("Interface/Icons", "minifigures.bmp", createRaider, null, function () {
-		return raiders.size() < RockRaiders.getMaxAmountOfRaiders();
+		const numOfToolstores = buildings.reduce((counter, b) => b.touched && b.canSpawnRaiders ? ++counter : counter, 0);
+		return numOfToolstores > 0 && raiders.size() < RockRaiders.getMaxAmountOfRaiders();
 	});
 	new RaiderQueueSizeText(figBtn);
 	this.mainIconPanel.addButton("Interface/Menus", "building.bmp", openBuildingMenu);
