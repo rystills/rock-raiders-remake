@@ -1748,8 +1748,8 @@ RockRaidersGame.prototype.createGUIElements = function () {
 
 	this.smallVehicleIconPanel = new IconButtonPanel(changeIconPanel);
 	this.smallVehicleIconPanel.addButton("Interface/Icons", "hoverboard.bmp", createVehicle, ["hover scout"], buildRequirementsMet, ["hover scout"]);
-	this.smallVehicleIconPanel.addButton("Interface/Icons", "SmallTruck.bmp", createVehicle, ["small digger"], buildRequirementsMet, ["small digger"]);
-	this.smallVehicleIconPanel.addButton("Interface/Icons", "SmallDigger.bmp", createVehicle, ["small transport truck"], buildRequirementsMet, ["small transport truck"]);
+	this.smallVehicleIconPanel.addButton("Interface/Icons", "SmallTruck.bmp", createVehicle, ["small transport truck"], buildRequirementsMet, ["small transport truck"]);
+	this.smallVehicleIconPanel.addButton("Interface/Icons", "SmallDigger.bmp", createVehicle, ["small digger"], buildRequirementsMet, ["small digger"]);
 	this.smallVehicleIconPanel.addButton("Interface/Icons", "SmallCat.bmp", createVehicle, ["small catamaran"], buildRequirementsMet, ["small catamaran"]);
 	this.smallVehicleIconPanel.addButton("Interface/Icons", "SmallMWP.bmp", createVehicle, ["small mwp"], buildRequirementsMet, ["small mwp"]);
 	this.smallVehicleIconPanel.addButton("Interface/Icons", "SmallHeli.bmp", createVehicle, ["small heli"], buildRequirementsMet, ["small heli"]);
