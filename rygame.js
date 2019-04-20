@@ -426,11 +426,8 @@ GameManagerInternal.prototype.playSoundEffect = function (soundName, loop = fals
 		sound.currentTime = 0;
 		sound.volume = GameManager.fxVolume;
 		sound.loop = loop;
-		// TODO have to wait for canplay event sometimes?
 		const prom = sound.play();
-		if (prom) { // just chrome... nobody cares
-			prom.catch(() => {});
-		}
+		if (prom) prom.catch((e) => console.log("Could not play sound: " + soundName + " exception: " + e.toString()));
 		return sound;
 	} else {
 		throw "Unknown sound '" + soundName + "' requested";
@@ -720,6 +717,8 @@ function GameManagerInternal() {
 	this.objectLists = {};
 	// list of NERP scripts
 	this.nerps = [];
+	// list of NERP messages
+	this.nerpMessages = [];
 	this.fps = 40;
 	this.keyStates = [];
 	this.completeLayerList = [];
@@ -1381,6 +1380,8 @@ RygameObject.prototype.moveOutsideCollision = function (otherObject, xPrevious, 
 		if (iterations > 25) {
 			// TODO workaround against infinite loops
 			console.error("Aborted collision checks! Too many iterations");
+			debugger;
+			break;
 		}
 	}
 	iterations = 0;
@@ -1390,6 +1391,8 @@ RygameObject.prototype.moveOutsideCollision = function (otherObject, xPrevious, 
 		if (iterations > 25) {
 			// TODO workaround against infinite loops
 			console.error("Aborted collision checks! Too many iterations");
+			debugger;
+			break;
 		}
 	}
 	iterations = 0;
@@ -1399,6 +1402,8 @@ RygameObject.prototype.moveOutsideCollision = function (otherObject, xPrevious, 
 		if (iterations > 25) {
 			// TODO workaround against infinite loops
 			console.error("Aborted collision checks! Too many iterations");
+			debugger;
+			break;
 		}
 	}
 };

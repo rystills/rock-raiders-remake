@@ -9,12 +9,12 @@ const drawDepthTerrainMarker = 975;
 const drawDepthSelectedSpace = 950;
 const drawDepthBuildingPlacier = 900;
 
-const drawDepthCollectables = 800;
-const drawDepthSelectedCollectables = 790;
+const drawDepthSelectedVehicle = 800;
 const drawDepthSlimes = 775;
-const drawDepthRaider = 750;
-const drawDepthVehicle = 725;
+const drawDepthVehicle = 750;
+const drawDepthRaider = 725;
 const drawDepthMonster = 700;
+const drawDepthCollectables = 650;
 
 const drawDepthLandslide = 600;
 const drawDepthHealthBar = 500;
@@ -22,9 +22,6 @@ const drawDepthHealthBar = 500;
 const drawDepthIconButtonPanelBackground = 475;
 const drawDepthIconButtonPanelButtons = 450;
 const drawDepthCrystalSideBar = 400;
-
-const drawDepthPauseBackground = 300;
-const drawDepthPauseButtons = 250;
 
 /**
  * output the terrain 2d-array to the console
@@ -514,7 +511,7 @@ function loadLevelData(levelKey) {
 			raiders.push(newRaider);
 		} else if (olObject.type === "Toolstation") {
 			const currentSpace = terrain[Math.floor(parseFloat(olObject.yPos))][Math.floor(parseFloat(olObject.xPos))];
-			currentSpace.setTypeProperties("tool store");
+			currentSpace.setTypeProperties(BuildingTypeEnum.toolStore);
 			currentSpace.headingAngle = (olObject.heading - 90) / 180 * Math.PI;
 			// check if this space was in a wall, but should now be touched
 			checkRevealSpace(currentSpace);
@@ -600,7 +597,7 @@ function taskType(task, raider) { // optional raider flag allows us to determine
 	if (typeof task.space != "undefined" && task instanceof Vehicle) {
 		return "vehicle";
 	}
-	if (typeof task.isBuilding != "undefined" && task.isBuilding === true && task.type === "tool store") {
+	if (typeof task.isBuilding != "undefined" && task.isBuilding === true && task.type === BuildingTypeEnum.toolStore) {
 		return (raider != null && raider.getToolName != null) ? "get tool" : "upgrade";
 	}
 	if (typeof task.walkable != "undefined" && task.walkable === true) {
@@ -623,7 +620,7 @@ function createRaider() {
 RockRaidersGame.prototype.getMaxAmountOfRaiders = function () {
 	let maxAmount = 9;
 	for (let c = 0; c < buildings.length; c++) {
-		if (buildings[c].type === "support station") {
+		if (buildings[c].type === BuildingTypeEnum.supportStation) {
 			maxAmount += 10;
 		}
 	}
@@ -637,7 +634,7 @@ RockRaidersGame.prototype.getMaxAmountOfRaiders = function () {
 function createVehicle(vehicleType) {
 	let toolStore = null;
 	for (let i = 0; i < buildings.length; i++) {
-		if (buildings[i].type === "tool store") {
+		if (buildings[i].type === BuildingTypeEnum.toolStore) {
 			toolStore = buildings[i];
 			break;
 		}
@@ -678,6 +675,7 @@ function setSelectionByMouseCursor() {
 			// simply choose the first raider identified as having been clicked, since all raiders have the same depth regardless
 			selection = [raiders.objectList[i]];
 			selectionType = "raider";
+			GameManager.playSoundEffect("SFX_Okay");
 			return;
 		}
 	}
@@ -686,14 +684,7 @@ function setSelectionByMouseCursor() {
 		if (collisionPoint(GameManager.mouseReleasedPosLeft.x, GameManager.mouseReleasedPosLeft.y, vehicles.objectList[i], vehicles.objectList[i].affectedByCamera)) {
 			selection = [vehicles.objectList[i]];
 			selectionType = selection[0].type;
-			return;
-		}
-	}
-	// check if a collectable object was clicked
-	for (let i = 0; i < collectables.objectList.length; i++) {
-		if (collisionPoint(GameManager.mouseReleasedPosLeft.x, GameManager.mouseReleasedPosLeft.y, collectables.objectList[i], collectables.objectList[i].affectedByCamera)) {
-			selection = [collectables.objectList[i]];
-			selectionType = selection[0].type;
+			GameManager.playSoundEffect("SFX_Okay");
 			return;
 		}
 	}
@@ -709,6 +700,8 @@ function setSelectionByMouseCursor() {
 						GameManager.playSoundEffect("SFX_Floor");
 					} else if (terrainTile.isWall) {
 						GameManager.playSoundEffect("SFX_Wall");
+					} else {
+						GameManager.playSoundEffect("SFX_Okay");
 					}
 				}
 				return;
@@ -752,8 +745,8 @@ function checkUpdateSelectionType() {
 		tileSelectedGraphic.drawDepth = drawDepthSelectedSpace; // put tile selection graphic between space and collectable
 		GameManager.refreshObject(tileSelectedGraphic);
 	}
-	if (selection[0] instanceof Collectable || selection[0] instanceof Vehicle) {
-		tileSelectedGraphic.drawDepth = drawDepthSelectedCollectables; // put tile selection graphic in front of collectable
+	if (selection[0] instanceof Vehicle) {
+		tileSelectedGraphic.drawDepth = drawDepthSelectedVehicle;
 		GameManager.refreshObject(tileSelectedGraphic);
 		// manually update vehicle selection to raider riding it, if it has a driver
 		for (let i = 0; i < raiders.objectList.length; ++i) {
@@ -851,10 +844,10 @@ function checkAssignSelectionTask() {
 						if (collisionPoint(GameManager.mouseReleasedPosRight.x, GameManager.mouseReleasedPosRight.y, initialSpace, initialSpace.affectedByCamera) &&
 							// don't do anything if the task is already taken by another raider, we don't want to re-add it to the task queue
 							((tasksAvailable.indexOf(initialSpace) !== -1) || initialSpace.walkable || (tasksInProgress.objectList.indexOf(initialSpace) !== -1))) {
-							console.log("A");
+							// console.log("A");
 							if ((j === 0 && (initialSpace.drillable || initialSpace.drillHardable || initialSpace.sweepable ||
 								initialSpace.buildable || initialSpace.walkable)) || j > 0) {
-								console.log("B");
+								// console.log("B");
 								clickedTasks.push(initialSpace);
 								if (debug) {
 									console.log("TERRAIN OL LENGTH + 1: " + (terrain[p][r].contains.objectList.length + 1));
@@ -920,7 +913,7 @@ function checkAssignSelectionTask() {
 					continue;
 				}
 
-				console.log("can we perform? : " + selection[i].canPerformTask(selectedTask, true));
+				// console.log("can we perform? : " + selection[i].canPerformTask(selectedTask, true));
 				// if we changed the taskType to 'walk' override this canPerformTask check since raiders can always walk
 				if (selection[i].canPerformTask(selectedTask, true) || selectedTaskType === "walk") {
 					// if current raider is already performing a task and not holding anything, stop him before assigning the new task
@@ -1180,7 +1173,7 @@ function upgradeRaider() {
 			}
 			// raiders are the only valid selection type for now
 			if (selection[i].currentTask == null && selection[i].holding.length === 0) {
-				const newPath = pathToClosestBuilding(selection[i], "tool store");
+				const newPath = pathToClosestBuilding(selection[i], BuildingTypeEnum.toolStore);
 				if (newPath == null) {
 					// no toolstore found or unable to path to any toolstores from this raider
 					continue;
@@ -1210,7 +1203,7 @@ function getTool(toolName) {
 			}
 			// raiders are the only valid selection type for now
 			if (selection[i].currentTask == null && selection[i].holding.length === 0) {
-				const newPath = pathToClosestBuilding(selection[i], "tool store");
+				const newPath = pathToClosestBuilding(selection[i], BuildingTypeEnum.toolStore);
 				if (newPath == null) {
 					continue;
 				}
@@ -1661,39 +1654,39 @@ function exitVehicle() {
 function buildRequirementsMet(buildingType) {
 	let buildingRequirements = [];
 	// buildings TODO read this from config
-	if (buildingType === "teleport pad") {
-		buildingRequirements = ["tool store"];
-	} else if (buildingType === "docks") {
-		buildingRequirements = ["tool store", "teleport pad"];
-	} else if (buildingType === "power station") {
-		buildingRequirements = ["tool store", "teleport pad"];
-	} else if (buildingType === "ore refinery") {
-		buildingRequirements = ["tool store", "teleport pad", "power station"];
-	} else if (buildingType === "geological center") {
-		buildingRequirements = ["tool store", "teleport pad", "power station"];
-	} else if (buildingType === "mining laser") {
-		buildingRequirements = ["tool store", "teleport pad", "power station"];
-	} else if (buildingType === "upgrade station") {
-		buildingRequirements = ["tool store", "teleport pad", "power station"];
-	} else if (buildingType === "support station") {
-		buildingRequirements = ["tool store", "teleport pad", "power station"];
-	} else if (buildingType === "super teleport") {
-		buildingRequirements = ["tool store", "teleport pad", "power station", "support station"];
+	if (buildingType === BuildingTypeEnum.teleportPad) {
+		buildingRequirements = [BuildingTypeEnum.toolStore];
+	} else if (buildingType === BuildingTypeEnum.docks) {
+		buildingRequirements = [BuildingTypeEnum.toolStore, BuildingTypeEnum.teleportPad];
+	} else if (buildingType === BuildingTypeEnum.powerStation) {
+		buildingRequirements = [BuildingTypeEnum.toolStore, BuildingTypeEnum.teleportPad];
+	} else if (buildingType === BuildingTypeEnum.oreRefinery) {
+		buildingRequirements = [BuildingTypeEnum.toolStore, BuildingTypeEnum.teleportPad, BuildingTypeEnum.powerStation];
+	} else if (buildingType === BuildingTypeEnum.geologicalCenter) {
+		buildingRequirements = [BuildingTypeEnum.toolStore, BuildingTypeEnum.teleportPad, BuildingTypeEnum.powerStation];
+	} else if (buildingType === BuildingTypeEnum.miningLaser) {
+		buildingRequirements = [BuildingTypeEnum.toolStore, BuildingTypeEnum.teleportPad, BuildingTypeEnum.powerStation];
+	} else if (buildingType === BuildingTypeEnum.upgradeStation) {
+		buildingRequirements = [BuildingTypeEnum.toolStore, BuildingTypeEnum.teleportPad, BuildingTypeEnum.powerStation];
+	} else if (buildingType === BuildingTypeEnum.supportStation) {
+		buildingRequirements = [BuildingTypeEnum.toolStore, BuildingTypeEnum.teleportPad, BuildingTypeEnum.powerStation];
+	} else if (buildingType === BuildingTypeEnum.superTeleport) {
+		buildingRequirements = [BuildingTypeEnum.toolStore, BuildingTypeEnum.teleportPad, BuildingTypeEnum.powerStation, BuildingTypeEnum.supportStation];
 	}
 
 	// vehicles TODO read this from config
 	else if (buildingType === "hover scout") {
-		buildingRequirements = ["support station"];
+		buildingRequirements = [BuildingTypeEnum.supportStation];
 	} else if (buildingType === "small digger") {
-		buildingRequirements = ["support station"];
+		buildingRequirements = [BuildingTypeEnum.supportStation];
 	} else if (buildingType === "small transport truck") {
-		buildingRequirements = ["support station"];
+		buildingRequirements = [BuildingTypeEnum.supportStation];
 	} else if (buildingType === "small catamaran") {
-		buildingRequirements = ["docks", "support station"];
+		buildingRequirements = [BuildingTypeEnum.docks, BuildingTypeEnum.supportStation];
 	} else if (buildingType === "small mwp") {
-		buildingRequirements = ["teleport pad:2", "support station"];
+		buildingRequirements = ["teleport pad:2", BuildingTypeEnum.supportStation];
 	} else if (buildingType === "small heli") {
-		buildingRequirements = ["teleport pad:2", "support station"];
+		buildingRequirements = ["teleport pad:2", BuildingTypeEnum.supportStation];
 	}
 
 	for (let i = 0; i < buildingRequirements.length; ++i) {
@@ -1732,7 +1725,8 @@ function startBuildingPlacer(buildingType) {
 RockRaidersGame.prototype.createGUIElements = function () {
 	this.mainIconPanel = new IconButtonPanel();
 	const figBtn = this.mainIconPanel.addButton("Interface/Icons", "minifigures.bmp", createRaider, null, function () {
-		return raiders.size() < RockRaiders.getMaxAmountOfRaiders();
+		const numOfToolstores = buildings.reduce((counter, b) => b.touched && b.canSpawnRaiders ? ++counter : counter, 0);
+		return numOfToolstores > 0 && raiders.size() < RockRaiders.getMaxAmountOfRaiders();
 	});
 	new RaiderQueueSizeText(figBtn);
 	this.mainIconPanel.addButton("Interface/Menus", "building.bmp", openBuildingMenu);
@@ -1741,33 +1735,33 @@ RockRaidersGame.prototype.createGUIElements = function () {
 	this.mainIconPanel.updateBackgroundImage();
 
 	this.buildIconPanel = new IconButtonPanel(changeIconPanel);
-	this.buildIconPanel.addButton("Interface/Icons", "ToolStation.bmp", startBuildingPlacer, ["tool store"], buildRequirementsMet, ["tool store"]);
-	this.buildIconPanel.addButton("Interface/Icons", "SMteleport.bmp", startBuildingPlacer, ["teleport pad"], buildRequirementsMet, ["teleport pad"]);
-	this.buildIconPanel.addButton("Interface/Icons", "dock.bmp", startBuildingPlacer, ["docks"], buildRequirementsMet, ["docks"]);
-	this.buildIconPanel.addButton("Interface/Icons", "PowerStation.bmp", startBuildingPlacer, ["power station"], buildRequirementsMet, ["power station"]);
-	this.buildIconPanel.addButton("Interface/Icons", "barracks.bmp", startBuildingPlacer, ["support station"], buildRequirementsMet, ["support station"]);
-	this.buildIconPanel.addButton("Interface/Icons", "Upgrade.bmp", startBuildingPlacer, ["upgrade station"], buildRequirementsMet, ["upgrade station"]);
-	this.buildIconPanel.addButton("Interface/Icons", "Geo.bmp", startBuildingPlacer, ["geological center"], buildRequirementsMet, ["geological center"]);
-	this.buildIconPanel.addButton("Interface/Icons", "Orerefinery.bmp", startBuildingPlacer, ["ore refinery"], buildRequirementsMet, ["ore refinery"]);
-	this.buildIconPanel.addButton("Interface/Icons", "Gunstation.bmp", startBuildingPlacer, ["mining laser"], buildRequirementsMet, ["mining laser"]);
-	this.buildIconPanel.addButton("Interface/Icons", "LargeTeleporter.bmp", startBuildingPlacer, ["super teleport"], buildRequirementsMet, ["super teleport"]);
+	this.buildIconPanel.addButton("Interface/Icons", "ToolStation.bmp", startBuildingPlacer, [BuildingTypeEnum.toolStore], buildRequirementsMet, [BuildingTypeEnum.toolStore]);
+	this.buildIconPanel.addButton("Interface/Icons", "SMteleport.bmp", startBuildingPlacer, [BuildingTypeEnum.teleportPad], buildRequirementsMet, [BuildingTypeEnum.teleportPad]);
+	this.buildIconPanel.addButton("Interface/Icons", "dock.bmp", startBuildingPlacer, [BuildingTypeEnum.docks], buildRequirementsMet, [BuildingTypeEnum.docks]);
+	this.buildIconPanel.addButton("Interface/Icons", "PowerStation.bmp", startBuildingPlacer, [BuildingTypeEnum.powerStation], buildRequirementsMet, [BuildingTypeEnum.powerStation]);
+	this.buildIconPanel.addButton("Interface/Icons", "barracks.bmp", startBuildingPlacer, [BuildingTypeEnum.supportStation], buildRequirementsMet, [BuildingTypeEnum.supportStation]);
+	this.buildIconPanel.addButton("Interface/Icons", "Upgrade.bmp", startBuildingPlacer, [BuildingTypeEnum.upgradeStation], buildRequirementsMet, [BuildingTypeEnum.upgradeStation]);
+	this.buildIconPanel.addButton("Interface/Icons", "Geo.bmp", startBuildingPlacer, [BuildingTypeEnum.geologicalCenter], buildRequirementsMet, [BuildingTypeEnum.geologicalCenter]);
+	this.buildIconPanel.addButton("Interface/Icons", "Orerefinery.bmp", startBuildingPlacer, [BuildingTypeEnum.oreRefinery], buildRequirementsMet, [BuildingTypeEnum.oreRefinery]);
+	this.buildIconPanel.addButton("Interface/Icons", "Gunstation.bmp", startBuildingPlacer, [BuildingTypeEnum.miningLaser], buildRequirementsMet, [BuildingTypeEnum.miningLaser]);
+	this.buildIconPanel.addButton("Interface/Icons", "LargeTeleporter.bmp", startBuildingPlacer, [BuildingTypeEnum.superTeleport], buildRequirementsMet, [BuildingTypeEnum.superTeleport]);
 	this.buildIconPanel.updateBackgroundImage();
 
 	this.smallVehicleIconPanel = new IconButtonPanel(changeIconPanel);
 	this.smallVehicleIconPanel.addButton("Interface/Icons", "hoverboard.bmp", createVehicle, ["hover scout"], buildRequirementsMet, ["hover scout"]);
-	this.smallVehicleIconPanel.addButton("Interface/Icons", "SmallTruck.bmp", createVehicle, ["small digger"], buildRequirementsMet, ["small digger"]);
-	this.smallVehicleIconPanel.addButton("Interface/Icons", "SmallDigger.bmp", createVehicle, ["small transport truck"], buildRequirementsMet, ["small transport truck"]);
+	this.smallVehicleIconPanel.addButton("Interface/Icons", "SmallTruck.bmp", createVehicle, ["small transport truck"], buildRequirementsMet, ["small transport truck"]);
+	this.smallVehicleIconPanel.addButton("Interface/Icons", "SmallDigger.bmp", createVehicle, ["small digger"], buildRequirementsMet, ["small digger"]);
 	this.smallVehicleIconPanel.addButton("Interface/Icons", "SmallCat.bmp", createVehicle, ["small catamaran"], buildRequirementsMet, ["small catamaran"]);
 	this.smallVehicleIconPanel.addButton("Interface/Icons", "SmallMWP.bmp", createVehicle, ["small mwp"], buildRequirementsMet, ["small mwp"]);
 	this.smallVehicleIconPanel.addButton("Interface/Icons", "SmallHeli.bmp", createVehicle, ["small heli"], buildRequirementsMet, ["small heli"]);
 	this.smallVehicleIconPanel.updateBackgroundImage();
 
 	this.largeVehicleIconPanel = new IconButtonPanel(changeIconPanel);
-	this.largeVehicleIconPanel.addButton("Interface/Icons", "Bulldozer.bmp");
-	this.largeVehicleIconPanel.addButton("Interface/Icons", "WalkerDigger.bmp");
-	this.largeVehicleIconPanel.addButton("Interface/Icons", "LargeMWP.bmp");
-	this.largeVehicleIconPanel.addButton("Interface/Icons", "largeDigger.bmp");
-	this.largeVehicleIconPanel.addButton("Interface/Icons", "LargeCatamaran.bmp");
+	this.largeVehicleIconPanel.addButton("Interface/Icons", "Bulldozer.bmp", null, null, () => { return false; });
+	this.largeVehicleIconPanel.addButton("Interface/Icons", "WalkerDigger.bmp", null, null, () => { return false; });
+	this.largeVehicleIconPanel.addButton("Interface/Icons", "LargeMWP.bmp", null, null, () => { return false; });
+	this.largeVehicleIconPanel.addButton("Interface/Icons", "largeDigger.bmp", null, null, () => { return false; });
+	this.largeVehicleIconPanel.addButton("Interface/Icons", "LargeCatamaran.bmp", null, null, () => { return false; });
 	this.largeVehicleIconPanel.updateBackgroundImage();
 
 	// raider selected buttons
@@ -2070,6 +2064,7 @@ RockRaidersGame.prototype.finalizeLevelSelectLayer = function () {
 			});
 		}
 		that.levelConf[levelKey].NerpRunner = GameManager.nerps[that.levelConf[levelKey]["NERPFile"].replace(".npl", ".nrn")];
+		that.levelConf[levelKey].NerpRunner.messages = GameManager.nerpMessages[that.levelConf[levelKey]["NERPMessageFile"]];
 		const frontendX = that.levelConf[levelKey]["FrontEndX"];
 		const frontendY = that.levelConf[levelKey]["FrontEndY"];
 		const menuBitmaps = that.levelConf[levelKey]["MenuBMP"].split(",");
@@ -2400,7 +2395,11 @@ function showScoreScreen(missionState) {
 			setLevelScore(levelScore, RockRaiders.currentLevelKey);
 		}
 		scoreScreenLayer.setValues(missionState, levelConf["FullName"], percentCrystals, percentOres, percentDigable, buildings.length, 0, percentRaiders, 0, 100, timeElapsedMs, levelScore);
-		scoreScreenLayer.startReveal();
+		if (missionState === "completed") {
+			scoreScreenLayer.startReveal();
+		} else {
+			scoreScreenLayer.showAll();
+		}
 	}, 6000);
 }
 
@@ -2418,8 +2417,8 @@ function checkSelectionMenu() {
 		changeIconPanel(RockRaiders.powerPathIconPanel);
 	} else if (["rubble 1", "rubble 2", "rubble 3", "rubble 4"].includes(selectionType)) {
 		changeIconPanel(RockRaiders.rubbleIconPanel);
-	} else if (["tool store", "teleport pad", "power station", "docks", "geological center", "support station",
-		"super teleport", "mining laser", "upgrade station", "ore refinery"].includes(selectionType)) {
+	} else if ([BuildingTypeEnum.toolStore, BuildingTypeEnum.teleportPad, BuildingTypeEnum.powerStation, BuildingTypeEnum.docks, BuildingTypeEnum.geologicalCenter, BuildingTypeEnum.supportStation,
+		BuildingTypeEnum.superTeleport, BuildingTypeEnum.miningLaser, BuildingTypeEnum.upgradeStation, BuildingTypeEnum.oreRefinery].includes(selectionType)) {
 		changeIconPanel(RockRaiders.buildingIconPanel);
 	} else if (selectionType === "building site") {
 		changeIconPanel(RockRaiders.buildingSiteIconPanel);

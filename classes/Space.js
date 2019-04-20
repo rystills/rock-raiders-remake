@@ -1,5 +1,18 @@
 makeChild("Space", "RygameObject");
 
+const BuildingTypeEnum = Object.freeze({
+	toolStore: "toolStore",
+	teleportPad: "teleportPad",
+	docks: "docks",
+	powerStation: "power station",
+	supportStation: "support station",
+	upgradeStation: "upgrade station",
+	geologicalCenter: "geological center",
+	oreRefinery: "ore refinery",
+	miningLaser: "mining laser",
+	superTeleport: "super teleport"
+});
+
 // enum of space types
 spaceTypes = {
 	1: "solid rock",
@@ -21,21 +34,21 @@ spaceTypes = {
 	101: "rubble 2",
 	102: "rubble 3",
 	103: "rubble 4",
-	'-2': "tool store",
-	'-3': "teleport pad",
-	'-4': "docks",
-	'-5': "power station",
+	'-2': BuildingTypeEnum.toolStore,
+	'-3': BuildingTypeEnum.teleportPad,
+	'-4': BuildingTypeEnum.docks,
+	'-5': BuildingTypeEnum.powerStation,
 	'-5.2': "power station topRight",
-	'-6': "support station",
-	'-7': "upgrade station",
+	'-6': BuildingTypeEnum.supportStation,
+	'-7': BuildingTypeEnum.upgradeStation,
 	'-7.2': "upgrade station right",
-	'-8': "geological center",
+	'-8': BuildingTypeEnum.geologicalCenter,
 	'-8.2': "geological center right",
-	'-9': "ore refinery",
+	'-9': BuildingTypeEnum.oreRefinery,
 	'-9.2': "ore refinery right",
-	'-10': "mining laser",
+	'-10': BuildingTypeEnum.miningLaser,
 	'-10.2': "mining laser right",
-	'-11': "super teleport",
+	'-11': BuildingTypeEnum.superTeleport,
 	'-11.2': "super teleport topRight",
 	'-101': "building site",
 	'-102': "building site",
@@ -256,7 +269,7 @@ Space.prototype.sweep = function () {
 	}
 };
 
-Space.prototype.setRockImage = function (matIndex) {
+Space.prototype.getWalls = function () {
 	const walls = [[false, false, false], [false, false, false], [false, false, false]];
 	let wallsCount = 0;
 	for (let y = -1; y <= 1; y++) {
@@ -268,6 +281,23 @@ Space.prototype.setRockImage = function (matIndex) {
 			}
 		}
 	}
+	return {walls, wallsCount};
+};
+
+Space.prototype.updateWallAngle = function (walls) {
+	if (!walls[1][0]) { // top missing
+		this.drawAngle = Math.PI;
+	} else if (!walls[0][1]) { // left missing
+		this.drawAngle = 0.5 * Math.PI;
+	} else if (!walls[2][1]) { // right missing
+		this.drawAngle = -0.5 * Math.PI;
+	} else {
+		this.drawAngle = 0;
+	}
+};
+
+Space.prototype.setRockImage = function (matIndex) {
+	const {walls, wallsCount} = this.getWalls();
 	this.shapeIndex = 0;
 	if (!walls[0][1] && !walls[0][2] && !walls[1][2]) {
 		this.drawAngle = 0.5 * Math.PI; // 0 = lower right, 0.5 = lower left, ...
@@ -302,16 +332,8 @@ Space.prototype.setRockImage = function (matIndex) {
 				this.drawAngle = 0;
 			}
 		}
-	} else { // even part
-		if (!walls[1][0]) { // top missing
-			this.drawAngle = Math.PI;
-		} else if (!walls[0][1]) { // left missing
-			this.drawAngle = 0.5 * Math.PI;
-		} else if (!walls[2][1]) { // right missing
-			this.drawAngle = -0.5 * Math.PI;
-		} else {
-			this.drawAngle = 0;
-		}
+	} else { // plain wall
+		this.updateWallAngle(walls);
 	}
 	this.image = "World/WorldTextures/" + RockRaiders.themeName + "Split/" + RockRaiders.themeName + this.shapeIndex.toString() + matIndex.toString() + ".bmp";
 };
@@ -380,31 +402,31 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 	if (requiredResources == null) {
 		if (this.buildingSiteType === "power path") {
 			requiredResources = {"ore": 2, "crystal": 0};
-		} else if (this.buildingSiteType === "tool store") {
+		} else if (this.buildingSiteType === BuildingTypeEnum.toolStore) {
 			requiredResources = {"ore": 5, "crystal": 0};
-		} else if (this.buildingSiteType === "teleport pad") {
+		} else if (this.buildingSiteType === BuildingTypeEnum.teleportPad) {
 			requiredResources = {"ore": 10, "crystal": 1};
-		} else if (this.buildingSiteType === "power station") {
+		} else if (this.buildingSiteType === BuildingTypeEnum.powerStation) {
 			requiredResources = {"ore": 8, "crystal": 1};
 		} else if (this.buildingSiteType === "power station topRight") {
 			requiredResources = {"ore": 7, "crystal": 1};
-		} else if (this.buildingSiteType === "geological center") {
+		} else if (this.buildingSiteType === BuildingTypeEnum.geologicalCenter) {
 			requiredResources = {"ore": 8, "crystal": 2};
 		} else if (this.buildingSiteType === "geological center right") {
 			requiredResources = {"ore": 7, "crystal": 1};
-		} else if (this.buildingSiteType === "docks") {
+		} else if (this.buildingSiteType === BuildingTypeEnum.docks) {
 			requiredResources = {"ore": 8, "crystal": 1};
-		} else if (this.buildingSiteType === "support station") {
+		} else if (this.buildingSiteType === BuildingTypeEnum.supportStation) {
 			requiredResources = {"ore": 15, "crystal": 3};
-		} else if (this.buildingSiteType === "upgrade station") {
+		} else if (this.buildingSiteType === BuildingTypeEnum.upgradeStation) {
 			requiredResources = {"ore": 20, "crystal": 3};
-		} else if (this.buildingSiteType === "ore refinery") {
+		} else if (this.buildingSiteType === BuildingTypeEnum.oreRefinery) {
 			requiredResources = {"ore": 10, "crystal": 2};
 		} else if (this.buildingSiteType === "ore refinery right") {
 			requiredResources = {"ore": 10, "crystal": 1};
-		} else if (this.buildingSiteType === "mining laser") {
+		} else if (this.buildingSiteType === BuildingTypeEnum.miningLaser) {
 			requiredResources = {"ore": 15, "crystal": 1};
-		} else if (this.buildingSiteType === "super teleport") {
+		} else if (this.buildingSiteType === BuildingTypeEnum.superTeleport) {
 			requiredResources = {"ore": 10, "crystal": 2};
 		} else if (this.buildingSiteType === "super teleport topRight") {
 			requiredResources = {"ore": 10, "crystal": 1};
@@ -472,6 +494,7 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 		this.drillable = true;
 		this.isWall = true;
 		this.drillSpeedModifier = .2;
+		this.updateWallAngle(this.getWalls().walls)
 	} else if (type === "water") {
 		this.image = "World/WorldTextures/" + RockRaiders.themeName + "Split/" + RockRaiders.themeName + "45.bmp";
 	} else if (type === "energy crystal seam") {
@@ -479,10 +502,12 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 		this.drillable = true;
 		this.isWall = true;
 		this.drillSpeedModifier = .2;
+		this.updateWallAngle(this.getWalls().walls)
 	} else if (type === "recharge seam") {
 		this.image = "World/WorldTextures/" + RockRaiders.themeName + "Split/" + RockRaiders.themeName + "67.bmp";
 		this.isWall = true;
 		this.selectable = false;
+		this.updateWallAngle(this.getWalls().walls)
 	} else if (type.slice(0, 6) === "rubble") {
 		if (type === "rubble 1") {
 			this.image = "World/WorldTextures/" + RockRaiders.themeName + "Split/" + RockRaiders.themeName + "10.BMP";
@@ -496,7 +521,7 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 		this.walkable = true;
 		this.sweepable = true;
 		this.speedModifier = .5;
-	} else if (type === "teleport pad") {
+	} else if (type === BuildingTypeEnum.teleportPad) {
 		this.image = "teleport pad.png";
 		this.isBuilding = true;
 		if (this.touched === true) {
@@ -507,7 +532,7 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 		}
 		this.setPowerPathSpace();
 		this.canSpawnRaiders = true;
-	} else if (type === "docks") {
+	} else if (type === BuildingTypeEnum.docks) {
 		this.image = "docks.png";
 		this.isBuilding = true;
 		if (this.touched === true) {
@@ -516,7 +541,7 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 				buildings.push(this);
 			}
 		}
-	} else if (type === "support station") {
+	} else if (type === BuildingTypeEnum.supportStation) {
 		this.image = "support station.png";
 		this.isBuilding = true;
 		if (this.touched === true) {
@@ -525,8 +550,8 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 				buildings.push(this);
 			}
 		}
-	} else if (type === "power station" || type === "power station topRight") {
-		this.image = (type === "power station" ? "power station topLeft.png" : "power station topRight.png");
+	} else if (type === BuildingTypeEnum.powerStation || type === "power station topRight") {
+		this.image = (type === BuildingTypeEnum.powerStation ? "power station topLeft.png" : "power station topRight.png");
 		this.isBuilding = true;
 		if (this.touched === true) {
 			const index = buildings.indexOf(this);
@@ -534,8 +559,8 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 				buildings.push(this);
 			}
 		}
-	} else if (type === "geological center" || type === "geological center right") {
-		this.image = (type === "geological center" ? "geological center left.png" : "geological center right.png");
+	} else if (type === BuildingTypeEnum.geologicalCenter || type === "geological center right") {
+		this.image = (type === BuildingTypeEnum.geologicalCenter ? "geological center left.png" : "geological center right.png");
 		this.isBuilding = true;
 		if (this.touched === true) {
 			const index = buildings.indexOf(this);
@@ -543,7 +568,7 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 				buildings.push(this);
 			}
 		}
-	} else if (type === "upgrade station") {
+	} else if (type === BuildingTypeEnum.upgradeStation) {
 		this.image = "upgrade station left.png";
 		this.isBuilding = true;
 		if (this.touched === true) {
@@ -552,8 +577,8 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 				buildings.push(this);
 			}
 		}
-	} else if (type === "ore refinery" || type === "ore refinery right") {
-		this.image = (type === "ore refinery" ? "ore refinery left.png" : "ore refinery right.png");
+	} else if (type === BuildingTypeEnum.oreRefinery || type === "ore refinery right") {
+		this.image = (type === BuildingTypeEnum.oreRefinery ? "ore refinery left.png" : "ore refinery right.png");
 		this.isBuilding = true;
 		if (this.touched === true) {
 			const index = buildings.indexOf(this);
@@ -561,7 +586,7 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 				buildings.push(this);
 			}
 		}
-	} else if (type === "mining laser") {
+	} else if (type === BuildingTypeEnum.miningLaser) {
 		this.image = "mining laser left.png";
 		this.isBuilding = true;
 		if (this.touched === true) {
@@ -570,8 +595,8 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 				buildings.push(this);
 			}
 		}
-	} else if (type === "super teleport" || type === "super teleport topRight") {
-		this.image = (type === "super teleport" ? "super teleport topLeft.png" : "super teleport topRight.png");
+	} else if (type === BuildingTypeEnum.superTeleport || type === "super teleport topRight") {
+		this.image = (type === BuildingTypeEnum.superTeleport ? "super teleport topLeft.png" : "super teleport topRight.png");
 		this.isBuilding = true;
 		if (this.touched === true) {
 			const index = buildings.indexOf(this);
@@ -581,7 +606,7 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 		}
 		this.setPowerPathSpace();
 		this.canSpawnRaiders = true;
-	} else if (type === "tool store") {
+	} else if (type === BuildingTypeEnum.toolStore) {
 		this.image = "tool store.png";
 		this.isBuilding = true;
 		this.walkable = true;
@@ -882,35 +907,35 @@ function Space(type, listX, listY, height, parentSpace) {
 	} else if (type === "-101.2") {
 		this.buildingSiteType = "power path";
 	} else if (type === -102) {
-		this.buildingSiteType = "tool store";
+		this.buildingSiteType = BuildingTypeEnum.toolStore;
 	} else if (type === -103) {
-		this.buildingSiteType = "teleport pad";
+		this.buildingSiteType = BuildingTypeEnum.teleportPad;
 	} else if (type === -104) {
-		this.buildingSiteType = "docks";
+		this.buildingSiteType = BuildingTypeEnum.docks;
 	} else if (type === -105) {
-		this.buildingSiteType = "power station";
+		this.buildingSiteType = BuildingTypeEnum.powerStation;
 	} else if (type === '-105.2') {
 		this.buildingSiteType = "power station topRight";
 	} else if (type === -106) {
-		this.buildingSiteType = "support station";
+		this.buildingSiteType = BuildingTypeEnum.supportStation;
 	} else if (type === -107) {
-		this.buildingSiteType = "upgrade station";
+		this.buildingSiteType = BuildingTypeEnum.upgradeStation;
 	} else if (type === -'107.2') {
 		this.buildingSiteType = "upgrade station right";
 	} else if (type === -108) {
-		this.buildingSiteType = "geological center";
+		this.buildingSiteType = BuildingTypeEnum.geologicalCenter;
 	} else if (type === -'108.2') {
 		this.buildingSiteType = "geological center right";
 	} else if (type === -109) {
-		this.buildingSiteType = "ore refinery";
+		this.buildingSiteType = BuildingTypeEnum.oreRefinery;
 	} else if (type === -'109.2') {
 		this.buildingSiteType = "ore refinery right";
 	} else if (type === -110) {
-		this.buildingSiteType = "mining laser";
+		this.buildingSiteType = BuildingTypeEnum.miningLaser;
 	} else if (type === -'110.2') {
 		this.buildingSiteType = "mining laser right";
 	} else if (type === -111) {
-		this.buildingSiteType = "super teleport";
+		this.buildingSiteType = BuildingTypeEnum.superTeleport;
 	} else if (type === -'111.2') {
 		this.buildingSiteType = "super teleport topRight";
 	}
@@ -1000,7 +1025,6 @@ function Space(type, listX, listY, height, parentSpace) {
 	// temporary angle variable used to store correct drawAngle when space has not yet been touched (is still in the fog)
 	this.headingAngle = 0;
 	this.landSlides = null;
-	this.landSlideSound = null;
 	this.soundList = [];
 	// modifier determines how difficult this wall is to drill (for ore and crystal seams, this will be 0.2, as they require 5 'drills')
 	this.drillSpeedModifier = 1;

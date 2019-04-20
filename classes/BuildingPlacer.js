@@ -95,21 +95,21 @@ BuildingPlacer.prototype.start = function (type, keepDir) {
 		this.dir = 0;
 	}
 
-	if (type === "tool store" || type === "teleport pad" || type === "docks" || type === "support station") {
+	if (type === BuildingTypeEnum.toolStore || type === BuildingTypeEnum.teleportPad || type === BuildingTypeEnum.docks || type === BuildingTypeEnum.supportStation) {
 		this.children.push(new BuildingPlacer("building power path", true, BuildingPlacer.dirOffsets[this.dir][0][0], BuildingPlacer.dirOffsets[this.dir][0][1]));
-	} else if (type === "power station") {
+	} else if (type === BuildingTypeEnum.powerStation) {
 		this.children.push(new BuildingPlacer("power station topRight", true, BuildingPlacer.dirOffsets[this.dir][0][0], BuildingPlacer.dirOffsets[this.dir][0][1], this));
 		this.children.push(new BuildingPlacer("power station powerPath", true, BuildingPlacer.dirOffsets[this.dir][1][0], BuildingPlacer.dirOffsets[this.dir][1][1], this));
-	} else if (type === "ore refinery") {
+	} else if (type === BuildingTypeEnum.oreRefinery) {
 		this.children.push(new BuildingPlacer("ore refinery right", true, BuildingPlacer.dirOffsets[this.dir][0][0], BuildingPlacer.dirOffsets[this.dir][0][1], this));
 		this.children.push(new BuildingPlacer("building power path", true, BuildingPlacer.dirOffsets[this.dir][2][0], BuildingPlacer.dirOffsets[this.dir][2][1]));
-	} else if (type === "geological center") {
+	} else if (type === BuildingTypeEnum.geologicalCenter) {
 		this.children.push(new BuildingPlacer("geological center right", true, BuildingPlacer.dirOffsets[this.dir][0][0], BuildingPlacer.dirOffsets[this.dir][0][1], this));
-	} else if (type === "mining laser") {
+	} else if (type === BuildingTypeEnum.miningLaser) {
 		this.children.push(new BuildingPlacer("mining laser right", true, BuildingPlacer.dirOffsets[this.dir][0][0], BuildingPlacer.dirOffsets[this.dir][0][1], this));
-	} else if (type === "upgrade station") {
+	} else if (type === BuildingTypeEnum.upgradeStation) {
 		this.children.push(new BuildingPlacer("upgrade station right", true, BuildingPlacer.dirOffsets[this.dir][0][0], BuildingPlacer.dirOffsets[this.dir][0][1], this));
-	} else if (type === "super teleport") {
+	} else if (type === BuildingTypeEnum.superTeleport) {
 		this.children.push(new BuildingPlacer("super teleport topRight", true, BuildingPlacer.dirOffsets[this.dir][0][0], BuildingPlacer.dirOffsets[this.dir][0][1], this));
 		this.children.push(new BuildingPlacer("building power path", true, BuildingPlacer.dirOffsets[this.dir][1][0], BuildingPlacer.dirOffsets[this.dir][1][1]));
 		this.children.push(new BuildingPlacer("building power path", true, -1 * BuildingPlacer.dirOffsets[this.dir][0][1], BuildingPlacer.dirOffsets[this.dir][0][0]));

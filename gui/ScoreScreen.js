@@ -152,19 +152,23 @@ ScoreScreenLayer.prototype.startReveal = function () {
 	}, lastOverlay.revealStart + lastOverlay.revealTimeout);
 };
 
+ScoreScreenLayer.prototype.showAll = function () {
+	const overlays = this.overlays;
+	const missionState = this.missionState;
+	Object.keys(overlays).forEach(function (overlayKey) {
+		if (overlayKey !== "Score" || missionState === "completed") {
+			overlays[overlayKey].show();
+		}
+	});
+	this.saveButton.visible = true;
+	this.saveButton.clickable = this.missionState === "completed";
+	this.advanceButton.visible = true;
+};
+
 ScoreScreenLayer.prototype.update = function () {
 	// skip reveals
 	if (GameManager.mouseReleasedLeft) {
-		const overlays = this.overlays;
-		const missionState = this.missionState;
-		Object.keys(overlays).forEach(function (overlayKey) {
-			if (overlayKey !== "Score" || missionState === "completed") {
-				overlays[overlayKey].show();
-			}
-		});
-		this.saveButton.visible = true;
-		this.saveButton.clickable = this.missionState === "completed";
-		this.advanceButton.visible = true;
+		this.showAll();
 	}
 };
 
