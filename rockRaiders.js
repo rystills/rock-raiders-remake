@@ -675,6 +675,7 @@ function setSelectionByMouseCursor() {
 			// simply choose the first raider identified as having been clicked, since all raiders have the same depth regardless
 			selection = [raiders.objectList[i]];
 			selectionType = "raider";
+			GameManager.playSoundEffect("SFX_Okay");
 			return;
 		}
 	}
@@ -683,6 +684,7 @@ function setSelectionByMouseCursor() {
 		if (collisionPoint(GameManager.mouseReleasedPosLeft.x, GameManager.mouseReleasedPosLeft.y, vehicles.objectList[i], vehicles.objectList[i].affectedByCamera)) {
 			selection = [vehicles.objectList[i]];
 			selectionType = selection[0].type;
+			GameManager.playSoundEffect("SFX_Okay");
 			return;
 		}
 	}
@@ -698,6 +700,8 @@ function setSelectionByMouseCursor() {
 						GameManager.playSoundEffect("SFX_Floor");
 					} else if (terrainTile.isWall) {
 						GameManager.playSoundEffect("SFX_Wall");
+					} else {
+						GameManager.playSoundEffect("SFX_Okay");
 					}
 				}
 				return;
