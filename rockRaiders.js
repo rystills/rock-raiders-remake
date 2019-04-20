@@ -2389,7 +2389,11 @@ function showScoreScreen(missionState) {
 			setLevelScore(levelScore, RockRaiders.currentLevelKey);
 		}
 		scoreScreenLayer.setValues(missionState, levelConf["FullName"], percentCrystals, percentOres, percentDigable, buildings.length, 0, percentRaiders, 0, 100, timeElapsedMs, levelScore);
-		scoreScreenLayer.startReveal();
+		if (missionState === "completed") {
+			scoreScreenLayer.startReveal();
+		} else {
+			scoreScreenLayer.showAll();
+		}
 	}, 6000);
 }
 
