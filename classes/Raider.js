@@ -246,7 +246,7 @@ Raider.prototype.canPerformTask = function (task, ignoreAutomation, ignoreConten
 
 	// if the input task is a building site and we don't have a tool store that we can path to or don't have any of the required resources, return false
 	if (taskType(task) === "build") {
-		const destinationSite = this.chooseClosestBuilding("tool store");
+		const destinationSite = this.chooseClosestBuilding(BuildingTypeEnum.toolStore);
 		// if there's no path to a tool store to get a resource with which to build, move on to the next high priority task
 		if (destinationSite == null) {
 			return this.canPerformSpaceContains(task, ignoreAutomation, ignoreContents) || this.canPerformTaskDummies(task, ignoreAutomation, ignoreContents);
@@ -321,7 +321,7 @@ Raider.prototype.checkSetTask = function (taskIndex, mustBeHighPriority, calcula
 		}
 		// for building sites, we have to check for a pathable tool store and resources, otherwise we can't do anything
 		if (taskType(tasksAvailable[taskIndex]) === "build") {
-			const destinationSite = this.chooseClosestBuilding("tool store");
+			const destinationSite = this.chooseClosestBuilding(BuildingTypeEnum.toolStore);
 			// if there's no path to a tool store to get a resource with which to build, move on to the next high priority task
 			if (destinationSite == null) {
 				return false;
@@ -345,7 +345,7 @@ Raider.prototype.checkSetTask = function (taskIndex, mustBeHighPriority, calcula
 			if (!this.amExplosivesExpert) {
 				return false;
 			}
-			const destinationSite = this.chooseClosestBuilding("tool store");
+			const destinationSite = this.chooseClosestBuilding(BuildingTypeEnum.toolStore);
 			// if there's no path to a tool store to get a resource with which to build, move on to the next high priority task
 			if (destinationSite == null) {
 				return false;
@@ -365,7 +365,7 @@ Raider.prototype.checkSetTask = function (taskIndex, mustBeHighPriority, calcula
 			// check if the task requires a tool and we can take it
 			const maxTools = 2 + this.upgradeLevel;
 			if (this.tools.length < maxTools && !this.vehicleInhibitsTask("get tool") && (taskType(tasksAvailable[taskIndex]) !== "drill hard" || (this.vehicle !== null && this.vehicle.canDrillHard))) {
-				const destinationSite = pathToClosestBuilding(this, "tool store");
+				const destinationSite = pathToClosestBuilding(this, BuildingTypeEnum.toolStore);
 				// if there's no path to a tool store to get a resource with which to build, move on to the next high priority task
 				if (destinationSite != null) {
 					// set original task so no other takes it
@@ -430,7 +430,7 @@ Raider.prototype.attemptSelectResourceLocation = function () {
 		destinationSite.dedicatedResources[this.holding[0].type]++;
 		this.dedicatingResource = true;
 	} else {
-		destinationSite = this.chooseClosestBuilding("tool store");
+		destinationSite = this.chooseClosestBuilding(BuildingTypeEnum.toolStore);
 		if (destinationSite != null) {
 			this.currentObjective = destinationSite;
 			this.currentTask = this.holding[this.holding.length - 1];
@@ -721,7 +721,7 @@ Raider.prototype.workOnCurrentTask = function () {
 									this.currentObjective.updatePlacedResources(this.holding[0].type);
 								}
 								// because this is copied from the "collect" section and we are in the "build" section this condition is possibly unreachable
-								else if (this.currentObjective.type === "tool store") {
+								else if (this.currentObjective.type === BuildingTypeEnum.toolStore) {
 									RockRaiders.rightPanel.changeResource(this.holding[0].type, 1);
 								}
 								this.dedicatingResource = false;
@@ -776,7 +776,7 @@ Raider.prototype.workOnCurrentTask = function () {
 								this.playDropSound();
 								if (this.currentObjective.type === "building site") {
 									this.currentObjective.updatePlacedResources(this.holding[0].type);
-								} else if (this.currentObjective.type === "tool store") {
+								} else if (this.currentObjective.type === BuildingTypeEnum.toolStore) {
 									RockRaiders.rightPanel.changeResource(this.holding[0].type, 1);
 								}
 								this.dedicatingResource = false;

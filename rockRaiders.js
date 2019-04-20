@@ -511,7 +511,7 @@ function loadLevelData(levelKey) {
 			raiders.push(newRaider);
 		} else if (olObject.type === "Toolstation") {
 			const currentSpace = terrain[Math.floor(parseFloat(olObject.yPos))][Math.floor(parseFloat(olObject.xPos))];
-			currentSpace.setTypeProperties("tool store");
+			currentSpace.setTypeProperties(BuildingTypeEnum.toolStore);
 			currentSpace.headingAngle = (olObject.heading - 90) / 180 * Math.PI;
 			// check if this space was in a wall, but should now be touched
 			checkRevealSpace(currentSpace);
@@ -597,7 +597,7 @@ function taskType(task, raider) { // optional raider flag allows us to determine
 	if (typeof task.space != "undefined" && task instanceof Vehicle) {
 		return "vehicle";
 	}
-	if (typeof task.isBuilding != "undefined" && task.isBuilding === true && task.type === "tool store") {
+	if (typeof task.isBuilding != "undefined" && task.isBuilding === true && task.type === BuildingTypeEnum.toolStore) {
 		return (raider != null && raider.getToolName != null) ? "get tool" : "upgrade";
 	}
 	if (typeof task.walkable != "undefined" && task.walkable === true) {
@@ -620,7 +620,7 @@ function createRaider() {
 RockRaidersGame.prototype.getMaxAmountOfRaiders = function () {
 	let maxAmount = 9;
 	for (let c = 0; c < buildings.length; c++) {
-		if (buildings[c].type === "support station") {
+		if (buildings[c].type === BuildingTypeEnum.supportStation) {
 			maxAmount += 10;
 		}
 	}
@@ -634,7 +634,7 @@ RockRaidersGame.prototype.getMaxAmountOfRaiders = function () {
 function createVehicle(vehicleType) {
 	let toolStore = null;
 	for (let i = 0; i < buildings.length; i++) {
-		if (buildings[i].type === "tool store") {
+		if (buildings[i].type === BuildingTypeEnum.toolStore) {
 			toolStore = buildings[i];
 			break;
 		}
@@ -1173,7 +1173,7 @@ function upgradeRaider() {
 			}
 			// raiders are the only valid selection type for now
 			if (selection[i].currentTask == null && selection[i].holding.length === 0) {
-				const newPath = pathToClosestBuilding(selection[i], "tool store");
+				const newPath = pathToClosestBuilding(selection[i], BuildingTypeEnum.toolStore);
 				if (newPath == null) {
 					// no toolstore found or unable to path to any toolstores from this raider
 					continue;
@@ -1203,7 +1203,7 @@ function getTool(toolName) {
 			}
 			// raiders are the only valid selection type for now
 			if (selection[i].currentTask == null && selection[i].holding.length === 0) {
-				const newPath = pathToClosestBuilding(selection[i], "tool store");
+				const newPath = pathToClosestBuilding(selection[i], BuildingTypeEnum.toolStore);
 				if (newPath == null) {
 					continue;
 				}
@@ -1654,39 +1654,39 @@ function exitVehicle() {
 function buildRequirementsMet(buildingType) {
 	let buildingRequirements = [];
 	// buildings TODO read this from config
-	if (buildingType === "teleport pad") {
-		buildingRequirements = ["tool store"];
-	} else if (buildingType === "docks") {
-		buildingRequirements = ["tool store", "teleport pad"];
-	} else if (buildingType === "power station") {
-		buildingRequirements = ["tool store", "teleport pad"];
-	} else if (buildingType === "ore refinery") {
-		buildingRequirements = ["tool store", "teleport pad", "power station"];
-	} else if (buildingType === "geological center") {
-		buildingRequirements = ["tool store", "teleport pad", "power station"];
-	} else if (buildingType === "mining laser") {
-		buildingRequirements = ["tool store", "teleport pad", "power station"];
-	} else if (buildingType === "upgrade station") {
-		buildingRequirements = ["tool store", "teleport pad", "power station"];
-	} else if (buildingType === "support station") {
-		buildingRequirements = ["tool store", "teleport pad", "power station"];
-	} else if (buildingType === "super teleport") {
-		buildingRequirements = ["tool store", "teleport pad", "power station", "support station"];
+	if (buildingType === BuildingTypeEnum.teleportPad) {
+		buildingRequirements = [BuildingTypeEnum.toolStore];
+	} else if (buildingType === BuildingTypeEnum.docks) {
+		buildingRequirements = [BuildingTypeEnum.toolStore, BuildingTypeEnum.teleportPad];
+	} else if (buildingType === BuildingTypeEnum.powerStation) {
+		buildingRequirements = [BuildingTypeEnum.toolStore, BuildingTypeEnum.teleportPad];
+	} else if (buildingType === BuildingTypeEnum.oreRefinery) {
+		buildingRequirements = [BuildingTypeEnum.toolStore, BuildingTypeEnum.teleportPad, BuildingTypeEnum.powerStation];
+	} else if (buildingType === BuildingTypeEnum.geologicalCenter) {
+		buildingRequirements = [BuildingTypeEnum.toolStore, BuildingTypeEnum.teleportPad, BuildingTypeEnum.powerStation];
+	} else if (buildingType === BuildingTypeEnum.miningLaser) {
+		buildingRequirements = [BuildingTypeEnum.toolStore, BuildingTypeEnum.teleportPad, BuildingTypeEnum.powerStation];
+	} else if (buildingType === BuildingTypeEnum.upgradeStation) {
+		buildingRequirements = [BuildingTypeEnum.toolStore, BuildingTypeEnum.teleportPad, BuildingTypeEnum.powerStation];
+	} else if (buildingType === BuildingTypeEnum.supportStation) {
+		buildingRequirements = [BuildingTypeEnum.toolStore, BuildingTypeEnum.teleportPad, BuildingTypeEnum.powerStation];
+	} else if (buildingType === BuildingTypeEnum.superTeleport) {
+		buildingRequirements = [BuildingTypeEnum.toolStore, BuildingTypeEnum.teleportPad, BuildingTypeEnum.powerStation, BuildingTypeEnum.supportStation];
 	}
 
 	// vehicles TODO read this from config
 	else if (buildingType === "hover scout") {
-		buildingRequirements = ["support station"];
+		buildingRequirements = [BuildingTypeEnum.supportStation];
 	} else if (buildingType === "small digger") {
-		buildingRequirements = ["support station"];
+		buildingRequirements = [BuildingTypeEnum.supportStation];
 	} else if (buildingType === "small transport truck") {
-		buildingRequirements = ["support station"];
+		buildingRequirements = [BuildingTypeEnum.supportStation];
 	} else if (buildingType === "small catamaran") {
-		buildingRequirements = ["docks", "support station"];
+		buildingRequirements = [BuildingTypeEnum.docks, BuildingTypeEnum.supportStation];
 	} else if (buildingType === "small mwp") {
-		buildingRequirements = ["teleport pad:2", "support station"];
+		buildingRequirements = ["teleport pad:2", BuildingTypeEnum.supportStation];
 	} else if (buildingType === "small heli") {
-		buildingRequirements = ["teleport pad:2", "support station"];
+		buildingRequirements = ["teleport pad:2", BuildingTypeEnum.supportStation];
 	}
 
 	for (let i = 0; i < buildingRequirements.length; ++i) {
@@ -1734,16 +1734,16 @@ RockRaidersGame.prototype.createGUIElements = function () {
 	this.mainIconPanel.updateBackgroundImage();
 
 	this.buildIconPanel = new IconButtonPanel(changeIconPanel);
-	this.buildIconPanel.addButton("Interface/Icons", "ToolStation.bmp", startBuildingPlacer, ["tool store"], buildRequirementsMet, ["tool store"]);
-	this.buildIconPanel.addButton("Interface/Icons", "SMteleport.bmp", startBuildingPlacer, ["teleport pad"], buildRequirementsMet, ["teleport pad"]);
-	this.buildIconPanel.addButton("Interface/Icons", "dock.bmp", startBuildingPlacer, ["docks"], buildRequirementsMet, ["docks"]);
-	this.buildIconPanel.addButton("Interface/Icons", "PowerStation.bmp", startBuildingPlacer, ["power station"], buildRequirementsMet, ["power station"]);
-	this.buildIconPanel.addButton("Interface/Icons", "barracks.bmp", startBuildingPlacer, ["support station"], buildRequirementsMet, ["support station"]);
-	this.buildIconPanel.addButton("Interface/Icons", "Upgrade.bmp", startBuildingPlacer, ["upgrade station"], buildRequirementsMet, ["upgrade station"]);
-	this.buildIconPanel.addButton("Interface/Icons", "Geo.bmp", startBuildingPlacer, ["geological center"], buildRequirementsMet, ["geological center"]);
-	this.buildIconPanel.addButton("Interface/Icons", "Orerefinery.bmp", startBuildingPlacer, ["ore refinery"], buildRequirementsMet, ["ore refinery"]);
-	this.buildIconPanel.addButton("Interface/Icons", "Gunstation.bmp", startBuildingPlacer, ["mining laser"], buildRequirementsMet, ["mining laser"]);
-	this.buildIconPanel.addButton("Interface/Icons", "LargeTeleporter.bmp", startBuildingPlacer, ["super teleport"], buildRequirementsMet, ["super teleport"]);
+	this.buildIconPanel.addButton("Interface/Icons", "ToolStation.bmp", startBuildingPlacer, [BuildingTypeEnum.toolStore], buildRequirementsMet, [BuildingTypeEnum.toolStore]);
+	this.buildIconPanel.addButton("Interface/Icons", "SMteleport.bmp", startBuildingPlacer, [BuildingTypeEnum.teleportPad], buildRequirementsMet, [BuildingTypeEnum.teleportPad]);
+	this.buildIconPanel.addButton("Interface/Icons", "dock.bmp", startBuildingPlacer, [BuildingTypeEnum.docks], buildRequirementsMet, [BuildingTypeEnum.docks]);
+	this.buildIconPanel.addButton("Interface/Icons", "PowerStation.bmp", startBuildingPlacer, [BuildingTypeEnum.powerStation], buildRequirementsMet, [BuildingTypeEnum.powerStation]);
+	this.buildIconPanel.addButton("Interface/Icons", "barracks.bmp", startBuildingPlacer, [BuildingTypeEnum.supportStation], buildRequirementsMet, [BuildingTypeEnum.supportStation]);
+	this.buildIconPanel.addButton("Interface/Icons", "Upgrade.bmp", startBuildingPlacer, [BuildingTypeEnum.upgradeStation], buildRequirementsMet, [BuildingTypeEnum.upgradeStation]);
+	this.buildIconPanel.addButton("Interface/Icons", "Geo.bmp", startBuildingPlacer, [BuildingTypeEnum.geologicalCenter], buildRequirementsMet, [BuildingTypeEnum.geologicalCenter]);
+	this.buildIconPanel.addButton("Interface/Icons", "Orerefinery.bmp", startBuildingPlacer, [BuildingTypeEnum.oreRefinery], buildRequirementsMet, [BuildingTypeEnum.oreRefinery]);
+	this.buildIconPanel.addButton("Interface/Icons", "Gunstation.bmp", startBuildingPlacer, [BuildingTypeEnum.miningLaser], buildRequirementsMet, [BuildingTypeEnum.miningLaser]);
+	this.buildIconPanel.addButton("Interface/Icons", "LargeTeleporter.bmp", startBuildingPlacer, [BuildingTypeEnum.superTeleport], buildRequirementsMet, [BuildingTypeEnum.superTeleport]);
 	this.buildIconPanel.updateBackgroundImage();
 
 	this.smallVehicleIconPanel = new IconButtonPanel(changeIconPanel);
@@ -2416,8 +2416,8 @@ function checkSelectionMenu() {
 		changeIconPanel(RockRaiders.powerPathIconPanel);
 	} else if (["rubble 1", "rubble 2", "rubble 3", "rubble 4"].includes(selectionType)) {
 		changeIconPanel(RockRaiders.rubbleIconPanel);
-	} else if (["tool store", "teleport pad", "power station", "docks", "geological center", "support station",
-		"super teleport", "mining laser", "upgrade station", "ore refinery"].includes(selectionType)) {
+	} else if ([BuildingTypeEnum.toolStore, BuildingTypeEnum.teleportPad, BuildingTypeEnum.powerStation, BuildingTypeEnum.docks, BuildingTypeEnum.geologicalCenter, BuildingTypeEnum.supportStation,
+		BuildingTypeEnum.superTeleport, BuildingTypeEnum.miningLaser, BuildingTypeEnum.upgradeStation, BuildingTypeEnum.oreRefinery].includes(selectionType)) {
 		changeIconPanel(RockRaiders.buildingIconPanel);
 	} else if (selectionType === "building site") {
 		changeIconPanel(RockRaiders.buildingSiteIconPanel);

@@ -127,22 +127,22 @@ function setBuildingsUpgradeLevel(typeName, level) {
 
 //noinspection JSUnusedGlobalSymbols
 NerpRunner.prototype.setToolStoreLevel = function (level) {
-	setBuildingsUpgradeLevel("tool store", level);
+	setBuildingsUpgradeLevel(BuildingTypeEnum.toolStore, level);
 };
 
 //noinspection JSUnusedGlobalSymbols
 NerpRunner.prototype.setTeleportPadLevel = function (level) {
-	setBuildingsUpgradeLevel("teleport pad", level);
+	setBuildingsUpgradeLevel(BuildingTypeEnum.teleportPad, level);
 };
 
 //noinspection JSUnusedGlobalSymbols
 NerpRunner.prototype.setPowerStationLevel = function (level) {
-	setBuildingsUpgradeLevel("power station", level);
+	setBuildingsUpgradeLevel(BuildingTypeEnum.powerStation, level);
 };
 
 //noinspection JSUnusedGlobalSymbols
 NerpRunner.prototype.setBarracksLevel = function (level) {
-	setBuildingsUpgradeLevel("support station", level);
+	setBuildingsUpgradeLevel(BuildingTypeEnum.supportStation, level);
 };
 
 //noinspection JSUnusedGlobalSymbols
@@ -151,7 +151,7 @@ NerpRunner.prototype.setBarracksLevel = function (level) {
  * @return {number}
  */
 NerpRunner.prototype.getToolStoresBuilt = function () {
-	return buildings.reduce((counter, b) => b.touched && b.type === "tool store" ? ++counter : counter, 0);
+	return buildings.reduce((counter, b) => b.touched && b.type === BuildingTypeEnum.toolStore ? ++counter : counter, 0);
 };
 
 //noinspection JSUnusedGlobalSymbols
@@ -244,12 +244,12 @@ NerpRunner.prototype.disallowAll = function () {
 
 //noinspection JSUnusedGlobalSymbols
 NerpRunner.prototype.getPoweredPowerStationsBuilt = function () {
-	return buildings.filter(b => b.touched && b.type === "power station").length; // FIXME check if station is actually powered
+	return buildings.filter(b => b.touched && b.type === BuildingTypeEnum.powerStation).length; // FIXME check if station is actually powered
 };
 
 //noinspection JSUnusedGlobalSymbols
 NerpRunner.prototype.getPoweredBarracksBuilt = function () {
-	return buildings.filter(b => b.touched && b.type === "support station").length; // FIXME check if station is actually powered
+	return buildings.filter(b => b.touched && b.type === BuildingTypeEnum.supportStation).length; // FIXME check if station is actually powered
 };
 
 //noinspection JSUnusedGlobalSymbols
