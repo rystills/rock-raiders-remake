@@ -256,7 +256,7 @@ Space.prototype.sweep = function () {
 	}
 };
 
-Space.prototype.setRockImage = function (matIndex) {
+Space.prototype.getWalls = function () {
 	const walls = [[false, false, false], [false, false, false], [false, false, false]];
 	let wallsCount = 0;
 	for (let y = -1; y <= 1; y++) {
@@ -268,6 +268,23 @@ Space.prototype.setRockImage = function (matIndex) {
 			}
 		}
 	}
+	return {walls, wallsCount};
+};
+
+Space.prototype.updateWallAngle = function (walls) {
+	if (!walls[1][0]) { // top missing
+		this.drawAngle = Math.PI;
+	} else if (!walls[0][1]) { // left missing
+		this.drawAngle = 0.5 * Math.PI;
+	} else if (!walls[2][1]) { // right missing
+		this.drawAngle = -0.5 * Math.PI;
+	} else {
+		this.drawAngle = 0;
+	}
+};
+
+Space.prototype.setRockImage = function (matIndex) {
+	const {walls, wallsCount} = this.getWalls();
 	this.shapeIndex = 0;
 	if (!walls[0][1] && !walls[0][2] && !walls[1][2]) {
 		this.drawAngle = 0.5 * Math.PI; // 0 = lower right, 0.5 = lower left, ...
@@ -302,16 +319,8 @@ Space.prototype.setRockImage = function (matIndex) {
 				this.drawAngle = 0;
 			}
 		}
-	} else { // even part
-		if (!walls[1][0]) { // top missing
-			this.drawAngle = Math.PI;
-		} else if (!walls[0][1]) { // left missing
-			this.drawAngle = 0.5 * Math.PI;
-		} else if (!walls[2][1]) { // right missing
-			this.drawAngle = -0.5 * Math.PI;
-		} else {
-			this.drawAngle = 0;
-		}
+	} else { // plain wall
+		this.updateWallAngle(walls);
 	}
 	this.image = "World/WorldTextures/" + RockRaiders.themeName + "Split/" + RockRaiders.themeName + this.shapeIndex.toString() + matIndex.toString() + ".bmp";
 };
@@ -472,6 +481,7 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 		this.drillable = true;
 		this.isWall = true;
 		this.drillSpeedModifier = .2;
+		this.updateWallAngle(this.getWalls().walls)
 	} else if (type === "water") {
 		this.image = "World/WorldTextures/" + RockRaiders.themeName + "Split/" + RockRaiders.themeName + "45.bmp";
 	} else if (type === "energy crystal seam") {
@@ -479,10 +489,12 @@ Space.prototype.setTypeProperties = function (type, doNotChangeImage, rubbleCont
 		this.drillable = true;
 		this.isWall = true;
 		this.drillSpeedModifier = .2;
+		this.updateWallAngle(this.getWalls().walls)
 	} else if (type === "recharge seam") {
 		this.image = "World/WorldTextures/" + RockRaiders.themeName + "Split/" + RockRaiders.themeName + "67.bmp";
 		this.isWall = true;
 		this.selectable = false;
+		this.updateWallAngle(this.getWalls().walls)
 	} else if (type.slice(0, 6) === "rubble") {
 		if (type === "rubble 1") {
 			this.image = "World/WorldTextures/" + RockRaiders.themeName + "Split/" + RockRaiders.themeName + "10.BMP";
