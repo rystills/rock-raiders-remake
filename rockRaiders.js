@@ -1757,11 +1757,11 @@ RockRaidersGame.prototype.createGUIElements = function () {
 	this.smallVehicleIconPanel.updateBackgroundImage();
 
 	this.largeVehicleIconPanel = new IconButtonPanel(changeIconPanel);
-	this.largeVehicleIconPanel.addButton("Interface/Icons", "Bulldozer.bmp");
-	this.largeVehicleIconPanel.addButton("Interface/Icons", "WalkerDigger.bmp");
-	this.largeVehicleIconPanel.addButton("Interface/Icons", "LargeMWP.bmp");
-	this.largeVehicleIconPanel.addButton("Interface/Icons", "largeDigger.bmp");
-	this.largeVehicleIconPanel.addButton("Interface/Icons", "LargeCatamaran.bmp");
+	this.largeVehicleIconPanel.addButton("Interface/Icons", "Bulldozer.bmp", null, null, () => { return false; });
+	this.largeVehicleIconPanel.addButton("Interface/Icons", "WalkerDigger.bmp", null, null, () => { return false; });
+	this.largeVehicleIconPanel.addButton("Interface/Icons", "LargeMWP.bmp", null, null, () => { return false; });
+	this.largeVehicleIconPanel.addButton("Interface/Icons", "largeDigger.bmp", null, null, () => { return false; });
+	this.largeVehicleIconPanel.addButton("Interface/Icons", "LargeCatamaran.bmp", null, null, () => { return false; });
 	this.largeVehicleIconPanel.updateBackgroundImage();
 
 	// raider selected buttons
